@@ -97,13 +97,13 @@
                 </button>
             </div>
             <div class="modal-body">
-                <p>Facility Name: <b>{{$result->facility_name}}</b> MFL Code: <b>{{$result->code}}</b></p>
+              <!--  <p>Facility Name: <b>{{$result->facility_name}}</b> MFL Code: <b>{{$result->code}}</b></p> -->
             </div>
             <div class="modal-footer">
                 <form role="form" method="post" action="{{route('approve-facility')}}">
                     {{ csrf_field() }}
 
-                    <input type="text" name="mfl_code" id="mfl_code">
+                    <input type="hidden" name="mflcode" id="mflcode">
                     <button type="submit" class="btn btn-primary">Yes, Approve it!</button>
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
 
@@ -181,7 +181,7 @@
 <script src="{{asset('assets/js/vendor/datatables.min.js')}}"></script>
 <script type="text/javascript">
     function approvefacility(result) {
-        $('#mfl_code').val(result.code);
+        $('#mflcode').val(result.code);
     }
     function editfacility(result) {
         $('#code').val(result.code);
