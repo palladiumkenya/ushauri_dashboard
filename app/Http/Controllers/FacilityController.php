@@ -196,8 +196,8 @@ class FacilityController extends Controller
         try {
         $facility = PartnerFacility::where('id', $request->id)
         ->update([
-            'avg_clients' =>$request->avg_clients,
-            'partner_id' =>$request->partner,
+            'avg_clients' =>$request->average_clients,
+            'partner_id' =>$request->partnername,
         ]);
         if ($facility) {
             Session::flash('statuscode', 'success');
