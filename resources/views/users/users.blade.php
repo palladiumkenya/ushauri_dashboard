@@ -158,6 +158,11 @@
                                         <label for="rolename">Role Name</label>
                                         <select class="form-control" data-width="100%" id="rolename" name="rolename">
                                             <option value="">Please select </option>
+                                            @if (count($roles) > 0)
+                                            @foreach($roles as $role)
+                                            <option value="{{$role->id }}" {{ $role->id == old('rolename',$user->role_id) ? 'selected' : ''}}>{{ ucwords($role->name) }}</option>
+                                            @endforeach
+                                            @endif
 
                                         </select>
                                     </div>
