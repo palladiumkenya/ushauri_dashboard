@@ -96,6 +96,7 @@ class BulkUploadController extends Controller
                 $smsenable = "Yes";
                 $language = 2;
 
+
                 $client = new Client;
 
                 $client->f_name = $first_name;
@@ -125,10 +126,16 @@ class BulkUploadController extends Controller
 
                 $existing  = Client::where('clinic_number', $clinic_number)->first();
 
+                // function RemoveSpecialChar($clinic_number)
+                // {
+                //    $res = preg_replace('/[@\-\;\" "]+/', '', $clinic_number);
+                //    return $res;
+                // }
+
                 if($existing){
                     echo ('Client' . $clinic_number  . ' already exists in the system <br>');
 
-                }elseif($clinic_number.length < 10 || $clinic_number.length > 10){
+                }elseif(strlen($clinic_number) < 10 || strlen($clinic_number) > 10){
                     echo ('Client' . $clinic_number  . ' has less or more than 10 digit ccc number <br>');
                 }else{
 
