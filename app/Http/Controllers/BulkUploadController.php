@@ -152,6 +152,104 @@ class BulkUploadController extends Controller
         echo  "Done";
     }
 
+    public function importSecondClients(Request $request){
+
+        $file = request()->file('file');
+
+        if (!empty($file)) {
+            $receivedArr = $this->csvToArray($file);
+            for ($i = 0; $i < count($receivedArr); $i++) {
+
+                $dob_value = trim(strtolower($receivedArr[$i]['dob']));
+
+                $dob = Carbon::Parse($dob_value)->format('Y-m-d');
+
+                $art_value = trim(strtolower($receivedArr[$i]['art_date']));
+
+                $art_start_date = Carbon::Parse($art_value)->format('Y-m-d');
+
+                $enrollment_value = trim(strtolower($receivedArr[$i]['enrollment_date']));
+
+                $enrollment_date = Carbon::Parse($enrollment_value)->format('Y-m-d');
+
+                $first_name = trim($receivedArr[$i]['f_name']);
+                $middle_name = trim($receivedArr[$i]['m_name']);
+                $last_name = trim($receivedArr[$i]['l_name']);
+                $clinic_number = trim($receivedArr[$i]['clinic_number']);
+                $phone_number = trim($receivedArr[$i]['phone_no']);
+                $facility_id = trim($receivedArr[$i]['mfl_code']);
+                $mfl_code = trim($receivedArr[$i]['mfl_code']);
+                $partner_id = trim($receivedArr[$i]['partner_id']);
+                $group_id = trim($receivedArr[$i]['group_id']);
+                $gender = trim($receivedArr[$i]['gender']);
+                $marital = trim($receivedArr[$i]['marital']);
+                $status = "Active";
+                $client_status = trim($receivedArr[$i]['client_status']);
+                $clinic_id = trim($receivedArr[$i]['clinic_id']);
+                $text_frequency = 168;
+                $text_time = 7;
+                $wellness = "Yes";
+                $motivational = "Yes";
+                $smsenable = "Yes";
+                $language = trim($receivedArr[$i]['language_id']);;
+
+
+                $client = new Client;
+
+                $client->f_name = $first_name;
+                $client->m_name = $middle_name;
+                $client->l_name = $last_name;
+                $client->clinic_number = $clinic_number;
+                $client->phone_no = $phone_number;
+                $client->group_id = $group_id;
+                $client->language_id = $language;
+                $client->facility_id = $facility_id;
+                $client->mfl_code = $mfl_code;
+                $client->gender = $gender;
+                $client->marital = $marital;
+                $client->dob = $dob;
+                $client->art_date = $art_start_date;
+                $client->enrollment_date = $enrollment_date;
+                $client->partner_id = $partner_id;
+                $client->status = $status;
+                $client->client_status = $client_status;
+                $client->clinic_id = $clinic_id;
+                $client->txt_frequency = $text_frequency;
+                $client->txt_time = $text_time;
+                $client->wellness_enable = $wellness;
+                $client->motivational_enable = $motivational;
+                $client->created_by =  Auth::user()->id;
+                $client->updated_by = Auth::user()->id;
+
+                $existing  = Client::where('clinic_number', $clinic_number)->first();
+
+                // function RemoveSpecialChar($clinic_number)
+                // {
+                //    $res = preg_replace('/[@\-\;\" "]+/', '', $clinic_number);
+                //    return $res;
+                // }
+
+                if($existing){
+                    echo ('Client' . $clinic_number  . ' already exists in the system <br>');
+
+                }elseif(strlen($clinic_number) < 10 || strlen($clinic_number) > 10){
+                    echo ('Client' . $clinic_number  . ' has less or more than 10 digit ccc number <br>');
+                }else{
+
+                    if ($client->save()) {
+                        echo ('Insert Client Record successfully for client.' . $clinic_number. '<br>');
+                    }else{
+                        echo ('Could not insert record for client.' . $clinic_number. '<br>');
+                    }
+                }
+
+
+            }
+        }
+        echo  "Done";
+    }
+
+
 
     function csvToArray($filename = '', $delimiter = ',')
     {

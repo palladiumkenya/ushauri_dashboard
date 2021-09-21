@@ -107,6 +107,20 @@
                                 </a>
                                 </li>
                                 @endif
+                                @if (Auth::user()->access_level == 'County')
+                                <li class="nav-item ">
+                                <a class="{{ Route::currentRouteName()=='Reports-dashboard' ? 'open' : '' }}" href="{{route('Reports-dashboard')}}">
+                                    <span class=" text-muted">Summary</span>
+                                </a>
+                                </li>
+                                @endif
+                                @if (Auth::user()->access_level == 'Sub County')
+                                <li class="nav-item ">
+                                <a class="{{ Route::currentRouteName()=='Reports-dashboard' ? 'open' : '' }}" href="{{route('Reports-dashboard')}}">
+                                    <span class=" text-muted">Summary</span>
+                                </a>
+                                </li>
+                                @endif
 
                 </li>
 
@@ -151,7 +165,7 @@
                         </a>
                 </li>
                 @endif
-                @if (Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Partner' || Auth::user()->access_level == 'Donor')
+                @if (Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Partner' || Auth::user()->access_level == 'Donor' || Auth::user()->access_level == 'County' || Auth::user()->access_level == 'Sub County')
 
                 <li class="nav-item">
                 <a class="{{ Route::currentRouteName()=='Reports-clients_dashboard' ? 'open' : '' }}" href="{{route('Reports-clients_dashboard')}}">
@@ -367,6 +381,25 @@
                     <span class="item-name">Facilities</span>
                 </a>
                 </li>
+                <li class="nav-item">
+                 <a class="" href={{route('admin-users')}}>
+                     <span class="item-name">Users</span>
+                 </a>
+                </li>
+                <li class="nav-item">
+                <a class="" href="{{route('broadcast')}}">
+                    <span class="item-name">Broadcast</span>
+                 </a>
+                </li>
+                @endif
+
+                @if (Auth::user()->access_level == 'County' || Auth::user()->access_level == 'Sub County')
+                <li class="nav-item">
+                 <a class="" href="{{route('admin-partners')}}">
+                    <span class="item-name">Partner</span>
+                 </a>
+                </li>
+
                 <li class="nav-item">
                  <a class="" href={{route('admin-users')}}>
                      <span class="item-name">Users</span>
