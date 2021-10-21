@@ -6,15 +6,15 @@ use Illuminate\Support\Facades\Log;
 
 function send_sms($to, $message)
 {
-    $username = "mhealthuser";
-    $apiKey = "1f6943f6c8f0d5d6b0dd54cd940935bdec8f7454c4e7863672048dae496ae355";
+    $username = "Ushauri_KE";
+    $apiKey = "972bdb6f53893725b09eaa3581a264ebf77b0e816ef5e9cb9f29e0c7738e41c1";
     $AT       = new AfricasTalking($username, $apiKey);
 
     // Get one of the services
     $sms      = $AT->sms();
     // Use the service
     $send   = $sms->send([
-                    'from' => '40146',
+                    'from' => '40149',
                     'to'      => $to,
                     'message' => $message
                 ]);
