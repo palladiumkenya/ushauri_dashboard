@@ -511,11 +511,13 @@
                                 <span class="item-name">Consented Reports</span>
                             </a>
                         </li>
+                        @if (Auth::user()->access_level == 'Admin')
                         <li class="item-name">
                             <a href="{{route('report-today_appointments')}}">
                                 <span class="item-name">Todays Appointment</span>
                             </a>
                         </li>
+                        @endif
                         <li class="item-name">
                             <a href="{{route('monthly-appointment-summary')}}">
                                 <span class="item-name">Monthly Appointment</span>

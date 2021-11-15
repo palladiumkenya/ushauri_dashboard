@@ -129,6 +129,7 @@ class ReportController extends Controller
 
         return view('reports.today_appointment', compact('all_today_appointments', 'all_partners'));
     }
+    
     public function consented_report()
     {
         $all_partners = Partner::where('status', '=', 'Active')
@@ -207,15 +208,36 @@ class ReportController extends Controller
                 ->get();
         }
 
+        if (Auth::user()->access_level == 'Partner') {
+            $outcome_report = OutcomeReport::select(
+                'UPN',
+                'Age',
+                'Facility',
+                'Gender',
+                'Sub_County',
+                'File_Number',
+                'Appointment_Date',
+                'Date_Came',
+                'Tracer',
+                'Days_Defaulted',
+                'Tracing_Date',
+                'Outcome',
+                'Final_Outcome',
+                'Other_Outcome'
+            )
+                ->where('partner_id', Auth::user()->partner_id)
+                ->get();
+        }
+
 
         return view('reports.outcome', compact('outcome_report', 'all_partners'));
     }
 
     public function messages_extract_report()
     {
-        $all_partners = Partner::where('status', '=', 'Active')
-            ->pluck('name', 'id');
         if (Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Donor') {
+            $all_partners = Partner::where('status', '=', 'Active')
+            ->pluck('name', 'id');
 
             $message_extract = MessageExtract::select(
                 'clinic_number',
@@ -259,6 +281,7 @@ class ReportController extends Controller
             $all_partners = Partner::where('status', '=', 'Active')
             ->where('id', Auth::user()->partner_id)
             ->pluck('name', 'id');
+
             $message_extract = MessageExtract::select(
                 'clinic_number',
                 'gender',
