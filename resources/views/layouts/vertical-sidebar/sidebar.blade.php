@@ -473,6 +473,14 @@
                         </li>
                         @endif
 
+                        @if (Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Donor')
+                        <li class="item-name">
+                            <a href="{{route('report-today_appointments')}}">
+                                <span class="item-name">Todays Appointment</span>
+                            </a>
+                        </li>
+                        @endif
+
                         <li class="item-name">
                             <a href="{{route('report-lab_investigation')}}">
                                 <span class="item-name">Lab Investigation</span>
@@ -499,6 +507,7 @@
                                 <span class="item-name">Messages Extract</span>
                             </a>
                         </li>
+                        
                         @if (Auth::user()->access_level == 'Admin')
                         <li class="item-name">
                             <a href="{{route('access-report')}}">
@@ -511,13 +520,6 @@
                                 <span class="item-name">Consented Reports</span>
                             </a>
                         </li>
-                        @if (Auth::user()->access_level == 'Admin')
-                        <li class="item-name">
-                            <a href="{{route('report-today_appointments')}}">
-                                <span class="item-name">Todays Appointment</span>
-                            </a>
-                        </li>
-                        @endif
                         <li class="item-name">
                             <a href="{{route('monthly-appointment-summary')}}">
                                 <span class="item-name">Monthly Appointment</span>

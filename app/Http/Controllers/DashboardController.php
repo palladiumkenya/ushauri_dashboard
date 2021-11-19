@@ -24,6 +24,10 @@ use App\Models\FutureApp;
 use Carbon\Carbon;
 use DB;
 use Auth;
+use Illuminate\Support\Facades\Redis;
+use Illuminate\Support\Facades\Cache; // <= call this!
+
+
 
 use Illuminate\Http\Request;
 
@@ -150,31 +154,98 @@ class DashboardController extends Controller
 
     public function main_graph_dashboard()
     {
+
         $data                = [];
+
+        //cache()->forget('');
+        
 
         if (Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Donor') {
 
-        $all_partners = Partner::where('status', '=', 'Active')
-        ->pluck('name', 'id');
+            $all_partners = Partner::where('status', '=', 'Active')
+            ->pluck('name', 'id');
+    
+            $clients_number = Cache::remember('all_clients_number', 21600, function () {
+                return ClientPerformance::whereNotNull('actual_clients')->get();
+            });
 
-        //$all_counties = County::select('id', 'name')->distinct('id')->whereIn('id', $counties_with_data)->get();
+            $all_clients_number = Cache::remember('all_clients_sum', 21600, function () use ($clients_number) {
+                return $clients_number->sum('actual_clients');
+            });
 
+            $target_clients = Cache::remember('all_target_clients', 21600, function () {
+                return ClientPerformance::whereNotNull('target_clients')->get();
+            });
 
-        $all_clients_number = ClientPerformance::whereNotNull('actual_clients')->sum('actual_clients');
-        $pec_client_sum = ClientRegistration::select('total_percentage')->sum('total_percentage');
-        $pec_client_count = ClientRegistration::whereNotNull('total_percentage')->avg('total_percentage');
-        $all_target_clients = ClientPerformance::whereNotNull('target_clients')->sum('target_clients');
-        $all_consented_clients = ClientRegistration::whereNotNull('consented')->sum('consented');
-        $all_future_appointments = FutureApp::join('tbl_partner_facility', 'tbl_future_appointments_query.mfl_code', '=', 'tbl_partner_facility.mfl_code')->count();
-        $number_of_facilities = ClientPerformance::whereNotNull('mfl_code')->count();
+            $all_target_clients = Cache::remember('all_target_sum', 21600, function () use ($target_clients) {
+                return $target_clients->sum('target_clients');
+            });
 
-        $bar_appointments_data = BarAppointment::all();
-        $bar_clients_data = BarClient::all();
+            $facilities = Cache::remember('number_of_facilities', 21600, function () {
+                return ClientPerformance::whereNotNull('mfl_code')->get();
+            });
 
+            $number_of_facilities = Cache::remember('facilities_sum', 21600, function () use ($facilities) {
+                return $facilities->count();
+            });
 
-        $registered_clients_count = ClientRegistration::select('clients')->sum('clients');
-        $consented_clients_count = ClientRegistration::select('consented')->sum('consented');
+            $consented_clients = Cache::remember('all_consented_clientss', 21600, function () {
+                return ClientRegistration::whereNotNull('consented')->get();
+            });
+
+            $all_consented_clients = Cache::remember('all_consented_sum', 21600, function () use ($consented_clients) {
+                return $consented_clients->sum('consented');
+            });
+
+            $pec_client_sum_o = Cache::remember('pec_client_sums', 21600, function () {
+                return ClientRegistration::select('total_percentage')->get();
+            });
+
+            $pec_client_sum = Cache::remember('pec_client_s', 21600, function () use ($pec_client_sum_o) {
+                return $pec_client_sum_o->sum('total_percentage');
+            });
+
+            $pec_client_count_o = Cache::remember('pec_client_count', 21600, function () {
+                return ClientRegistration::whereNotNull('total_percentage')->get();
+            });
+
+            $pec_client_count = Cache::remember('pec_client_count_c', 21600, function () use ($pec_client_count_o) {
+                return $pec_client_count_o->avg('total_percentage');
+            });
+
+            $all_future_appointments_o = Cache::remember('all_future_appointmentsss', 21600, function () {
+                return FutureApp::join('tbl_partner_facility', 'tbl_future_appointments_query.mfl_code', '=', 'tbl_partner_facility.mfl_code')->get();
+            });
+
+            $all_future_appointments = Cache::remember('future_appointments', 21600, function () use ($all_future_appointments_o) {
+                return $all_future_appointments_o->count();
+            });
+
+            $bar_appointments_data = Cache::remember('bar_appointments_data', 21600, function () {
+                return BarAppointment::all();
+            });
+
+            $bar_clients_data = Cache::remember('bar_clients_data', 21600, function () {
+                return BarClient::all();
+            });
+
+            $registered_clients_count_o = Cache::remember('registered_clients_count', 21600, function () {
+                return ClientRegistration::select('clients')->get();
+            });
+
+            $registered_clients_count = Cache::remember('registered_clients_count_c', 21600, function () use ($registered_clients_count_o) {
+                return $registered_clients_count_o->sum('clients');
+            });
+
+            $consented_clients_count_o = Cache::remember('consented_clients_count', 21600, function () {
+                return ClientRegistration::select('consented')->get();
+            });
+
+            $consented_clients_count = Cache::remember('consented_clients_count_c', 21600, function () use ($consented_clients_count_o) {
+                return $consented_clients_count_o->sum('consented');
+            });
         }
+
 
         if (Auth::user()->access_level == 'Partner'){
 
@@ -185,36 +256,104 @@ class DashboardController extends Controller
             //$all_counties = County::select('id', 'name')->distinct('id')->whereIn('id', $counties_with_data)->get();
 
 
-            $all_clients_number = ClientPerformance::whereNotNull('actual_clients')
-            ->where('partner_id', Auth::user()->partner_id)
-            ->sum('actual_clients');
-            $pec_client_sum = ClientRegistration::select('total_percentage')
-            ->where('partner_id', Auth::user()->partner_id)
-            ->sum('total_percentage');
-            $pec_client_count = ClientRegistration::whereNotNull('total_percentage')
-            ->where('partner_id', Auth::user()->partner_id)
-            ->avg('total_percentage');
-            $all_target_clients = ClientPerformance::whereNotNull('target_clients')
-            ->where('partner_id', Auth::user()->partner_id)
-            ->sum('target_clients');
-            $all_consented_clients = ClientRegistration::whereNotNull('consented')
-            ->where('partner_id', Auth::user()->partner_id)
-            ->sum('consented');
-            $all_future_appointments = FutureApp::join('tbl_partner_facility', 'tbl_future_appointments_query.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-            ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
-            ->count();
-            $number_of_facilities = ClientPerformance::whereNotNull('mfl_code')
-            ->where('partner_id', Auth::user()->partner_id)
-            ->count();
+            $clients_number = Cache::remember('all_partner_clients_number', 21600, function () {
+                return ClientPerformance::whereNotNull('actual_clients')
+                ->where('partner_id', Auth::user()->partner_id)
+                ->get();
+            });
 
+            $all_clients_number = Cache::remember('all_partner_clients_sum', 21600, function () use ($clients_number) {
+                return $clients_number->sum('actual_clients');
+            });
 
-            $registered_clients_count = ClientRegistration::select('clients')
-            ->where('partner_id', Auth::user()->partner_id)->sum('clients');
-            $consented_clients_count = ClientRegistration::select('consented')
-            ->where('partner_id', Auth::user()->partner_id)->sum('consented');
-            $bar_appointments_data = BarAppointment::all()->where('partner_id', Auth::user()->partner_id);
-            $bar_clients_data = BarClient::all()->where('partner_id', Auth::user()->partner_id);
-            }
+            $pec_client_sum_o = Cache::remember('pec_partner_client_sum', 21600, function () {
+                return ClientRegistration::select('total_percentage')
+                ->where('partner_id', Auth::user()->partner_id)
+                ->get();
+            });
+
+            $pec_client_sum = Cache::remember('pec_partner_client_avg', 21600, function () use ($pec_client_sum_o) {
+                return $pec_client_sum_o->avg('total_percentage');
+            });
+
+            $pec_client_count_o = Cache::remember('pec_client_count', 21600, function () {
+                return ClientRegistration::whereNotNull('total_percentage')
+                ->where('partner_id', Auth::user()->partner_id)
+                ->get();
+            });
+
+            $pec_client_count = Cache::remember('pec_client_count_c', 21600, function () use ($pec_client_count_o) {
+                return $pec_client_count_o->avg('total_percentage');
+            });
+
+            $target_clients = Cache::remember('all_partner_target_clients', 21600, function () {
+                return ClientPerformance::whereNotNull('target_clients')
+                ->where('partner_id', Auth::user()->partner_id)
+                ->get();
+            });
+
+            $all_target_clients = Cache::remember('all_partner_target_clients_sum', 21600, function () use ($target_clients) {
+                return $target_clients->sum('target_clients');
+            });
+
+            $consented_clients = Cache::remember('all_partner_consented_clients', 21600, function () {
+                return ClientRegistration::whereNotNull('consented')
+                ->where('partner_id', Auth::user()->partner_id)
+                ->get();
+            });
+
+            $all_consented_clients = Cache::remember('all_partner_consented_clients_sum', 21600, function () use ($consented_clients) {
+                return $consented_clients->sum('consented');
+            });
+
+            $all_future_appointments_o = Cache::remember('all_partner_future_appointments', 21600, function () {
+                return FutureApp::join('tbl_partner_facility', 'tbl_future_appointments_query.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
+                ->get();
+            });
+
+            $all_future_appointments = Cache::remember('all_partner_future_appointments_count', 21600, function () use ($all_future_appointments_o) {
+                return $all_future_appointments_o->count();
+            });
+
+            $facilities = Cache::remember('partner_number_of_facilities', 21600, function () {
+                return ClientPerformance::whereNotNull('mfl_code')
+                ->where('partner_id', Auth::user()->partner_id)
+                ->get();
+            });
+
+            $number_of_facilities = Cache::remember('partner_number_of_facilities_count', 21600, function () use ($facilities) {
+                return $facilities->count();
+            });
+
+            $registered_clients_count_o = Cache::remember('partner_registered_clients_count', 21600, function () {
+                return ClientRegistration::select('clients')
+                ->where('partner_id', Auth::user()->partner_id)
+                ->get();
+            });
+
+            $registered_clients_count = Cache::remember('partner_registered_clients_count_sum', 21600, function () use ($registered_clients_count_o) {
+                return $registered_clients_count_o->sum('clients');
+            });
+
+            $consented_clients_count_o = Cache::remember('consented_clients_count', 21600, function () {
+                return ClientRegistration::select('consented')
+                ->where('partner_id', Auth::user()->partner_id)
+                ->get();
+            });
+            
+            $consented_clients_count = Cache::remember('partner_consented_clients_sum', 21600, function () use ($consented_clients_count_o) {
+                return $consented_clients_count_o->sum('consented');
+            });
+            
+            $bar_appointments_data = Cache::remember('partner_bar_appointments_data', 21600, function () {
+                return BarAppointment::all()->where('partner_id', Auth::user()->partner_id);
+            });
+            
+            $bar_clients_data = Cache::remember('partner_bar_clients_data', 21600, function () {
+                return BarClient::all()->where('partner_id', Auth::user()->partner_id);
+            });
+        }
 
 
         $data["all_clients_number"]        = $all_clients_number;
@@ -228,8 +367,6 @@ class DashboardController extends Controller
         $data["bar_clients_data"]         = $bar_clients_data;
         $data["registered_clients_count"]         = $registered_clients_count;
         $data["consented_clients_count"]         = $consented_clients_count;
-
-
 
 
         return view('dashboard.dashboardv1', compact(
@@ -268,15 +405,96 @@ class DashboardController extends Controller
         }
 
 
-        $all_clients_number = ClientPerformance::whereNotNull('actual_clients');
-        $pec_client_sum = ClientRegistration::select('total_percentage')->sum('total_percentage');
-        $pec_client_count = ClientRegistration::whereNotNull('total_percentage');
-        $all_target_clients = ClientPerformance::whereNotNull('target_clients');
-        $all_consented_clients = ClientRegistration::whereNotNull('consented');
-        $all_future_appointments = FutureApp::join('tbl_partner_facility', 'tbl_future_appointments_query.mfl_code', '=', 'tbl_partner_facility.mfl_code');
-        $number_of_facilities = ClientPerformance::whereNotNull('mfl_code');
-        $registered_clients_count = ClientRegistration::select('clients');
-        $consented_clients_count = ClientRegistration::select('consented');
+        // $all_clients_number = ClientPerformance::whereNotNull('actual_clients');
+        // $pec_client_sum = ClientRegistration::select('total_percentage')->sum('total_percentage');
+        // $pec_client_count = ClientRegistration::whereNotNull('total_percentage');
+        // $all_target_clients = ClientPerformance::whereNotNull('target_clients');
+        // $all_consented_clients = ClientRegistration::whereNotNull('consented');
+        // $all_future_appointments = FutureApp::join('tbl_partner_facility', 'tbl_future_appointments_query.mfl_code', '=', 'tbl_partner_facility.mfl_code');
+        // $number_of_facilities = ClientPerformance::whereNotNull('mfl_code');
+        // $registered_clients_count = ClientRegistration::select('clients');
+        // $consented_clients_count = ClientRegistration::select('consented');
+
+        if (Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Donor') {
+
+            $all_clients_number = Cache::remember('all_clients_number', 21600, function () {
+                return ClientPerformance::whereNotNull('actual_clients');
+            });
+
+            $pec_client_sum = Cache::remember('pec_client_sums', 21600, function () {
+                return ClientRegistration::select('total_percentage');
+            });
+
+            $pec_client_count = Cache::remember('pec_client_count', 21600, function () {
+                return ClientRegistration::whereNotNull('total_percentage');
+            });
+
+            $all_target_clients = Cache::remember('all_target_clients', 21600, function () {
+                return ClientPerformance::whereNotNull('target_clients');
+            });
+
+            $all_consented_clients  = Cache::remember('all_consented_clientss', 21600, function () {
+                return ClientRegistration::whereNotNull('consented');
+            });
+
+            $all_future_appointments = Cache::remember('all_future_appointmentsss', 21600, function () {
+                return FutureApp::join('tbl_partner_facility', 'tbl_future_appointments_query.mfl_code', '=', 'tbl_partner_facility.mfl_code');
+            });
+
+            $number_of_facilities = Cache::remember('number_of_facilities', 21600, function () {
+                return ClientPerformance::whereNotNull('mfl_code');
+            });
+
+            $registered_clients_count = Cache::remember('registered_clients_count', 21600, function () {
+                return ClientRegistration::select('clients');
+            });
+
+            $consented_clients_count = Cache::remember('consented_clients_count', 21600, function () {
+                return ClientRegistration::select('consented');
+            });
+        
+        }
+
+        if (Auth::user()->access_level == 'Partner') {
+
+            $all_clients_number = Cache::remember('all_partner_clients_number', 21600, function () {
+                return ClientPerformance::whereNotNull('actual_clients');
+            });
+
+            $pec_client_sum = Cache::remember('pec_partner_client_sum', 21600, function () {
+                return ClientRegistration::select('total_percentage');
+            });
+
+            $pec_client_count = Cache::remember('pec_partner_client_count', 21600, function () {
+                return ClientRegistration::whereNotNull('total_percentage');
+            });
+
+            $all_target_clients = Cache::remember('all_partner_target_clients', 21600, function () {
+                return ClientPerformance::whereNotNull('target_clients');
+            });
+
+            $all_consented_clients = Cache::remember('all_partner_consented_clients', 21600, function () {
+                return ClientRegistration::whereNotNull('consented');
+            });
+
+            $all_future_appointments = Cache::remember('all_partner_future_appointments', 21600, function () {
+                return FutureApp::join('tbl_partner_facility', 'tbl_future_appointments_query.mfl_code', '=', 'tbl_partner_facility.mfl_code');
+            });
+
+            $number_of_facilities = Cache::remember('partner_number_of_facilities', 21600, function () {
+                return ClientPerformance::whereNotNull('mfl_code');
+            });
+
+            $registered_clients_count = Cache::remember('partner_registered_clients_count', 21600, function () {
+                return ClientRegistration::select('clients');
+            });
+
+            $consented_clients_count = Cache::remember('partner_consented_clients_count', 21600, function () {
+                return ClientRegistration::select('consented');
+            });
+        
+        }
+        //return [$all_clients_number, $consented_clients_count];
 
 
         if (!empty($selected_partners)) {
@@ -418,21 +636,21 @@ class DashboardController extends Controller
             $clients_count = Client::whereNotNull('clinic_number')
                 ->select(\DB::raw("COUNT(id) as count"))
                 ->where('mfl_code', Auth::user()->facility_id)
-                ->pluck('count');
+                ->pluck('count')->first();
             $consented_count = Client::where('smsenable', '=', 'Yes')
                 ->select(\DB::raw("COUNT(id) as count"))
                 ->where('mfl_code', Auth::user()->facility_id)
-                ->pluck('count');
+                ->pluck('count')->first();
             $appointment_count = Appointments::join('tbl_client', 'tbl_client.id', '=', 'tbl_appointment.client_id')
                 ->whereNotNull('tbl_appointment.id')
                 ->select(\DB::raw("COUNT(tbl_appointment.id) as count"))
                 ->where('tbl_client.mfl_code', Auth::user()->facility_id)
-                ->pluck('count');
+                ->pluck('count')->first();
             $messages_count = Message::join('tbl_client', 'tbl_client.id', '=', 'tbl_clnt_outgoing.clnt_usr_id')
                 ->where('tbl_clnt_outgoing.recepient_type', '=', 'Client')
                 ->select(\DB::raw("COUNT(tbl_clnt_outgoing.id) as count"))
                 ->where('tbl_client.mfl_code', Auth::user()->facility_id)
-                ->pluck('count');
+                ->pluck('count')->first();
 
             // today's appointments
             $today_appointment = TodayAppointment::select('clinic_no', 'file_no', 'client_name', 'client_phone_no', 'appntmnt_date', 'appointment_type')

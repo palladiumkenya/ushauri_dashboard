@@ -16,6 +16,7 @@ use App\Models\Partner;
 use DB;
 use Auth;
 
+
 class ReportController extends Controller
 {
     public function deactivated_clients()
@@ -258,6 +259,10 @@ class ReportController extends Controller
                 ->get();
         }
         if (Auth::user()->access_level == 'Facility') {
+            $all_partners = Partner::where('status', '=', 'Active')
+            ->where('id', Auth::user()->partner_id)
+            ->pluck('name', 'id');
+            
             $message_extract = MessageExtract::select(
                 'clinic_number',
                 'gender',
