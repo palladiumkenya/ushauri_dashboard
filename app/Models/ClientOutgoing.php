@@ -10,4 +10,8 @@ class ClientOutgoing extends Model
     use HasFactory;
 
     public $table = 'tbl_clnt_outgoing';
+    public $timestamps = false;
+    public $incrementing = false;
+
+    protected $fillable = [];
 }

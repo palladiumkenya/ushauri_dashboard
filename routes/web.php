@@ -191,6 +191,10 @@ Route::group(['middleware' => 'auth'], function () {
   //Broadcast routes
   Route::get('/broadcast', ['uses' => 'App\Http\Controllers\BroadcastController@broadcast_form', 'as' => 'broadcast']);
   Route::post('/send-broadcast', ['uses' => 'App\Http\Controllers\BroadcastController@sendSMS', 'as' => 'send-broadcast']);
+
+  // SMS Report routes
+  //Route::get('/sms/analytics', ['uses' => 'App\Http\Controllers\SMSReportController@index', 'as' => 'sms-analytics']);
+  Route::get('/sms/analytics', ['uses' => 'App\Http\Controllers\SMSReportController@success_sms', 'as' => 'sms-analytics']);
 });
 
 

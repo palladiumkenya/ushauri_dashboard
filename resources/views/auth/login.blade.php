@@ -79,7 +79,7 @@
                                 </p>
                             </div>
                             <div class="register-link m-t-15 text-center">
-                                <p>&copy; mHealth Kenya &nbsp;2016 - <?php echo date('Y'); ?> <b> Powered by : <a href="https://mhealthkenya.org/" target="_blank"> mHealth Kenya </a></b> </p>
+                                <p>&copy; Palladium Kenya &nbsp;2016 - <?php echo date('Y'); ?> </p>
                             </div>
                         </div>
                     </div>
