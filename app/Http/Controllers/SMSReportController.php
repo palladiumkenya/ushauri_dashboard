@@ -51,16 +51,43 @@ class SMSReportController extends Controller
             ->where('callback_status', '=', 'Rejected')
             ->where('failure_reason', '=', 'DeliveryFailure')
             ->count();
-        $get_cost = ClientOutgoing::select('cost')
-        ->get();
-        $all_cost = str_replace("KES", "", $get_cost);
 
-        $success_cost = ClientOutgoing::select(DB::raw("SUM(cost) as count"))
+        // cost calculation for all the status
+        $success_cost = ClientOutgoing::select(\DB::raw("SUM(SUBSTRING(cost, 5)) as total_cost"))
             ->where('callback_status', '=', 'Success')
-            ->pluck('count');
+            ->pluck('total_cost');
+        $failed_blacklist_cost = ClientOutgoing::select(\DB::raw("SUM(SUBSTRING(cost, 5)) as total_cost"))
+            ->where('callback_status', '=', 'Failed')
+            ->where('failure_reason', '=', 'UserInBlacklist')
+            ->pluck('total_cost');
+        $failed_inactive_cost = ClientOutgoing::select(\DB::raw("SUM(SUBSTRING(cost, 5)) as total_cost"))
+            ->where('callback_status', '=', 'Failed')
+            ->where('failure_reason', '=', 'UserInactive')
+            ->pluck('total_cost');
+        $failed_deliveryfailure_cost = ClientOutgoing::select(\DB::raw("SUM(SUBSTRING(cost, 5)) as total_cost"))
+            ->where('callback_status', '=', 'Failed')
+            ->where('failure_reason', '=', 'DeliveryFailure')
+            ->pluck('total_cost');
+        $rejected_blacklist_cost = ClientOutgoing::select(\DB::raw("SUM(SUBSTRING(cost, 5)) as total_cost"))
+            ->where('callback_status', '=', 'Rejected')
+            ->where('failure_reason', '=', 'UserInBlacklist')
+            ->pluck('total_cost');
+        $rejected_inactive_cost = ClientOutgoing::select(\DB::raw("SUM(SUBSTRING(cost, 5)) as total_cost"))
+            ->where('callback_status', '=', 'Rejected')
+            ->where('failure_reason', '=', 'UserInactive')
+            ->pluck('total_cost');
+        $rejected_deliveryfailure_cost = ClientOutgoing::select(\DB::raw("SUM(SUBSTRING(cost, 5)) as total_cost"))
+            ->where('callback_status', '=', 'Rejected')
+            ->where('failure_reason', '=', 'DeliveryFailure')
+            ->pluck('total_cost');
 
         $all_partners = Partner::where('status', '=', 'Active')
             ->pluck('name', 'id');
-        return view('sms.sms_report', compact('success', 'all_partners', 'failed_blacklist', 'failed_inactive', 'failed_deliveryfailure', 'rejected_blacklist', 'rejected_inactive', 'rejected_deliveryfailure', 'success_cost'));
+
+        return view('sms.sms_report', compact('success', 'all_partners', 'failed_blacklist', 'failed_inactive', 'failed_deliveryfailure', 'rejected_blacklist', 'rejected_inactive', 'rejected_deliveryfailure',
+        'success_cost', 'failed_blacklist_cost', 'failed_inactive_cost', 'failed_deliveryfailure_cost', 'rejected_blacklist_cost', 'rejected_inactive_cost', 'rejected_deliveryfailure_cost'));
     }
+
+    public function filter_sms()
+    {}
 }

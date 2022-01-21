@@ -245,7 +245,14 @@
         var Rejected_blacklist = <?php echo json_encode($rejected_blacklist) ?>;
         var Rejected_inactive = <?php echo json_encode($rejected_inactive) ?>;
         var Rejected_deliveryfailure = <?php echo json_encode($rejected_deliveryfailure) ?>;
+
         var Success_cost = <?php echo json_encode($success_cost) ?>;
+        var Failed_backlist_cost = <?php echo json_encode($failed_blacklist_cost) ?>;
+        var Failed_inactive_cost = <?php echo json_encode($failed_inactive_cost) ?>;
+        var Failed_delivery_cost = <?php echo json_encode($failed_deliveryfailure_cost) ?>;
+        var Rejected_blacklist_cost = <?php echo json_encode($rejected_blacklist_cost) ?>;
+        var Rejected_inactive_cost = <?php echo json_encode($rejected_inactive_cost) ?>;
+        var Rejected_delivery_cost = <?php echo json_encode($rejected_deliveryfailure_cost) ?>;
         console.log(Success_cost);
 
         Highcharts.chart('container', {
@@ -253,7 +260,7 @@
                 type: 'column'
             },
             title: {
-                text: 'SMS Status Analytics'
+                text: 'SMS Status & Cost Analytics'
             },
             xAxis: {
                 categories: ['Delivered', 'Failed Inactive', 'Failed Blacklist', 'Failed DeliveryFailure', 'Rejected Inactive', 'Rejected Blacklist', 'Rejected DeliveryFailure']
@@ -293,7 +300,7 @@
                 {
                     type: 'spline',
                     name: 'Cost(Ksh)',
-                    data: [Success_cost, 2.67, 3, 6.33, 3.33],
+                    data: [Success_cost, Failed_inactive_cost, Failed_backlist_cost, Failed_delivery_cost, Rejected_inactive_cost, Rejected_blacklist_cost, Rejected_delivery_cost],
                     marker: {
                         lineWidth: 2,
                         lineColor: Highcharts.getOptions().colors[3],
