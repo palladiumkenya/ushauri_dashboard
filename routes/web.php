@@ -195,6 +195,7 @@ Route::group(['middleware' => 'auth'], function () {
   // SMS Report routes
   //Route::get('/sms/analytics', ['uses' => 'App\Http\Controllers\SMSReportController@index', 'as' => 'sms-analytics']);
   Route::get('/sms/analytics', ['uses' => 'App\Http\Controllers\SMSReportController@success_sms', 'as' => 'sms-analytics']);
+  Route::get('/filter_sms', ['uses' => 'App\Http\Controllers\SMSReportController@filter_sms', 'as' => 'filter_sms']);
 });
 
 

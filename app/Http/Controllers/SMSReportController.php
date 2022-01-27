@@ -53,30 +53,30 @@ class SMSReportController extends Controller
             ->count();
 
         // cost calculation for all the status
-        $success_cost = ClientOutgoing::select(\DB::raw("SUM(SUBSTRING(cost, 5)) as total_cost"))
+        $success_cost = ClientOutgoing::select(\DB::raw("ROUND(SUM(SUBSTRING(cost, 5)), 2) as total_cost"))
             ->where('callback_status', '=', 'Success')
             ->pluck('total_cost');
-        $failed_blacklist_cost = ClientOutgoing::select(\DB::raw("SUM(SUBSTRING(cost, 5)) as total_cost"))
+        $failed_blacklist_cost = ClientOutgoing::select(\DB::raw("ROUND(SUM(SUBSTRING(cost, 5)), 2) as total_cost"))
             ->where('callback_status', '=', 'Failed')
             ->where('failure_reason', '=', 'UserInBlacklist')
             ->pluck('total_cost');
-        $failed_inactive_cost = ClientOutgoing::select(\DB::raw("SUM(SUBSTRING(cost, 5)) as total_cost"))
+        $failed_inactive_cost = ClientOutgoing::select(\DB::raw("ROUND(SUM(SUBSTRING(cost, 5)), 2) as total_cost"))
             ->where('callback_status', '=', 'Failed')
             ->where('failure_reason', '=', 'UserInactive')
             ->pluck('total_cost');
-        $failed_deliveryfailure_cost = ClientOutgoing::select(\DB::raw("SUM(SUBSTRING(cost, 5)) as total_cost"))
+        $failed_deliveryfailure_cost = ClientOutgoing::select(\DB::raw("ROUND(SUM(SUBSTRING(cost, 5)), 2) as total_cost"))
             ->where('callback_status', '=', 'Failed')
             ->where('failure_reason', '=', 'DeliveryFailure')
             ->pluck('total_cost');
-        $rejected_blacklist_cost = ClientOutgoing::select(\DB::raw("SUM(SUBSTRING(cost, 5)) as total_cost"))
+        $rejected_blacklist_cost = ClientOutgoing::select(\DB::raw("ROUND(SUM(SUBSTRING(cost, 5)), 2) as total_cost"))
             ->where('callback_status', '=', 'Rejected')
             ->where('failure_reason', '=', 'UserInBlacklist')
             ->pluck('total_cost');
-        $rejected_inactive_cost = ClientOutgoing::select(\DB::raw("SUM(SUBSTRING(cost, 5)) as total_cost"))
+        $rejected_inactive_cost = ClientOutgoing::select(\DB::raw("ROUND(SUM(SUBSTRING(cost, 5)), 2) as total_cost"))
             ->where('callback_status', '=', 'Rejected')
             ->where('failure_reason', '=', 'UserInactive')
             ->pluck('total_cost');
-        $rejected_deliveryfailure_cost = ClientOutgoing::select(\DB::raw("SUM(SUBSTRING(cost, 5)) as total_cost"))
+        $rejected_deliveryfailure_cost = ClientOutgoing::select(\DB::raw("ROUND(SUM(SUBSTRING(cost, 5)), 2) as total_cost"))
             ->where('callback_status', '=', 'Rejected')
             ->where('failure_reason', '=', 'DeliveryFailure')
             ->pluck('total_cost');
@@ -156,42 +156,42 @@ class SMSReportController extends Controller
         // cost calculation for all the status
         $success_cost = ClientOutgoing::join('tbl_client', 'tbl_clnt_outgoing.clnt_usr_id', '=', 'tbl_client.id')
             ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-            ->select(\DB::raw("SUM(SUBSTRING(cost, 5)) as total_cost"))
+            ->select(\DB::raw("ROUND(SUM(SUBSTRING(cost, 5)), 2) as total_cost"))
             ->where('callback_status', '=', 'Success')
             ->pluck('total_cost');
         $failed_blacklist_cost = ClientOutgoing::join('tbl_client', 'tbl_clnt_outgoing.clnt_usr_id', '=', 'tbl_client.id')
             ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-            ->select(\DB::raw("SUM(SUBSTRING(cost, 5)) as total_cost"))
+            ->select(\DB::raw("ROUND(SUM(SUBSTRING(cost, 5)), 2) as total_cost"))
             ->where('callback_status', '=', 'Failed')
             ->where('failure_reason', '=', 'UserInBlacklist')
             ->pluck('total_cost');
         $failed_inactive_cost = ClientOutgoing::join('tbl_client', 'tbl_clnt_outgoing.clnt_usr_id', '=', 'tbl_client.id')
             ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-            ->select(\DB::raw("SUM(SUBSTRING(cost, 5)) as total_cost"))
+            ->select(\DB::raw("ROUND(SUM(SUBSTRING(cost, 5)), 2) as total_cost"))
             ->where('callback_status', '=', 'Failed')
             ->where('failure_reason', '=', 'UserInactive')
             ->pluck('total_cost');
         $failed_deliveryfailure_cost = ClientOutgoing::join('tbl_client', 'tbl_clnt_outgoing.clnt_usr_id', '=', 'tbl_client.id')
             ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-            ->select(\DB::raw("SUM(SUBSTRING(cost, 5)) as total_cost"))
+            ->select(\DB::raw("ROUND(SUM(SUBSTRING(cost, 5)), 2) as total_cost"))
             ->where('callback_status', '=', 'Failed')
             ->where('failure_reason', '=', 'DeliveryFailure')
             ->pluck('total_cost');
         $rejected_blacklist_cost = ClientOutgoing::join('tbl_client', 'tbl_clnt_outgoing.clnt_usr_id', '=', 'tbl_client.id')
             ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-            ->select(\DB::raw("SUM(SUBSTRING(cost, 5)) as total_cost"))
+            ->select(\DB::raw("ROUND(SUM(SUBSTRING(cost, 5)), 2) as total_cost"))
             ->where('callback_status', '=', 'Rejected')
             ->where('failure_reason', '=', 'UserInBlacklist')
             ->pluck('total_cost');
         $rejected_inactive_cost = ClientOutgoing::join('tbl_client', 'tbl_clnt_outgoing.clnt_usr_id', '=', 'tbl_client.id')
             ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-            ->select(\DB::raw("SUM(SUBSTRING(cost, 5)) as total_cost"))
+            ->select(\DB::raw("ROUND(SUM(SUBSTRING(cost, 5)), 2) as total_cost"))
             ->where('callback_status', '=', 'Rejected')
             ->where('failure_reason', '=', 'UserInactive')
             ->pluck('total_cost');
         $rejected_deliveryfailure_cost = ClientOutgoing::join('tbl_client', 'tbl_clnt_outgoing.clnt_usr_id', '=', 'tbl_client.id')
             ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-            ->select(\DB::raw("SUM(SUBSTRING(cost, 5)) as total_cost"))
+            ->select(\DB::raw("ROUND(SUM(SUBSTRING(cost, 5)), 2) as total_cost"))
             ->where('callback_status', '=', 'Rejected')
             ->where('failure_reason', '=', 'DeliveryFailure')
             ->pluck('total_cost');

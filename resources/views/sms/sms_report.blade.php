@@ -82,7 +82,7 @@
         <div class="card mb-4">
             <div class="card-body">
 
-                <div id="container" class="col" style="height: 450px;margin-top:40px;"></div> <br />
+                <div id="sms_analytics" class="col" style="height: 450px;margin-top:40px;"></div> <br />
 
             </div>
         </div>
@@ -229,11 +229,27 @@
                 "subcounties": subcounties,
                 "facilities": facilities
             },
-            url: "{{ route('filter_ildashboard') }}",
+            url: "{{ route('filter_sms') }}",
             success: function(data) {
 
 
-                $("#il_appointments").html(data.il_appointments);
+                Success = parseInt(data.success)
+                Failed_blacklist = parseInt(data.failed_blacklist)
+                Failed_inactive = parseInt(data.failed_inactive)
+                Failed_deliveryfailure = parseInt(data.failed_deliveryfailure)
+                Rejected_blacklist = parseInt(data.rejected_blacklist)
+                Rejected_inactive = parseInt(data.rejected_inactive)
+                Rejected_deliveryfailure = parseInt(data.rejected_deliveryfailure)
+
+                Success_cost = parseInt(data.success_cost)
+                Failed_blacklist_cost = parseInt(data.failed_blacklist_cost)
+                Failed_inactive_cost = parseInt(data.failed_inactive_cost)
+                Failed_deliveryfailure_cost = parseInt(data.failed_deliveryfailure_cost)
+                Rejected_blacklist_cost = parseInt(data.rejected_blacklist_cost)
+                Rejected_inactive_cost = parseInt(data.rejected_inactive_cost)
+                Rejected_deliveryfailure_cost = parseInt(data.rejected_deliveryfailure_cost)
+
+                smsAnalytics.series[0].setData([Success, Failed_blacklist, Failed_inactive, Failed_deliveryfailure, Rejected_blacklist, Rejected_inactive, Rejected_deliveryfailure, Success_cost, Failed_backlist_cost, Failed_inactive_cost, Failed_delivery_cost, Rejected_blacklist_cost, Rejected_inactive_cost, Rejected_delivery_cost]);
 
             }
         });
@@ -256,7 +272,7 @@
     var Rejected_delivery_cost = <?php echo json_encode($rejected_deliveryfailure_cost) ?>;
     console.log(Success_cost);
 
-    Highcharts.chart('container', {
+    var smsAnalytics = Highcharts.chart('sms_analytics', {
         chart: {
             type: 'column'
         },
