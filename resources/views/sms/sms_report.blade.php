@@ -18,7 +18,7 @@
     <form role="form" method="post" action="#" id="dataFilter">
         {{ csrf_field() }}
         <div class="row">
-            <div class="col">
+            <div class="col-sm-3">
                 <div class="form-group">
 
                     <select class="form-control filter_partner  input-rounded input-sm select2" id="partners" name="partner">
@@ -31,7 +31,7 @@
                     </select>
                 </div>
             </div>
-            <div class="col">
+            <div class="col-sm-3">
                 <div class="form-group">
                     <select class="form-control county  input-rounded input-sm select2" id="counties" name="county">
                         <option value="">Please select County:</option>
@@ -41,7 +41,7 @@
                     </select>
                 </div>
             </div>
-            <div class="col">
+            <div class="col-sm-3">
                 <div class="form-group">
                     <span class="filter_sub_county_wait" style="display: none;">Loading , Please Wait ...</span>
                     <select class="form-control subcounty input-rounded input-sm select2" id="subcounties" name="subcounty">
@@ -50,7 +50,7 @@
                     </select>
                 </div>
             </div>
-            <div class="col">
+            <div class="col-sm-3">
                 <div class="form-group">
                     <span class="filter_facility_wait" style="display: none;">Loading , Please Wait ...</span>
 
@@ -61,7 +61,48 @@
                 </div>
             </div>
 
-            <div class="col">
+
+
+            <div class='col-sm-3'>
+                <div class="form-group">
+                    <div class="input-group">
+                        <div class="col-md-4">
+                            <label for="firstName1">From</label>
+                        </div>
+                        <div class="col-md-10">
+                            <input type="date" id="from" class="form-control" data-width="100%" placeholder="YYYY-mm-dd" name="from">
+                        </div>
+                        <div class="input-group-append">
+                            <button class="btn btn-secondary" type="button">
+                                <i class="icon-regular i-Calendar-4"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class='col-sm-3'>
+                <div class="form-group">
+                    <div class="input-group">
+                        <div class="col-md-4">
+                            <label for="firstName1">To</label>
+                        </div>
+                        <div class="col-md-10">
+
+                            <input type="date" id="to" class="form-control" placeholder="YYYY-mm-dd" name="to">
+                        </div>
+                        <div class="input-group-append">
+                            <button class="btn btn-secondary" type="button">
+                                <i class="icon-regular i-Calendar-4"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+            <div class="col-sm-3">
                 <div class="form-group">
 
                     <button class="btn btn-default filter btn-round  btn-small btn-primary  " type="submit" name="filter" id="filter"> <i class="fa fa-filter"></i>
@@ -112,25 +153,6 @@
 <script src="https://code.highcharts.com/modules/accessibility.js"></script>
 
 <script type="text/javascript">
-    $(function() {
-        $('#daterange').daterangepicker({
-            "minYear": 2017,
-            "autoApply": true,
-            ranges: {
-                'Today': [moment(), moment()],
-                'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
-                'Last 7 Days': [moment().subtract(6, 'days'), moment()],
-                'Last 30 Days': [moment().subtract(29, 'days'), moment()],
-                'This Month': [moment().startOf('month'), moment().endOf('month')],
-                'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1,
-                    'month').endOf('month')]
-            },
-            "startDate": "04/10/2017",
-            "endDate": moment().format('MM/DD/YYYY'),
-            "opens": "left"
-        }, function(start, end, label) {});
-    });
-
     $(document).ready(function() {
         $('select[name="partner"]').on('change', function() {
             var partnerID = $(this).val();
@@ -250,6 +272,7 @@
                 Rejected_deliveryfailure_cost = parseInt(data.rejected_deliveryfailure_cost)
 
                 smsAnalytics.series[0].setData([Success, Failed_blacklist, Failed_inactive, Failed_deliveryfailure, Rejected_blacklist, Rejected_inactive, Rejected_deliveryfailure, Success_cost, Failed_backlist_cost, Failed_inactive_cost, Failed_delivery_cost, Rejected_blacklist_cost, Rejected_inactive_cost, Rejected_delivery_cost]);
+                // smsAnalytics.series[1].setData([Success_cost, Failed_backlist_cost, Failed_inactive_cost, Failed_delivery_cost, Rejected_blacklist_cost, Rejected_inactive_cost, Rejected_delivery_cost]);
 
             }
         });
@@ -280,7 +303,7 @@
             text: 'SMS Status & Cost Analytics'
         },
         xAxis: {
-            categories: ['Delivered', 'Failed Inactive', 'Failed Blacklist', 'Failed DeliveryFailure', 'Rejected Inactive', 'Rejected Blacklist', 'Rejected DeliveryFailure']
+            categories: ['Delivered', 'Failed Blacklist', 'Failed Inactive', 'Failed DeliveryFailure', 'Rejected Inactive', 'Rejected Blacklist', 'Rejected DeliveryFailure']
         },
         yAxis: {
             min: 0,
@@ -314,12 +337,12 @@
         },
         series: [{
                 name: 'SMS Count',
-                data: [Success, Failed_inactive, Failed_blacklist, Failed_deliveryfailure, Rejected_inactive, Rejected_blacklist, Rejected_deliveryfailure]
+                data: [Success, Failed_blacklist, Failed_inactive, Failed_deliveryfailure, Rejected_inactive, Rejected_blacklist, Rejected_deliveryfailure]
             },
             {
                 type: 'spline',
                 name: 'Cost(Ksh)',
-                data: [Success_cost, Failed_inactive_cost, Failed_backlist_cost, Failed_delivery_cost, Rejected_inactive_cost, Rejected_blacklist_cost, Rejected_delivery_cost],
+                data: [Success_cost, Failed_backlist_cost, Failed_inactive_cost, Failed_delivery_cost, Rejected_inactive_cost, Rejected_blacklist_cost, Rejected_delivery_cost],
                 marker: {
                     lineWidth: 2,
                     lineColor: Highcharts.getOptions().colors[3],
