@@ -280,6 +280,7 @@
 
     var Success = <?php echo json_encode($success) ?>;
     var Failed_blacklist = <?php echo json_encode($failed_blacklist) ?>;
+    var Failed_absent = <?php echo json_encode($failed_absent) ?>;
     var Failed_inactive = <?php echo json_encode($failed_inactive) ?>;
     var Failed_deliveryfailure = <?php echo json_encode($failed_deliveryfailure) ?>;
     var Rejected_blacklist = <?php echo json_encode($rejected_blacklist) ?>;
@@ -288,6 +289,7 @@
 
     var Success_cost = <?php echo json_encode($success_cost) ?>;
     var Failed_backlist_cost = <?php echo json_encode($failed_blacklist_cost) ?>;
+    var Failed_absent_cost = <?php echo json_encode($failed_absent_cost) ?>;
     var Failed_inactive_cost = <?php echo json_encode($failed_inactive_cost) ?>;
     var Failed_delivery_cost = <?php echo json_encode($failed_deliveryfailure_cost) ?>;
     var Rejected_blacklist_cost = <?php echo json_encode($rejected_blacklist_cost) ?>;
@@ -303,7 +305,7 @@
             text: 'SMS Status & Cost Analytics'
         },
         xAxis: {
-            categories: ['Delivered', 'Failed Blacklist', 'Failed Inactive', 'Failed DeliveryFailure', 'Rejected Inactive', 'Rejected Blacklist', 'Rejected DeliveryFailure']
+            categories: ['Delivered', 'Failed Blacklist', 'Failed AbsentSubscriber', 'Failed DeliveryFailure', 'Failed Inactive', 'Rejected Inactive', 'Rejected Blacklist', 'Rejected DeliveryFailure']
         },
         yAxis: {
             min: 0,
@@ -337,12 +339,12 @@
         },
         series: [{
                 name: 'SMS Count',
-                data: [Success, Failed_blacklist, Failed_inactive, Failed_deliveryfailure, Rejected_inactive, Rejected_blacklist, Rejected_deliveryfailure]
+                data: [Success, Failed_blacklist, Failed_absent, Failed_deliveryfailure, Failed_inactive, Rejected_inactive, Rejected_blacklist, Rejected_deliveryfailure]
             },
             {
                 type: 'spline',
                 name: 'Cost(Ksh)',
-                data: [Success_cost, Failed_backlist_cost, Failed_inactive_cost, Failed_delivery_cost, Rejected_inactive_cost, Rejected_blacklist_cost, Rejected_delivery_cost],
+                data: [Success_cost, Failed_backlist_cost, Failed_absent_cost, Failed_delivery_cost, Failed_inactive_cost, Rejected_inactive_cost, Rejected_blacklist_cost, Rejected_delivery_cost],
                 marker: {
                     lineWidth: 2,
                     lineColor: Highcharts.getOptions().colors[3],

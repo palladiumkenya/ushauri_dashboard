@@ -26,6 +26,10 @@ class SMSReportController extends Controller
             ->where('callback_status', '=', 'Failed')
             ->where('failure_reason', '=', 'UserInBlacklist')
             ->count();
+        $failed_absent = ClientOutgoing::select('*')
+            ->where('callback_status', '=', 'Failed')
+            ->where('failure_reason', '=', 'AbsentSubscriber')
+            ->count();
 
         $failed_inactive = ClientOutgoing::select('*')
             ->where('callback_status', '=', 'Failed')
@@ -60,6 +64,10 @@ class SMSReportController extends Controller
             ->where('callback_status', '=', 'Failed')
             ->where('failure_reason', '=', 'UserInBlacklist')
             ->pluck('total_cost');
+        $failed_absent_cost = ClientOutgoing::select(\DB::raw("ROUND(SUM(SUBSTRING(cost, 5)), 2) as total_cost"))
+            ->where('callback_status', '=', 'Failed')
+            ->where('failure_reason', '=', 'AbsentSubscriber')
+            ->pluck('total_cost');
         $failed_inactive_cost = ClientOutgoing::select(\DB::raw("ROUND(SUM(SUBSTRING(cost, 5)), 2) as total_cost"))
             ->where('callback_status', '=', 'Failed')
             ->where('failure_reason', '=', 'UserInactive')
@@ -88,6 +96,7 @@ class SMSReportController extends Controller
             'success',
             'all_partners',
             'failed_blacklist',
+            'failed_absent',
             'failed_inactive',
             'failed_deliveryfailure',
             'rejected_blacklist',
@@ -95,6 +104,7 @@ class SMSReportController extends Controller
             'rejected_deliveryfailure',
             'success_cost',
             'failed_blacklist_cost',
+            'failed_absent_cost',
             'failed_inactive_cost',
             'failed_deliveryfailure_cost',
             'rejected_blacklist_cost',
