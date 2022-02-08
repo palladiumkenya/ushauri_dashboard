@@ -33,6 +33,7 @@
                                                 <th>Client Name</th>
                                                 <th>Appointment Date</th>
                                                 <th>Appointment Type</th>
+                                                <th>Clinic Name</th>
 
 
                                                 <th>Action</th>
@@ -48,6 +49,7 @@
                                                         <td>  {{$booked->client_name}}</td>
                                                         <td>  {{$booked->appntmnt_date}}</td>
                                                         <td>  {{$booked->app_type}}</td>
+                                                        <td>  {{$booked->clinic_name}}</td>
 
 
                                                         @if(!empty($booked->is_assigned))

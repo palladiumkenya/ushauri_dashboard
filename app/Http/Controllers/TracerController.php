@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\Outcome;
 use App\Models\Appointments;
 use App\Models\FutureApp;
+use App\Models\Clinic;
 use Session;
 use Auth;
 use DB;
@@ -90,8 +91,9 @@ class TracerController extends Controller
     if (Auth::user()->access_level == 'Facility') {
       $all_booked = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
         ->join('tbl_appointment_types', 'tbl_appointment.app_type_1', '=', 'tbl_appointment_types.id')
+        ->join('tbl_clinic', 'tbl_client.clinic_id', '=', 'tbl_clinic.id')
         ->leftjoin('tbl_tracer_client', 'tbl_client.id', '=', 'tbl_tracer_client.client_id')
-        ->select('tbl_appointment.id as app_id', 'tbl_client.id as client_id', 'tbl_tracer_client.is_assigned', 'tbl_client.clinic_number as clinic_number', DB::raw("CONCAT(`tbl_client`.`f_name`, ' ', `tbl_client`.`m_name`, ' ', `tbl_client`.`l_name`) as client_name"), 'tbl_appointment.appntmnt_date', 'tbl_appointment_types.name as app_type')
+        ->select('tbl_appointment.id as app_id', 'tbl_client.id as client_id', 'tbl_tracer_client.is_assigned', 'tbl_clinic.name as clinic_name', 'tbl_client.clinic_number as clinic_number', DB::raw("CONCAT(`tbl_client`.`f_name`, ' ', `tbl_client`.`m_name`, ' ', `tbl_client`.`l_name`) as client_name"), 'tbl_appointment.appntmnt_date', 'tbl_appointment_types.name as app_type')
         ->where('tbl_appointment.appntmnt_date', '>', Now())
         ->where('tbl_client.mfl_code', Auth::user()->facility_id)
         ->get();
