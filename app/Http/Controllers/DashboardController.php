@@ -173,7 +173,34 @@ class DashboardController extends Controller
                 ->where('id', Auth::user()->partner_id)
                 ->pluck('name', 'id');
 
-            //$all_counties = County::select('id', 'name')->distinct('id')->whereIn('id', $counties_with_data)->get();
+            $all_clients_number = Client::whereNotNull('clinic_number')
+                ->where('partner_id', Auth::user()->partner_id)
+                ->count();
+            $pec_client_sum = Client::whereNotNull('id')
+                ->where('partner_id', Auth::user()->partner_id)
+                ->count();
+            $pec_client = Client::where('status', '=', 'Active')
+                ->where('partner_id', Auth::user()->partner_id)
+                ->count();
+            $pec_client_count = round(($pec_client / $pec_client_sum * 100), 1);
+            $all_target_clients = PartnerFacility::select('avg_clients')->where('is_approved', '=', 'Yes')
+                ->where('partner_id', Auth::user()->partner_id)
+                ->sum('avg_clients');
+            $all_consented_clients = Client::where('smsenable', '=', 'Yes')
+                ->where('partner_id', Auth::user()->partner_id)
+                ->count();
+            $all_future_appointments = FutureApp::join('tbl_partner_facility', 'tbl_future_appointments_query.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
+                ->count();
+            $number_of_facilities = PartnerFacility::select('mfl_code')->where('is_approved', '=', 'Yes')
+                ->where('partner_id', Auth::user()->partner_id)
+                ->count();
+            $registered_clients_count = Client::whereNotNull('clinic_number')
+                ->where('partner_id', Auth::user()->partner_id)
+                ->count();
+            $consented_clients_count = Client::where('smsenable', '=', 'Yes')
+                ->where('partner_id', Auth::user()->partner_id)
+                ->count();
 
 
             $all_clients_number = cache()->remember('all_clients_number', now()->addMinutes(5), function () {
@@ -185,46 +212,6 @@ class DashboardController extends Controller
                 return ClientRegistration::select('total_percentage')
                     ->where('partner_id', Auth::user()->partner_id)
                     ->sum('total_percentage');
-            });
-            $pec_client_count = cache()->remember('pec_client_count', now()->addMinutes(5), function () {
-                return ClientRegistration::whereNotNull('total_percentage')
-                    ->where('partner_id', Auth::user()->partner_id)
-                    ->avg('total_percentage');
-            });
-            $all_target_clients = cache()->remember('all_target_clients', now()->addMinutes(5), function () {
-                return ClientPerformance::whereNotNull('target_clients')
-                    ->where('partner_id', Auth::user()->partner_id)
-                    ->sum('target_clients');
-            });
-            $all_consented_clients = cache()->remember('all_consented_clients', now()->addMinutes(5), function () {
-                return ClientRegistration::whereNotNull('consented')
-                    ->where('partner_id', Auth::user()->partner_id)
-                    ->sum('consented');
-            });
-            $all_future_appointments = cache()->remember('all_future_appointments', now()->addMinutes(5), function () {
-                return FutureApp::join('tbl_partner_facility', 'tbl_future_appointments_query.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                    ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
-                    ->count();
-            });
-            $number_of_facilities = cache()->remember('number_of_facilities', now()->addMinutes(5), function () {
-                return ClientPerformance::whereNotNull('mfl_code')
-                    ->where('partner_id', Auth::user()->partner_id)
-                    ->count();
-            });
-
-            $registered_clients_count = cache()->remember('registered_clients_count', now()->addMinutes(5), function () {
-                return ClientRegistration::select('clients')
-                    ->where('partner_id', Auth::user()->partner_id)->sum('clients');
-            });
-            $consented_clients_count = cache()->remember('consented_clients_count', now()->addMinutes(5), function () {
-                return ClientRegistration::select('consented')
-                    ->where('partner_id', Auth::user()->partner_id)->sum('consented');
-            });
-            $bar_appointments_data = cache()->remember('bar_appointments_data', now()->addMinutes(5), function () {
-                return BarAppointment::all()->where('partner_id', Auth::user()->partner_id);
-            });
-            $bar_clients_data = cache()->remember('bar_clients_data', now()->addMinutes(5), function () {
-                return BarClient::all()->where('partner_id', Auth::user()->partner_id);
             });
         }
 
@@ -274,67 +261,74 @@ class DashboardController extends Controller
         }
 
 
-        $all_clients_number = ClientPerformance::whereNotNull('actual_clients');
-        $pec_client_sum = ClientRegistration::select('total_percentage')->sum('total_percentage');
-        $pec_client_count = ClientRegistration::whereNotNull('total_percentage');
-        $all_target_clients = ClientPerformance::whereNotNull('target_clients');
-        $all_consented_clients = ClientRegistration::whereNotNull('consented');
+        $all_clients_number = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+        ->whereNotNull('tbl_client.clinic_number');
+
+        // $pec_client_sum = Client::whereNotNull('id')->count();
+        // $pec_client = Client::where('status', '=', 'Active')->count();
+        $pec_client_count = round((Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')->where('tbl_client.status', '=', 'Active')->count() / Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')->whereNotNull('tbl_client.id')->count() * 100), 1);
+
+        $all_target_clients = PartnerFacility::select('avg_clients')->where('is_approved', '=', 'Yes');
+        $all_consented_clients = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+        ->where('tbl_client.smsenable', '=', 'Yes');
         $all_future_appointments = FutureApp::join('tbl_partner_facility', 'tbl_future_appointments_query.mfl_code', '=', 'tbl_partner_facility.mfl_code');
-        $number_of_facilities = ClientPerformance::whereNotNull('mfl_code');
-        $registered_clients_count = ClientRegistration::select('clients');
-        $consented_clients_count = ClientRegistration::select('consented');
+        $number_of_facilities = PartnerFacility::select('mfl_code')->where('is_approved', '=', 'Yes');
+        $registered_clients_count = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+        ->whereNotNull('tbl_client.clinic_number');
+        $consented_clients_count = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+        ->where('tbl_client.smsenable', '=', 'Yes');
 
 
         if (!empty($selected_partners)) {
-            $all_clients_number = $all_clients_number->where('partner_id', $selected_partners);
-            $pec_client_count = $pec_client_count->where('partner_id', $selected_partners);
+            $all_clients_number = $all_clients_number->where('tbl_partner_facility.partner_id', $selected_partners);
+            $pec_client_count = $pec_client_count->where('tbl_partner_facility.partner_id', $selected_partners);
             $all_target_clients = $all_target_clients->where('partner_id', $selected_partners);
-            $all_consented_clients = $all_consented_clients->where('partner_id', $selected_partners);
+            $all_consented_clients = $all_consented_clients->where('tbl_partner_facility.partner_id', $selected_partners);
             $number_of_facilities = $number_of_facilities->where('partner_id', $selected_partners);
-            $registered_clients_count = $registered_clients_count->where('partner_id', $selected_partners);
-            $consented_clients_count = $consented_clients_count->where('partner_id', $selected_partners);
+            $registered_clients_count = $registered_clients_count->where('tbl_partner_facility.partner_id', $selected_partners);
+            $consented_clients_count = $consented_clients_count->where('tbl_partner_facility.partner_id', $selected_partners);
             $all_future_appointments = $all_future_appointments->where('tbl_partner_facility.partner_id', $selected_partners);
         }
         if (!empty($selected_counties)) {
-            $all_clients_number = $all_clients_number->where('county_id', $selected_counties);
-            $pec_client_count = $pec_client_count->where('county_id', $selected_counties);
+            $all_clients_number = $all_clients_number->where('tbl_partner_facility.county_id', $selected_counties);
+            $pec_client_count = $pec_client_count->where('tbl_partner_facility.county_id', $selected_counties);
             $all_target_clients = $all_target_clients->where('county_id', $selected_counties);
-            $all_consented_clients = $all_consented_clients->where('county_id', $selected_counties);
+            $all_consented_clients = $all_consented_clients->where('tbl_partner_facility.county_id', $selected_counties);
             $number_of_facilities = $number_of_facilities->where('county_id', $selected_counties);
-            $registered_clients_count = $registered_clients_count->where('county_id', $selected_counties);
-            $consented_clients_count = $consented_clients_count->where('county_id', $selected_counties);
+            $registered_clients_count = $registered_clients_count->where('tbl_partner_facility.county_id', $selected_counties);
+            $consented_clients_count = $consented_clients_count->where('tbl_partner_facility.county_id', $selected_counties);
             $all_future_appointments = $all_future_appointments->where('tbl_partner_facility.county_id', $selected_counties);
         }
         if (!empty($selected_subcounties)) {
-            $all_clients_number = $all_clients_number->where('sub_county_id', $selected_subcounties);
-            $pec_client_count = $pec_client_count->where('sub_county_id', $selected_subcounties);
+            $all_clients_number = $all_clients_number->where('tbl_partner_facility.sub_county_id', $selected_subcounties);
+            $pec_client_count = $pec_client_count->where('tbl_partner_facility.sub_county_id', $selected_subcounties);
             $all_target_clients = $all_target_clients->where('sub_county_id', $selected_subcounties);
-            $all_consented_clients = $all_consented_clients->where('sub_county_id', $selected_subcounties);
+            $all_consented_clients = $all_consented_clients->where('tbl_partner_facility.sub_county_id', $selected_subcounties);
             $number_of_facilities = $number_of_facilities->where('sub_county_id', $selected_subcounties);
-            $registered_clients_count = $registered_clients_count->where('sub_county_id', $selected_subcounties);
-            $consented_clients_count = $consented_clients_count->where('sub_county_id', $selected_subcounties);
+            $registered_clients_count = $registered_clients_count->where('tbl_partner_facility.sub_county_id', $selected_subcounties);
+            $consented_clients_count = $consented_clients_count->where('tbl_partner_facility.sub_county_id', $selected_subcounties);
             $all_future_appointments = $all_future_appointments->where('tbl_partner_facility.sub_county_id', $selected_subcounties);
         }
         if (!empty($selected_facilites)) {
-            $all_clients_number = $all_clients_number->where('mfl_code', $selected_facilites);
-            $pec_client_count = $pec_client_count->where('mfl_code', $selected_facilites);
+            $all_clients_number = $all_clients_number->where('tbl_partner_facility.mfl_code', $selected_facilites);
+            $pec_client_count = $pec_client_count->where('tbl_partner_facility.mfl_code', $selected_facilites);
             $all_target_clients = $all_target_clients->where('mfl_code', $selected_facilites);
-            $all_consented_clients = $all_consented_clients->where('mfl_code', $selected_facilites);
+            $all_consented_clients = $all_consented_clients->where('tbl_partner_facility.mfl_code', $selected_facilites);
             $number_of_facilities = $number_of_facilities->where('mfl_code', $selected_facilites);
-            $registered_clients_count = $registered_clients_count->where('mfl_code', $selected_facilites);
-            $consented_clients_count = $consented_clients_count->where('mfl_code', $selected_facilites);
+            $registered_clients_count = $registered_clients_count->where('tbl_partner_facility.mfl_code', $selected_facilites);
+            $consented_clients_count = $consented_clients_count->where('tbl_partner_facility.mfl_code', $selected_facilites);
             $all_future_appointments = $all_future_appointments->where('tbl_partner_facility.mfl_code', $selected_facilites);
         }
 
 
-        $data["all_clients_number"]        = $all_clients_number->sum('actual_clients');
-        $data["pec_client_count"]        = $pec_client_count->avg('total_percentage');
-        $data["all_target_clients"]         = $all_target_clients->sum('target_clients');
-        $data["all_consented_clients"]        = $all_consented_clients->sum('consented');
+        $data["all_clients_number"]        = $all_clients_number->count();
+        $data["pec_client_count"]        = $pec_client_count;
+        $data["all_target_clients"]         = $all_target_clients->sum('avg_clients');
+        $data["all_consented_clients"]        = $all_consented_clients->count();
         $data["all_future_appointments"]        = $all_future_appointments->count();
         $data["number_of_facilities"]         = $number_of_facilities->count();
-        $data["registered_clients_count"]       = $registered_clients_count->sum('clients');
-        $data["consented_clients_count"]        = $consented_clients_count->sum('consented');
+        $data["registered_clients_count"]       = $registered_clients_count->count();
+        $data["consented_clients_count"]        = $consented_clients_count->count();
 
         return $data;
     }
