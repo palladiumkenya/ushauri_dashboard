@@ -18,40 +18,53 @@ class SMSReportController extends Controller
 
     public function success_sms()
     {
-        $success = ClientOutgoing::select(\DB::raw("COUNT(status) as count"))
-            ->where('callback_status', '=', 'Success')
-            ->pluck('count');
+        $all_partners = Partner::where('status', '=', 'Active')->pluck('name', 'id');
 
-        $failed_blacklist = ClientOutgoing::select('*')
+        $delivered_partners = ClientOutgoing::join('tbl_client', 'tbl_clnt_outgoing.clnt_usr_id', '=', 'tbl_client.id')
+            ->join('tbl_partner', 'tbl_client.partner_id', '=', 'tbl_partner.id')
+            ->select('tbl_partner.name', DB::raw('count(tbl_clnt_outgoing.callback_status) as total'))
+            ->where('tbl_clnt_outgoing.callback_status', '=', 'Success')
+            ->groupBy('tbl_partner.name')
+           // ->groupBy(DB::raw("DATE_FORMAT(tbl_clnt_outgoing.created_at, '%m-%Y')"))
+            ->get();
+       // dd($delivered_partners);
+       
+
+        $success = ClientOutgoing::select("callback_status")
+            ->where('callback_status', '=', 'Success')
+            ->count();
+            //dd($success);
+
+        $failed_blacklist = ClientOutgoing::select('callback_status')
             ->where('callback_status', '=', 'Failed')
             ->where('failure_reason', '=', 'UserInBlacklist')
             ->count();
-        $failed_absent = ClientOutgoing::select('*')
+        $failed_absent = ClientOutgoing::select('callback_status')
             ->where('callback_status', '=', 'Failed')
             ->where('failure_reason', '=', 'AbsentSubscriber')
             ->count();
 
-        $failed_inactive = ClientOutgoing::select('*')
+        $failed_inactive = ClientOutgoing::select('callback_status')
             ->where('callback_status', '=', 'Failed')
             ->where('failure_reason', '=', 'UserInactive')
             ->count();
 
-        $failed_deliveryfailure = ClientOutgoing::select('*')
+        $failed_deliveryfailure = ClientOutgoing::select('callback_status')
             ->where('callback_status', '=', 'Failed')
             ->where('failure_reason', '=', 'DeliveryFailure')
             ->count();
 
-        $rejected_blacklist = ClientOutgoing::select('*')
+        $rejected_blacklist = ClientOutgoing::select('callback_status')
             ->where('callback_status', '=', 'Rejected')
             ->where('failure_reason', '=', 'UserInBlacklist')
             ->count();
 
-        $rejected_inactive = ClientOutgoing::select('*')
+        $rejected_inactive = ClientOutgoing::select('callback_status')
             ->where('callback_status', '=', 'Rejected')
             ->where('failure_reason', '=', 'UserInactive')
             ->count();
 
-        $rejected_deliveryfailure = ClientOutgoing::select('*')
+        $rejected_deliveryfailure = ClientOutgoing::select('callback_status')
             ->where('callback_status', '=', 'Rejected')
             ->where('failure_reason', '=', 'DeliveryFailure')
             ->count();
@@ -109,7 +122,8 @@ class SMSReportController extends Controller
             'failed_deliveryfailure_cost',
             'rejected_blacklist_cost',
             'rejected_inactive_cost',
-            'rejected_deliveryfailure_cost'
+            'rejected_deliveryfailure_cost',
+            'delivered_partners'
         ));
     }
 
@@ -134,6 +148,13 @@ class SMSReportController extends Controller
             ->where('tbl_clnt_outgoing.callback_status', '=', 'Failed')
             ->whereDate('tbl_clnt_outgoing.updated_at', '>=', date($request->from))->whereDate('tbl_clnt_outgoing.updated_at', '<=', date($request->to))
             ->where('tbl_clnt_outgoing.failure_reason', '=', 'UserInBlacklist');
+
+        $failed_absent = ClientOutgoing::join('tbl_client', 'tbl_clnt_outgoing.clnt_usr_id', '=', 'tbl_client.id')
+            ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+            ->select('tbl_clnt_outgoing.status')
+            ->where('tbl_clnt_outgoing.callback_status', '=', 'Failed')
+            ->whereDate('tbl_clnt_outgoing.updated_at', '>=', date($request->from))->whereDate('tbl_clnt_outgoing.updated_at', '<=', date($request->to))
+            ->where('tbl_clnt_outgoing.failure_reason', '=', 'AbsentSubscriber');
 
         $failed_inactive = ClientOutgoing::join('tbl_client', 'tbl_clnt_outgoing.clnt_usr_id', '=', 'tbl_client.id')
             ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
@@ -182,6 +203,13 @@ class SMSReportController extends Controller
             ->select(\DB::raw("ROUND(SUM(SUBSTRING(tbl_clnt_outgoing.cost, 5)), 2) as total_cost"))
             ->where('tbl_clnt_outgoing.callback_status', '=', 'Failed')
             ->where('tbl_clnt_outgoing.failure_reason', '=', 'UserInBlacklist')
+            ->whereDate('tbl_clnt_outgoing.updated_at', '>=', date($request->from))->whereDate('tbl_clnt_outgoing.updated_at', '<=', date($request->to))
+            ->pluck('total_cost');
+        $failed_absent_cost = ClientOutgoing::join('tbl_client', 'tbl_clnt_outgoing.clnt_usr_id', '=', 'tbl_client.id')
+            ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+            ->select(\DB::raw("ROUND(SUM(SUBSTRING(tbl_clnt_outgoing.cost, 5)), 2) as total_cost"))
+            ->where('tbl_clnt_outgoing.callback_status', '=', 'Failed')
+            ->where('tbl_clnt_outgoing.failure_reason', '=', 'AbsentSubscriber')
             ->whereDate('tbl_clnt_outgoing.updated_at', '>=', date($request->from))->whereDate('tbl_clnt_outgoing.updated_at', '<=', date($request->to))
             ->pluck('total_cost');
         $failed_inactive_cost = ClientOutgoing::join('tbl_client', 'tbl_clnt_outgoing.clnt_usr_id', '=', 'tbl_client.id')

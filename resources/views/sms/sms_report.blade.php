@@ -119,7 +119,7 @@
 <!-- ICON BG -->
 
 <div class="row">
-    <div class="col-lg-12 col-md-12">
+    <div class="col-lg-6 col-md-6">
         <div class="card mb-4">
             <div class="card-body">
 
@@ -128,7 +128,28 @@
             </div>
         </div>
     </div>
+
+    <div class="col-lg-6 col-md-6">
+        <div class="card mb-4">
+            <div class="card-body">
+
+                <div id="cost_analytics" class="col" style="height: 450px;margin-top:40px;"></div> <br />
+
+            </div>
+        </div>
+    </div>
 </div>
+<div class="col-lg-12 col-md-12">
+        <div class="card mb-4">
+            <div class="card-body">
+
+                <div id="partner_analytic" class="col" style="height: 450px;margin-top:40px;"></div> <br />
+
+            </div>
+        </div>
+    </div>
+</div>
+
 
 @endsection
 
@@ -257,6 +278,7 @@
 
                 Success = parseInt(data.success)
                 Failed_blacklist = parseInt(data.failed_blacklist)
+                Failed_absent = parseInt(data.failed_absent)
                 Failed_inactive = parseInt(data.failed_inactive)
                 Failed_deliveryfailure = parseInt(data.failed_deliveryfailure)
                 Rejected_blacklist = parseInt(data.rejected_blacklist)
@@ -265,14 +287,15 @@
 
                 Success_cost = parseInt(data.success_cost)
                 Failed_blacklist_cost = parseInt(data.failed_blacklist_cost)
+                Failed_absent_cost = parseInt(data.failed_absent_cost)
                 Failed_inactive_cost = parseInt(data.failed_inactive_cost)
                 Failed_deliveryfailure_cost = parseInt(data.failed_deliveryfailure_cost)
                 Rejected_blacklist_cost = parseInt(data.rejected_blacklist_cost)
                 Rejected_inactive_cost = parseInt(data.rejected_inactive_cost)
                 Rejected_deliveryfailure_cost = parseInt(data.rejected_deliveryfailure_cost)
 
-                smsAnalytics.series[0].setData([Success, Failed_blacklist, Failed_inactive, Failed_deliveryfailure, Rejected_blacklist, Rejected_inactive, Rejected_deliveryfailure, Success_cost, Failed_backlist_cost, Failed_inactive_cost, Failed_delivery_cost, Rejected_blacklist_cost, Rejected_inactive_cost, Rejected_delivery_cost]);
-                // smsAnalytics.series[1].setData([Success_cost, Failed_backlist_cost, Failed_inactive_cost, Failed_delivery_cost, Rejected_blacklist_cost, Rejected_inactive_cost, Rejected_delivery_cost]);
+                smsAnalytics.series[0].setData([Success, Failed_blacklist, Failed_absent, Failed_deliveryfailure, Failed_inactive, Rejected_blacklist, Rejected_inactive, Rejected_deliveryfailure]);
+                costAnalytics.series[0].setData([Success_cost, Failed_backlist_cost, Failed_absent_cost, Failed_delivery_cost, Failed_inactive_cost, Rejected_blacklist_cost, Rejected_inactive_cost, Rejected_delivery_cost]);
 
             }
         });
@@ -295,14 +318,16 @@
     var Rejected_blacklist_cost = <?php echo json_encode($rejected_blacklist_cost) ?>;
     var Rejected_inactive_cost = <?php echo json_encode($rejected_inactive_cost) ?>;
     var Rejected_delivery_cost = <?php echo json_encode($rejected_deliveryfailure_cost) ?>;
-    console.log(Success_cost);
+
+    var partner_delivery = <?php echo json_encode($delivered_partners) ?>;
+    console.log(partner_delivery);
 
     var smsAnalytics = Highcharts.chart('sms_analytics', {
         chart: {
             type: 'column'
         },
         title: {
-            text: 'SMS Status & Cost Analytics'
+            text: 'SMS Status Analytics'
         },
         xAxis: {
             categories: ['Delivered', 'Failed Blacklist', 'Failed AbsentSubscriber', 'Failed DeliveryFailure', 'Failed Inactive', 'Rejected Inactive', 'Rejected Blacklist', 'Rejected DeliveryFailure']
@@ -340,22 +365,122 @@
         series: [{
                 name: 'SMS Count',
                 data: [Success, Failed_blacklist, Failed_absent, Failed_deliveryfailure, Failed_inactive, Rejected_inactive, Rejected_blacklist, Rejected_deliveryfailure]
+             }
+            // {
+            //     type: 'spline',
+            //     name: 'Cost(Ksh)',
+            //     data: [Success_cost, Failed_backlist_cost, Failed_absent_cost, Failed_delivery_cost, Failed_inactive_cost, Rejected_inactive_cost, Rejected_blacklist_cost, Rejected_delivery_cost],
+            //     marker: {
+            //         lineWidth: 2,
+            //         lineColor: Highcharts.getOptions().colors[3],
+            //         fillColor: 'white'
+            //     }
+            // }
+
+        ],
+
+
+    });
+
+    var costAnalytics = Highcharts.chart('cost_analytics', {
+        chart: {
+            type: 'column'
+        },
+        title: {
+            text: 'SMS Cost Analytics'
+        },
+        xAxis: {
+            categories: ['Delivered', 'Failed Blacklist', 'Failed AbsentSubscriber', 'Failed DeliveryFailure', 'Failed Inactive', 'Rejected Inactive', 'Rejected Blacklist', 'Rejected DeliveryFailure']
+        },
+        yAxis: {
+            min: 0,
+            title: {
+                text: 'Count'
             },
-            {
-                type: 'spline',
-                name: 'Cost(Ksh)',
-                data: [Success_cost, Failed_backlist_cost, Failed_absent_cost, Failed_delivery_cost, Failed_inactive_cost, Rejected_inactive_cost, Rejected_blacklist_cost, Rejected_delivery_cost],
-                marker: {
-                    lineWidth: 2,
-                    lineColor: Highcharts.getOptions().colors[3],
-                    fillColor: 'white'
+            stackLabels: {
+                enabled: true,
+                style: {
+                    fontWeight: 'bold',
+                    color: ( // theme
+                        Highcharts.defaultOptions.title.style &&
+                        Highcharts.defaultOptions.title.style.color
+                    ) || 'gray'
                 }
+            }
+        },
+        tooltip: {
+            formatter: function() {
+                return '<b>' + this.x + '</b><br/>' +
+                    this.series.name + ': ' + this.y;
+            }
+        },
+        plotOptions: {
+            column: {
+                stacking: 'normal',
+            },
+            spline: {
+                stacking: 'normal',
+            }
+        },
+        series: [{
+                name: 'Cost(Ksh)',
+                data: [Success_cost, Failed_backlist_cost, Failed_absent_cost, Failed_delivery_cost, Failed_inactive_cost, Rejected_inactive_cost, Rejected_blacklist_cost, Rejected_delivery_cost]
             }
 
         ],
 
 
     });
+    $(function () {
+    var partner_data_array = [];
+    var partner_delivery = <?php echo json_encode($delivered_partners) ?>;
+
+    $.each(partner_delivery, function(key, value){
+
+        var total_value = value.total;
+        delete value.total;//remove the attribute total
+        value.y = total_value;//add a new attribute "y" for plotting values on y-axis
+        partner_data_array.push(value);
+    });
+
+    $('#partner_analytic').highcharts({
+        chart: {
+            type: 'column',
+
+        },
+        title: {
+            text: 'Partners Delivered SMS '
+        },
+        xAxis: {
+            type: 'category'
+        },
+
+        legend: {
+            enabled: false
+        },
+
+        plotOptions: {
+            series: {
+                borderWidth: 0,
+                dataLabels: {
+                    enabled: true,
+                }
+            }
+        },
+
+        series: [{
+            name: 'Delivered Sms Count',
+            colorByPoint: true,
+            data:partner_data_array
+
+        }],
+
+        drilldown: {
+            series: []
+        }
+    })
+});
+
 
     var colors = Highcharts.getOptions().colors;
 </script>
