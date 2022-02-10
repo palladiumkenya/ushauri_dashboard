@@ -140,14 +140,24 @@
     </div>
 </div>
 <div class="col-lg-12 col-md-12">
-        <div class="card mb-4">
-            <div class="card-body">
+    <div class="card mb-4">
+        <div class="card-body">
 
-                <div id="partner_analytic" class="col" style="height: 450px;margin-top:40px;"></div> <br />
+            <div id="partner_analytic_delivered" class="col" style="height: 450px;margin-top:40px;"></div> <br />
 
-            </div>
         </div>
     </div>
+</div>
+</div>
+<div class="col-lg-12 col-md-12">
+    <div class="card mb-4">
+        <div class="card-body">
+
+            <div id="partner_analytic_failed" class="col" style="height: 450px;margin-top:40px;"></div> <br />
+
+        </div>
+    </div>
+</div>
 </div>
 
 
@@ -365,7 +375,7 @@
         series: [{
                 name: 'SMS Count',
                 data: [Success, Failed_blacklist, Failed_absent, Failed_deliveryfailure, Failed_inactive, Rejected_inactive, Rejected_blacklist, Rejected_deliveryfailure]
-             }
+            }
             // {
             //     type: 'spline',
             //     name: 'Cost(Ksh)',
@@ -431,55 +441,102 @@
 
 
     });
-    $(function () {
-    var partner_data_array = [];
-    var partner_delivery = <?php echo json_encode($delivered_partners) ?>;
+    $(function() {
+        var partner_delivered_array = [];
+        var partner_failed_array = [];
+        var partner_delivery = <?php echo json_encode($delivered_partners) ?>;
+        var partner_failed = <?php echo json_encode($failed_partners) ?>;
 
-    $.each(partner_delivery, function(key, value){
+        $.each(partner_delivery, function(key, value) {
 
-        var total_value = value.total;
-        delete value.total;//remove the attribute total
-        value.y = total_value;//add a new attribute "y" for plotting values on y-axis
-        partner_data_array.push(value);
-    });
+            var total_value = value.total;
+            delete value.total; //remove the attribute total
+            value.y = total_value; //add a new attribute "y" for plotting values on y-axis
+            partner_delivered_array.push(value);
+        });
 
-    $('#partner_analytic').highcharts({
-        chart: {
-            type: 'column',
+        $.each(partner_failed, function(key, value) {
 
-        },
-        title: {
-            text: 'Partners Delivered SMS '
-        },
-        xAxis: {
-            type: 'category'
-        },
+            var total_value = value.total;
+            delete value.total; //remove the attribute total
+            value.y = total_value; //add a new attribute "y" for plotting values on y-axis
+            partner_failed_array.push(value);
+        });
 
-        legend: {
-            enabled: false
-        },
+        $('#partner_analytic_delivered').highcharts({
+            chart: {
+                type: 'column',
 
-        plotOptions: {
-            series: {
-                borderWidth: 0,
-                dataLabels: {
-                    enabled: true,
+            },
+            title: {
+                text: 'Partners Delivered SMS '
+            },
+            xAxis: {
+                type: 'category'
+            },
+
+            legend: {
+                enabled: false
+            },
+
+            plotOptions: {
+                series: {
+                    borderWidth: 0,
+                    dataLabels: {
+                        enabled: true,
+                    }
                 }
+            },
+
+            series: [{
+                name: 'Delivered Sms Count',
+                colorByPoint: true,
+                data: partner_delivered_array
+
+            }],
+
+            drilldown: {
+                series: []
             }
-        },
+        });
 
-        series: [{
-            name: 'Delivered Sms Count',
-            colorByPoint: true,
-            data:partner_data_array
+        $('#partner_analytic_failed').highcharts({
+            chart: {
+                type: 'column',
 
-        }],
+            },
+            title: {
+                text: 'Partners Failed SMS '
+            },
+            xAxis: {
+                type: 'category'
+            },
 
-        drilldown: {
-            series: []
-        }
-    })
-});
+            legend: {
+                enabled: false
+            },
+
+            plotOptions: {
+                series: {
+                    borderWidth: 0,
+                    dataLabels: {
+                        enabled: true,
+                    }
+                }
+            },
+
+            series: [{
+                name: 'Failed Sms Count',
+                colorByPoint: true,
+                data: partner_failed_array
+
+            }],
+
+            drilldown: {
+                series: []
+            }
+        })
+    });
 
 
     var colors = Highcharts.getOptions().colors;

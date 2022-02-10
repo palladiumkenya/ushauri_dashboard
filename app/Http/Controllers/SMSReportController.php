@@ -25,15 +25,20 @@ class SMSReportController extends Controller
             ->select('tbl_partner.name', DB::raw('count(tbl_clnt_outgoing.callback_status) as total'))
             ->where('tbl_clnt_outgoing.callback_status', '=', 'Success')
             ->groupBy('tbl_partner.name')
-           // ->groupBy(DB::raw("DATE_FORMAT(tbl_clnt_outgoing.created_at, '%m-%Y')"))
+            // ->groupBy(DB::raw("DATE_FORMAT(tbl_clnt_outgoing.created_at, '%m-%Y')"))
             ->get();
-       // dd($delivered_partners);
-       
+        // dd($delivered_partners);
+        $failed_partners = ClientOutgoing::join('tbl_client', 'tbl_clnt_outgoing.clnt_usr_id', '=', 'tbl_client.id')
+            ->join('tbl_partner', 'tbl_client.partner_id', '=', 'tbl_partner.id')
+            ->select('tbl_partner.name', DB::raw('count(tbl_clnt_outgoing.callback_status) as total'))
+            ->where('tbl_clnt_outgoing.callback_status', '=', 'Failed')
+            ->groupBy('tbl_partner.name')
+            ->get();
 
         $success = ClientOutgoing::select("callback_status")
             ->where('callback_status', '=', 'Success')
             ->count();
-            //dd($success);
+        //dd($success);
 
         $failed_blacklist = ClientOutgoing::select('callback_status')
             ->where('callback_status', '=', 'Failed')
@@ -123,7 +128,8 @@ class SMSReportController extends Controller
             'rejected_blacklist_cost',
             'rejected_inactive_cost',
             'rejected_deliveryfailure_cost',
-            'delivered_partners'
+            'delivered_partners',
+            'failed_partners'
         ));
     }
 
