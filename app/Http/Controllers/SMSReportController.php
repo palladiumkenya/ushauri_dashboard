@@ -35,10 +35,16 @@ class SMSReportController extends Controller
             ->groupBy('tbl_partner.name')
             ->get();
 
+        $cost_partners = ClientOutgoing::join('tbl_client', 'tbl_clnt_outgoing.clnt_usr_id', '=', 'tbl_client.id')
+            ->join('tbl_partner', 'tbl_client.partner_id', '=', 'tbl_partner.id')
+            ->select('tbl_partner.name', DB::raw("ROUND(SUM(SUBSTRING(tbl_clnt_outgoing.cost, 5)), 0) as total_cost"))
+            ->groupBy('tbl_partner.name')
+            ->get();
+
         $success = ClientOutgoing::select("callback_status")
             ->where('callback_status', '=', 'Success')
             ->count();
-        //dd($success);
+
 
         $failed_blacklist = ClientOutgoing::select('callback_status')
             ->where('callback_status', '=', 'Failed')
@@ -75,34 +81,34 @@ class SMSReportController extends Controller
             ->count();
 
         // cost calculation for all the status
-        $success_cost = ClientOutgoing::select(\DB::raw("ROUND(SUM(SUBSTRING(cost, 5)), 2) as total_cost"))
+        $success_cost = ClientOutgoing::select(\DB::raw("ROUND(SUM(SUBSTRING(cost, 5)), 0) as total_cost"))
             ->where('callback_status', '=', 'Success')
             ->pluck('total_cost');
-        $failed_blacklist_cost = ClientOutgoing::select(\DB::raw("ROUND(SUM(SUBSTRING(cost, 5)), 2) as total_cost"))
+        $failed_blacklist_cost = ClientOutgoing::select(\DB::raw("ROUND(SUM(SUBSTRING(cost, 5)), 0) as total_cost"))
             ->where('callback_status', '=', 'Failed')
             ->where('failure_reason', '=', 'UserInBlacklist')
             ->pluck('total_cost');
-        $failed_absent_cost = ClientOutgoing::select(\DB::raw("ROUND(SUM(SUBSTRING(cost, 5)), 2) as total_cost"))
+        $failed_absent_cost = ClientOutgoing::select(\DB::raw("ROUND(SUM(SUBSTRING(cost, 5)), 0) as total_cost"))
             ->where('callback_status', '=', 'Failed')
             ->where('failure_reason', '=', 'AbsentSubscriber')
             ->pluck('total_cost');
-        $failed_inactive_cost = ClientOutgoing::select(\DB::raw("ROUND(SUM(SUBSTRING(cost, 5)), 2) as total_cost"))
+        $failed_inactive_cost = ClientOutgoing::select(\DB::raw("ROUND(SUM(SUBSTRING(cost, 5)), 0) as total_cost"))
             ->where('callback_status', '=', 'Failed')
             ->where('failure_reason', '=', 'UserInactive')
             ->pluck('total_cost');
-        $failed_deliveryfailure_cost = ClientOutgoing::select(\DB::raw("ROUND(SUM(SUBSTRING(cost, 5)), 2) as total_cost"))
+        $failed_deliveryfailure_cost = ClientOutgoing::select(\DB::raw("ROUND(SUM(SUBSTRING(cost, 5)), 0) as total_cost"))
             ->where('callback_status', '=', 'Failed')
             ->where('failure_reason', '=', 'DeliveryFailure')
             ->pluck('total_cost');
-        $rejected_blacklist_cost = ClientOutgoing::select(\DB::raw("ROUND(SUM(SUBSTRING(cost, 5)), 2) as total_cost"))
+        $rejected_blacklist_cost = ClientOutgoing::select(\DB::raw("ROUND(SUM(SUBSTRING(cost, 5)), 0) as total_cost"))
             ->where('callback_status', '=', 'Rejected')
             ->where('failure_reason', '=', 'UserInBlacklist')
             ->pluck('total_cost');
-        $rejected_inactive_cost = ClientOutgoing::select(\DB::raw("ROUND(SUM(SUBSTRING(cost, 5)), 2) as total_cost"))
+        $rejected_inactive_cost = ClientOutgoing::select(\DB::raw("ROUND(SUM(SUBSTRING(cost, 5)), 0) as total_cost"))
             ->where('callback_status', '=', 'Rejected')
             ->where('failure_reason', '=', 'UserInactive')
             ->pluck('total_cost');
-        $rejected_deliveryfailure_cost = ClientOutgoing::select(\DB::raw("ROUND(SUM(SUBSTRING(cost, 5)), 2) as total_cost"))
+        $rejected_deliveryfailure_cost = ClientOutgoing::select(\DB::raw("ROUND(SUM(SUBSTRING(cost, 5)), 0) as total_cost"))
             ->where('callback_status', '=', 'Rejected')
             ->where('failure_reason', '=', 'DeliveryFailure')
             ->pluck('total_cost');
@@ -129,7 +135,8 @@ class SMSReportController extends Controller
             'rejected_inactive_cost',
             'rejected_deliveryfailure_cost',
             'delivered_partners',
-            'failed_partners'
+            'failed_partners',
+            'cost_partners'
         ));
     }
 

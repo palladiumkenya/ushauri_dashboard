@@ -160,6 +160,17 @@
 </div>
 </div>
 
+<div class="col-lg-12 col-md-12">
+    <div class="card mb-4">
+        <div class="card-body">
+
+            <div id="partner_analytic_cost" class="col" style="height: 450px;margin-top:40px;"></div> <br />
+
+        </div>
+    </div>
+</div>
+</div>
+
 
 @endsection
 
@@ -444,8 +455,11 @@
     $(function() {
         var partner_delivered_array = [];
         var partner_failed_array = [];
+        var partner_cost_array = [];
+
         var partner_delivery = <?php echo json_encode($delivered_partners) ?>;
         var partner_failed = <?php echo json_encode($failed_partners) ?>;
+        var partner_cost = <?php echo json_encode($cost_partners) ?>;
 
         $.each(partner_delivery, function(key, value) {
 
@@ -461,6 +475,14 @@
             delete value.total; //remove the attribute total
             value.y = total_value; //add a new attribute "y" for plotting values on y-axis
             partner_failed_array.push(value);
+        });
+
+        $.each(partner_cost, function(key, value) {
+
+            var total_value = value.total_cost;
+            delete value.total_cost; //remove the attribute total
+            value.y = total_value; //add a new attribute "y" for plotting values on y-axis
+            partner_cost_array.push(value);
         });
 
         $('#partner_analytic_delivered').highcharts({
@@ -529,6 +551,43 @@
                 name: 'Failed Sms Count',
                 colorByPoint: true,
                 data: partner_failed_array
+
+            }],
+
+            drilldown: {
+                series: []
+            }
+        });
+
+        $('#partner_analytic_cost').highcharts({
+            chart: {
+                type: 'column',
+
+            },
+            title: {
+                text: 'Partners SMS Cost Distribution '
+            },
+            xAxis: {
+                type: 'category'
+            },
+
+            legend: {
+                enabled: false
+            },
+
+            plotOptions: {
+                series: {
+                    borderWidth: 0,
+                    dataLabels: {
+                        enabled: true,
+                    }
+                }
+            },
+
+            series: [{
+                name: 'SMS Cost(Ksh)',
+                colorByPoint: true,
+                data: partner_cost_array
 
             }],
 
