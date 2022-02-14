@@ -41,6 +41,15 @@ class SMSReportController extends Controller
             ->groupBy('tbl_partner.name')
             ->get();
 
+        $cost_counties = ClientOutgoing::join('tbl_client', 'tbl_clnt_outgoing.clnt_usr_id', '=', 'tbl_client.id')
+            ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+            ->join('tbl_county', 'tbl_partner_facility.county_id', '=', 'tbl_county.id')
+            ->select('tbl_county.name', DB::raw("ROUND(SUM(SUBSTRING(tbl_clnt_outgoing.cost, 5)), 0) as total_cost"))
+            ->groupBy('tbl_county.name')
+            ->get();
+
+        //dd($cost_counties);
+
         $success = ClientOutgoing::select("callback_status")
             ->where('callback_status', '=', 'Success')
             ->count();
@@ -136,7 +145,8 @@ class SMSReportController extends Controller
             'rejected_deliveryfailure_cost',
             'delivered_partners',
             'failed_partners',
-            'cost_partners'
+            'cost_partners',
+            'cost_counties'
         ));
     }
 
