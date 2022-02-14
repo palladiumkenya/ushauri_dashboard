@@ -281,7 +281,7 @@ class DashboardController extends Controller
 
         if (!empty($selected_partners)) {
             $all_clients_number = $all_clients_number->where('tbl_partner_facility.partner_id', $selected_partners);
-            $pec_client_count = $pec_client_count->where('tbl_partner_facility.partner_id', $selected_partners);
+           // $pec_client_count = $pec_client_count->where('tbl_partner_facility.partner_id', $selected_partners);
             $all_target_clients = $all_target_clients->where('partner_id', $selected_partners);
             $all_consented_clients = $all_consented_clients->where('tbl_partner_facility.partner_id', $selected_partners);
             $number_of_facilities = $number_of_facilities->where('partner_id', $selected_partners);
@@ -291,7 +291,7 @@ class DashboardController extends Controller
         }
         if (!empty($selected_counties)) {
             $all_clients_number = $all_clients_number->where('tbl_partner_facility.county_id', $selected_counties);
-            $pec_client_count = $pec_client_count->where('tbl_partner_facility.county_id', $selected_counties);
+           // $pec_client_count = $pec_client_count->where('tbl_partner_facility.county_id', $selected_counties);
             $all_target_clients = $all_target_clients->where('county_id', $selected_counties);
             $all_consented_clients = $all_consented_clients->where('tbl_partner_facility.county_id', $selected_counties);
             $number_of_facilities = $number_of_facilities->where('county_id', $selected_counties);
@@ -301,7 +301,7 @@ class DashboardController extends Controller
         }
         if (!empty($selected_subcounties)) {
             $all_clients_number = $all_clients_number->where('tbl_partner_facility.sub_county_id', $selected_subcounties);
-            $pec_client_count = $pec_client_count->where('tbl_partner_facility.sub_county_id', $selected_subcounties);
+           // $pec_client_count = $pec_client_count->where('tbl_partner_facility.sub_county_id', $selected_subcounties);
             $all_target_clients = $all_target_clients->where('sub_county_id', $selected_subcounties);
             $all_consented_clients = $all_consented_clients->where('tbl_partner_facility.sub_county_id', $selected_subcounties);
             $number_of_facilities = $number_of_facilities->where('sub_county_id', $selected_subcounties);
@@ -311,7 +311,7 @@ class DashboardController extends Controller
         }
         if (!empty($selected_facilites)) {
             $all_clients_number = $all_clients_number->where('tbl_partner_facility.mfl_code', $selected_facilites);
-            $pec_client_count = $pec_client_count->where('tbl_partner_facility.mfl_code', $selected_facilites);
+          //  $pec_client_count = $pec_client_count->where('tbl_partner_facility.mfl_code', $selected_facilites);
             $all_target_clients = $all_target_clients->where('mfl_code', $selected_facilites);
             $all_consented_clients = $all_consented_clients->where('tbl_partner_facility.mfl_code', $selected_facilites);
             $number_of_facilities = $number_of_facilities->where('mfl_code', $selected_facilites);
