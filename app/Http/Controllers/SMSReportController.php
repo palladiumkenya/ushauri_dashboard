@@ -353,4 +353,152 @@ class SMSReportController extends Controller
 
         return $data;
     }
+
+    public function filtering_sms(Request $request)
+    {
+        $delivered_partners = ClientOutgoing::join('tbl_client', 'tbl_clnt_outgoing.clnt_usr_id', '=', 'tbl_client.id')
+            ->join('tbl_partner', 'tbl_client.partner_id', '=', 'tbl_partner.id')
+            ->select('tbl_partner.name', DB::raw('count(tbl_clnt_outgoing.callback_status) as total'))
+            ->where('tbl_clnt_outgoing.callback_status', '=', 'Success')
+            ->whereDate('tbl_clnt_outgoing.created_at', '>=', date($request->from))->whereDate('tbl_clnt_outgoing.created_at', '<=', date($request->to))
+            ->groupBy('tbl_partner.name')
+            // ->groupBy(DB::raw("DATE_FORMAT(tbl_clnt_outgoing.created_at, '%m-%Y')"))
+            ->get();
+        // dd($delivered_partners);
+        $failed_partners = ClientOutgoing::join('tbl_client', 'tbl_clnt_outgoing.clnt_usr_id', '=', 'tbl_client.id')
+            ->join('tbl_partner', 'tbl_client.partner_id', '=', 'tbl_partner.id')
+            ->select('tbl_partner.name', DB::raw('count(tbl_clnt_outgoing.callback_status) as total'))
+            ->where('tbl_clnt_outgoing.callback_status', '=', 'Failed')
+            ->whereDate('tbl_clnt_outgoing.created_at', '>=', date($request->from))->whereDate('tbl_clnt_outgoing.created_at', '<=', date($request->to))
+            ->groupBy('tbl_partner.name')
+            ->get();
+
+        $cost_partners = ClientOutgoing::join('tbl_client', 'tbl_clnt_outgoing.clnt_usr_id', '=', 'tbl_client.id')
+            ->join('tbl_partner', 'tbl_client.partner_id', '=', 'tbl_partner.id')
+            ->select('tbl_partner.name', DB::raw("ROUND(SUM(SUBSTRING(tbl_clnt_outgoing.cost, 5)), 0) as total_cost"))
+            ->whereDate('tbl_clnt_outgoing.created_at', '>=', date($request->from))->whereDate('tbl_clnt_outgoing.created_at', '<=', date($request->to))
+            ->groupBy('tbl_partner.name')
+            ->get();
+
+        $cost_counties = ClientOutgoing::join('tbl_client', 'tbl_clnt_outgoing.clnt_usr_id', '=', 'tbl_client.id')
+            ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+            ->join('tbl_county', 'tbl_partner_facility.county_id', '=', 'tbl_county.id')
+            ->select('tbl_county.name', DB::raw("ROUND(SUM(SUBSTRING(tbl_clnt_outgoing.cost, 5)), 0) as total_cost"))
+            ->whereDate('tbl_clnt_outgoing.created_at', '>=', date($request->from))->whereDate('tbl_clnt_outgoing.created_at', '<=', date($request->to))
+            ->groupBy('tbl_county.name')
+            ->get();
+
+        //dd($cost_counties);
+
+        $success = ClientOutgoing::select("callback_status")
+            ->where('callback_status', '=', 'Success')
+            ->whereDate('tbl_clnt_outgoing.created_at', '>=', date($request->from))->whereDate('tbl_clnt_outgoing.created_at', '<=', date($request->to))
+            ->count();
+
+
+        $failed_blacklist = ClientOutgoing::select('callback_status')
+            ->where('callback_status', '=', 'Failed')
+            ->where('failure_reason', '=', 'UserInBlacklist')
+            ->whereDate('tbl_clnt_outgoing.created_at', '>=', date($request->from))->whereDate('tbl_clnt_outgoing.created_at', '<=', date($request->to))
+            ->count();
+        $failed_absent = ClientOutgoing::select('callback_status')
+            ->where('callback_status', '=', 'Failed')
+            ->where('failure_reason', '=', 'AbsentSubscriber')
+            ->whereDate('tbl_clnt_outgoing.created_at', '>=', date($request->from))->whereDate('tbl_clnt_outgoing.created_at', '<=', date($request->to))
+            ->count();
+
+        $failed_inactive = ClientOutgoing::select('callback_status')
+            ->where('callback_status', '=', 'Failed')
+            ->where('failure_reason', '=', 'UserInactive')
+            ->whereDate('tbl_clnt_outgoing.created_at', '>=', date($request->from))->whereDate('tbl_clnt_outgoing.created_at', '<=', date($request->to))
+            ->count();
+
+        $failed_deliveryfailure = ClientOutgoing::select('callback_status')
+            ->where('callback_status', '=', 'Failed')
+            ->where('failure_reason', '=', 'DeliveryFailure')
+            ->whereDate('tbl_clnt_outgoing.created_at', '>=', date($request->from))->whereDate('tbl_clnt_outgoing.created_at', '<=', date($request->to))
+            ->count();
+
+        $rejected_blacklist = ClientOutgoing::select('callback_status')
+            ->where('callback_status', '=', 'Rejected')
+            ->where('failure_reason', '=', 'UserInBlacklist')
+            ->whereDate('tbl_clnt_outgoing.created_at', '>=', date($request->from))->whereDate('tbl_clnt_outgoing.created_at', '<=', date($request->to))
+            ->count();
+
+        $rejected_inactive = ClientOutgoing::select('callback_status')
+            ->where('callback_status', '=', 'Rejected')
+            ->where('failure_reason', '=', 'UserInactive')
+            ->whereDate('tbl_clnt_outgoing.created_at', '>=', date($request->from))->whereDate('tbl_clnt_outgoing.created_at', '<=', date($request->to))
+            ->count();
+
+        $rejected_deliveryfailure = ClientOutgoing::select('callback_status')
+            ->where('callback_status', '=', 'Rejected')
+            ->where('failure_reason', '=', 'DeliveryFailure')
+            ->whereDate('tbl_clnt_outgoing.created_at', '>=', date($request->from))->whereDate('tbl_clnt_outgoing.created_at', '<=', date($request->to))
+            ->count();
+
+        // cost calculation for all the status
+        $success_cost = ClientOutgoing::select(\DB::raw("ROUND(SUM(SUBSTRING(cost, 5)), 0) as total_cost"))
+            ->where('callback_status', '=', 'Success')
+            ->whereDate('tbl_clnt_outgoing.created_at', '>=', date($request->from))->whereDate('tbl_clnt_outgoing.created_at', '<=', date($request->to))
+            ->pluck('total_cost');
+        $failed_blacklist_cost = ClientOutgoing::select(\DB::raw("ROUND(SUM(SUBSTRING(cost, 5)), 0) as total_cost"))
+            ->where('callback_status', '=', 'Failed')
+            ->where('failure_reason', '=', 'UserInBlacklist')
+            ->whereDate('tbl_clnt_outgoing.created_at', '>=', date($request->from))->whereDate('tbl_clnt_outgoing.created_at', '<=', date($request->to))
+            ->pluck('total_cost');
+        $failed_absent_cost = ClientOutgoing::select(\DB::raw("ROUND(SUM(SUBSTRING(cost, 5)), 0) as total_cost"))
+            ->where('callback_status', '=', 'Failed')
+            ->where('failure_reason', '=', 'AbsentSubscriber')
+            ->whereDate('tbl_clnt_outgoing.created_at', '>=', date($request->from))->whereDate('tbl_clnt_outgoing.created_at', '<=', date($request->to))
+            ->pluck('total_cost');
+        $failed_inactive_cost = ClientOutgoing::select(\DB::raw("ROUND(SUM(SUBSTRING(cost, 5)), 0) as total_cost"))
+            ->where('callback_status', '=', 'Failed')
+            ->where('failure_reason', '=', 'UserInactive')
+            ->whereDate('tbl_clnt_outgoing.created_at', '>=', date($request->from))->whereDate('tbl_clnt_outgoing.created_at', '<=', date($request->to))
+            ->pluck('total_cost');
+        $failed_deliveryfailure_cost = ClientOutgoing::select(\DB::raw("ROUND(SUM(SUBSTRING(cost, 5)), 0) as total_cost"))
+            ->where('callback_status', '=', 'Failed')
+            ->where('failure_reason', '=', 'DeliveryFailure')
+            ->whereDate('tbl_clnt_outgoing.created_at', '>=', date($request->from))->whereDate('tbl_clnt_outgoing.created_at', '<=', date($request->to))
+            ->pluck('total_cost');
+        $rejected_blacklist_cost = ClientOutgoing::select(\DB::raw("ROUND(SUM(SUBSTRING(cost, 5)), 0) as total_cost"))
+            ->where('callback_status', '=', 'Rejected')
+            ->where('failure_reason', '=', 'UserInBlacklist')
+            ->whereDate('tbl_clnt_outgoing.created_at', '>=', date($request->from))->whereDate('tbl_clnt_outgoing.created_at', '<=', date($request->to))
+            ->pluck('total_cost');
+        $rejected_inactive_cost = ClientOutgoing::select(\DB::raw("ROUND(SUM(SUBSTRING(cost, 5)), 0) as total_cost"))
+            ->where('callback_status', '=', 'Rejected')
+            ->where('failure_reason', '=', 'UserInactive')
+            ->whereDate('tbl_clnt_outgoing.created_at', '>=', date($request->from))->whereDate('tbl_clnt_outgoing.created_at', '<=', date($request->to))
+            ->pluck('total_cost');
+        $rejected_deliveryfailure_cost = ClientOutgoing::select(\DB::raw("ROUND(SUM(SUBSTRING(cost, 5)), 0) as total_cost"))
+            ->where('callback_status', '=', 'Rejected')
+            ->where('failure_reason', '=', 'DeliveryFailure')
+            ->whereDate('tbl_clnt_outgoing.created_at', '>=', date($request->from))->whereDate('tbl_clnt_outgoing.created_at', '<=', date($request->to))
+            ->pluck('total_cost');
+
+        return view('sms.sms_report', compact(
+            'success',
+            'failed_blacklist',
+            'failed_absent',
+            'failed_inactive',
+            'failed_deliveryfailure',
+            'rejected_blacklist',
+            'rejected_inactive',
+            'rejected_deliveryfailure',
+            'success_cost',
+            'failed_blacklist_cost',
+            'failed_absent_cost',
+            'failed_inactive_cost',
+            'failed_deliveryfailure_cost',
+            'rejected_blacklist_cost',
+            'rejected_inactive_cost',
+            'rejected_deliveryfailure_cost',
+            'delivered_partners',
+            'failed_partners',
+            'cost_partners',
+            'cost_counties'
+        ));
+    }
 }
