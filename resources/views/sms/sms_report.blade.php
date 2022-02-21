@@ -15,7 +15,7 @@
 
 <div class="col-md-12">
 
-<form role="form" method="get" action="{{route('filtering_sms')}}">
+    <form role="form" method="get" action="{{route('filtering_sms')}}">
         {{ csrf_field() }}
         <div class="row">
 
@@ -74,15 +74,6 @@
 <div class="separator-breadcrumb border-top"></div>
 
 <!-- ICON BG -->
-<div class="col-lg-12 col-md-12">
-    <div class="card mb-4">
-        <div class="card-body">
-
-            <div id="county_analytic_cost" class="col" style="height: 450px;margin-top:40px;"></div> <br />
-
-        </div>
-    </div>
-</div>
 
 <div class="row">
     <div class="col-lg-6 col-md-6">
@@ -105,6 +96,17 @@
         </div>
     </div>
 </div>
+
+<div class="col-lg-12 col-md-12">
+    <div class="card mb-4">
+        <div class="card-body">
+
+            <div id="county_analytic_cost" class="col" style="height: 450px;margin-top:40px;"></div> <br />
+
+        </div>
+    </div>
+</div>
+
 <div class="col-lg-12 col-md-12">
     <div class="card mb-4">
         <div class="card-body">

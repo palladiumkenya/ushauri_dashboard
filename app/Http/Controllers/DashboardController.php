@@ -186,6 +186,8 @@ class DashboardController extends Controller
             $all_target_clients = PartnerFacility::select('avg_clients')->where('is_approved', '=', 'Yes')
                 ->where('partner_id', Auth::user()->partner_id)
                 ->sum('avg_clients');
+
+                // dd($all_target_clients);
             $all_consented_clients = Client::where('smsenable', '=', 'Yes')
                 ->where('partner_id', Auth::user()->partner_id)
                 ->count();
@@ -203,16 +205,16 @@ class DashboardController extends Controller
                 ->count();
 
 
-            $all_clients_number = cache()->remember('all_clients_number', now()->addMinutes(5), function () {
-                return ClientPerformance::whereNotNull('actual_clients')
-                    ->where('partner_id', Auth::user()->partner_id)
-                    ->sum('actual_clients');
-            });
-            $pec_client_sum = cache()->remember('pec_client_sum', now()->addMinutes(5), function () {
-                return ClientRegistration::select('total_percentage')
-                    ->where('partner_id', Auth::user()->partner_id)
-                    ->sum('total_percentage');
-            });
+            // $all_clients_number = cache()->remember('all_clients_number', now()->addMinutes(5), function () {
+            //     return ClientPerformance::whereNotNull('actual_clients')
+            //         ->where('partner_id', Auth::user()->partner_id)
+            //         ->sum('actual_clients');
+            // });
+            // $pec_client_sum = cache()->remember('pec_client_sum', now()->addMinutes(5), function () {
+            //     return ClientRegistration::select('total_percentage')
+            //         ->where('partner_id', Auth::user()->partner_id)
+            //         ->sum('total_percentage');
+            // });
         }
 
 
