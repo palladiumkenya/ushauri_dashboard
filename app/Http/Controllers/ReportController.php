@@ -15,6 +15,7 @@ use App\Models\MonthlyApp;
 use App\Models\Partner;
 use DB;
 use Auth;
+use Cache;
 
 class ReportController extends Controller
 {
@@ -239,6 +240,44 @@ class ReportController extends Controller
             $all_partners = Partner::where('status', '=', 'Active')
                 ->pluck('name', 'id');
 
+            // $message_extract = Client::chunk(100, function ($message_extract) {
+            //     foreach ($message_extract as $message_extracts) {
+            // $message_extract = Client::JOIN('tbl_groups', 'tbl_groups.id', 'tbl_client.group_id')
+            //     ->JOIN('tbl_master_facility', `tbl_master_facility` . `code`, `tbl_partner_facility` . `mfl_code`)
+            //     ->JOIN('tbl_gender', `tbl_gender` . `id`, `tbl_client` . `gender`)
+            //     ->JOIN('tbl_partner_facility', `tbl_partner_facility` . `mfl_code`, `tbl_client` . `mfl_code`)
+            //     ->JOIN('tbl_marital_status', `tbl_marital_status` . `id`, `tbl_client` . `marital`)
+            //     ->JOIN('tbl_partner', `tbl_partner` . `id`, `tbl_partner_facility` . `partner_id`)
+            //   //  ->JOIN('tbl_time`, `tbl_time' . `id`, `tbl_client` . `txt_time`)
+            //     ->JOIN('tbl_language', `tbl_language` . `id`, `tbl_client` . `language_id`)
+            //     ->JOIN('tbl_clnt_outgoing', `tbl_clnt_outgoing` . `clnt_usr_id`, `tbl_client` . `id`)
+            //     ->JOIN('tbl_message_types', `tbl_message_types` . `id`, `tbl_clnt_outgoing` . `message_type_id`)
+            //     ->JOIN('tbl_county', `tbl_county` . `id`, `tbl_partner_facility` . `county_id`)
+            //     ->JOIN('tbl_sub_county', `tbl_sub_county` . `id`, `tbl_partner_facility` . `sub_county_id`)
+            //     ->select(
+            //         'tbl_client.clinic_number as clinic_number',
+            //         'tbl_client.mfl_code as mfl_code',
+            //         'tbl_master_facility.name as facility_name',
+            //         'tbl_gender.name as gender',
+            //         'tbl_groups.name as group_name',
+            //         'tbl_marital_status.marital as marital',
+            //         'tbl_partner_facility.partner_id as partner_id',
+            //         'tbl_partner.name as partner_name',
+            //         'tbl_client.created_at as created_at',
+            //         DB::raw("date_format( `tbl_client`.`created_at`, '%M %Y' ) as month_year"),
+            //         // '(date_format( `tbl_client`.`created_at`, '%M %Y' ) AS month_year)',
+            //         'tbl_language.name as language',
+            //         'tbl_message_types.name as message_type',
+            //         'tbl_clnt_outgoing.msg as msg',
+            //         'tbl_client.language_id as language_id',
+            //         'tbl_client.txt_time as preferred_time',
+            //         'tbl_county.name as county',
+            //         'tbl_sub_county.name as sub_county',
+            //         'tbl_sub_county.id as sub_county_id'
+            //     )->get();
+            //     }
+            // });
+
             $message_extract = MessageExtract::select(
                 'clinic_number',
                 'gender',
@@ -254,8 +293,7 @@ class ReportController extends Controller
                 'sub_county',
                 'mfl_code',
                 'facility_name'
-            )
-                ->get();
+            )->get();
         }
         if (Auth::user()->access_level == 'Facility') {
             $all_partners = Partner::where('status', '=', 'Active')

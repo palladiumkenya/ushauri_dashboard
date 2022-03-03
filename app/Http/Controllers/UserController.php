@@ -23,26 +23,75 @@ class UserController extends Controller
     //
     public function showUsers()
     {
-     if (Auth::user()->access_level == 'Partner'){
-        $all_users = User::join('tbl_clinic', 'tbl_clinic.id', '=', 'tbl_users.clinic_id')
-        ->join('tbl_role', 'tbl_role.id', '=', 'tbl_users.role_id')
-            ->select(DB::raw("CONCAT(`tbl_users`.`f_name`, ' ', `tbl_users`.`m_name`, ' ', `tbl_users`.`l_name`) as user_name"), 'tbl_users.f_name', 'tbl_users.m_name', 'tbl_users.l_name', 'tbl_users.dob', 'tbl_users.phone_no', 'tbl_users.e_mail', 'tbl_users.access_level', 'tbl_users.status',
-            'tbl_users.created_at', 'tbl_users.updated_at', 'tbl_clinic.name AS clinic_name', 'tbl_role.id AS role_id', 'tbl_users.view_client', 'tbl_users.rcv_app_list', 'tbl_users.daily_report', 'tbl_users.monthly_report', 'tbl_users.month3_report', 'tbl_users.month6_report', 'tbl_users.yearly_report', 'tbl_users.status',
-            'tbl_users.id as id', 'tbl_users.facility_id', 'tbl_clinic.id as clinic_id')
-            ->where('tbl_users.status', '=', 'Active')
-            ->where('tbl_users.partner_id', Auth::user()->partner_id)
-            ->get();
-     }
+        if (Auth::user()->access_level == 'Partner') {
+            $all_users = User::join('tbl_clinic', 'tbl_clinic.id', '=', 'tbl_users.clinic_id')
+                ->join('tbl_role', 'tbl_role.id', '=', 'tbl_users.role_id')
+                ->select(
+                    DB::raw("CONCAT(`tbl_users`.`f_name`, ' ', `tbl_users`.`m_name`, ' ', `tbl_users`.`l_name`) as user_name"),
+                    'tbl_users.f_name',
+                    'tbl_users.m_name',
+                    'tbl_users.l_name',
+                    'tbl_users.dob',
+                    'tbl_users.phone_no',
+                    'tbl_users.e_mail',
+                    'tbl_users.access_level',
+                    'tbl_users.status',
+                    'tbl_users.created_at',
+                    'tbl_users.updated_at',
+                    'tbl_clinic.name AS clinic_name',
+                    'tbl_role.id AS role_id',
+                    'tbl_users.view_client',
+                    'tbl_users.rcv_app_list',
+                    'tbl_users.daily_report',
+                    'tbl_users.monthly_report',
+                    'tbl_users.month3_report',
+                    'tbl_users.month6_report',
+                    'tbl_users.yearly_report',
+                    'tbl_users.status',
+                    'tbl_users.id as id',
+                    'tbl_users.facility_id',
+                    'tbl_clinic.id as clinic_id'
+                )
+                ->where('tbl_users.status', '=', 'Active')
+                ->where('tbl_users.partner_id', Auth::user()->partner_id)
+                ->get();
+        }
 
-     if (Auth::user()->access_level == 'Admin'){
-        $all_users = User::join('tbl_clinic', 'tbl_clinic.id', '=', 'tbl_users.clinic_id')
-        ->join('tbl_role', 'tbl_role.id', '=', 'tbl_users.role_id')
-            ->select(DB::raw("CONCAT(`tbl_users`.`f_name`, ' ', `tbl_users`.`m_name`, ' ', `tbl_users`.`l_name`) as user_name"), 'tbl_users.f_name', 'tbl_users.m_name', 'tbl_users.l_name', 'tbl_users.dob', 'tbl_users.phone_no', 'tbl_users.e_mail', 'tbl_users.access_level', 'tbl_users.status',
-            'tbl_users.created_at', 'tbl_users.updated_at', 'tbl_clinic.name AS clinic_name', 'tbl_role.id AS role_id', 'tbl_users.view_client', 'tbl_users.rcv_app_list', 'tbl_users.daily_report', 'tbl_users.monthly_report', 'tbl_users.month3_report', 'tbl_users.month6_report', 'tbl_users.yearly_report', 'tbl_users.status',
-            'tbl_users.id as id', 'tbl_users.facility_id', 'tbl_clinic.id as clinic_id', 'tbl_users.partner_id', 'tbl_users.county_id', 'tbl_users.donor_id')
-            ->where('tbl_users.status', '=', 'Active')
-            ->get();
-     }
+        if (Auth::user()->access_level == 'Admin') {
+            $all_users = User::join('tbl_clinic', 'tbl_clinic.id', '=', 'tbl_users.clinic_id')
+                ->join('tbl_role', 'tbl_role.id', '=', 'tbl_users.role_id')
+                ->select(
+                    DB::raw("CONCAT(`tbl_users`.`f_name`, ' ', `tbl_users`.`m_name`, ' ', `tbl_users`.`l_name`) as user_name"),
+                    'tbl_users.f_name',
+                    'tbl_users.m_name',
+                    'tbl_users.l_name',
+                    'tbl_users.dob',
+                    'tbl_users.phone_no',
+                    'tbl_users.e_mail',
+                    'tbl_users.access_level',
+                    'tbl_users.status',
+                    'tbl_users.created_at',
+                    'tbl_users.updated_at',
+                    'tbl_clinic.name AS clinic_name',
+                    'tbl_role.id AS role_id',
+                    'tbl_users.view_client',
+                    'tbl_users.rcv_app_list',
+                    'tbl_users.daily_report',
+                    'tbl_users.monthly_report',
+                    'tbl_users.month3_report',
+                    'tbl_users.month6_report',
+                    'tbl_users.yearly_report',
+                    'tbl_users.status',
+                    'tbl_users.id as id',
+                    'tbl_users.facility_id',
+                    'tbl_clinic.id as clinic_id',
+                    'tbl_users.partner_id',
+                    'tbl_users.county_id',
+                    'tbl_users.donor_id'
+                )
+                ->where('tbl_users.status', '=', 'Active')
+                ->get();
+        }
         $access_level = AccessLevel::all()->where('status', '=', 'Active');
         $partners = Partner::all();
         $donors = Donor::all();
@@ -52,12 +101,12 @@ class UserController extends Controller
             ->get();
         $counties = County::all();
         $clinics = Clinic::all();
-        if (Auth::user()->access_level == 'Partner'){
+        if (Auth::user()->access_level == 'Partner') {
             $roles = Role::all()->where('status', '=', 'Active')
-            ->where('access_level', '=', 'Facility');
+                ->where('access_level', '=', 'Facility');
         }
-        if (Auth::user()->access_level == 'Admin'){
-        $roles = Role::all()->where('status', '=', 'Active');
+        if (Auth::user()->access_level == 'Admin') {
+            $roles = Role::all()->where('status', '=', 'Active');
         }
         $sub_counties = SubCounty::all();
 
@@ -73,22 +122,22 @@ class UserController extends Controller
             ->orderBy('tbl_master_facility.name', 'asc')
             // ->where('tbl_partner_facility.mfl_code', '=', 'tbl_master_facility.code')
             ->get();
-            if (Auth::user()->access_level == 'Partner'){
-                $facilities = PartnerFacility::join('tbl_master_facility', 'tbl_partner_facility.mfl_code', '=', 'tbl_master_facility.code')
+        if (Auth::user()->access_level == 'Partner') {
+            $facilities = PartnerFacility::join('tbl_master_facility', 'tbl_partner_facility.mfl_code', '=', 'tbl_master_facility.code')
                 ->select('tbl_partner_facility.id', 'tbl_master_facility.name', 'tbl_partner_facility.mfl_code as code')
                 ->orderBy('tbl_master_facility.name', 'asc')
-                 ->where('tbl_partner_facility.partner_id', '=', Auth::user()->partner_id)
+                ->where('tbl_partner_facility.partner_id', '=', Auth::user()->partner_id)
                 ->get();
-            }
+        }
         $counties = County::all();
         $clinics = Clinic::all();
         $roles = Role::all()->where('status', '=', 'Active');
         $sub_counties = SubCounty::all();
         $access_level = AccessLevel::all()->where('status', '=', 'Active');
-        if (Auth::user()->access_level == 'Partner'){
+        if (Auth::user()->access_level == 'Partner') {
             $access_level = AccessLevel::all()->where('status', '=', 'Active')
-           // ->where('name', '=', 'Partner')
-            ->where('name', '=', 'Facility');
+                // ->where('name', '=', 'Partner')
+                ->where('name', '=', 'Facility');
         }
 
         $clients = Client::select('tbl_client.clinic_number', 'tbl_clinic.name')
@@ -209,7 +258,7 @@ class UserController extends Controller
                 $user->role_id = $request->rolename;
                 $user->facility_id = $request->facilityname;
                 $user->clinic_id = $request->clinicname;
-                $user->partner_id = Auth::user()->partner_id;
+                $user->partner_id = $request->partner;
             }
             $user->view_client = $request->bio_data;
             $user->rcv_app_list = $request->app_receive;
@@ -267,7 +316,7 @@ class UserController extends Controller
                     'month3_report' => $request->month3_report,
                     'month6_report' => $request->month6_report,
                     'yearly_report' => $request->yearly_report,
-                'created_by' => Auth::user()->id,
+                    'created_by' => Auth::user()->id,
                 ]);
             if ($user) {
                 Session::flash('statuscode', 'success');
@@ -293,7 +342,6 @@ class UserController extends Controller
             if ($user->save()) {
                 Session::flash('statuscode', 'success');
                 return redirect('admin/users')->with('status', 'User has been reset successfull');
-
             } else {
                 Session::flash('statuscode', 'error');
                 return redirect('admin/users')->with('status', 'An error has occurred please try again later');
@@ -334,5 +382,4 @@ class UserController extends Controller
             return back();
         }
     }
-
 }

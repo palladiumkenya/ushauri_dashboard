@@ -363,7 +363,7 @@
             $('#add_facility_div').show();
             $('#add_county_div').hide();
             $('#add_subcounty_div').hide();
-            $('#add_partner_div').hide();
+            $('#add_partner_div').show();
             $('#add_clinic_div').show();
 
             $('#add_bio_div').show();
