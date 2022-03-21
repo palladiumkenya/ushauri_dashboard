@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Client;
+use App\Models\Appointment;
 use App\Models\Facility;
 use App\Models\Gender;
 use App\Models\Partner;
@@ -16,10 +17,20 @@ class NewDashboardController extends Controller
     public function dashboard()
     {
 
-        // showing all the active clients
+        // showing all the active clients, all appointments, missed appointments
         if (Auth::user()->access_level == 'Facility') {
             $client = Client::where('status', '=', 'Active')
                 ->where('mfl_code', Auth::user()->facility_id)
+                ->count();
+            $appointment = Appointment::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->select('tbl_appointment.id')
+                ->where('tbl_client.mfl_code', Auth::user()->facility_id)
+                ->count();
+            $missed_appointment = Appointment::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->select('tbl_appointment.id')
+                ->where('tbl_appointment.app_status', '!=', 'Booked')
+                ->orwhere('tbl_appointment.app_status', '!=', 'Notified')
+                ->where('tbl_client.mfl_code', Auth::user()->facility_id)
                 ->count();
         }
         if (Auth::user()->access_level == 'Partner') {
@@ -27,9 +38,28 @@ class NewDashboardController extends Controller
                 ->where('tbl_client.status', '=', 'Active')
                 ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
                 ->count();
+            $appointment = Appointment::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select('tbl_appointment.id')
+                ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
+                ->count();
+            $missed_appointment = Appointment::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select('tbl_appointment.id')
+                ->where('tbl_appointment.app_status', '!=', 'Booked')
+                ->orwhere('tbl_appointment.app_status', '!=', 'Notified')
+                ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
+                ->count();
         }
         if (Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Donor') {
             $client = Client::where('status', '=', 'Active')
+                ->count();
+            $appointment = Appointment::select('id')
+                ->count();
+            $missed_appointment = Appointment::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->select('tbl_appointment.id')
+                ->where('tbl_appointment.app_status', '!=', 'Booked')
+                ->orwhere('tbl_appointment.app_status', '!=', 'Notified')
                 ->count();
         }
 
