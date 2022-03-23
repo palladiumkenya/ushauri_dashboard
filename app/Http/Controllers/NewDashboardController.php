@@ -101,14 +101,73 @@ class NewDashboardController extends Controller
     public function client_charts()
     {
 
-        // active clients by gender
+
         if (Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Donor') {
+            // active clients by gender
             $clients_male = Client::where('gender', '=', '2')
                 ->where('status', '=', 'Active')
                 ->count();
 
             $clients_female = Client::where('gender', '=', '1')
                 ->where('status', '=', 'Active')
+                ->count();
+
+            // active clients by age distribution
+            $client_to_nine = Client::select(\DB::raw("case when (((year(curdate()) - year(`dob`)) > 0) and ((year(curdate()) - year(`dob`)) <= 9)) then `dob` end"))
+                ->where('status', '=', 'Active')
+                ->count();
+
+            $client_to_nineteen = Client::select(\DB::raw("case when (((year(curdate()) - year(`dob`)) >= 10) and ((year(curdate()) - year(`dob`)) <= 19)) then `dob` end"))
+                ->where('status', '=', 'Active')
+                ->count();
+
+            $client_to_twentyfour = Client::select(\DB::raw("case when (((year(curdate()) - year(`dob`)) >= 20) and ((year(curdate()) - year(`dob`)) <= 24)) then `dob` end"))
+                ->where('status', '=', 'Active')
+                ->count();
+
+            $client_to_twentyfive_above = Client::select(\DB::raw("case when (((year(curdate()) - year(`dob`)) >= 25) then `dob` end"))
+                ->where('status', '=', 'Active')
+                ->count();
+            // consented clients by gender
+
+            $client_consented_male = Client::where('smsenable', '=', 'Yes')
+                ->where('gender', '=', '2')
+                ->count();
+            $client_consented_female = Client::where('smsenable', '=', 'Yes')
+                ->where('gender', '=', '1')
+                ->count();
+            // non consented clients by gender
+            $client_nonconsented_male = Client::where('smsenable', '!=', 'Yes')
+                ->where('gender', '=', '2')
+                ->count();
+            $client_nonconsented_female = Client::where('smsenable', '!=', 'Yes')
+                ->where('gender', '=', '1')
+                ->count();
+            // consented clients by age distribution
+            $client_consented_to_nine = Client::select(\DB::raw("case when (((year(curdate()) - year(`dob`)) > 0) and ((year(curdate()) - year(`dob`)) <= 9)) then `dob` end"))
+                ->where('smsenable', '=', 'Yes')
+                ->count();
+            $client_consented_to_nineteen = Client::select(\DB::raw("case when (((year(curdate()) - year(`dob`)) >= 10) and ((year(curdate()) - year(`dob`)) <= 19)) then `dob` end"))
+                ->where('smsenable', '=', 'Yes')
+                ->count();
+            $client_consented_to_twentyfour = Client::select(\DB::raw("case when (((year(curdate()) - year(`dob`)) >= 20) and ((year(curdate()) - year(`dob`)) <= 24)) then `dob` end"))
+                ->where('smsenable', '=', 'Yes')
+                ->count();
+            $client_consented_to_twentyfive_above = Client::select(\DB::raw("case when ((year(curdate()) - year(`dob`)) >= 25)  then `dob` end"))
+                ->where('smsenable', '=', 'Yes')
+                ->count();
+            // non consented clients by age distribution
+            $client_nonconsented_to_nine = Client::select(\DB::raw("case when (((year(curdate()) - year(`dob`)) > 0) and ((year(curdate()) - year(`dob`)) <= 9)) then `dob` end"))
+                ->where('smsenable', '!=', 'Yes')
+                ->count();
+            $client_nonconsented_to_nineteen = Client::select(\DB::raw("case when (((year(curdate()) - year(`dob`)) >= 10) and ((year(curdate()) - year(`dob`)) <= 19)) then `dob` end"))
+                ->where('smsenable', '!=', 'Yes')
+                ->count();
+            $client_nonconsented_to_twentyfour = Client::select(\DB::raw("case when (((year(curdate()) - year(`dob`)) >= 20) and ((year(curdate()) - year(`dob`)) <= 24)) then `dob` end"))
+                ->where('smsenable', '!=', 'Yes')
+                ->count();
+            $client_nonconsented_to_twentyfive_above = Client::select(\DB::raw("case when ((year(curdate()) - year(`dob`)) >= 25)  then `dob` end"))
+                ->where('smsenable', '!=', 'Yes')
                 ->count();
         }
         if (Auth::user()->access_level == 'Facility') {
@@ -119,6 +178,80 @@ class NewDashboardController extends Controller
 
             $clients_female = Client::where('gender', '=', '1')
                 ->where('status', '=', 'Active')
+                ->where('mfl_code', Auth::user()->facility_id)
+                ->count();
+            // active clients by age distribution
+
+            $client_to_nine = Client::select(\DB::raw("case when (((year(curdate()) - year(`dob`)) > 0) and ((year(curdate()) - year(`dob`)) <= 9)) then `dob` end"))
+                ->where('status', '=', 'Active')
+                ->where('mfl_code', Auth::user()->facility_id)
+                ->count();
+
+            $client_to_nineteen = Client::select(\DB::raw("case when (((year(curdate()) - year(`dob`)) >= 10) and ((year(curdate()) - year(`dob`)) <= 19)) then `dob` end"))
+                ->where('status', '=', 'Active')
+                ->where('mfl_code', Auth::user()->facility_id)
+                ->count();
+
+            $client_to_twentyfour = Client::select(\DB::raw("case when (((year(curdate()) - year(`dob`)) >= 20) and ((year(curdate()) - year(`dob`)) <= 24)) then `dob` end"))
+                ->where('status', '=', 'Active')
+                ->where('mfl_code', Auth::user()->facility_id)
+                ->count();
+
+            $client_to_twentyfive_above = Client::select(\DB::raw("case when (((year(curdate()) - year(`dob`)) >= 25) then `dob` end"))
+                ->where('status', '=', 'Active')
+                ->where('mfl_code', Auth::user()->facility_id)
+                ->count();
+
+            // consented clients by gender
+            $client_consented_male = Client::where('smsenable', '=', 'Yes')
+                ->where('gender', '=', '2')
+                ->where('mfl_code', Auth::user()->facility_id)
+                ->count();
+            $client_consented_female = Client::where('smsenable', '=', 'Yes')
+                ->where('gender', '=', '1')
+                ->where('mfl_code', Auth::user()->facility_id)
+                ->count();
+            // non consented clients by gender
+            $client_nonconsented_male = Client::where('smsenable', '!=', 'Yes')
+                ->where('gender', '=', '2')
+                ->where('mfl_code', Auth::user()->facility_id)
+                ->count();
+            $client_nonconsented_female = Client::where('smsenable', '!=', 'Yes')
+                ->where('gender', '=', '1')
+                ->where('mfl_code', Auth::user()->facility_id)
+                ->count();
+            // consented clients by age distribution
+            $client_consented_to_nine = Client::select(\DB::raw("case when (((year(curdate()) - year(`dob`)) > 0) and ((year(curdate()) - year(`dob`)) <= 9)) then `dob` end"))
+                ->where('smsenable', '=', 'Yes')
+                ->where('mfl_code', Auth::user()->facility_id)
+                ->count();
+            $client_consented_to_nineteen = Client::select(\DB::raw("case when (((year(curdate()) - year(`dob`)) >= 10) and ((year(curdate()) - year(`dob`)) <= 19)) then `dob` end"))
+                ->where('smsenable', '=', 'Yes')
+                ->where('mfl_code', Auth::user()->facility_id)
+                ->count();
+            $client_consented_to_twentyfour = Client::select(\DB::raw("case when (((year(curdate()) - year(`dob`)) >= 20) and ((year(curdate()) - year(`dob`)) <= 24)) then `dob` end"))
+                ->where('smsenable', '=', 'Yes')
+                ->where('mfl_code', Auth::user()->facility_id)
+                ->count();
+            $client_consented_to_twentyfive_above = Client::select(\DB::raw("case when ((year(curdate()) - year(`dob`)) >= 25)  then `dob` end"))
+                ->where('smsenable', '=', 'Yes')
+                ->where('mfl_code', Auth::user()->facility_id)
+                ->count();
+            // non consented clients by age distribution
+            $client_nonconsented_to_nine = Client::select(\DB::raw("case when (((year(curdate()) - year(`dob`)) > 0) and ((year(curdate()) - year(`dob`)) <= 9)) then `dob` end"))
+                ->where('smsenable', '!=', 'Yes')
+                ->where('mfl_code', Auth::user()->facility_id)
+                ->count();
+            $client_nonconsented_to_nineteen = Client::select(\DB::raw("case when (((year(curdate()) - year(`dob`)) >= 10) and ((year(curdate()) - year(`dob`)) <= 19)) then `dob` end"))
+                ->where('smsenable', '!=', 'Yes')
+                ->where('mfl_code', Auth::user()->facility_id)
+                ->count();
+            $client_nonconsented_to_twentyfour = Client::select(\DB::raw("case when (((year(curdate()) - year(`dob`)) >= 20) and ((year(curdate()) - year(`dob`)) <= 24)) then `dob` end"))
+                ->where('smsenable', '!=', 'Yes')
+                ->where('mfl_code', Auth::user()->facility_id)
+                ->count();
+            $client_nonconsented_to_twentyfive_above = Client::select(\DB::raw("case when ((year(curdate()) - year(`dob`)) >= 25)  then `dob` end"))
+                ->where('smsenable', '!=', 'Yes')
                 ->where('mfl_code', Auth::user()->facility_id)
                 ->count();
         }
@@ -134,49 +267,8 @@ class NewDashboardController extends Controller
                 ->where('tbl_client.status', '=', 'Active')
                 ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
                 ->count();
-        }
+            // active clients by age distribution
 
-        // active clients by age distribution
-
-        if (Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Donor') {
-            $client_to_nine = Client::select(\DB::raw("case when (((year(curdate()) - year(`dob`)) > 0) and ((year(curdate()) - year(`dob`)) <= 9)) then `dob` end"))
-                ->where('status', '=', 'Active')
-                ->count();
-
-            $client_to_nineteen = Client::select(\DB::raw("case when (((year(curdate()) - year(`dob`)) >= 10) and ((year(curdate()) - year(`dob`)) <= 19)) then `dob` end"))
-                ->where('status', '=', 'Active')
-                ->count();
-
-            $client_to_twentyfour = Client::select(\DB::raw("case when (((year(curdate()) - year(`dob`)) >= 20) and ((year(curdate()) - year(`dob`)) <= 24)) then `dob` end"))
-                ->where('status', '=', 'Active')
-                ->count();
-
-            $client_to_twentyfive_above = Client::select(\DB::raw("case when (((year(curdate()) - year(`dob`)) >= 25) then `dob` end"))
-                ->where('status', '=', 'Active')
-                ->count();
-        }
-        if (Auth::user()->access_level == 'Facility') {
-            $client_to_nine = Client::select(\DB::raw("case when (((year(curdate()) - year(`dob`)) > 0) and ((year(curdate()) - year(`dob`)) <= 9)) then `dob` end"))
-                ->where('status', '=', 'Active')
-                ->where('mfl_code', Auth::user()->facility_id)
-                ->count();
-
-            $client_to_nineteen = Client::select(\DB::raw("case when (((year(curdate()) - year(`dob`)) >= 10) and ((year(curdate()) - year(`dob`)) <= 19)) then `dob` end"))
-                ->where('status', '=', 'Active')
-                ->where('mfl_code', Auth::user()->facility_id)
-                ->count();
-
-            $client_to_twentyfour = Client::select(\DB::raw("case when (((year(curdate()) - year(`dob`)) >= 20) and ((year(curdate()) - year(`dob`)) <= 24)) then `dob` end"))
-                ->where('status', '=', 'Active')
-                ->where('mfl_code', Auth::user()->facility_id)
-                ->count();
-
-            $client_to_twentyfive_above = Client::select(\DB::raw("case when (((year(curdate()) - year(`dob`)) >= 25) then `dob` end"))
-                ->where('status', '=', 'Active')
-                ->where('mfl_code', Auth::user()->facility_id)
-                ->count();
-        }
-        if (Auth::user()->access_level == 'Partner') {
             $client_to_nine = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
                 ->select(\DB::raw("case when (((year(curdate()) - year(`tbl_client`.`dob`)) > 0) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 9)) then `tbl_client`.`dob` end"))
                 ->where('tbl_client.status', '=', 'Active')
@@ -200,29 +292,8 @@ class NewDashboardController extends Controller
                 ->where('tbl_client.status', '=', 'Active')
                 ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
                 ->count();
-        }
+            // consented clients by gender
 
-        // consented clients by gender
-
-        if (Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Donor') {
-            $client_consented_male = Client::where('smsenable', '=', 'Yes')
-                ->where('gender', '=', '2')
-                ->count();
-            $client_consented_female = Client::where('smsenable', '=', 'Yes')
-                ->where('gender', '=', '1')
-                ->count();
-        }
-        if (Auth::user()->access_level == 'Facility') {
-            $client_consented_male = Client::where('smsenable', '=', 'Yes')
-                ->where('gender', '=', '2')
-                ->where('mfl_code', Auth::user()->facility_id)
-                ->count();
-            $client_consented_female = Client::where('smsenable', '=', 'Yes')
-                ->where('gender', '=', '1')
-                ->where('mfl_code', Auth::user()->facility_id)
-                ->count();
-        }
-        if (Auth::user()->access_level == 'Partner') {
             $client_consented_male = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
                 ->where('tbl_client.smsenable', '=', 'Yes')
                 ->where('gender', '=', '2')
@@ -233,28 +304,7 @@ class NewDashboardController extends Controller
                 ->where('gender', '=', '1')
                 ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
                 ->count();
-        }
-        // non consented clients by gender
-
-        if (Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Donor') {
-            $client_nonconsented_male = Client::where('smsenable', '!=', 'Yes')
-                ->where('gender', '=', '2')
-                ->count();
-            $client_nonconsented_female = Client::where('smsenable', '!=', 'Yes')
-                ->where('gender', '=', '1')
-                ->count();
-        }
-        if (Auth::user()->access_level == 'Facility') {
-            $client_nonconsented_male = Client::where('smsenable', '!=', 'Yes')
-                ->where('gender', '=', '2')
-                ->where('mfl_code', Auth::user()->facility_id)
-                ->count();
-            $client_nonconsented_female = Client::where('smsenable', '!=', 'Yes')
-                ->where('gender', '=', '1')
-                ->where('mfl_code', Auth::user()->facility_id)
-                ->count();
-        }
-        if (Auth::user()->access_level == 'Partner') {
+            // non consented clients by gender
             $client_nonconsented_male = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
                 ->where('tbl_client.smsenable', '!=', 'Yes')
                 ->where('gender', '=', '2')
@@ -265,42 +315,7 @@ class NewDashboardController extends Controller
                 ->where('gender', '=', '1')
                 ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
                 ->count();
-        }
-
-        // consented clients by age distribution
-        if (Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Donor') {
-            $client_consented_to_nine = Client::select(\DB::raw("case when (((year(curdate()) - year(`dob`)) > 0) and ((year(curdate()) - year(`dob`)) <= 9)) then `dob` end"))
-                ->where('smsenable', '=', 'Yes')
-                ->count();
-            $client_consented_to_nineteen = Client::select(\DB::raw("case when (((year(curdate()) - year(`dob`)) >= 10) and ((year(curdate()) - year(`dob`)) <= 19)) then `dob` end"))
-                ->where('smsenable', '=', 'Yes')
-                ->count();
-            $client_consented_to_twentyfour = Client::select(\DB::raw("case when (((year(curdate()) - year(`dob`)) >= 20) and ((year(curdate()) - year(`dob`)) <= 24)) then `dob` end"))
-                ->where('smsenable', '=', 'Yes')
-                ->count();
-            $client_consented_to_twentyfive_above = Client::select(\DB::raw("case when ((year(curdate()) - year(`dob`)) >= 25)  then `dob` end"))
-                ->where('smsenable', '=', 'Yes')
-                ->count();
-        }
-        if (Auth::user()->access_level == 'Facility') {
-            $client_consented_to_nine = Client::select(\DB::raw("case when (((year(curdate()) - year(`dob`)) > 0) and ((year(curdate()) - year(`dob`)) <= 9)) then `dob` end"))
-                ->where('smsenable', '=', 'Yes')
-                ->where('mfl_code', Auth::user()->facility_id)
-                ->count();
-            $client_consented_to_nineteen = Client::select(\DB::raw("case when (((year(curdate()) - year(`dob`)) >= 10) and ((year(curdate()) - year(`dob`)) <= 19)) then `dob` end"))
-                ->where('smsenable', '=', 'Yes')
-                ->where('mfl_code', Auth::user()->facility_id)
-                ->count();
-            $client_consented_to_twentyfour = Client::select(\DB::raw("case when (((year(curdate()) - year(`dob`)) >= 20) and ((year(curdate()) - year(`dob`)) <= 24)) then `dob` end"))
-                ->where('smsenable', '=', 'Yes')
-                ->where('mfl_code', Auth::user()->facility_id)
-                ->count();
-            $client_consented_to_twentyfive_above = Client::select(\DB::raw("case when ((year(curdate()) - year(`dob`)) >= 25)  then `dob` end"))
-                ->where('smsenable', '=', 'Yes')
-                ->where('mfl_code', Auth::user()->facility_id)
-                ->count();
-        }
-        if (Auth::user()->access_level == 'Partner') {
+            // consented clients by age distribution
             $client_consented_to_nine = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
                 ->select(\DB::raw("case when (((year(curdate()) - year(`tbl_client`.`dob`)) > 0) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 9)) then `tbl_client`.`dob` end"))
                 ->where('tbl_client.smsenable', '=', 'Yes')
@@ -321,42 +336,7 @@ class NewDashboardController extends Controller
                 ->where('tbl_client.smsenable', '=', 'Yes')
                 ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
                 ->count();
-        }
-
-        // non consented clients by age distribution
-        if (Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Donor') {
-            $client_nonconsented_to_nine = Client::select(\DB::raw("case when (((year(curdate()) - year(`dob`)) > 0) and ((year(curdate()) - year(`dob`)) <= 9)) then `dob` end"))
-                ->where('smsenable', '!=', 'Yes')
-                ->count();
-            $client_nonconsented_to_nineteen = Client::select(\DB::raw("case when (((year(curdate()) - year(`dob`)) >= 10) and ((year(curdate()) - year(`dob`)) <= 19)) then `dob` end"))
-                ->where('smsenable', '!=', 'Yes')
-                ->count();
-            $client_nonconsented_to_twentyfour = Client::select(\DB::raw("case when (((year(curdate()) - year(`dob`)) >= 20) and ((year(curdate()) - year(`dob`)) <= 24)) then `dob` end"))
-                ->where('smsenable', '!=', 'Yes')
-                ->count();
-            $client_nonconsented_to_twentyfive_above = Client::select(\DB::raw("case when ((year(curdate()) - year(`dob`)) >= 25)  then `dob` end"))
-                ->where('smsenable', '!=', 'Yes')
-                ->count();
-        }
-        if (Auth::user()->access_level == 'Facility') {
-            $client_nonconsented_to_nine = Client::select(\DB::raw("case when (((year(curdate()) - year(`dob`)) > 0) and ((year(curdate()) - year(`dob`)) <= 9)) then `dob` end"))
-                ->where('smsenable', '!=', 'Yes')
-                ->where('mfl_code', Auth::user()->facility_id)
-                ->count();
-            $client_nonconsented_to_nineteen = Client::select(\DB::raw("case when (((year(curdate()) - year(`dob`)) >= 10) and ((year(curdate()) - year(`dob`)) <= 19)) then `dob` end"))
-                ->where('smsenable', '!=', 'Yes')
-                ->where('mfl_code', Auth::user()->facility_id)
-                ->count();
-            $client_nonconsented_to_twentyfour = Client::select(\DB::raw("case when (((year(curdate()) - year(`dob`)) >= 20) and ((year(curdate()) - year(`dob`)) <= 24)) then `dob` end"))
-                ->where('smsenable', '!=', 'Yes')
-                ->where('mfl_code', Auth::user()->facility_id)
-                ->count();
-            $client_nonconsented_to_twentyfive_above = Client::select(\DB::raw("case when ((year(curdate()) - year(`dob`)) >= 25)  then `dob` end"))
-                ->where('smsenable', '!=', 'Yes')
-                ->where('mfl_code', Auth::user()->facility_id)
-                ->count();
-        }
-        if (Auth::user()->access_level == 'Partner') {
+            // non consented clients by age distribution
             $client_nonconsented_to_nine = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
                 ->select(\DB::raw("case when (((year(curdate()) - year(`tbl_client`.`dob`)) > 0) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 9)) then `tbl_client`.`dob` end"))
                 ->where('tbl_client.smsenable', '!=', 'Yes')
