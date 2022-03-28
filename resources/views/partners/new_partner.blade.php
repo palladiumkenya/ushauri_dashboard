@@ -101,7 +101,7 @@
                                     </div>
                                     <div class="col-md-6 form-group mb-3">
                                         <label for="add_partner_type">Partner Type</label>
-                                        <select class="form-control dynamic" data-dependant="rolename" data-width="100%" id="partner_type" name="partner_type">
+                                        <select class="form-control dynamic" data-width="100%" id="partner_type" name="partner_type">
                                             <option value="">Please select </option>
                                             @if (count($partner_type) > 0)
                                             @foreach($partner_type as $type)
@@ -220,31 +220,30 @@
         "ordering": true,
         "info": true,
         dom: 'Bfrtip',
-        buttons: [
-            {
-            extend: 'copy',
-            title: 'List Of Partners',
-            filename: 'List Of Partners'
+        buttons: [{
+                extend: 'copy',
+                title: 'List Of Partners',
+                filename: 'List Of Partners'
             },
             {
-            extend: 'csv',
-            title: 'List Of Partners',
-            filename: 'List Of Partners'
+                extend: 'csv',
+                title: 'List Of Partners',
+                filename: 'List Of Partners'
             },
             {
-            extend: 'excel',
-            title: 'List Of Partners',
-            filename: 'List Of Partners'
+                extend: 'excel',
+                title: 'List Of Partners',
+                filename: 'List Of Partners'
             },
             {
-            extend: 'pdf',
-            title: 'List Of Partners',
-            filename: 'List Of Partners'
+                extend: 'pdf',
+                title: 'List Of Partners',
+                filename: 'List Of Partners'
             },
             {
-            extend: 'print',
-            title: 'List Of Partners',
-            filename: 'List Of Partners'
+                extend: 'print',
+                title: 'List Of Partners',
+                filename: 'List Of Partners'
             }
         ]
     });

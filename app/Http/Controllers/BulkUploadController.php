@@ -186,11 +186,11 @@ class BulkUploadController extends Controller
                 $client_status = trim($receivedArr[$i]['client_status']);
                 $clinic_id = trim($receivedArr[$i]['clinic_id']);
                 $text_frequency = 168;
-                $text_time = 7;
-                $wellness = "Yes";
-                $motivational = "Yes";
-                $smsenable = "Yes";
-                $language = trim($receivedArr[$i]['language_id']);;
+                $text_time = 19;
+                $wellness = "No";
+                $motivational = "No";
+                $smsenable = trim($receivedArr[$i]['smsenable']);
+                $language = trim($receivedArr[$i]['language_id']);
 
 
                 $client = new Client;
