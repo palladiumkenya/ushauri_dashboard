@@ -88,13 +88,13 @@ class BulkUploadController extends Controller
                 $mfl_code = trim($receivedArr[$i]['MFL']);
                 $partner_id = trim($receivedArr[$i]['PartnerID']);
                 $status = "Active";
-                $client_status = "Art";
+                $client_status = "ART";
                 $clinic_id = 1;
                 $text_frequency = 168;
                 $text_time = 7;
-                $wellness = "Yes";
-                $motivational = "Yes";
-                $smsenable = "Yes";
+                $wellness = "No";
+                $motivational = "No";
+                $smsenable = trim($receivedArr[$i]['smsenable']);
                 $language = 2;
 
 
@@ -122,6 +122,7 @@ class BulkUploadController extends Controller
                 $client->txt_time = $text_time;
                 $client->wellness_enable = $wellness;
                 $client->motivational_enable = $motivational;
+                $client->smsenable = $smsenable;
                 $client->created_by =  Auth::user()->id;
                 $client->updated_by = Auth::user()->id;
 
@@ -217,6 +218,7 @@ class BulkUploadController extends Controller
                 $client->txt_time = $text_time;
                 $client->wellness_enable = $wellness;
                 $client->motivational_enable = $motivational;
+                $client->smsenable = $smsenable;
                 $client->created_by =  Auth::user()->id;
                 $client->updated_by = Auth::user()->id;
 

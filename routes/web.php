@@ -56,8 +56,8 @@ Route::group(['middleware' => 'auth'], function () {
 
   // Dashboard routes
   Route::get('/main_graph_dashboard', ['uses' => 'App\Http\Controllers\DashboardController@main_graph_dashboard', 'as' => 'main_graph_dashboard']);
-  Route::get('/filter_client_dashboard', ['uses'=>'App\Http\Controllers\DashboardController@filter_client_dashboard', 'as' => 'filter_client_dashboard']);
-  Route::get('/filter_appointment_dashboard', ['uses'=>'App\Http\Controllers\AppointmentController@filter_appointment_dashboard', 'as' => 'filter_appointment_dashboard']);
+  Route::get('/filter_client_dashboard', ['uses' => 'App\Http\Controllers\DashboardController@filter_client_dashboard', 'as' => 'filter_client_dashboard']);
+  Route::get('/filter_appointment_dashboard', ['uses' => 'App\Http\Controllers\AppointmentController@filter_appointment_dashboard', 'as' => 'filter_appointment_dashboard']);
   Route::get('/filter_dashboard', ['uses' => 'App\Http\Controllers\DashboardController@filter_dashboard', 'as' => 'filter_dashboard']);
   Route::get('/get_dashboard_counties/{id}', ['uses' => 'App\Http\Controllers\DashboardController@get_counties', 'as' => 'get_counties']);
   Route::get('/get_dashboard_sub_counties/{id}', ['uses' => 'App\Http\Controllers\DashboardController@get_dashboard_sub_counties', 'as' => 'get_dashboard_sub_counties']);
@@ -197,6 +197,7 @@ Route::group(['middleware' => 'auth'], function () {
   Route::get('/sms/analytics', ['uses' => 'App\Http\Controllers\SMSReportController@success_sms', 'as' => 'sms-analytics']);
   Route::get('/filter_sms', ['uses' => 'App\Http\Controllers\SMSReportController@filter_sms', 'as' => 'filter_sms']);
   Route::get('/filters_sms', ['uses' => 'App\Http\Controllers\SMSReportController@filtering_sms', 'as' => 'filtering_sms']);
+
+  // new dashbaord routes
+  Route::get('/admin/dashboard', ['uses' => 'App\Http\Controllers\NewDashboardController@dashboard', 'as' => 'dashboard']);
 });
-
-

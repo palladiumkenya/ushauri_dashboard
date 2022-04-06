@@ -24,18 +24,19 @@ class PartnerController extends Controller
     {
         $partner_type = PartnerType::all();
         return view('partners.addpartner', compact('partner_type'));
+        
     }
     public function addpartner(Request $request)
     {
 
         try {
             $partner = new Partner;
-            $validate = Partner::where('phone_no', $request->phone)->first();
+            // $validate = Partner::where('phone_no', $request->phone)->first();
 
-            if ($validate) {
-                Session::flash('statuscode', 'error');
-                return redirect('admin/partners/form')->with('status', 'Phone Number is already used in the system!');
-            }
+            // if ($validate) {
+            //     Session::flash('statuscode', 'error');
+            //     return redirect('admin/partners/form')->with('status', 'Phone Number is already used in the system!');
+            // }
 
             $partner->name = $request->name;
             $partner->description = $request->description;
