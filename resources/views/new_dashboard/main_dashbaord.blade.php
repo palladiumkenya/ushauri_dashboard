@@ -15,7 +15,7 @@
 
 <div class="col">
 
-    <form role="form" method="post" action="#" id="dataFilter">
+<form role="form" method="get" action="{{route('filter_charts')}}">
         {{ csrf_field() }}
         <div class="row">
             <div class="col">
@@ -69,21 +69,39 @@
                 </div>
             </div>
 
-            <div class='col-sm-2'>
-                <div class="form-group">
-                    <div id="filterDate2">
+            <div class='col'>
+                                <div class="form-group">
+                                    <div class="input-group">
 
-                        <!-- Datepicker as text field -->
-                        <div class="input-group date" data-date-format="yyyy-mm-dd">
-                            <input type="text" class="form-control" placeholder="To">
-                            <div class="input-group-addon">
-                                <span class="glyphicon glyphicon-th"></span>
+                                        <div class="col-md-10">
+
+                                            <input type="date" id="from" class="form-control" placeholder="From" name="from">
+                                        </div>
+                                        <div class="input-group-append">
+                                            <button class="btn btn-secondary" type="button">
+                                                <i class="icon-regular i-Calendar-4"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
+            <div class="col">
+            <div class='col'>
+                                <div class="form-group">
+                                    <div class="input-group">
 
-                    </div>
-                </div>
-            </div>
+                                        <div class="col-md-10">
+
+                                            <input type="date" id="to" class="form-control" placeholder="To" name="to">
+                                        </div>
+                                        <div class="input-group-append">
+                                            <button class="btn btn-secondary" type="button">
+                                                <i class="icon-regular i-Calendar-4"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
             <div class="col">
                 <div class="form-group">
                     <span class="filter_facility_wait" style="display: none;"></span>
@@ -99,16 +117,16 @@
 @endif
 <nav>
     <div class="nav nav-tabs" id="nav-tab" role="tablist">
-        <a class="nav-item nav-link active" id="nav-home-tab" data-toggle="tab" href="#nav-home" role="tab" aria-controls="nav-home" aria-selected="true">Dashboard</a>
-        <a class="nav-item nav-link" id="nav-profile-tab" data-toggle="tab" href="#nav-profile" role="tab" aria-controls="nav-profile" aria-selected="false">Clients</a>
-        <a class="nav-item nav-link" id="nav-contact-tab" data-toggle="tab" href="#nav-contact" role="tab" aria-controls="nav-contact" aria-selected="false">Appointments</a>
-        <a class="nav-item nav-link" id="nav-contact-tab" data-toggle="tab" href="#nav-contact" role="tab" aria-controls="nav-contact" aria-selected="false">Missed Appointnments</a>
-        <a class="nav-item nav-link" id="nav-contact-tab" data-toggle="tab" href="#nav-contact" role="tab" aria-controls="nav-contact" aria-selected="false">Indicators Definitions</a>
+        <a class="nav-item nav-link active" id="nav-dashboard-tab" data-toggle="tab" href="#nav-dashboard" role="tab" aria-controls="nav-dashboard" aria-selected="true">Dashboard</a>
+        <a class="nav-item nav-link" id="nav-client-tab" data-toggle="tab" href="#nav-client" role="tab" aria-controls="nav-client" aria-selected="false">Clients</a>
+        <a class="nav-item nav-link" id="nav-appointment-tab" data-toggle="tab" href="#nav-appointment" role="tab" aria-controls="nav-appointment" aria-selected="false">Appointments</a>
+        <a class="nav-item nav-link" id="nav-missed-tab" data-toggle="tab" href="#nav-missed" role="tab" aria-controls="nav-missed" aria-selected="false">Missed Appointnments</a>
+        <a class="nav-item nav-link"  data-toggle="tab" href="{{route('new_client')}}" role="tab"  aria-selected="false">Indicators Definitions</a>
     </div>
 </nav>
 <div class="tab-content" id="nav-tabContent">
     <!-- main dashbaord starts -->
-    <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">
+    <div class="tab-pane fade show active" id="nav-dashboard" role="tabpanel" aria-labelledby="nav-dashboard-tab">
 
 
         <div id="highchart"></div>
@@ -120,7 +138,7 @@
                         <div class="content">
                             <p class="text-muted mt-2 mb-0">Facilities </p>
 
-                            <p class="text-primary text-20 line-height-1 mb-1">{{$active_facilities}}</p>
+                            <p class="text-primary text-20 line-height-1 mb-1">{{count($active_facilities)}}</p>
                         </div>
                     </div>
                 </div>
@@ -211,8 +229,245 @@
 
     </div>
     <!-- main dashbaord ends -->
-    <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">...</div>
-    <div class="tab-pane fade" id="nav-contact" role="tabpanel" aria-labelledby="nav-contact-tab">...</div>
+
+    <!-- client dashbaord starts -->
+    <div class="tab-pane fade" id="nav-client" role="tabpanel" aria-labelledby="nav-client-tab">
+        <div class="row">
+            <div class="col-lg-4 ">
+                <div class="card card-icon-bg card-icon-bg-primary o-hidden mb-4 h-75">
+                    <div class="card-body text-center">
+                        <div class="content">
+                            <p class="text-muted mt-2 mb-0">Clients</p>
+
+                            <p id="allApps" class="text-primary text-20 line-height-1 mb-2">{{$client}}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card card-icon-bg card-icon-bg-primary o-hidden mb-4 h-75">
+                    <div class="card-body text-center">
+                        <div class="content">
+                            <p class="text-muted mt-2 mb-0">Consented</p>
+
+                            <p id="keptApps" class="text-primary text-20 line-height-1 mb-2">{{$client_consented}}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card card-icon-bg card-icon-bg-primary o-hidden mb-4 h-75">
+                    <div class="card-body text-center">
+                        <div class="content">
+                            <p class="text-muted mt-2 mb-0">Non Consented</p>
+
+                            <p id="defaultedApps" class="text-primary text-20 line-height-1 mb-2">{{$client_nonconsented}}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+        <div class="row">
+            <div class="col-6">
+
+                <div class="card-body row">
+                    <div id="consented_gender" class="col" style="height:  400px;margin-top:20px;width: 900px"></div> <br />
+                </div>
+            </div>
+            <div class="col-6">
+
+                <div class="card-body row">
+                    <div id="consented_age" class="col" style="height:  400px;margin-top:20px;width: 900px"></div> <br />
+                </div>
+            </div>
+
+        </div>
+        <div class="row">
+            <div class="col-6">
+
+                <div class="card-body row">
+                    <div id="nonconsented_gender" class="col" style="height:  400px;margin-top:20px;width: 900px"></div> <br />
+                </div>
+            </div>
+            <div class="col-6">
+
+                <div class="card-body row">
+                    <div id="nonconsented_age" class="col" style="height:  400px;margin-top:20px;width: 900px"></div> <br />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- client dashboard ends -->
+    <div class="tab-pane fade" id="nav-appointment" role="tabpanel" aria-labelledby="nav-appointment-tab">
+        <div class="row">
+            <div class="col-lg-4 ">
+                <div class="card card-icon-bg card-icon-bg-primary o-hidden mb-4 h-75">
+                    <div class="card-body text-center">
+                        <div class="content">
+                            <p class="text-muted mt-2 mb-0">Appointments</p>
+
+                            <p id="allApps" class="text-primary text-20 line-height-1 mb-2">{{$appointment}}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card card-icon-bg card-icon-bg-primary o-hidden mb-4 h-75">
+                    <div class="card-body text-center">
+                        <div class="content">
+                            <p class="text-muted mt-2 mb-0">Honored</p>
+
+                            <p id="keptApps" class="text-primary text-20 line-height-1 mb-2">{{$appointment_honoured}}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card card-icon-bg card-icon-bg-primary o-hidden mb-4 h-75">
+                    <div class="card-body text-center">
+                        <div class="content">
+                            <p class="text-muted mt-2 mb-0">Not Honored</p>
+
+                            <p id="defaultedApps" class="text-primary text-20 line-height-1 mb-2">{{$appointment_not_honoured}}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+        <div class="row">
+            <div class="col-6">
+
+                <div class="card-body row">
+                    <div id="appointment_honoured_gender" class="col" style="height:  400px;margin-top:20px;width: 900px"></div> <br />
+                </div>
+            </div>
+            <div class="col-6">
+
+                <div class="card-body row">
+                    <div id="appointment_honoured_age" class="col" style="height:  400px;margin-top:20px;width: 900px"></div> <br />
+                </div>
+            </div>
+
+        </div>
+        <div class="row">
+            <div class="col-6">
+
+                <div class="card-body row">
+                    <div id="appointment_not_honoured_gender" class="col" style="height:  400px;margin-top:20px;width: 900px"></div> <br />
+                </div>
+            </div>
+            <div class="col-6">
+
+                <div class="card-body row">
+                    <div id="appointment_not_honoured_age" class="col" style="height:  400px;margin-top:20px;width: 900px"></div> <br />
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="tab-pane fade" id="nav-missed" role="tabpanel" aria-labelledby="nav-missed-tab">
+    <div class="row">
+            <div class="col-lg-3 ">
+                <div class="card card-icon-bg card-icon-bg-primary o-hidden mb-4 h-75">
+                    <div class="card-body text-center">
+                        <div class="content">
+                            <p class="text-muted mt-2 mb-0">Total Missed</p>
+
+                            <p id="allApps" class="text-primary text-20 line-height-1 mb-2">{{$appointment_not_honoured}}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-3">
+                <div class="card card-icon-bg card-icon-bg-primary o-hidden mb-4 h-75">
+                    <div class="card-body text-center">
+                        <div class="content">
+                            <p class="text-muted mt-2 mb-0">Missed</p>
+
+                            <p id="keptApps" class="text-primary text-20 line-height-1 mb-2">{{$appointment_missed}}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-3">
+                <div class="card card-icon-bg card-icon-bg-primary o-hidden mb-4 h-75">
+                    <div class="card-body text-center">
+                        <div class="content">
+                            <p class="text-muted mt-2 mb-0">Defaulted</p>
+
+                            <p id="defaultedApps" class="text-primary text-20 line-height-1 mb-2">{{$appointment_defaulted}}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3">
+                <div class="card card-icon-bg card-icon-bg-primary o-hidden mb-4 h-75">
+                    <div class="card-body text-center">
+                        <div class="content">
+                            <p class="text-muted mt-2 mb-0">Lost To Follow Up</p>
+
+                            <p id="defaultedApps" class="text-primary text-20 line-height-1 mb-2">{{$appointment_lftu}}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="row">
+            <div class="col-6">
+
+                <div class="card-body row">
+                    <div id="appointment_missed_gender" class="col" style="height:  400px;margin-top:20px;width: 900px"></div> <br />
+                </div>
+            </div>
+            <div class="col-6">
+
+                <div class="card-body row">
+                    <div id="appointment_missed_age" class="col" style="height:  400px;margin-top:20px;width: 900px"></div> <br />
+                </div>
+            </div>
+
+        </div>
+        <div class="row">
+            <div class="col-6">
+
+                <div class="card-body row">
+                    <div id="appointment_defaulted_gender" class="col" style="height:  400px;margin-top:20px;width: 900px"></div> <br />
+                </div>
+            </div>
+            <div class="col-6">
+
+                <div class="card-body row">
+                    <div id="appointment_defaulted_age" class="col" style="height:  400px;margin-top:20px;width: 900px"></div> <br />
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-6">
+                <div class="card-body row">
+                    <div id="appointment_ltfu_gender" class="col" style="height:  400px;margin-top:20px;width: 900px"></div> <br />
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="card-body row">
+                    <div id="appointment_lftu_age" class="col" style="height:  400px;margin-top:20px;width: 900px"></div> <br />
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="tab-pane fade" id="nav-indicators" role="tabpanel" aria-labelledby="nav-indicators-tab">
+
+    </div>
 </div>
 
 
@@ -262,6 +517,74 @@
     var Appointment_total_missed_to_twentyfour = <?php echo json_encode($appointment_total_missed_to_twentyfour) ?>;
     var Appointment_total_missed_to_twentyfive_above = <?php echo json_encode($appointment_total_missed_to_twentyfive_above) ?>;
     var Appointment_total_missed_uknown_age = <?php echo json_encode($appointment_total_missed_uknown_age) ?>;
+
+    var Client_consented_male = <?php echo json_encode($client_consented_male) ?>;
+    var Client_consented_female = <?php echo json_encode($client_consented_female) ?>;
+    var Client_consented_uknown_gender = <?php echo json_encode($client_consented_uknown_gender) ?>;
+    var Client_nonconsented_male = <?php echo json_encode($client_nonconsented_male) ?>;
+    var Client_nonconsented_female = <?php echo json_encode($client_nonconsented_female) ?>;
+    var Client_nonconsented_uknown_gender = <?php echo json_encode($client_nonconsented_uknown_gender) ?>;
+    var Client_consented_to_nine = <?php echo json_encode($client_consented_to_nine) ?>;
+    var Client_consented_to_fourteen = <?php echo json_encode($client_consented_to_fourteen) ?>;
+    var Client_consented_to_nineteen = <?php echo json_encode($client_consented_to_nineteen) ?>;
+    var Client_consented_to_twentyfour = <?php echo json_encode($client_consented_to_twentyfour) ?>;
+    var Client_consented_to_twentyfive_above = <?php echo json_encode($client_consented_to_twentyfive_above) ?>;
+    var Client_consented_uknown_age = <?php echo json_encode($client_consented_uknown_age) ?>;
+    var Client_nonconsented_to_nine = <?php echo json_encode($client_nonconsented_to_nine) ?>;
+    var Client_nonconsented_to_fourteen = <?php echo json_encode($client_nonconsented_to_fourteen) ?>;
+    var Client_nonconsented_to_nineteen = <?php echo json_encode($client_nonconsented_to_nineteen) ?>;
+    var Client_nonconsented_to_twentyfour = <?php echo json_encode($client_nonconsented_to_twentyfour) ?>;
+    var Client_nonconsented_to_twentyfive_above = <?php echo json_encode($client_nonconsented_to_twentyfive_above) ?>;
+    var Client_nonconsented_uknown_age = <?php echo json_encode($client_nonconsented_uknown_age) ?>;
+
+
+    var Appointment_honoured_male = <?php echo json_encode($appointment_honoured_male) ?>;
+    var Appointment_honoured_female = <?php echo json_encode($appointment_honoured_female) ?>;
+    var Appointment_honoured_uknown_gender = <?php echo json_encode($appointment_honoured_uknown_gender) ?>;
+    var Appointment_honored_to_nine = <?php echo json_encode($appointment_honored_to_nine) ?>;
+    var Appointment_honored_to_fourteen = <?php echo json_encode($appointment_honored_to_fourteen) ?>;
+    var Appointment_honored_to_nineteen = <?php echo json_encode($appointment_honored_to_nineteen) ?>;
+    var Appointment_honored_to_twentyfour = <?php echo json_encode($appointment_honored_to_twentyfour) ?>;
+    var Appointment_honored_to_twentyfive_above = <?php echo json_encode($appointment_honored_to_twentyfive_above) ?>;
+    var Appointment_honored_to_uknown_age = <?php echo json_encode($appointment_honored_to_uknown_age) ?>;
+    var Appointment_not_honoured_male = <?php echo json_encode($appointment_not_honoured_male) ?>;
+    var Appointment_not_honoured_female = <?php echo json_encode($appointment_not_honoured_female) ?>;
+    var Appointment_not_honoured_uknown_gender = <?php echo json_encode($appointment_not_honoured_uknown_gender) ?>;
+    var Appointment_not_honored_to_nine = <?php echo json_encode($appointment_not_honored_to_nine) ?>;
+    var Appointment_not_honored_to_fourteen = <?php echo json_encode($appointment_not_honored_to_fourteen) ?>;
+    var Appointment_not_honored_to_nineteen = <?php echo json_encode($appointment_not_honored_to_nineteen) ?>;
+    var Appointment_not_honored_to_twentyfour = <?php echo json_encode($appointment_not_honored_to_twentyfour) ?>;
+    var Appointment_not_honored_to_twentyfive_above = <?php echo json_encode($appointment_not_honored_to_twentyfive_above) ?>;
+    var Appointment_not_honored_to_uknown_age = <?php echo json_encode($appointment_not_honored_to_uknown_age) ?>;
+
+
+    var Appointment_missed_male = <?php echo json_encode($appointment_missed_male) ?>;
+    var Appointment_missed_female = <?php echo json_encode($appointment_missed_female) ?>;
+    var Appointment_missed_uknown_gender = <?php echo json_encode($appointment_missed_uknown_gender) ?>;
+    var Appointment_missed_to_nine = <?php echo json_encode($appointment_missed_to_nine) ?>;
+    var Appointment_missed_to_fourteen = <?php echo json_encode($appointment_missed_to_fourteen) ?>;
+    var Appointment_missed_to_nineteen = <?php echo json_encode($appointment_missed_to_nineteen) ?>;
+    var Appointment_missed_to_twentyfour = <?php echo json_encode($appointment_missed_to_twentyfour) ?>;
+    var Appointment_missed_to_twentyfive_above = <?php echo json_encode($appointment_missed_to_twentyfive_above) ?>;
+    var Appointment_missed_to_uknown_age = <?php echo json_encode($appointment_missed_to_uknown_age) ?>;
+    var Appointment_defaulted_female = <?php echo json_encode($appointment_defaulted_female) ?>;
+    var Appointment_defaulted_male = <?php echo json_encode($appointment_defaulted_male) ?>;
+    var Appointment_defaulted_uknown_gender = <?php echo json_encode($appointment_defaulted_uknown_gender) ?>;
+    var Appointment_defaulted_to_nine = <?php echo json_encode($appointment_defaulted_to_nine) ?>;
+    var Appointment_defaulted_to_fourteen = <?php echo json_encode($appointment_defaulted_to_fourteen) ?>;
+    var Appointment_defaulted_to_nineteen = <?php echo json_encode($appointment_defaulted_to_nineteen) ?>;
+    var Appointment_defaulted_to_twentyfour = <?php echo json_encode($appointment_defaulted_to_twentyfour) ?>;
+    var Appointment_defaulted_to_twentyfive_above = <?php echo json_encode($appointment_defaulted_to_twentyfive_above) ?>;
+    var Appointment_defaulted_to_uknown_age = <?php echo json_encode($appointment_defaulted_to_uknown_age) ?>;
+    var Appointment_ltfu_female = <?php echo json_encode($appointment_ltfu_female) ?>;
+    var Appointment_ltfu_male = <?php echo json_encode($appointment_ltfu_male) ?>;
+    var Appointment_ltfu_uknown_gender = <?php echo json_encode($appointment_ltfu_uknown_gender) ?>;
+    var Appointment_ltfu_to_nine = <?php echo json_encode($appointment_ltfu_to_nine) ?>;
+    var Appointment_ltfu_to_fourteen = <?php echo json_encode($appointment_ltfu_to_fourteen) ?>;
+    var Appointment_ltfu_to_nineteen = <?php echo json_encode($appointment_ltfu_to_nineteen) ?>;
+    var Appointment_ltfu_to_twentyfour = <?php echo json_encode($appointment_ltfu_to_twentyfour) ?>;
+    var Appointment_ltfu_to_twentyfive_above = <?php echo json_encode($appointment_ltfu_to_twentyfive_above) ?>;
+    var Appointment_ltfu_to_uknown_age = <?php echo json_encode($appointment_ltfu_to_uknown_age) ?>;
 
 
     $(document).ready(function() {
@@ -634,6 +957,628 @@
         series: [{
             name: 'Age',
             data: [Appointment_total_missed_to_nine, Appointment_total_missed_to_fourteen, Appointment_total_missed_to_nineteen, Appointment_total_missed_to_twentyfour, Appointment_total_missed_to_twentyfive_above, Appointment_total_missed_uknown_age]
+        }],
+
+    });
+
+    // CONSENTED CLIENTS GENDER
+    var appChart = Highcharts.chart('consented_gender', {
+        chart: {
+            type: 'column'
+        },
+        title: {
+            text: 'Consented Clients By Gender'
+        },
+        xAxis: {
+            categories: ['Male', 'Female', 'UKNOWN Gender']
+        },
+        yAxis: {
+            min: 0,
+            title: {
+                text: 'No of Consented Clients'
+            },
+            stackLabels: {
+                enabled: true,
+                style: {
+                    fontWeight: 'bold',
+                    color: ( // theme
+                        Highcharts.defaultOptions.title.style &&
+                        Highcharts.defaultOptions.title.style.color
+                    ) || 'gray'
+                }
+            }
+        },
+        tooltip: {
+            formatter: function() {
+                return '<b>' + this.x + '</b><br/>' +
+                    this.series.name + ': ' + this.y;
+            }
+        },
+        plotOptions: {
+            column: {
+                stacking: 'normal',
+            }
+        },
+        series: [{
+            name: 'Gender',
+            data: [Client_consented_male, Client_consented_female, Client_consented_uknown_gender]
+        }],
+
+    });
+    // CONSENTED CLIENTS AGE
+    var appChart = Highcharts.chart('consented_age', {
+        chart: {
+            type: 'column'
+        },
+        title: {
+            text: 'Consented Clients By Age'
+        },
+        xAxis: {
+            categories: ['0-9 YRS', '10-14 YRS', '15-19 YRS', '20-24 YRS', '25+ YRS', 'UKNOWN AGE']
+        },
+        yAxis: {
+            min: 0,
+            title: {
+                text: 'No of Consented Clients'
+            },
+            stackLabels: {
+                enabled: true,
+                style: {
+                    fontWeight: 'bold',
+                    color: ( // theme
+                        Highcharts.defaultOptions.title.style &&
+                        Highcharts.defaultOptions.title.style.color
+                    ) || 'gray'
+                }
+            }
+        },
+        tooltip: {
+            formatter: function() {
+                return '<b>' + this.x + '</b><br/>' +
+                    this.series.name + ': ' + this.y;
+            }
+        },
+        plotOptions: {
+            column: {
+                stacking: 'normal',
+            }
+        },
+        series: [{
+            name: 'Age',
+            data: [Client_consented_to_nine, Client_consented_to_fourteen, Client_consented_to_nineteen, Client_consented_to_twentyfour, Client_consented_to_twentyfive_above, Client_consented_uknown_age]
+        }],
+
+    });
+
+    //NON CONSENTED CLIENTS GENDER
+    var appChart = Highcharts.chart('nonconsented_gender', {
+        chart: {
+            type: 'column'
+        },
+        title: {
+            text: 'Non Consented Clients By Gender'
+        },
+        xAxis: {
+            categories: ['Male', 'Female', 'UKNOWN Gender']
+        },
+        yAxis: {
+            min: 0,
+            title: {
+                text: 'No of Non Consented Clients'
+            },
+            stackLabels: {
+                enabled: true,
+                style: {
+                    fontWeight: 'bold',
+                    color: ( // theme
+                        Highcharts.defaultOptions.title.style &&
+                        Highcharts.defaultOptions.title.style.color
+                    ) || 'gray'
+                }
+            }
+        },
+        tooltip: {
+            formatter: function() {
+                return '<b>' + this.x + '</b><br/>' +
+                    this.series.name + ': ' + this.y;
+            }
+        },
+        plotOptions: {
+            column: {
+                stacking: 'normal',
+            }
+        },
+        series: [{
+            name: 'Gender',
+            data: [Client_nonconsented_male, Client_nonconsented_female, Client_nonconsented_uknown_gender]
+        }],
+
+    });
+// NON CONSENTED AGE
+    var appChart = Highcharts.chart('nonconsented_age', {
+        chart: {
+            type: 'column'
+        },
+        title: {
+            text: 'Non Consented Clients By Age'
+        },
+        xAxis: {
+            categories: ['0-9 YRS', '10-14 YRS', '15-19 YRS', '20-24 YRS', '25+ YRS', 'UKNOWN AGE']
+        },
+        yAxis: {
+            min: 0,
+            title: {
+                text: 'No of Non Consented Clients'
+            },
+            stackLabels: {
+                enabled: true,
+                style: {
+                    fontWeight: 'bold',
+                    color: ( // theme
+                        Highcharts.defaultOptions.title.style &&
+                        Highcharts.defaultOptions.title.style.color
+                    ) || 'gray'
+                }
+            }
+        },
+        tooltip: {
+            formatter: function() {
+                return '<b>' + this.x + '</b><br/>' +
+                    this.series.name + ': ' + this.y;
+            }
+        },
+        plotOptions: {
+            column: {
+                stacking: 'normal',
+            }
+        },
+        series: [{
+            name: 'Age',
+            data: [Client_nonconsented_to_nine, Client_nonconsented_to_fourteen, Client_nonconsented_to_nineteen, Client_nonconsented_to_twentyfour, Client_nonconsented_to_twentyfive_above, Client_nonconsented_uknown_age]
+        }],
+
+    });
+
+    //APPOINTMENT HONOURED GENDER
+    var appChart = Highcharts.chart('appointment_honoured_gender', {
+        chart: {
+            type: 'column'
+        },
+        title: {
+            text: 'Appointment Honoured By Gender'
+        },
+        xAxis: {
+            categories: ['Male', 'Female', 'UKNOWN Gender']
+        },
+        yAxis: {
+            min: 0,
+            title: {
+                text: 'No of Appointment Honoured'
+            },
+            stackLabels: {
+                enabled: true,
+                style: {
+                    fontWeight: 'bold',
+                    color: ( // theme
+                        Highcharts.defaultOptions.title.style &&
+                        Highcharts.defaultOptions.title.style.color
+                    ) || 'gray'
+                }
+            }
+        },
+        tooltip: {
+            formatter: function() {
+                return '<b>' + this.x + '</b><br/>' +
+                    this.series.name + ': ' + this.y;
+            }
+        },
+        plotOptions: {
+            column: {
+                stacking: 'normal',
+            }
+        },
+        series: [{
+            name: 'Gender',
+            data: [Appointment_honoured_male, Appointment_honoured_female, Appointment_honoured_uknown_gender]
+        }],
+
+    });
+// APPOINTMENT HONOURED AGE
+    var appChart = Highcharts.chart('appointment_honoured_age', {
+        chart: {
+            type: 'column'
+        },
+        title: {
+            text: 'Appointment Honoured By Age'
+        },
+        xAxis: {
+            categories: ['0-9 YRS', '10-14 YRS', '15-19 YRS', '20-24 YRS', '25+ YRS', 'UKNOWN AGE']
+        },
+        yAxis: {
+            min: 0,
+            title: {
+                text: 'No of Appointment Honoured'
+            },
+            stackLabels: {
+                enabled: true,
+                style: {
+                    fontWeight: 'bold',
+                    color: ( // theme
+                        Highcharts.defaultOptions.title.style &&
+                        Highcharts.defaultOptions.title.style.color
+                    ) || 'gray'
+                }
+            }
+        },
+        tooltip: {
+            formatter: function() {
+                return '<b>' + this.x + '</b><br/>' +
+                    this.series.name + ': ' + this.y;
+            }
+        },
+        plotOptions: {
+            column: {
+                stacking: 'normal',
+            }
+        },
+        series: [{
+            name: 'Age',
+            data: [Appointment_honored_to_nine, Appointment_honored_to_fourteen, Appointment_honored_to_nineteen, Appointment_honored_to_twentyfour, Appointment_honored_to_twentyfive_above, Appointment_honored_to_uknown_age]
+        }],
+
+    });
+
+    //APPOINTMENT NOT HONOURED GENDER
+    var appChart = Highcharts.chart('appointment_not_honoured_gender', {
+        chart: {
+            type: 'column'
+        },
+        title: {
+            text: 'Appointment Not Honoured By Gender'
+        },
+        xAxis: {
+            categories: ['Male', 'Female', 'UKNOWN Gender']
+        },
+        yAxis: {
+            min: 0,
+            title: {
+                text: 'No of Appointment Not Honoured'
+            },
+            stackLabels: {
+                enabled: true,
+                style: {
+                    fontWeight: 'bold',
+                    color: ( // theme
+                        Highcharts.defaultOptions.title.style &&
+                        Highcharts.defaultOptions.title.style.color
+                    ) || 'gray'
+                }
+            }
+        },
+        tooltip: {
+            formatter: function() {
+                return '<b>' + this.x + '</b><br/>' +
+                    this.series.name + ': ' + this.y;
+            }
+        },
+        plotOptions: {
+            column: {
+                stacking: 'normal',
+            }
+        },
+        series: [{
+            name: 'Gender',
+            data: [Appointment_not_honoured_male, Appointment_not_honoured_female, Appointment_not_honoured_uknown_gender]
+        }],
+
+    });
+// APPOINTMENT NOT HONOURED AGE
+    var appChart = Highcharts.chart('appointment_not_honoured_age', {
+        chart: {
+            type: 'column'
+        },
+        title: {
+            text: 'Appointment Not Honoured By Age'
+        },
+        xAxis: {
+            categories: ['0-9 YRS', '10-14 YRS', '15-19 YRS', '20-24 YRS', '25+ YRS', 'UKNOWN AGE']
+        },
+        yAxis: {
+            min: 0,
+            title: {
+                text: 'No of Appointment Not Honoured'
+            },
+            stackLabels: {
+                enabled: true,
+                style: {
+                    fontWeight: 'bold',
+                    color: ( // theme
+                        Highcharts.defaultOptions.title.style &&
+                        Highcharts.defaultOptions.title.style.color
+                    ) || 'gray'
+                }
+            }
+        },
+        tooltip: {
+            formatter: function() {
+                return '<b>' + this.x + '</b><br/>' +
+                    this.series.name + ': ' + this.y;
+            }
+        },
+        plotOptions: {
+            column: {
+                stacking: 'normal',
+            }
+        },
+        series: [{
+            name: 'Age',
+            data: [Appointment_not_honored_to_nine, Appointment_not_honored_to_fourteen, Appointment_not_honored_to_nineteen, Appointment_not_honored_to_twentyfour, Appointment_not_honored_to_twentyfive_above, Appointment_not_honored_to_uknown_age]
+        }],
+
+    });
+
+    //MISSED APPOINTMENT BY GENDER
+    var appChart = Highcharts.chart('appointment_missed_gender', {
+        chart: {
+            type: 'column'
+        },
+        title: {
+            text: 'Appointment Missed By Gender'
+        },
+        xAxis: {
+            categories: ['Male', 'Female', 'UKNOWN Gender']
+        },
+        yAxis: {
+            min: 0,
+            title: {
+                text: 'No of Appointment Missed'
+            },
+            stackLabels: {
+                enabled: true,
+                style: {
+                    fontWeight: 'bold',
+                    color: ( // theme
+                        Highcharts.defaultOptions.title.style &&
+                        Highcharts.defaultOptions.title.style.color
+                    ) || 'gray'
+                }
+            }
+        },
+        tooltip: {
+            formatter: function() {
+                return '<b>' + this.x + '</b><br/>' +
+                    this.series.name + ': ' + this.y;
+            }
+        },
+        plotOptions: {
+            column: {
+                stacking: 'normal',
+            }
+        },
+        series: [{
+            name: 'Gender',
+            data: [Appointment_missed_male, Appointment_missed_female, Appointment_missed_uknown_gender]
+        }],
+
+    });
+// APPOINTMENT MISSED AGE
+    var appChart = Highcharts.chart('appointment_missed_age', {
+        chart: {
+            type: 'column'
+        },
+        title: {
+            text: 'Appointment Missed By Age'
+        },
+        xAxis: {
+            categories: ['0-9 YRS', '10-14 YRS', '15-19 YRS', '20-24 YRS', '25+ YRS', 'UKNOWN AGE']
+        },
+        yAxis: {
+            min: 0,
+            title: {
+                text: 'No of Appointment Missed'
+            },
+            stackLabels: {
+                enabled: true,
+                style: {
+                    fontWeight: 'bold',
+                    color: ( // theme
+                        Highcharts.defaultOptions.title.style &&
+                        Highcharts.defaultOptions.title.style.color
+                    ) || 'gray'
+                }
+            }
+        },
+        tooltip: {
+            formatter: function() {
+                return '<b>' + this.x + '</b><br/>' +
+                    this.series.name + ': ' + this.y;
+            }
+        },
+        plotOptions: {
+            column: {
+                stacking: 'normal',
+            }
+        },
+        series: [{
+            name: 'Age',
+            data: [Appointment_missed_to_nine, Appointment_missed_to_fourteen, Appointment_missed_to_nineteen, Appointment_missed_to_twentyfour, Appointment_missed_to_twentyfive_above, Appointment_missed_to_uknown_age]
+        }],
+
+    });
+    //DEFAULTED APPOINTMENT BY GENDER
+    var appChart = Highcharts.chart('appointment_defaulted_gender', {
+        chart: {
+            type: 'column'
+        },
+        title: {
+            text: 'Appointment Defaulted By Gender'
+        },
+        xAxis: {
+            categories: ['Male', 'Female', 'UKNOWN Gender']
+        },
+        yAxis: {
+            min: 0,
+            title: {
+                text: 'No of Appointment Defaulted'
+            },
+            stackLabels: {
+                enabled: true,
+                style: {
+                    fontWeight: 'bold',
+                    color: ( // theme
+                        Highcharts.defaultOptions.title.style &&
+                        Highcharts.defaultOptions.title.style.color
+                    ) || 'gray'
+                }
+            }
+        },
+        tooltip: {
+            formatter: function() {
+                return '<b>' + this.x + '</b><br/>' +
+                    this.series.name + ': ' + this.y;
+            }
+        },
+        plotOptions: {
+            column: {
+                stacking: 'normal',
+            }
+        },
+        series: [{
+            name: 'Gender',
+            data: [Appointment_defaulted_male, Appointment_defaulted_female, Appointment_defaulted_uknown_gender]
+        }],
+
+    });
+// APPOINTMENT DEFAULTED AGE
+    var appChart = Highcharts.chart('appointment_defaulted_age', {
+        chart: {
+            type: 'column'
+        },
+        title: {
+            text: 'Appointment Defaulted By Age'
+        },
+        xAxis: {
+            categories: ['0-9 YRS', '10-14 YRS', '15-19 YRS', '20-24 YRS', '25+ YRS', 'UKNOWN AGE']
+        },
+        yAxis: {
+            min: 0,
+            title: {
+                text: 'No of Appointment Defaulted'
+            },
+            stackLabels: {
+                enabled: true,
+                style: {
+                    fontWeight: 'bold',
+                    color: ( // theme
+                        Highcharts.defaultOptions.title.style &&
+                        Highcharts.defaultOptions.title.style.color
+                    ) || 'gray'
+                }
+            }
+        },
+        tooltip: {
+            formatter: function() {
+                return '<b>' + this.x + '</b><br/>' +
+                    this.series.name + ': ' + this.y;
+            }
+        },
+        plotOptions: {
+            column: {
+                stacking: 'normal',
+            }
+        },
+        series: [{
+            name: 'Age',
+            data: [Appointment_defaulted_to_nine, Appointment_defaulted_to_fourteen, Appointment_defaulted_to_nineteen, Appointment_defaulted_to_twentyfour, Appointment_defaulted_to_twentyfive_above, Appointment_defaulted_to_uknown_age]
+        }],
+
+    });
+
+      //LTFU APPOINTMENT BY GENDER
+      var appChart = Highcharts.chart('appointment_ltfu_gender', {
+        chart: {
+            type: 'column'
+        },
+        title: {
+            text: 'Appointment LTFU By Gender'
+        },
+        xAxis: {
+            categories: ['Male', 'Female', 'UKNOWN Gender']
+        },
+        yAxis: {
+            min: 0,
+            title: {
+                text: 'No of Appointment LTFU'
+            },
+            stackLabels: {
+                enabled: true,
+                style: {
+                    fontWeight: 'bold',
+                    color: ( // theme
+                        Highcharts.defaultOptions.title.style &&
+                        Highcharts.defaultOptions.title.style.color
+                    ) || 'gray'
+                }
+            }
+        },
+        tooltip: {
+            formatter: function() {
+                return '<b>' + this.x + '</b><br/>' +
+                    this.series.name + ': ' + this.y;
+            }
+        },
+        plotOptions: {
+            column: {
+                stacking: 'normal',
+            }
+        },
+        series: [{
+            name: 'Gender',
+            data: [Appointment_ltfu_male, Appointment_ltfu_female, Appointment_ltfu_uknown_gender]
+        }],
+
+    });
+// APPOINTMENT LTFU AGE
+    var appChart = Highcharts.chart('appointment_lftu_age', {
+        chart: {
+            type: 'column'
+        },
+        title: {
+            text: 'Appointment LTFU By Age'
+        },
+        xAxis: {
+            categories: ['0-9 YRS', '10-14 YRS', '15-19 YRS', '20-24 YRS', '25+ YRS', 'UKNOWN AGE']
+        },
+        yAxis: {
+            min: 0,
+            title: {
+                text: 'No of Appointment LTFU'
+            },
+            stackLabels: {
+                enabled: true,
+                style: {
+                    fontWeight: 'bold',
+                    color: ( // theme
+                        Highcharts.defaultOptions.title.style &&
+                        Highcharts.defaultOptions.title.style.color
+                    ) || 'gray'
+                }
+            }
+        },
+        tooltip: {
+            formatter: function() {
+                return '<b>' + this.x + '</b><br/>' +
+                    this.series.name + ': ' + this.y;
+            }
+        },
+        plotOptions: {
+            column: {
+                stacking: 'normal',
+            }
+        },
+        series: [{
+            name: 'Age',
+            data: [Appointment_ltfu_to_nine, Appointment_ltfu_to_fourteen, Appointment_ltfu_to_nineteen, Appointment_ltfu_to_twentyfour, Appointment_ltfu_to_twentyfive_above, Appointment_ltfu_to_uknown_age]
         }],
 
     });

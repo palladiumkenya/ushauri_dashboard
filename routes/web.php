@@ -200,4 +200,5 @@ Route::group(['middleware' => 'auth'], function () {
 
   // new dashbaord routes
   Route::get('/admin/dashboard', ['uses' => 'App\Http\Controllers\NewDashboardController@dashboard', 'as' => 'dashboard']);
+  Route::get('/filter_charts', ['uses' => 'App\Http\Controllers\NewDashboardController@filter_charts', 'as' => 'filter_charts']);
 });
