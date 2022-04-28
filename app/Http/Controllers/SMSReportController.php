@@ -21,7 +21,8 @@ class SMSReportController extends Controller
         $all_partners = Partner::where('status', '=', 'Active')->pluck('name', 'id');
 
         $delivered_partners = ClientOutgoing::join('tbl_client', 'tbl_clnt_outgoing.clnt_usr_id', '=', 'tbl_client.id')
-            ->join('tbl_partner', 'tbl_client.partner_id', '=', 'tbl_partner.id')
+        ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+        ->join('tbl_partner', 'tbl_partner_facility.partner_id', '=', 'tbl_partner.id')
             ->select('tbl_partner.name', DB::raw('count(tbl_clnt_outgoing.callback_status) as total'))
             ->where('tbl_clnt_outgoing.callback_status', '=', 'Success')
             ->groupBy('tbl_partner.name')
@@ -29,14 +30,16 @@ class SMSReportController extends Controller
             ->get();
         // dd($delivered_partners);
         $failed_partners = ClientOutgoing::join('tbl_client', 'tbl_clnt_outgoing.clnt_usr_id', '=', 'tbl_client.id')
-            ->join('tbl_partner', 'tbl_client.partner_id', '=', 'tbl_partner.id')
+        ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+        ->join('tbl_partner', 'tbl_partner_facility.partner_id', '=', 'tbl_partner.id')
             ->select('tbl_partner.name', DB::raw('count(tbl_clnt_outgoing.callback_status) as total'))
             ->where('tbl_clnt_outgoing.callback_status', '=', 'Failed')
             ->groupBy('tbl_partner.name')
             ->get();
 
         $cost_partners = ClientOutgoing::join('tbl_client', 'tbl_clnt_outgoing.clnt_usr_id', '=', 'tbl_client.id')
-            ->join('tbl_partner', 'tbl_client.partner_id', '=', 'tbl_partner.id')
+            ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+            ->join('tbl_partner', 'tbl_partner_facility.partner_id', '=', 'tbl_partner.id')
             ->select('tbl_partner.name', DB::raw("ROUND(SUM(SUBSTRING(tbl_clnt_outgoing.cost, 5)), 0) as total_cost"))
             ->groupBy('tbl_partner.name')
             ->get();
