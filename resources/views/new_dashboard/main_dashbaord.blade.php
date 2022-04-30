@@ -129,26 +129,25 @@
 
         <div id="highchart"></div>
         <div class="row">
-
+        @if (Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Partner' || Auth::user()->access_level == 'Donor')
             <div class="col-lg-3">
                 <div class="card card-icon-bg card-icon-bg-primary o-hidden mb-4 h-75">
                     <div class="card-body text-center">
                         <div class="content">
                             <p class="text-muted mt-2 mb-0">Facilities </p>
 
-                            <p class="text-primary text-20 line-height-1 mb-1">{{count($active_facilities)}}</p>
+                            <p id="active_facilities" class="text-primary text-20 line-height-1 mb-1">{{count($active_facilities)}}</p>
                         </div>
                     </div>
                 </div>
             </div>
-
             <div class="col-lg-3 ">
                 <div class="card card-icon-bg card-icon-bg-primary o-hidden mb-4 h-75">
                     <div class="card-body text-center">
                         <div class="content">
                             <p class="text-muted mt-2 mb-0">Clients</p>
 
-                            <p id="allApps" class="text-primary text-20 line-height-1 mb-2">{{$client}}</p>
+                            <p id="client" class="text-primary text-20 line-height-1 mb-2">{{$client}}</p>
                         </div>
                     </div>
                 </div>
@@ -160,7 +159,7 @@
                         <div class="content">
                             <p class="text-muted mt-2 mb-0">Appointments</p>
 
-                            <p id="keptApps" class="text-primary text-20 line-height-1 mb-2">{{$appointment}}</p>
+                            <p id="appointment" class="text-primary text-20 line-height-1 mb-2">{{$appointment}}</p>
                         </div>
                     </div>
                 </div>
@@ -172,13 +171,49 @@
                         <div class="content">
                             <p class="text-muted mt-2 mb-0">Missed Appointments</p>
 
-                            <p id="defaultedApps" class="text-primary text-20 line-height-1 mb-2">{{$missed_appointment}}</p>
+                            <p id="missed_appointment" class="text-primary text-20 line-height-1 mb-2">{{$missed_appointment}}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+         @endif
+         @if (Auth::user()->access_level == 'Facility')
+         <div class="col-lg-4">
+                <div class="card card-icon-bg card-icon-bg-primary o-hidden mb-4 h-75">
+                    <div class="card-body text-center">
+                        <div class="content">
+                            <p class="text-muted mt-2 mb-0">Clients</p>
+
+                            <p id="client" class="text-primary text-20 line-height-1 mb-2">{{$client}}</p>
                         </div>
                     </div>
                 </div>
             </div>
 
+            <div class="col-lg-4">
+                <div class="card card-icon-bg card-icon-bg-primary o-hidden mb-4 h-75">
+                    <div class="card-body text-center">
+                        <div class="content">
+                            <p class="text-muted mt-2 mb-0">Appointments</p>
 
+                            <p id="appointment" class="text-primary text-20 line-height-1 mb-2">{{$appointment}}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card card-icon-bg card-icon-bg-primary o-hidden mb-4 h-75">
+                    <div class="card-body text-center">
+                        <div class="content">
+                            <p class="text-muted mt-2 mb-0">Missed Appointments</p>
+
+                            <p id="missed_appointment" class="text-primary text-20 line-height-1 mb-2">{{$missed_appointment}}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @endif
         </div>
 
         <div class="row">
@@ -237,7 +272,7 @@
                         <div class="content">
                             <p class="text-muted mt-2 mb-0">Clients</p>
 
-                            <p id="allApps" class="text-primary text-20 line-height-1 mb-2">{{$client}}</p>
+                            <p id="client" class="text-primary text-20 line-height-1 mb-2">{{$client}}</p>
                         </div>
                     </div>
                 </div>
@@ -249,7 +284,7 @@
                         <div class="content">
                             <p class="text-muted mt-2 mb-0">Consented</p>
 
-                            <p id="keptApps" class="text-primary text-20 line-height-1 mb-2">{{$client_consented}}</p>
+                            <p id="client_consented" class="text-primary text-20 line-height-1 mb-2">{{$client_consented}}</p>
                         </div>
                     </div>
                 </div>
@@ -261,7 +296,7 @@
                         <div class="content">
                             <p class="text-muted mt-2 mb-0">Non Consented</p>
 
-                            <p id="defaultedApps" class="text-primary text-20 line-height-1 mb-2">{{$client_nonconsented}}</p>
+                            <p id="client_nonconsented" class="text-primary text-20 line-height-1 mb-2">{{$client_nonconsented}}</p>
                         </div>
                     </div>
                 </div>
@@ -477,7 +512,69 @@
             },
             url: "{{ route('filter_appointment_dashboard') }}",
             success: function(data) {
+                $("#client").html(data.client);
+                $("#appointment").html(data.appointment);
+                $("#missed_appointment").html(data.missed_appointment);
+                Clients_male = parseInt(data.clients_male)
+                Clients_female = parseInt(data.clients_female)
+                Unknown_gender = parseInt(data.unknown_gender)
+                Client_to_nine = parseInt(data.client_to_nine)
+                Client_to_fourteen = parseInt(data.client_to_fourteen)
+                Client_to_nineteen = parseInt(data.client_to_nineteen)
+                Client_to_twentyfour = parseInt(data.client_to_twentyfour)
+                Client_to_twentyfive_above = parseInt(data.client_to_twentyfive_above)
+                Client_unknown_age = parseInt(data.client_unknown_age)
+                Appointment_male = parseInt(data.appointment_male)
+                Appointment_female = parseInt(data.appointment_female)
+                Appointment_uknown_gender = parseInt(data.appointment_uknown_gender)
+                Appointment_to_nine = parseInt(data.appointment_to_nine)
+                Appointment_to_fourteen = parseInt(data.appointment_to_fourteen)
+                Appointment_to_nineteen = parseInt(data.appointment_to_nineteen)
+                Appointment_to_twentyfour = parseInt(data.appointment_to_twentyfour)
+                Appointment_to_twentyfive_above = parseInt(data.appointment_to_twentyfive_above)
+                Appointment_uknown_age = parseInt(data.appointment_uknown_age)
+                Appointment_total_missed_female = parseInt(data.appointment_total_missed_female)
+                Appointment_total_missed_male = parseInt(data.appointment_total_missed_male)
+                Appointment_total_missed_uknown_gender = parseInt(data.appointment_total_missed_uknown_gender)
+                Appointment_total_missed_to_nine = parseInt(data.appointment_total_missed_to_nine)
+                Appointment_total_missed_to_fourteen = parseInt(data.appointment_total_missed_to_fourteen)
+                Appointment_total_missed_to_nineteen = parseInt(data.appointment_total_missed_to_nineteen)
+                Appointment_total_missed_to_twentyfour = parseInt(data.appointment_total_missed_to_twentyfour)
+                Appointment_total_missed_to_twentyfive_above = parseInt(data.appointment_total_missed_to_twentyfive_above)
+                Appointment_total_missed_uknown_age = parseInt(data.appointment_total_missed_uknown_age)
 
+
+                $("#client_consented").html(data.client_consented);
+                $("#client_nonconsented").html(data.client_nonconsented);
+                Client_consented_male = parseInt(data.client_consented_male)
+                Client_consented_female = parseInt(data.client_consented_female)
+                Client_consented_uknown_gender = parseInt(data.client_consented_uknown_gender)
+                Client_nonconsented_male = parseInt(data.client_nonconsented_male)
+                Client_nonconsented_female = parseInt(data.client_nonconsented_female)
+                Client_nonconsented_uknown_gender = parseInt(data.client_nonconsented_uknown_gender)
+                Client_consented_to_nine = parseInt(data.client_consented_to_nine)
+                Client_consented_to_fourteen = parseInt(data.client_consented_to_fourteen)
+                Client_consented_to_nineteen = parseInt(data.client_consented_to_nineteen)
+                Client_consented_to_twentyfour = parseInt(data.client_consented_to_twentyfour)
+                Client_consented_to_twentyfive_above = parseInt(data.client_consented_to_twentyfive_above)
+                Client_consented_uknown_age = parseInt(data.client_consented_uknown_age)
+                Client_nonconsented_to_nine = parseInt(data.client_nonconsented_to_nine)
+                Client_nonconsented_to_fourteen = parseInt(data.client_nonconsented_to_fourteen)
+                Client_nonconsented_to_nineteen = parseInt(data.client_nonconsented_to_nineteen)
+                Client_nonconsented_to_twentyfour = parseInt(data.client_nonconsented_to_twentyfour)
+                Client_nonconsented_to_twentyfive_above = parseInt(data.client_nonconsented_to_twentyfive_above)
+                Client_nonconsented_uknown_age = parseInt(data.client_nonconsented_uknown_age)
+
+                clientGender.series[0].setData([Clients_male, Clients_female, Unknown_gender]);
+                clientAge.series[0].setData([Client_to_nine, Client_to_fourteen, Client_to_nineteen, Client_to_twentyfour, Client_to_twentyfive_above, Client_unknown_age]);
+                appointmentGender.series[0].setData([Appointment_male, Appointment_female, Appointment_uknown_gender]);
+                appointmentAge.series[0].setData([Appointment_to_nine, Appointment_to_fourteen, Appointment_to_nineteen, Appointment_to_twentyfour, Appointment_to_twentyfive_above, Appointment_uknown_age]);
+                totalmissedappointmentGender.series[0].setData([Appointment_total_missed_male, Appointment_total_missed_female, Appointment_total_missed_uknown_gender]);
+                totalmissedappointmentAge.series[0].setData([Appointment_total_missed_to_nine, Appointment_total_missed_to_fourteen, Appointment_total_missed_to_nineteen, Appointment_total_missed_to_twentyfour, Appointment_total_missed_to_twentyfive_above, Appointment_total_missed_uknown_age]);
+                consentedGender.series[0].setData([Client_consented_male, Client_consented_female, Client_consented_uknown_gender]);
+                consentedAge.series[0].setData([Client_consented_to_nine, Client_consented_to_fourteen, Client_consented_to_nineteen, Client_consented_to_twentyfour, Client_consented_to_twentyfive_above, Client_consented_uknown_age]);
+                nonconsentedGender.series[0].setData([Client_nonconsented_male, Client_nonconsented_female, Client_nonconsented_uknown_gender]);
+                nonconsentedAge.series[0].setData([Client_nonconsented_to_nine, Client_nonconsented_to_fourteen, Client_nonconsented_to_nineteen, Client_nonconsented_to_twentyfour, Client_nonconsented_to_twentyfive_above, Client_nonconsented_uknown_age]);
 
             }
         });
@@ -485,7 +582,7 @@
 
 
 
-    var appChart = Highcharts.chart('client_gender', {
+    var clientGender = Highcharts.chart('client_gender', {
         chart: {
             type: 'column'
         },
@@ -529,7 +626,7 @@
 
     });
 
-    var appChart = Highcharts.chart('client_age', {
+    var clientAge = Highcharts.chart('client_age', {
         chart: {
             type: 'column'
         },
@@ -573,7 +670,7 @@
 
     });
 
-    var appChart = Highcharts.chart('appointment_gender', {
+    var appointmentGender = Highcharts.chart('appointment_gender', {
         chart: {
             type: 'column'
         },
@@ -617,7 +714,7 @@
 
     });
 
-    var appChart = Highcharts.chart('appointment_age', {
+    var appointmentAge = Highcharts.chart('appointment_age', {
         chart: {
             type: 'column'
         },
@@ -662,7 +759,7 @@
     });
 
     // missed appointment charts
-    var appChart = Highcharts.chart('total_missed_appointment_gender', {
+    var totalmissedappointmentGender = Highcharts.chart('total_missed_appointment_gender', {
         chart: {
             type: 'column'
         },
@@ -706,7 +803,7 @@
 
     });
 
-    var appChart = Highcharts.chart('total_missed_appointment_age', {
+    var totalmissedappointmentAge = Highcharts.chart('total_missed_appointment_age', {
         chart: {
             type: 'column'
         },
@@ -751,7 +848,7 @@
     });
 
     // CONSENTED CLIENTS GENDER
-    var appChart = Highcharts.chart('consented_gender', {
+    var consentedGender = Highcharts.chart('consented_gender', {
         chart: {
             type: 'column'
         },
@@ -795,7 +892,7 @@
 
     });
     // CONSENTED CLIENTS AGE
-    var appChart = Highcharts.chart('consented_age', {
+    var consentedAge = Highcharts.chart('consented_age', {
         chart: {
             type: 'column'
         },
@@ -840,7 +937,7 @@
     });
 
     //NON CONSENTED CLIENTS GENDER
-    var appChart = Highcharts.chart('nonconsented_gender', {
+    var nonconsentedGender = Highcharts.chart('nonconsented_gender', {
         chart: {
             type: 'column'
         },
@@ -884,7 +981,7 @@
 
     });
 // NON CONSENTED AGE
-    var appChart = Highcharts.chart('nonconsented_age', {
+    var nonconsentedAge = Highcharts.chart('nonconsented_age', {
         chart: {
             type: 'column'
         },

@@ -477,7 +477,7 @@
             type: 'column'
         },
         title: {
-            text: 'Appointment Honoured By Gender'
+            text: 'Appointment Honored By Gender'
         },
         xAxis: {
             categories: ['Male', 'Female', 'UKNOWN Gender']
@@ -485,7 +485,7 @@
         yAxis: {
             min: 0,
             title: {
-                text: 'No of Appointment Honoured'
+                text: 'No of Appointment Honored'
             },
             stackLabels: {
                 enabled: true,
@@ -521,7 +521,7 @@
             type: 'column'
         },
         title: {
-            text: 'Appointment Honoured By Age'
+            text: 'Appointment Honored By Age'
         },
         xAxis: {
             categories: ['0-9 YRS', '10-14 YRS', '15-19 YRS', '20-24 YRS', '25+ YRS', 'UKNOWN AGE']
@@ -529,7 +529,7 @@
         yAxis: {
             min: 0,
             title: {
-                text: 'No of Appointment Honoured'
+                text: 'No of Appointment Honored'
             },
             stackLabels: {
                 enabled: true,
@@ -566,7 +566,7 @@
             type: 'column'
         },
         title: {
-            text: 'Appointment Not Honoured By Gender'
+            text: 'Appointment Not Honored By Gender'
         },
         xAxis: {
             categories: ['Male', 'Female', 'UKNOWN Gender']
@@ -574,7 +574,7 @@
         yAxis: {
             min: 0,
             title: {
-                text: 'No of Appointment Not Honoured'
+                text: 'No of Appointment Not Honored'
             },
             stackLabels: {
                 enabled: true,
@@ -610,7 +610,7 @@
             type: 'column'
         },
         title: {
-            text: 'Appointment Not Honoured By Age'
+            text: 'Appointment Not Honored By Age'
         },
         xAxis: {
             categories: ['0-9 YRS', '10-14 YRS', '15-19 YRS', '20-24 YRS', '25+ YRS', 'UKNOWN AGE']
@@ -618,7 +618,7 @@
         yAxis: {
             min: 0,
             title: {
-                text: 'No of Appointment Not Honoured'
+                text: 'No of Appointment Not Honored'
             },
             stackLabels: {
                 enabled: true,

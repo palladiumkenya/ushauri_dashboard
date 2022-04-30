@@ -13,7 +13,7 @@ class Appointments extends Model
     public $incrementing = false;
 
     protected $fillable = [
-        'app_type_1', 'reason', 'appntmnt_date', 'date_attended'
+        'client_id', 'app_type_1', 'reason', 'appntmnt_date', 'date_attended'
 
     ];
 
