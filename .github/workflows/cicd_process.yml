@@ -21,4 +21,4 @@ jobs:
           git pull origin main
           git status
           cp /apps/configs/ushauri-dashboard/.env /apps/github-workflows/mhealth-apps/ushauri_dashboard/
-          composer install
+          composer update
