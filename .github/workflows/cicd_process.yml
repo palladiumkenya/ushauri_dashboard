@@ -22,3 +22,4 @@ jobs:
           git status
           cp /apps/configs/ushauri-dashboard/.env /apps/github-workflows/mhealth-apps/ushauri_dashboard/
           composer install --ignore-platform-reqs
+          php artisan serve
