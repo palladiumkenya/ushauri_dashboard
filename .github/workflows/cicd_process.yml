@@ -21,5 +21,8 @@ jobs:
           git pull origin main
           git status
           cp /apps/configs/ushauri-dashboard/.env /apps/github-workflows/mhealth-apps/ushauri_dashboard/
-          composer install --ignore-platform-reqs
-          php artisan serve
+          cp /apps/configs/ushauri-dashboard/docker-compose.yml /apps/github-workflows/mhealth-apps/ushauri_dashboard/
+          cp /apps/configs/ushauri-dashboard/nginx.dockerfile /apps/github-workflows/mhealth-apps/ushauri_dashboard/
+          cp /apps/configs/ushauri-dashboard/php.dockerfile /apps/github-workflows/mhealth-apps/ushauri_dashboard/
+          cp -r /apps/configs/ushauri-dashboard/docker /apps/github-workflows/mhealth-apps/ushauri_dashboard/
+          docker-compose up -d
