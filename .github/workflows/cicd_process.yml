@@ -24,7 +24,7 @@ jobs:
           cp /apps/configs/ushauri-dashboard/docker-compose.yml /apps/github-workflows/mhealth-apps/ushauri_dashboard/
           cp /apps/configs/ushauri-dashboard/nginx.dockerfile /apps/github-workflows/mhealth-apps/ushauri_dashboard/
           cp /apps/configs/ushauri-dashboard/php.dockerfile /apps/github-workflows/mhealth-apps/ushauri_dashboard/
-          cp -r /apps/configs/ushauri-dashboard/docker /apps/github-workflows/mhealth-apps/ushauri_dashboard/
+          cp -r /apps/configs/ushauri-dashboard/nginx /apps/github-workflows/mhealth-apps/ushauri_dashboard/
           docker-compose down
           docker-compose rm -f
-          docker-compose up --build -d
+          docker-compose --env-file .env up -d --build site
