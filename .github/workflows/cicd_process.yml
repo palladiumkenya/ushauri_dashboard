@@ -29,4 +29,3 @@ jobs:
           docker-compose down
           docker-compose rm -f
           docker-compose --env-file .env up -d --build site
-          docker-compose exec php php artisan key:generate
