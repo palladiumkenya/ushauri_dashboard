@@ -1,7 +1,7 @@
 name: deploy to test instance
 on:
   push:
-    branches: [ cicd ]
+    branches: [ main ]
 jobs:
 
   build:
