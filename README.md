@@ -39,23 +39,17 @@ You can now access the server at http://localhost:8000
 
 ## Folders
 
-- `app` - Contains all the Eloquent models
-- `app/Http/Controllers/Api` - Contains all the api controllers
+- `app/Models` - Contains all the Eloquent models
+- `app/Http/Controllers` - Contain all the data controllers
+- `app/Http/Controllers/Auth` - Contains all the auth controllers
 - `app/Http/Middleware` - Contains the JWT auth middleware
-- `app/Http/Requests/Api` - Contains all the api form requests
-- `app/RealWorld/Favorite` - Contains the files implementing the favorite feature
-- `app/RealWorld/Filters` - Contains the query filters used for filtering api requests
-- `app/RealWorld/Follow` - Contains the files implementing the follow feature
-- `app/RealWorld/Paginate` - Contains the pagination class used to paginate the result
-- `app/RealWorld/Slug` - Contains the files implementing slugs to articles
-- `app/RealWorld/Transformers` - Contains all the data transformers
+- `app/Http/Jobs` - Contains all the jobs handlers
 - `config` - Contains all the application configuration files
 - `database/factories` - Contains the model factory for all the models
-- `database/migrations` - Contains all the database migrations
 - `database/seeds` - Contains the database seeder
-- `routes` - Contains all the api routes defined in api.php file
+- `resources` - Contains all the application views and styling files
+- `routes` - Contains all the web routes defined in web.php file
 - `tests` - Contains all the application tests
-- `tests/Feature/Api` - Contains all the api tests
 
 ## Environment variables
 
