@@ -7,13 +7,18 @@
             </div>
 
             <div class="separator-breadcrumb border-top"></div>
-
-            <div class="row">
-        <h4 class="mb-4">
-            Bulk Upload Clients to Ushauri From KEMR
-        </h4>
+        <div class="col-md-3 form-group mb-3">
+            <select id="section" data-width="100%">
+             <option value="">Please select upload type</option>
+             <option value="kenyaemr">Upload From KenyaEMR Dataset</option>
+            <option value="template">Upload From Ushauri Template</option>
+           </select>
         </div>
-        <div class="row">
+        <div class="separator-breadcrumb border-top"></div>
+        <div class="upload" id="kenyaemr">
+        <h6 class="mb-4">
+            Bulk Upload Clients to Ushauri From KenyaEMR
+        </h6>
         <form action="{{ route('client-file-import') }}" method="POST" enctype="multipart/form-data">
             @csrf
             <div class="row">
@@ -25,7 +30,7 @@
                 </div>
 
                 <div class="col-md-6">
-                    <button type="submit" class="btn btn-success">Upload Clients</button>
+                    <button type="submit" class="btn btn-primary">Upload Clients</button>
                 </div>
 
             </div>
@@ -35,13 +40,12 @@
 
         </div>
 
-        <div class="row">
-        <h4 class="mb-4">
-            Bulk Upload Clients to Ushauri From Template
-        </h4>
-        </div>
 
-        <div class="row">
+        <div class="upload" id="template">
+        <h6 class="mb-4">
+            Bulk Upload Clients to Ushauri From Template
+        </h6>
+        <div class="separator-breadcrumb border-top"></div>
         <form action="{{ route('client-second-import') }}" method="POST" enctype="multipart/form-data">
             @csrf
             <div class="row">
@@ -53,25 +57,37 @@
                 </div>
 
                 <div class="col-md-6">
-                    <button type="submit" class="btn btn-success">Upload Clients</button>
+                    <button type="submit" class="btn btn-primary">Upload Clients</button>
                 </div>
 
             </div>
         </form>
 
 
-
-        </div>
         <div class="separator-breadcrumb border-top"></div>
 
 <div class="row">
 
         <a class="btn btn-primary pull-right" href="{{ route('client-template-download') }}">Download Clients Template</a>
 </div>
+        </div>
+
 @endsection
 
 @section('page-js')
-     <script src="{{asset('assets/js/vendor/echarts.min.js')}}"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+
+<script>
+$(document).ready(function () {
+  $('.upload').hide();
+  $('#kenyaemr').show();
+  $('#section').change(function () {
+    $('.upload').hide();
+    $('#'+$(this).val()).show();
+  })
+});
+</script>
+     <script src="{{asset('assets/js/vendor/echarts.min.js')}}">
      <script src="{{asset('assets/js/es5/echart.options.min.js')}}"></script>
      <script src="{{asset('assets/js/es5/dashboard.v1.script.js')}}"></script>
 

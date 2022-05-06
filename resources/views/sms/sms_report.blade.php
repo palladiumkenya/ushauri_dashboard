@@ -355,20 +355,7 @@
                 name: 'SMS Count',
                 data: [Success, Failed_blacklist, Failed_absent, Failed_deliveryfailure, Failed_inactive, Rejected_inactive, Rejected_blacklist, Rejected_deliveryfailure]
             }
-            // {
-            //     type: 'spline',
-            //     name: 'Cost(Ksh)',
-            //     data: [Success_cost, Failed_backlist_cost, Failed_absent_cost, Failed_delivery_cost, Failed_inactive_cost, Rejected_inactive_cost, Rejected_blacklist_cost, Rejected_delivery_cost],
-            //     marker: {
-            //         lineWidth: 2,
-            //         lineColor: Highcharts.getOptions().colors[3],
-            //         fillColor: 'white'
-            //     }
-            // }
-
         ],
-
-
     });
 
     var costAnalytics = Highcharts.chart('cost_analytics', {
@@ -474,6 +461,22 @@
             xAxis: {
                 type: 'category'
             },
+            yAxis: {
+            min: 0,
+            title: {
+                text: 'Count'
+            },
+            stackLabels: {
+                enabled: true,
+                style: {
+                    fontWeight: 'bold',
+                    color: ( // theme
+                        Highcharts.defaultOptions.title.style &&
+                        Highcharts.defaultOptions.title.style.color
+                    ) || 'gray'
+                }
+            }
+        },
 
             legend: {
                 enabled: false
@@ -490,8 +493,12 @@
 
             series: [{
                 name: 'Delivered Sms Count',
-                colorByPoint: true,
-                data: partner_delivered_array
+                colorByPoint: false,
+                data: partner_delivered_array,
+                dataSorting: {
+            enabled: true,
+            sortKey: 'y'
+        }
 
             }],
 
@@ -511,6 +518,22 @@
             xAxis: {
                 type: 'category'
             },
+            yAxis: {
+            min: 0,
+            title: {
+                text: 'Count'
+            },
+            stackLabels: {
+                enabled: true,
+                style: {
+                    fontWeight: 'bold',
+                    color: ( // theme
+                        Highcharts.defaultOptions.title.style &&
+                        Highcharts.defaultOptions.title.style.color
+                    ) || 'gray'
+                }
+            }
+        },
 
             legend: {
                 enabled: false
@@ -527,8 +550,12 @@
 
             series: [{
                 name: 'Failed Sms Count',
-                colorByPoint: true,
-                data: partner_failed_array
+                colorByPoint: false,
+                data: partner_failed_array,
+                dataSorting: {
+            enabled: true,
+            sortKey: 'y'
+        }
 
             }],
 
@@ -548,6 +575,22 @@
             xAxis: {
                 type: 'category'
             },
+            yAxis: {
+            min: 0,
+            title: {
+                text: 'Count'
+            },
+            stackLabels: {
+                enabled: true,
+                style: {
+                    fontWeight: 'bold',
+                    color: ( // theme
+                        Highcharts.defaultOptions.title.style &&
+                        Highcharts.defaultOptions.title.style.color
+                    ) || 'gray'
+                }
+            }
+        },
 
             legend: {
                 enabled: false
@@ -564,8 +607,12 @@
 
             series: [{
                 name: 'SMS Cost(Ksh)',
-                colorByPoint: true,
-                data: partner_cost_array
+                colorByPoint: false,
+                data: partner_cost_array,
+                dataSorting: {
+            enabled: true,
+            sortKey: 'y'
+        }
 
             }],
 
@@ -585,6 +632,22 @@
             xAxis: {
                 type: 'category'
             },
+            yAxis: {
+            min: 0,
+            title: {
+                text: 'Count'
+            },
+            stackLabels: {
+                enabled: false,
+                style: {
+                    fontWeight: 'bold',
+                    color: ( // theme
+                        Highcharts.defaultOptions.title.style &&
+                        Highcharts.defaultOptions.title.style.color
+                    ) || 'gray'
+                }
+            }
+        },
 
             legend: {
                 enabled: false
@@ -601,8 +664,12 @@
 
             series: [{
                 name: 'SMS Cost(Ksh)',
-                colorByPoint: true,
-                data: county_cost_array
+                colorByPoint: false,
+                data: county_cost_array,
+                dataSorting: {
+            enabled: true,
+            sortKey: 'y'
+        }
 
             }],
 
@@ -612,8 +679,6 @@
         })
     });
 
-
-    var colors = Highcharts.getOptions().colors;
 </script>
 
 @endsection

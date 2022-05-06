@@ -19,8 +19,6 @@ class BulkUploadController extends Controller
     {
         return view('clients.upload-clients-form');
     }
-
-
     public function importClients(Request $request)
     {
 
@@ -247,8 +245,6 @@ class BulkUploadController extends Controller
         echo  "Done";
     }
 
-
-
     function csvToArray($filename = '', $delimiter = ',')
     {
         if (!file_exists($filename) || !is_readable($filename))
@@ -271,5 +267,11 @@ class BulkUploadController extends Controller
         }
 
         return $data;
+    }
+
+    public function downloadClientTemplate()
+    {
+        $path = public_path('template/UshauriTemplate.xlsx');
+        return response()->download($path);
     }
 }
