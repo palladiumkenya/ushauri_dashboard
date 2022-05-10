@@ -205,5 +205,6 @@ Route::group(['middleware' => 'auth'], function () {
   Route::get('/admin/appointment/missed/dashboard', ['uses' => 'App\Http\Controllers\NewDashboardController@missed_appointment_charts', 'as' => 'missed_appointment_charts']);
   Route::get('/filter_charts', ['uses' => 'App\Http\Controllers\NewDashboardController@filter_charts', 'as' => 'filter_charts']);
   Route::get('/filter_dashboard_charts', ['uses' => 'App\Http\Controllers\NewDashboardController@filter_dashboard_charts', 'as' => 'filter_dashboard_charts']);
+  Route::get('/filter_missed_appointment_charts', ['uses' => 'App\Http\Controllers\NewDashboardController@filter_missed_appointment_charts', 'as' => 'filter_missed_appointment_charts']);
   Route::get('/filter_client_charts', ['uses' => 'App\Http\Controllers\NewDashboardController@filter_client_charts', 'as' => 'filter_client_charts']);
 });

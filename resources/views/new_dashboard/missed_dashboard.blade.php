@@ -15,7 +15,7 @@
 
 <div class="col">
 
-<form role="form" method="get" action="{{route('filter_charts')}}">
+<form role="form" method="get" action="#" id="dataFilter">
         {{ csrf_field() }}
         <div class="row">
             <div class="col">
@@ -115,6 +115,72 @@
 
 </div>
 @endif
+@if (Auth::user()->access_level == 'Facility')
+
+
+<div class="col">
+
+    <form role="form" method="get" action="#" id="dataFilter">
+        {{ csrf_field() }}
+        <div class="row">
+
+            <div class="col-lg-3">
+                <div class="form-group">
+                    <span class="filter_facility_wait" style="display: none;"></span>
+
+                    <select class="form-control filter_facility input-rounded input-sm select2">
+                        <option value="">Module : </option>
+                        <option value="">DSD</option>
+                        <option value="">PMTCT</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class='col-lg-3'>
+                <div class="form-group">
+                    <div class="input-group">
+
+                        <div class="col-md-10">
+
+                            <input type="date" id="from" class="form-control" placeholder="From" name="from">
+                        </div>
+                        <div class="input-group-append">
+                            <button class="btn btn-secondary" type="button">
+                                <i class="icon-regular i-Calendar-4"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+                <div class='col-lg-3'>
+                    <div class="form-group">
+                        <div class="input-group">
+
+                            <div class="col-md-10">
+
+                                <input type="date" id="to" class="form-control" placeholder="To" name="to">
+                            </div>
+                            <div class="input-group-append">
+                                <button class="btn btn-secondary" type="button">
+                                    <i class="icon-regular i-Calendar-4"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3">
+                    <div class="form-group">
+                        <span class="filter_facility_wait" style="display: none;"></span>
+                        <button class="btn btn-default filter btn-round  btn-small btn-primary  " type="submit" name="filter" id="filter"> <i class="fa fa-filter"></i>
+                            Filter</button>
+                    </div>
+                </div>
+            </div>
+
+    </form>
+
+</div>
+@endif
 <nav>
     <div class="nav nav-tabs" id="nav-tab" role="tablist">
         <a class="nav-item nav-link active" id="nav-missed-tab" data-toggle="tab" href="#nav-missed" role="tab" aria-controls="nav-missed" aria-selected="true">Missed Appointnments</a>
@@ -132,7 +198,7 @@
                         <div class="content">
                             <p class="text-muted mt-2 mb-0">Total Missed</p>
 
-                            <p id="allApps" class="text-primary text-20 line-height-1 mb-2">{{$appointment_not_honoured}}</p>
+                            <p id="appointment_not_honoured" class="text-primary text-20 line-height-1 mb-2">{{$appointment_not_honoured}}</p>
                         </div>
                     </div>
                 </div>
@@ -144,7 +210,7 @@
                         <div class="content">
                             <p class="text-muted mt-2 mb-0">Missed</p>
 
-                            <p id="keptApps" class="text-primary text-20 line-height-1 mb-2">{{number_format($appointment_missed)}}</p>
+                            <p id="appointment_missed" class="text-primary text-20 line-height-1 mb-2">{{number_format($appointment_missed)}}</p>
                         </div>
                     </div>
                 </div>
@@ -156,7 +222,7 @@
                         <div class="content">
                             <p class="text-muted mt-2 mb-0">Defaulted</p>
 
-                            <p id="defaultedApps" class="text-primary text-20 line-height-1 mb-2">{{number_format($appointment_defaulted)}}</p>
+                            <p id="appointment_defaulted" class="text-primary text-20 line-height-1 mb-2">{{number_format($appointment_defaulted)}}</p>
                         </div>
                     </div>
                 </div>
@@ -167,7 +233,7 @@
                         <div class="content">
                             <p class="text-muted mt-2 mb-0">Lost To Follow Up</p>
 
-                            <p id="defaultedApps" class="text-primary text-20 line-height-1 mb-2">{{number_format($appointment_lftu)}}</p>
+                            <p id="appointment_lftu" class="text-primary text-20 line-height-1 mb-2">{{number_format($appointment_lftu)}}</p>
                         </div>
                     </div>
                 </div>
@@ -359,6 +425,8 @@
         let counties = $('#counties').val();
         let subcounties = $('#subcounties').val();
         let facilities = $('#facilities').val();
+        let from = $('#from').val();
+        let to = $('#to').val();
         $.ajaxSetup({
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -371,11 +439,51 @@
                 "partners": partners,
                 "counties": counties,
                 "subcounties": subcounties,
-                "facilities": facilities
+                "facilities": facilities,
+                "from": from,
+                "to": to
             },
-            url: "{{ route('filter_appointment_dashboard') }}",
+            url: "{{ route('filter_missed_appointment_charts') }}",
             success: function(data) {
+                $("#appointment_not_honoured").html(data.appointment_not_honoured);
+                $("#appointment_missed").html(data.appointment_missed);
+                $("#appointment_defaulted").html(data.appointment_defaulted);
+                $("#appointment_lftu").html(data.appointment_lftu);
 
+                Appointment_missed_female = parseInt(data.appointment_missed_female)
+                Appointment_missed_male = parseInt(data.appointment_missed_male)
+                Appointment_missed_uknown_gender = parseInt(data.appointment_missed_uknown_gender)
+                Appointment_missed_to_nine = parseInt(data.appointment_missed_to_nine)
+                Appointment_missed_to_fourteen = parseInt(data.appointment_missed_to_fourteen)
+                Appointment_missed_to_nineteen = parseInt(data.appointment_missed_to_nineteen)
+                Appointment_missed_to_twentyfour = parseInt(data.appointment_missed_to_twentyfour)
+                Appointment_missed_to_twentyfive_above = parseInt(data.appointment_missed_to_twentyfive_above)
+                Appointment_missed_to_uknown_age = parseInt(data.appointment_missed_to_uknown_age)
+                Appointment_defaulted_female = parseInt(data.appointment_defaulted_female)
+                Appointment_defaulted_male = parseInt(data.appointment_defaulted_male)
+                Appointment_defaulted_uknown_gender = parseInt(data.appointment_defaulted_uknown_gender)
+                Appointment_defaulted_to_nine = parseInt(data.appointment_defaulted_to_nine)
+                Appointment_defaulted_to_fourteen = parseInt(data.appointment_defaulted_to_fourteen)
+                Appointment_defaulted_to_nineteen = parseInt(data.appointment_defaulted_to_nineteen)
+                Appointment_defaulted_to_twentyfour = parseInt(data.appointment_defaulted_to_twentyfour)
+                Appointment_defaulted_to_twentyfive_above = parseInt(data.appointment_defaulted_to_twentyfive_above)
+                Appointment_defaulted_to_uknown_age = parseInt(data.appointment_defaulted_to_uknown_age)
+                Appointment_ltfu_female = parseInt(data.appointment_ltfu_female)
+                Appointment_ltfu_male = parseInt(data.appointment_ltfu_male)
+                Appointment_ltfu_uknown_gender = parseInt(data.appointment_ltfu_uknown_gender)
+                Appointment_ltfu_to_nine = parseInt(data.appointment_ltfu_to_nine)
+                Appointment_ltfu_to_fourteen = parseInt(data.appointment_ltfu_to_fourteen)
+                Appointment_ltfu_to_nineteen = parseInt(data.appointment_ltfu_to_nineteen)
+                Appointment_ltfu_to_twentyfour = parseInt(data.appointment_ltfu_to_twentyfour)
+                Appointment_ltfu_to_twentyfive_above = parseInt(data.appointment_ltfu_to_twentyfive_above)
+                Appointment_ltfu_to_uknown_age = parseInt(data.appointment_ltfu_to_uknown_age)
+
+                appointment_missedGender.series[0].setData([Appointment_missed_male, Appointment_missed_female, Appointment_missed_uknown_gender]);
+                appointment_missedAge.series[0].setData([Appointment_missed_to_nine, Appointment_missed_to_fourteen, Appointment_missed_to_nineteen, Appointment_missed_to_twentyfour, Appointment_missed_to_twentyfive_above, Appointment_missed_to_uknown_age]);
+                appointment_defaultedGender.series[0].setData([Appointment_defaulted_male, Appointment_defaulted_female, Appointment_defaulted_uknown_gender]);
+                appointment_defaultedAge.series[0].setData([Appointment_defaulted_to_nine, Appointment_defaulted_to_fourteen, Appointment_defaulted_to_nineteen, Appointment_defaulted_to_twentyfour, Appointment_defaulted_to_twentyfive_above, Appointment_defaulted_to_uknown_age]);
+                appointment_ltfuGender.series[0].setData([Appointment_ltfu_male, Appointment_ltfu_female, Appointment_ltfu_uknown_gender]);
+                appointment_lftuAge.series[0].setData([Appointment_ltfu_to_nine, Appointment_ltfu_to_fourteen, Appointment_ltfu_to_nineteen, Appointment_ltfu_to_twentyfour, Appointment_ltfu_to_twentyfive_above, Appointment_ltfu_to_uknown_age]);
 
             }
         });
@@ -383,7 +491,7 @@
 
 
     //MISSED APPOINTMENT BY GENDER
-    var appChart = Highcharts.chart('appointment_missed_gender', {
+    var appointment_missedGender = Highcharts.chart('appointment_missed_gender', {
         chart: {
             type: 'column'
         },
@@ -427,7 +535,7 @@
 
     });
 // APPOINTMENT MISSED AGE
-    var appChart = Highcharts.chart('appointment_missed_age', {
+    var appointment_missedAge = Highcharts.chart('appointment_missed_age', {
         chart: {
             type: 'column'
         },
@@ -471,7 +579,7 @@
 
     });
     //DEFAULTED APPOINTMENT BY GENDER
-    var appChart = Highcharts.chart('appointment_defaulted_gender', {
+    var appointment_defaultedGender = Highcharts.chart('appointment_defaulted_gender', {
         chart: {
             type: 'column'
         },
@@ -515,7 +623,7 @@
 
     });
 // APPOINTMENT DEFAULTED AGE
-    var appChart = Highcharts.chart('appointment_defaulted_age', {
+    var appointment_defaultedAge = Highcharts.chart('appointment_defaulted_age', {
         chart: {
             type: 'column'
         },
@@ -559,7 +667,7 @@
 
     });
       //LTFU APPOINTMENT BY GENDER
-    var appChart = Highcharts.chart('appointment_ltfu_gender', {
+    var appointment_ltfuGender = Highcharts.chart('appointment_ltfu_gender', {
         chart: {
             type: 'column'
         },
@@ -603,7 +711,7 @@
 
     });
 // APPOINTMENT LTFU AGE
-    var appChart = Highcharts.chart('appointment_lftu_age', {
+    var appointment_lftuAge = Highcharts.chart('appointment_lftu_age', {
         chart: {
             type: 'column'
         },

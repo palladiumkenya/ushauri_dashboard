@@ -12,7 +12,7 @@
             </div> -->
 @if (Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Partner' || Auth::user()->access_level == 'Donor')
 <div class="col">
-<form role="form" method="get" id="dataFilter">
+    <form role="form" method="get" action="#" id="dataFilter">
         {{ csrf_field() }}
         <div class="row">
             <div class="col">
@@ -67,46 +67,46 @@
             </div>
 
             <div class='col'>
-                                <div class="form-group">
-                                    <div class="input-group">
-
-                                        <div class="col-md-10">
-
-                                            <input type="date" id="from" class="form-control" placeholder="From" name="from">
-                                        </div>
-                                        <div class="input-group-append">
-                                            <button class="btn btn-secondary" type="button">
-                                                <i class="icon-regular i-Calendar-4"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-            <div class="col">
-            <div class='col'>
-                                <div class="form-group">
-                                    <div class="input-group">
-
-                                        <div class="col-md-10">
-
-                                            <input type="date" id="to" class="form-control" placeholder="To" name="to">
-                                        </div>
-                                        <div class="input-group-append">
-                                            <button class="btn btn-secondary" type="button">
-                                                <i class="icon-regular i-Calendar-4"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-            <div class="col">
                 <div class="form-group">
-                    <span class="filter_facility_wait" style="display: none;"></span>
-                    <button class="btn btn-default filter btn-round  btn-small btn-primary  " type="submit" name="filter" id="filter"> <i class="fa fa-filter"></i>
-                        Filter</button>
+                    <div class="input-group">
+
+                        <div class="col-md-10">
+
+                            <input type="date" id="from" class="form-control" placeholder="From" name="from">
+                        </div>
+                        <div class="input-group-append">
+                            <button class="btn btn-secondary" type="button">
+                                <i class="icon-regular i-Calendar-4"></i>
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
+            <div class="col">
+                <div class='col'>
+                    <div class="form-group">
+                        <div class="input-group">
+
+                            <div class="col-md-10">
+
+                                <input type="date" id="to" class="form-control" placeholder="To" name="to">
+                            </div>
+                            <div class="input-group-append">
+                                <button class="btn btn-secondary" type="button">
+                                    <i class="icon-regular i-Calendar-4"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-group">
+                        <span class="filter_facility_wait" style="display: none;"></span>
+                        <button class="btn btn-default filter btn-round  btn-small btn-primary  " type="submit" name="filter" id="filter"> <i class="fa fa-filter"></i>
+                            Filter</button>
+                    </div>
+                </div>
+            </div>
 
     </form>
 
@@ -114,11 +114,11 @@
 @endif
 @if (Auth::user()->access_level == 'Facility')
 <div class="col">
-<form role="form" method="get" action="#" id="dataFilter">
+    <form role="form" method="get" action="#" id="dataFilter">
         {{ csrf_field() }}
         <div class="row">
 
-            <div class="col">
+            <div class="col-lg-3">
                 <div class="form-group">
                     <span class="filter_facility_wait" style="display: none;"></span>
 
@@ -130,40 +130,40 @@
                 </div>
             </div>
 
-            <div class='col'>
-                                <div class="form-group">
-                                    <div class="input-group">
+            <div class='col-lg-3'>
+                <div class="form-group">
+                    <div class="input-group">
 
-                                        <div class="col-md-10">
+                        <div class="col-md-10">
 
-                                            <input type="date" id="from" class="form-control" placeholder="From" name="from">
-                                        </div>
-                                        <div class="input-group-append">
-                                            <button class="btn btn-secondary" type="button">
-                                                <i class="icon-regular i-Calendar-4"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-            <div class="col">
-            <div class='col'>
-                                <div class="form-group">
-                                    <div class="input-group">
+                            <input type="date" id="from" class="form-control" placeholder="From" name="from">
+                        </div>
+                        <div class="input-group-append">
+                            <button class="btn btn-secondary" type="button">
+                                <i class="icon-regular i-Calendar-4"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-                                        <div class="col-md-10">
+            <div class='col-lg-3'>
+                <div class="form-group">
+                    <div class="input-group">
 
-                                            <input type="date" id="to" class="form-control" placeholder="To" name="to">
-                                        </div>
-                                        <div class="input-group-append">
-                                            <button class="btn btn-secondary" type="button">
-                                                <i class="icon-regular i-Calendar-4"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-            <div class="col">
+                        <div class="col-md-10">
+
+                            <input type="date" id="to" class="form-control" placeholder="To" name="to">
+                        </div>
+                        <div class="input-group-append">
+                            <button class="btn btn-secondary" type="button">
+                                <i class="icon-regular i-Calendar-4"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3">
                 <div class="form-group">
                     <span class="filter_facility_wait" style="display: none;"></span>
                     <button class="btn btn-default filter btn-round  btn-small btn-primary  " type="submit" name="filter" id="filter"> <i class="fa fa-filter"></i>
@@ -179,7 +179,7 @@
 <nav>
     <div class="nav nav-tabs" id="nav-tab" role="tablist">
         <a class="nav-item nav-link active" id="nav-client-tab" data-toggle="tab" href="#nav-client" role="tab" aria-controls="nav-client" aria-selected="true">Dashboard</a>
-        <a class="nav-item nav-link"  data-toggle="tab" href="#nav-indicators" role="tab"  aria-selected="false">Indicators Definitions</a>
+        <a class="nav-item nav-link" data-toggle="tab" href="#nav-indicators" role="tab" aria-selected="false">Indicators Definitions</a>
     </div>
 </nav>
 <div class="tab-content" id="nav-tabContent">
@@ -418,6 +418,8 @@
                 $("#client_consented").html(data.client_consented);
                 $("#client_nonconsented").html(data.client_nonconsented);
                 Client_consented_male = parseInt(data.client_consented_male)
+
+                console.log(Client_consented_male);
                 Client_consented_female = parseInt(data.client_consented_female)
                 Client_consented_uknown_gender = parseInt(data.client_consented_uknown_gender)
                 Client_nonconsented_male = parseInt(data.client_nonconsented_male)
@@ -580,7 +582,7 @@
         }],
 
     });
-// NON CONSENTED AGE
+    // NON CONSENTED AGE
     var nonconsentedAge = Highcharts.chart('nonconsented_age', {
         chart: {
             type: 'column'

@@ -8,10 +8,11 @@
 
             <div class="separator-breadcrumb border-top"></div>
         <div class="col-md-3 form-group mb-3">
+        <label>Upload From</label>
             <select id="section" data-width="100%">
              <option value="">Please select upload type</option>
-             <option value="kenyaemr">Upload From KenyaEMR Dataset</option>
-            <option value="template">Upload From Ushauri Template</option>
+             <option value="kenyaemr">KenyaEMR Dataset</option>
+             <option value="template">Ushauri Template</option>
            </select>
         </div>
         <div class="separator-breadcrumb border-top"></div>
@@ -87,7 +88,7 @@ $(document).ready(function () {
   })
 });
 </script>
-     <script src="{{asset('assets/js/vendor/echarts.min.js')}}">
+     <script src="{{asset('assets/js/vendor/echarts.min.js')}}"></script>
      <script src="{{asset('assets/js/es5/echart.options.min.js')}}"></script>
      <script src="{{asset('assets/js/es5/dashboard.v1.script.js')}}"></script>
 

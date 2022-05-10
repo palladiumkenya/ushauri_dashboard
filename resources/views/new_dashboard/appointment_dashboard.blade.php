@@ -15,7 +15,7 @@
 
 <div class="col">
 
-<form role="form" method="get" action="{{route('filter_charts')}}">
+<form role="form" method="get" action="#" id="dataFilter">
         {{ csrf_field() }}
         <div class="row">
             <div class="col">
@@ -115,6 +115,72 @@
 
 </div>
 @endif
+@if (Auth::user()->access_level == 'Facility')
+
+
+<div class="col">
+
+    <form role="form" method="get" action="#" id="dataFilter">
+        {{ csrf_field() }}
+        <div class="row">
+
+            <div class="col-lg-3">
+                <div class="form-group">
+                    <span class="filter_facility_wait" style="display: none;"></span>
+
+                    <select class="form-control filter_facility input-rounded input-sm select2">
+                        <option value="">Module : </option>
+                        <option value="">DSD</option>
+                        <option value="">PMTCT</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class='col-lg-3'>
+                <div class="form-group">
+                    <div class="input-group">
+
+                        <div class="col-md-10">
+
+                            <input type="date" id="from" class="form-control" placeholder="From" name="from">
+                        </div>
+                        <div class="input-group-append">
+                            <button class="btn btn-secondary" type="button">
+                                <i class="icon-regular i-Calendar-4"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+                <div class='col-lg-3'>
+                    <div class="form-group">
+                        <div class="input-group">
+
+                            <div class="col-md-10">
+
+                                <input type="date" id="to" class="form-control" placeholder="To" name="to">
+                            </div>
+                            <div class="input-group-append">
+                                <button class="btn btn-secondary" type="button">
+                                    <i class="icon-regular i-Calendar-4"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3">
+                    <div class="form-group">
+                        <span class="filter_facility_wait" style="display: none;"></span>
+                        <button class="btn btn-default filter btn-round  btn-small btn-primary  " type="submit" name="filter" id="filter"> <i class="fa fa-filter"></i>
+                            Filter</button>
+                    </div>
+                </div>
+            </div>
+
+    </form>
+
+</div>
+@endif
 <nav>
     <div class="nav nav-tabs" id="nav-tab" role="tablist">
         <a class="nav-item nav-link active" id="nav-appointment-tab" data-toggle="tab" href="#nav-appointment" role="tab" aria-controls="nav-appointmen" aria-selected="true">Appointments</a>
@@ -132,7 +198,7 @@
                         <div class="content">
                             <p class="text-muted mt-2 mb-0">Appointments</p>
 
-                            <p id="allApps" class="text-primary text-20 line-height-1 mb-2">{{number_format($appointment)}}</p>
+                            <p id="appointment" class="text-primary text-20 line-height-1 mb-2">{{number_format($appointment)}}</p>
                         </div>
                     </div>
                 </div>
@@ -144,7 +210,7 @@
                         <div class="content">
                             <p class="text-muted mt-2 mb-0">Honored</p>
 
-                            <p id="keptApps" class="text-primary text-20 line-height-1 mb-2">{{number_format($appointment_honoured)}}</p>
+                            <p id="appointment_honoured" class="text-primary text-20 line-height-1 mb-2">{{number_format($appointment_honoured)}}</p>
                         </div>
                     </div>
                 </div>
@@ -156,7 +222,7 @@
                         <div class="content">
                             <p class="text-muted mt-2 mb-0">Not Honored</p>
 
-                            <p id="defaultedApps" class="text-primary text-20 line-height-1 mb-2">{{number_format($appointment_not_honoured)}}</p>
+                            <p id="appointment_not_honoured" class="text-primary text-20 line-height-1 mb-2">{{number_format($appointment_not_honoured)}}</p>
                         </div>
                     </div>
                 </div>
@@ -331,6 +397,8 @@
         let counties = $('#counties').val();
         let subcounties = $('#subcounties').val();
         let facilities = $('#facilities').val();
+        let from = $('#from').val();
+        let to = $('#to').val();
         $.ajaxSetup({
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -343,19 +411,46 @@
                 "partners": partners,
                 "counties": counties,
                 "subcounties": subcounties,
-                "facilities": facilities
+                "facilities": facilities,
+                "from": from,
+                "to": to
             },
             url: "{{ route('filter_appointment_dashboard') }}",
             success: function(data) {
+                $("#appointment").html(data.appointment);
+                $("#appointment_honoured").html(data.appointment_honoured);
+                $("#appointment_not_honoured").html(data.appointment_not_honoured);
 
+                Appointment_honoured_male = parseInt(data.appointment_honoured_male)
+                Appointment_honoured_female = parseInt(data.appointment_honoured_female)
+                Appointment_honoured_uknown_gender = parseInt(data.appointment_honoured_uknown_gender)
+                Appointment_honored_to_nine = parseInt(data.appointment_honored_to_nine)
+                Appointment_honored_to_fourteen = parseInt(data.appointment_honored_to_fourteen)
+                Appointment_honored_to_nineteen = parseInt(data.appointment_honored_to_nineteen)
+                Appointment_honored_to_twentyfour = parseInt(data.appointment_honored_to_twentyfour)
+                Appointment_honored_to_twentyfive_above = parseInt(data.appointment_honored_to_twentyfive_above)
+                Appointment_honored_to_uknown_age = parseInt(data.appointment_honored_to_uknown_age)
+                Appointment_not_honoured_male = parseInt(data.appointment_not_honoured_male)
+                Appointment_not_honoured_female = parseInt(data.appointment_not_honoured_female)
+                Appointment_not_honoured_uknown_gender = parseInt(data.appointment_not_honoured_uknown_gender)
+                Appointment_not_honored_to_nine = parseInt(data.appointment_not_honored_to_nine)
+                Appointment_not_honored_to_fourteen = parseInt(data.appointment_not_honored_to_fourteen)
+                Appointment_not_honored_to_nineteen = parseInt(data.appointment_not_honored_to_nineteen)
+                Appointment_not_honored_to_twentyfour = parseInt(data.appointment_not_honored_to_twentyfour)
+                Appointment_not_honored_to_twentyfive_above = parseInt(data.appointment_not_honored_to_twentyfive_above)
+                Appointment_not_honored_to_uknown_age = parseInt(data.appointment_not_honored_to_uknown_age)
 
+                appointment_honouredGender.series[0].setData([Appointment_honoured_male, Appointment_honoured_female, Appointment_honoured_uknown_gender]);
+                appointment_honouredAge.series[0].setData([Appointment_honored_to_nine, Appointment_honored_to_fourteen, Appointment_honored_to_nineteen, Appointment_honored_to_twentyfour, Appointment_honored_to_twentyfive_above, Appointment_honored_to_uknown_age]);
+                appointment_not_honouredGender.series[0].setData([Appointment_not_honoured_male, Appointment_not_honoured_female, Appointment_not_honoured_uknown_gender]);
+                appointment_not_honouredAge.series[0].setData([Appointment_not_honored_to_nine, Appointment_not_honored_to_fourteen, Appointment_not_honored_to_nineteen, Appointment_not_honored_to_twentyfour, Appointment_not_honored_to_twentyfive_above, Appointment_not_honored_to_uknown_age]);
             }
         });
     });
 
 
     //APPOINTMENT HONOURED GENDER
-    var appChart = Highcharts.chart('appointment_honoured_gender', {
+    var appointment_honouredGender = Highcharts.chart('appointment_honoured_gender', {
         chart: {
             type: 'column'
         },
@@ -399,7 +494,7 @@
 
     });
 // APPOINTMENT HONOURED AGE
-    var appChart = Highcharts.chart('appointment_honoured_age', {
+    var appointment_honouredAge = Highcharts.chart('appointment_honoured_age', {
         chart: {
             type: 'column'
         },
@@ -444,7 +539,7 @@
     });
 
     //APPOINTMENT NOT HONOURED GENDER
-    var appChart = Highcharts.chart('appointment_not_honoured_gender', {
+    var appointment_not_honouredGender = Highcharts.chart('appointment_not_honoured_gender', {
         chart: {
             type: 'column'
         },
@@ -488,7 +583,7 @@
 
     });
 // APPOINTMENT NOT HONOURED AGE
-    var appChart = Highcharts.chart('appointment_not_honoured_age', {
+    var appointment_not_honouredAge = Highcharts.chart('appointment_not_honoured_age', {
         chart: {
             type: 'column'
         },

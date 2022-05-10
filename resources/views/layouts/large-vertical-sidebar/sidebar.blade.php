@@ -111,7 +111,7 @@
             <li class="nav-item ">
                 <a class="{{ Route::currentRouteName()=='Reports-dashboard' ? 'open' : '' }}" href="{{route('Reports-dashboard')}}">
                     <span class=" text-muted">Summary</span>
-                </a>
+            </a>
             </li>
             @endif
             @if (Auth::user()->access_level == 'Sub County')
@@ -178,6 +178,11 @@
             <li class="nav-item">
                 <a class="{{ Route::currentRouteName()=='Reports-clients_dashboard' ? 'open' : '' }}" href="{{route('Reports-clients_dashboard')}}">
                     <span class="item-name">Clients</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="{{ Route::currentRouteName()=='client_dashboard' ? 'open' : '' }}" href="{{route('client_dashboard')}}">
+                    <span class="item-name">Clients New</span>
                 </a>
             </li>
             <li class="nav-item">
