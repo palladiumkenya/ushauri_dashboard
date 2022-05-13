@@ -61,10 +61,10 @@
                 <div class="form-group">
                     <span class="filter_facility_wait" style="display: none;"></span>
 
-                    <select class="form-control filter_facility input-rounded input-sm select2">
+                    <select class="form-control filter_facility input-rounded input-sm select2" id="module" name="module">
                         <option value="">Module : </option>
-                        <option value="">DSD</option>
-                        <option value="">PMTCT</option>
+                        <option value="DSD">DSD</option>
+                        <option value="PMTCT">PMTCT</option>
                     </select>
                 </div>
             </div>
@@ -128,10 +128,10 @@
                 <div class="form-group">
                     <span class="filter_facility_wait" style="display: none;"></span>
 
-                    <select class="form-control filter_facility input-rounded input-sm select2">
+                    <select class="form-control filter_facility input-rounded input-sm select2" id="module" name="module">
                         <option value="">Module : </option>
-                        <option value="">DSD</option>
-                        <option value="">PMTCT</option>
+                        <option value="DSD">DSD</option>
+                        <option value="PMTCT">PMTCT</option>
                     </select>
                 </div>
             </div>
@@ -399,6 +399,7 @@
         let facilities = $('#facilities').val();
         let from = $('#from').val();
         let to = $('#to').val();
+        let module = $('#module').val();
         $.ajaxSetup({
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -413,15 +414,18 @@
                 "subcounties": subcounties,
                 "facilities": facilities,
                 "from": from,
-                "to": to
+                "to": to,
+                "module": module
             },
-            url: "{{ route('filter_appointment_dashboard') }}",
+            url: "{{ route('filter_appointment_charts') }}",
             success: function(data) {
                 $("#appointment").html(data.appointment);
                 $("#appointment_honoured").html(data.appointment_honoured);
                 $("#appointment_not_honoured").html(data.appointment_not_honoured);
 
                 Appointment_honoured_male = parseInt(data.appointment_honoured_male)
+
+                console.log(Appointment_honoured_male);
                 Appointment_honoured_female = parseInt(data.appointment_honoured_female)
                 Appointment_honoured_uknown_gender = parseInt(data.appointment_honoured_uknown_gender)
                 Appointment_honored_to_nine = parseInt(data.appointment_honored_to_nine)

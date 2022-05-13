@@ -58,10 +58,10 @@
                 <div class="form-group">
                     <span class="filter_facility_wait" style="display: none;"></span>
 
-                    <select class="form-control filter_facility input-rounded input-sm select2">
+                    <select class="form-control filter_facility input-rounded input-sm select2" id="module" name="module">
                         <option value="">Module : </option>
-                        <option value="">DSD</option>
-                        <option value="">PMTCT</option>
+                        <option value="DSD">DSD</option>
+                        <option value="PMTCT">PMTCT</option>
                     </select>
                 </div>
             </div>
@@ -114,7 +114,7 @@
 @endif
 @if (Auth::user()->access_level == 'Facility')
 <div class="col">
-    <form role="form" method="get" action="#" id="dataFilter">
+    <form role="form" method="get" action="{{ route('filter_client_charts') }}" id="dataFilter">
         {{ csrf_field() }}
         <div class="row">
 
@@ -122,10 +122,10 @@
                 <div class="form-group">
                     <span class="filter_facility_wait" style="display: none;"></span>
 
-                    <select class="form-control filter_facility input-rounded input-sm select2">
+                    <select class="form-control filter_facility input-rounded input-sm select2" id="module" name="module">
                         <option value="">Module : </option>
-                        <option value="">DSD</option>
-                        <option value="">PMTCT</option>
+                        <option value="DSD">DSD</option>
+                        <option value="PMTCT">PMTCT</option>
                     </select>
                 </div>
             </div>
@@ -280,6 +280,11 @@
 <script src="https://code.highcharts.com/modules/accessibility.js"></script>
 <script src="https://code.highcharts.com/themes/high-contrast-light.js"></script>
 
+<!-- Sweet alert -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
+
 
 <script type="text/javascript">
     $('.partners').select2();
@@ -395,6 +400,7 @@
         let facilities = $('#facilities').val();
         let from = $('#from').val();
         let to = $('#to').val();
+        let module = $('#module').val();
         $.ajaxSetup({
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -409,7 +415,8 @@
                 "subcounties": subcounties,
                 "facilities": facilities,
                 "from": from,
-                "to": to
+                "to": to,
+                "module": module
             },
             url: "{{ route('filter_client_charts') }}",
             success: function(data) {
@@ -446,6 +453,7 @@
 
             }
         });
+
     });
 
 

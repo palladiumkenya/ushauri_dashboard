@@ -16,4 +16,9 @@ class Gender extends Model
     protected $fillable = [
 
     ];
+
+    public function client()
+    {
+        return $this->belongsTo(Client::class,'gender');
+    }
 }

@@ -16,6 +16,15 @@
                 </a>
                 <div class="triangle"></div>
             </li>
+            @if (Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Partner' || Auth::user()->access_level == 'Donor' || Auth::user()->access_level == 'County' || Auth::user()->access_level == 'Sub County')
+            <li class="nav-item {{ request()->is('main_appointments/*') ? 'active' : '' }}" data-item="main_appointments">
+                <a class="nav-item-hold" href="#">
+                    <i class="nav-icon i-Clock"></i>
+                    <span class="nav-text">Appointments</span>
+                </a>
+                <div class="triangle"></div>
+            </li>
+            @endif
             @if (Auth::user()->access_level == 'Facility')
             <li class="nav-item {{ request()->is('appointments/*') ? 'active' : '' }}" data-item="appointments">
                 <a class="nav-item-hold" href="#">
@@ -93,30 +102,9 @@
                 </a>
             </li>
             @endif
-            @if (Auth::user()->access_level == 'Admin')
+            @if (Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Partner' || Auth::user()->access_level == 'Donor' || Auth::user()->access_level == 'County' || Auth::user()->access_level == 'Sub County')
             <li class="nav-item ">
-                <a class="{{ Route::currentRouteName()=='Reports-dashboard' ? 'open' : '' }}" href="{{route('Reports-dashboard')}}">
-                    <span class=" text-muted">Summary</span>
-                </a>
-            </li>
-            @endif
-            @if (Auth::user()->access_level == 'Partner')
-            <li class="nav-item ">
-                <a class="{{ Route::currentRouteName()=='Reports-dashboard' ? 'open' : '' }}" href="{{route('Reports-dashboard')}}">
-                    <span class=" text-muted">Summary</span>
-                </a>
-            </li>
-            @endif
-            @if (Auth::user()->access_level == 'County')
-            <li class="nav-item ">
-                <a class="{{ Route::currentRouteName()=='Reports-dashboard' ? 'open' : '' }}" href="{{route('Reports-dashboard')}}">
-                    <span class=" text-muted">Summary</span>
-            </a>
-            </li>
-            @endif
-            @if (Auth::user()->access_level == 'Sub County')
-            <li class="nav-item ">
-                <a class="{{ Route::currentRouteName()=='Reports-dashboard' ? 'open' : '' }}" href="{{route('Reports-dashboard')}}">
+                <a class="{{ Route::currentRouteName()=='dashboard' ? 'open' : '' }}" href="{{route('dashboard')}}">
                     <span class=" text-muted">Summary</span>
                 </a>
             </li>
@@ -181,7 +169,7 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a class="{{ Route::currentRouteName()=='client_dashboard' ? 'open' : '' }}" href="{{route('client_dashboard')}}">
+                <a class="{{ Route::currentRouteName()=='clients_list' ? 'open' : '' }}" href="{{route('clients_list')}}">
                     <span class="item-name">Clients New</span>
                 </a>
             </li>
@@ -192,6 +180,20 @@
             </li>
             @endif
         </ul>
+        @if (Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Partner' || Auth::user()->access_level == 'Donor')
+        <ul class="childNav" data-parent="main_appointments">
+            <li class="nav-item">
+                <a href="{{route('appointment_charts')}}">
+                    <span class="item-name">Appointment</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{route('missed_appointment_charts')}}">
+                    <span class="item-name">Missed Appointment</span>
+                </a>
+            </li>
+        </ul>
+        @endif
         @if (Auth::user()->access_level == 'Facility')
         <ul class="childNav" data-parent="appointments">
             <li class="nav-item dropdown-sidemenu">

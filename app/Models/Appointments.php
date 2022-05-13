@@ -18,6 +18,6 @@ class Appointments extends Model
     ];
 
     public function client(){
-        return $this->belongsTo('App\Models\Client','client_id');
+        return $this->belongsTo(Client::class,'client_id');
     }
 }

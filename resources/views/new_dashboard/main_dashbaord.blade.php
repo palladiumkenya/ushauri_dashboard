@@ -61,10 +61,10 @@
                 <div class="form-group">
                     <span class="filter_facility_wait" style="display: none;"></span>
 
-                    <select class="form-control filter_facility input-rounded input-sm select2">
+                    <select class="form-control filter_facility input-rounded input-sm select2" id="module" name="module">
                         <option value="">Module : </option>
-                        <option value="">DSD</option>
-                        <option value="">PMTCT</option>
+                        <option value="DSD">DSD</option>
+                        <option value="PMTCT">PMTCT</option>
                     </select>
                 </div>
             </div>
@@ -127,10 +127,10 @@
                 <div class="form-group">
                     <span class="filter_facility_wait" style="display: none;"></span>
 
-                    <select class="form-control filter_facility input-rounded input-sm select2">
+                    <select class="form-control filter_facility input-rounded input-sm select2" id="module" name="module">
                         <option value="">Module : </option>
-                        <option value="">DSD</option>
-                        <option value="">PMTCT</option>
+                        <option value="DSD">DSD</option>
+                        <option value="PMTCT">PMTCT</option>
                     </select>
                 </div>
             </div>
@@ -439,6 +439,7 @@
         let facilities = $('#facilities').val();
         let from = $('#from').val();
         let to = $('#to').val();
+        let module = $('#module').val();
         $.ajaxSetup({
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -453,7 +454,8 @@
                 "subcounties": subcounties,
                 "facilities": facilities,
                 "from": from,
-                "to": to
+                "to": to,
+                "module": module
             },
             url: "{{ route('filter_dashboard_charts') }}",
             success: function(data) {

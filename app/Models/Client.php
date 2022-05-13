@@ -22,9 +22,14 @@ class Client extends Model
 // {
 //     return Carbon::parse($this->attributes['dob'])->age;
 // }
-    public function appointments()
+    public function appointment()
     {
-        return $this->hasMany(Appointments::class);
+        return $this->hasMany(Appointments::class, 'client_id');
+    }
+
+    Public function partner()
+    {
+        return $this->hasOne(Partner::class);
     }
 
 
