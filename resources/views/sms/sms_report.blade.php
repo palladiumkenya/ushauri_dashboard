@@ -73,6 +73,9 @@
 </div>
 <div class="separator-breadcrumb border-top"></div>
 
+<div> <b>Total SMS Cost: Ksh.{{number_format(trim($total_cost, '[]'))}}</b></div>
+<div class="separator-breadcrumb border-top"></div>
+
 <!-- ICON BG -->
 
 <div class="row">
@@ -290,6 +293,7 @@
         });
     });
 
+    var Total_cost = <?php echo json_encode($total_cost) ?>;
     var Success = <?php echo json_encode($success) ?>;
     var Failed_blacklist = <?php echo json_encode($failed_blacklist) ?>;
     var Failed_absent = <?php echo json_encode($failed_absent) ?>;
