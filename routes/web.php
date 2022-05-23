@@ -211,4 +211,5 @@ Route::group(['middleware' => 'auth'], function () {
 
   // new linelists rooutes
   Route::get('/new/clients/list', ['uses' => 'App\Http\Controllers\NewReportController@clients_list', 'as' => 'clients_list']);
+  Route::get('/new/appointment/list', ['uses' => 'App\Http\Controllers\NewReportController@appointment_list', 'as' => 'appointment_list']);
 });

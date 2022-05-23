@@ -244,6 +244,16 @@
                 </a>
             </li>
             <li class="nav-item">
+                <a href="{{route('appointment_charts')}}">
+                    <span class="item-name">New Appointment</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{route('missed_appointment_charts')}}">
+                    <span class="item-name">Missed Appointment</span>
+                </a>
+            </li>
+            <li class="nav-item">
                 <a href="{{route('app_calendar')}}">
                     <span class="item-name">Calender</span>
                 </a>

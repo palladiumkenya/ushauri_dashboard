@@ -10,9 +10,9 @@
                     <div class="card text-left">
 
                         <div class="card-body">
-                        <h4 class="card-title mb-3">Showing {{count($clients)}}</h4>
+                        <h4 class="card-title mb-3">Showing {{count($appointments)}}</h4>
                             <div class="col-md-12" style="margin-top:10px; ">
-                                {{ $clients->onEachSide(5)->links() }}
+                                {{ $appointments->onEachSide(5)->links() }}
                             </div>
                                 <div class="table-responsive">
                                     <table id="multicolumn_ordering_table" class="display table table-striped table-bordered" style="width:100%">
@@ -25,6 +25,9 @@
                                                 <th>DOB</th>
                                                 <th>Phone No</th>
                                                 <th>Consent</th>
+                                                <th>Appointment Type</th>
+                                                <th>Appointment Date</th>
+                                                <th>Appointment Status</th>
                                                 <th>Date Created</th>
                                                 <th>Facility Name</th>
                                                 <th>MFL Code</th>
@@ -34,21 +37,24 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            @if (count($clients) > 0)
-                                                @foreach($clients as $client)
+                                            @if (count($appointments) > 0)
+                                                @foreach($appointments as $appointment)
                                                     <tr>
                                                         <td> {{ $loop->iteration }}</td>
-                                                        <td>  {{$client->clinic_number}}</td>
-                                                        <td> {{$client->f_name}} {{$client->m_name}} {{$client->l_name}}</td>
-                                                        <td>  {{$client->gender}}</td>
-                                                        <td>  {{$client->dob}}</td>
-                                                        <td>  {{$client->phone_no}}</td>
-                                                        <td>  {{$client->smsenable}}</td>
-                                                        <td>  {{date('d-m-Y', strtotime($client->created_at))}}</td>
-                                                        <td>  {{$client->facility}}</td>
-                                                        <td>  {{$client->code}}</td>
-                                                        <td>  {{$client->partner}}</td>
-                                                        <td> {{$client->county}}</td>
+                                                        <td>  {{$appointment->clinic_number}}</td>
+                                                        <td> {{$appointment->f_name}} {{$appointment->m_name}} {{$appointment->l_name}}</td>
+                                                        <td>  {{$appointment->gender}}</td>
+                                                        <td>  {{$appointment->dob}}</td>
+                                                        <td>  {{$appointment->phone_no}}</td>
+                                                        <td>  {{$appointment->smsenable}}</td>
+                                                        <td>  {{$appointment->app_type}}</td>
+                                                        <td>  {{$appointment->appntmnt_date}}</td>
+                                                        <td>  {{$appointment->app_status}}</td>
+                                                        <td>  {{date('d-m-Y', strtotime($appointment->created_at))}}</td>
+                                                        <td>  {{$appointment->facility}}</td>
+                                                        <td>  {{$appointment->code}}</td>
+                                                        <td>  {{$appointment->partner}}</td>
+                                                        <td> {{$appointment->county}}</td>
 
                                                     </tr>
                                                 @endforeach

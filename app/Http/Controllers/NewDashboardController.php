@@ -118,7 +118,7 @@ class NewDashboardController extends Controller
             });
         }
         if (Auth::user()->access_level == 'Partner') {
-            $all_partners = Partner::where('status', '=', 'Active')->pluck('name', 'id');
+            $all_partners = Partner::where('status', '=', 'Active')->where('id', Auth::user()->partner_id)->pluck('name', 'id');
             $client = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
                 ->where('tbl_client.status', '=', 'Active')
                 ->whereNull('tbl_client.hei_no')
@@ -221,8 +221,8 @@ class NewDashboardController extends Controller
         if (Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Donor') {
 
             $all_partners = Partner::where('status', '=', 'Active')->pluck('name', 'id');
-            $client = Client::where('status', '=', 'Active')->whereNull('hei_no')->count('clinic_number');
-            $client_ever_enrolled = Client::whereNull('hei_no')->count('clinic_number');
+            $client = Client::where('status', '=', 'Active')->whereNull('hei_no')->count('id');
+            $client_ever_enrolled = Client::whereNull('hei_no')->count('id');
 
 
             $indicator = Indicator::select(['name', 'description'])->get();
@@ -236,64 +236,45 @@ class NewDashboardController extends Controller
                 ->get();
             $facilities_ever_enrolled = PartnerFacility::count('mfl_code');
 
-            //  dd($active_facilities);
-            // active clients by gender
-            $clients_male = Client::select('id')->where([['gender', '=', '2'], ['status', '=', 'Active'],])
+            $clients_male = Client::where([['gender', '=', '2'], ['status', '=', 'Active'],])
                 ->whereNull('hei_no')
-                ->count();
+                ->count('id');
 
-            $clients_female = Client::where('gender', '=', '1')
-                ->where('status', '=', 'Active')
+            $clients_female = Client::where([['gender', '=', '1'], ['status', '=', 'Active'],])
                 ->whereNull('hei_no')
-                ->count();
-            $unknown_gender = Client::where('gender', '!=', '1')
-                ->where('gender', '!=', '2')
-                ->where('status', '=', 'Active')
+                ->count('id');
+            $unknown_gender = Client::where([['gender', '!=', '1'], ['gender', '!=', '2'], ['status', '=', 'Active'],])
                 ->whereNull('hei_no')
-                ->count();
+                ->count('id');
 
-            $client_to_nine = Cache::remember('client_to_nine', 10, function () {
-                return Client::select(\DB::raw("count((case when (((year(curdate()) - year(`dob`)) > 0) and ((year(curdate()) - year(`dob`)) <= 9)) then `dob` end)) AS count"))
+            $client_to_nine = Client::select(\DB::raw("count((case when (((year(curdate()) - year(`dob`)) > 0) and ((year(curdate()) - year(`dob`)) <= 9)) then `dob` end)) AS count"))
                     ->where('status', '=', 'Active')
                     ->whereNull('hei_no')
                     ->pluck('count');
-            });
 
-            $client_to_fourteen = Cache::remember('client-fourteen', 10, function () {
-                return Client::select(\DB::raw("count((case when (((year(curdate()) - year(`dob`)) >= 10) and ((year(curdate()) - year(`dob`)) <= 14)) then `dob` end)) AS count"))
+            $client_to_fourteen = Client::select(\DB::raw("count((case when (((year(curdate()) - year(`dob`)) >= 10) and ((year(curdate()) - year(`dob`)) <= 14)) then `dob` end)) AS count"))
                     ->where('status', '=', 'Active')
                     ->whereNull('hei_no')
                     ->pluck('count');
-            });
-
-            $client_to_nineteen = Cache::remember('client-nineteen', 10, function () {
-                return Client::select(\DB::raw("count((case when (((year(curdate()) - year(`dob`)) >= 15) and ((year(curdate()) - year(`dob`)) <= 19)) then `dob` end)) AS count"))
+            $client_to_nineteen = Client::select(\DB::raw("count((case when (((year(curdate()) - year(`dob`)) >= 15) and ((year(curdate()) - year(`dob`)) <= 19)) then `dob` end)) AS count"))
                     ->where('status', '=', 'Active')
                     ->whereNull('hei_no')
                     ->pluck('count');
-            });
-
-            $client_to_twentyfour = Cache::remember('client-twentyfour', 10, function () {
-                return Client::select(\DB::raw("count((case when (((year(curdate()) - year(`dob`)) >= 20) and ((year(curdate()) - year(`dob`)) <= 24)) then `id` end)) AS count"))
+            $client_to_twentyfour = Client::select(\DB::raw("count((case when (((year(curdate()) - year(`dob`)) >= 20) and ((year(curdate()) - year(`dob`)) <= 24)) then `id` end)) AS count"))
                     ->where('status', '=', 'Active')
                     ->whereNull('hei_no')
                     ->pluck('count');
-            });
 
-            $client_to_twentyfive_above = Cache::remember('client-twentyfive-above', 10, function () {
-                return Client::select(\DB::raw("count((case when (((year(curdate()) - year(`dob`)) >= 25)) then `id` end)) AS count"))
+            $client_to_twentyfive_above = Client::select(\DB::raw("count((case when (((year(curdate()) - year(`dob`)) >= 25)) then `id` end)) AS count"))
                     ->where('status', '=', 'Active')
                     ->whereNull('hei_no')
                     ->pluck('count');
-            });
 
-            $client_unknown_age = Cache::remember('client-unknown-age', 10, function () {
-                return Client::where('dob', '=', '')
+            $client_unknown_age = Client::where('dob', '=', '')
                     ->orWhereNull('dob')
                     ->where('status', '=', 'Active')
                     ->whereNull('hei_no')
-                    ->count();
-            });
+                    ->count('id');
 
             //     // appointment by gender
             //     $appointment_male = Cache::remember('appointment-male', 10, function () {
@@ -624,7 +605,7 @@ class NewDashboardController extends Controller
             });
         }
         if (Auth::user()->access_level == 'Partner') {
-            $all_partners = Partner::where('status', '=', 'Active')->pluck('name', 'id');
+            $all_partners = Partner::where('status', '=', 'Active')->where('id', Auth::user()->partner_id)->pluck('name', 'id');
             $client = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
                 ->where('tbl_client.status', '=', 'Active')
                 ->whereNull('tbl_client.hei_no')
@@ -1155,7 +1136,7 @@ class NewDashboardController extends Controller
                 ->count();
         }
         if (Auth::user()->access_level == 'Partner') {
-            $all_partners = Partner::where('status', '=', 'Active')->pluck('name', 'id');
+            $all_partners = Partner::where('status', '=', 'Active')->where('id', Auth::user()->partner_id)->pluck('name', 'id');
             $indicator = Indicator::select(['name', 'description'])->get();
             // main appointments
             $appointment = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
@@ -1666,7 +1647,7 @@ class NewDashboardController extends Controller
                 ->count();
         }
         if (Auth::user()->access_level == 'Partner') {
-            $all_partners = Partner::where('status', '=', 'Active')->pluck('name', 'id');
+            $all_partners = Partner::where('status', '=', 'Active')->where('id', Auth::user()->partner_id)->pluck('name', 'id');
             $indicator = Indicator::select(['name', 'description'])->get();
 
             // dd($appointment_honoured);
@@ -2831,74 +2812,71 @@ class NewDashboardController extends Controller
         $selected_module = $request->module;
 
         if (Auth::user()->access_level == 'Facility') {
-            $facilities_ever_enrolled = PartnerFacility::where('created_at', '>=', date($request->from))->where('created_at', '<=', date($request->to));
+            $facilities_ever_enrolled = PartnerFacility::where('tbl_partner_facility.mfl_code', Auth::user()->facility_id);
+            $active_facilities = PartnerFacility::join('tbl_client', 'tbl_partner_facility.mfl_code', '=', 'tbl_client.mfl_code')
+                ->join('tbl_appointment', 'tbl_client.id', '=', 'tbl_appointment.client_id')
+                ->select('tbl_partner_facility.mfl_code')
+                ->where('tbl_appointment.created_at', '>=', Carbon::now()->subMonths(6))
+                ->orderBy('tbl_appointment.created_at', 'DESC')
+                ->groupBy('tbl_partner_facility.mfl_code')
+                ->where('tbl_partner_facility.mfl_code', Auth::user()->facility_id);
             $client = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
                 ->where('tbl_client.status', '=', 'Active')
                 ->whereNull('tbl_client.hei_no')
-                ->where('tbl_client.mfl_code', Auth::user()->facility_id)
-                ->whereDate('tbl_client.created_at', '>=', date($request->from))->whereDate('tbl_client.created_at', '<=', date($request->to));
+                ->where('tbl_client.mfl_code', Auth::user()->facility_id);
             $client_ever_enrolled = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
                 ->whereNull('tbl_client.hei_no')
-                ->where('tbl_client.mfl_code', Auth::user()->facility_id)
-                ->where('tbl_client.created_at', '>=', date($request->from))->where('tbl_client.created_at', '<=', date($request->to));
+                ->where('tbl_client.mfl_code', Auth::user()->facility_id);
             // active clients by gender
             $clients_male = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
                 ->select('tbl_client.id')
                 ->where([['tbl_client.gender', '=', '2'], ['tbl_client.status', '=', 'Active'],])
                 ->whereNull('tbl_client.hei_no')
-                ->where('tbl_client.mfl_code', Auth::user()->facility_id)
-                ->whereDate('tbl_client.created_at', '>=', date($request->from))->whereDate('tbl_client.created_at', '<=', date($request->to));
+                ->where('tbl_client.mfl_code', Auth::user()->facility_id);
 
 
             $clients_female = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
                 ->where([['tbl_client.gender', '=', '1'], ['tbl_client.status', '=', 'Active'],])
                 ->whereNull('tbl_client.hei_no')
-                ->where('tbl_client.mfl_code', Auth::user()->facility_id)
-                ->whereDate('tbl_client.created_at', '>=', date($request->from))->whereDate('tbl_client.created_at', '<=', date($request->to));
+                ->where('tbl_client.mfl_code', Auth::user()->facility_id);
 
             $unknown_gender = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
                 ->where([['tbl_client.gender', '!=', '1'], ['tbl_client.gender', '!=', '2'], ['tbl_client.status', '=', 'Active'],])
                 ->whereNull('tbl_client.hei_no')
-                ->where('tbl_client.mfl_code', Auth::user()->facility_id)
-                ->whereDate('tbl_client.created_at', '>=', date($request->from))->whereDate('tbl_client.created_at', '<=', date($request->to));
+                ->where('tbl_client.mfl_code', Auth::user()->facility_id);
 
 
             $client_to_nine = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
                 ->select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) > 0) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 9)) then `tbl_client`.`dob` end)) AS count"))
                 ->where('tbl_client.status', '=', 'Active')
                 ->whereNull('tbl_client.hei_no')
-                ->where('tbl_client.mfl_code', Auth::user()->facility_id)
-                ->whereDate('tbl_client.created_at', '>=', date($request->from))->whereDate('tbl_client.created_at', '<=', date($request->to));
+                ->where('tbl_client.mfl_code', Auth::user()->facility_id);
 
 
             $client_to_fourteen = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
                 ->select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 10) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 14)) then `tbl_client`.`dob` end)) AS count"))
                 ->where('tbl_client.status', '=', 'Active')
                 ->whereNull('tbl_client.hei_no')
-                ->where('tbl_client.mfl_code', Auth::user()->facility_id)
-                ->whereDate('tbl_client.created_at', '>=', date($request->from))->whereDate('tbl_client.created_at', '<=', date($request->to));
+                ->where('tbl_client.mfl_code', Auth::user()->facility_id);
 
 
             $client_to_nineteen = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
                 ->select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 15) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 19)) then `tbl_client`.`dob` end)) AS count"))
                 ->where('tbl_client.status', '=', 'Active')
                 ->whereNull('tbl_client.hei_no')
-                ->where('tbl_client.mfl_code', Auth::user()->facility_id)
-                ->whereDate('tbl_client.created_at', '>=', date($request->from))->whereDate('tbl_client.created_at', '<=', date($request->to));
+                ->where('tbl_client.mfl_code', Auth::user()->facility_id);
 
             $client_to_twentyfour = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
                 ->select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 20) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 24)) then `tbl_client`.`dob` end)) AS count"))
                 ->where('tbl_client.status', '=', 'Active')
                 ->whereNull('tbl_client.hei_no')
-                ->where('tbl_client.mfl_code', Auth::user()->facility_id)
-                ->whereDate('tbl_client.created_at', '>=', date($request->from))->whereDate('tbl_client.created_at', '<=', date($request->to));
+                ->where('tbl_client.mfl_code', Auth::user()->facility_id);
 
             $client_to_twentyfive_above = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
                 ->select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 25)) then `tbl_client`.`dob` end)) AS count"))
                 ->where('tbl_client.status', '=', 'Active')
                 ->whereNull('tbl_client.hei_no')
-                ->where('tbl_client.mfl_code', Auth::user()->facility_id)
-                ->whereDate('tbl_client.created_at', '>=', date($request->from))->whereDate('tbl_client.created_at', '<=', date($request->to));
+                ->where('tbl_client.mfl_code', Auth::user()->facility_id);
 
 
             $client_unknown_age = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
@@ -2906,11 +2884,10 @@ class NewDashboardController extends Controller
                 ->WhereNull('tbl_client.dob')
                 ->where('tbl_client.status', '=', 'Active')
                 ->whereNull('tbl_client.hei_no')
-                ->where('tbl_client.mfl_code', Auth::user()->facility_id)
-                ->whereDate('tbl_client.created_at', '>=', date($request->from))->whereDate('tbl_client.created_at', '<=', date($request->to));
+                ->where('tbl_client.mfl_code', Auth::user()->facility_id);
         }
         if (Auth::user()->access_level == 'Partner') {
-            $all_partners = Partner::where('status', '=', 'Active')->pluck('name', 'id');
+
             $indicator = Indicator::select(['name', 'description'])->get();
 
 
@@ -2927,10 +2904,9 @@ class NewDashboardController extends Controller
                 ->where('tbl_appointment.created_at', '>=', Carbon::now()->subMonths(6))
                 ->orderBy('tbl_appointment.created_at', 'DESC')
                 ->groupBy('tbl_partner_facility.mfl_code')
-                ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
-                ->get();
-            $facilities_ever_enrolled = PartnerFacility::where('partner_id', Auth::user()->partner_id)
-                ->where('created_at', '>=', date($request->from))->where('created_at', '<=', date($request->to));
+                ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id);
+            $facilities_ever_enrolled = PartnerFacility::join('tbl_client', 'tbl_partner_facility.mfl_code', '=', 'tbl_client.mfl_code')
+            ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id);
             // active clients by gender
             $clients_male = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
                 ->select('tbl_client.id')
@@ -2992,7 +2968,6 @@ class NewDashboardController extends Controller
 
         if (Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Donor') {
 
-            $all_partners = Partner::where('status', '=', 'Active')->pluck('name', 'id');
             $indicator = Indicator::select(['name', 'description'])->get();
 
 
@@ -3007,7 +2982,7 @@ class NewDashboardController extends Controller
                 ->where('tbl_appointment.created_at', '>=', Carbon::now()->subMonths(6))
                 ->orderBy('tbl_appointment.created_at', 'DESC')
                 ->groupBy('tbl_partner_facility.mfl_code');
-            $facilities_ever_enrolled = PartnerFacility::select('mfl_code');
+            $facilities_ever_enrolled = PartnerFacility::select('tbl_partner_facility.mfl_code');
             // active clients by gender
             $clients_male = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
                 ->select('tbl_client.id')
@@ -3120,7 +3095,7 @@ class NewDashboardController extends Controller
             $client = $client->where('tbl_client.created_at', '>=', date($request->from))->where('tbl_client.created_at', '<=', date($request->to));
             $client_ever_enrolled = $client_ever_enrolled->where('tbl_client.created_at', '>=', date($request->from))->where('tbl_client.created_at', '<=', date($request->to));
             $active_facilities = $active_facilities->where('tbl_appointment.created_at', '>=', date($request->from))->where('tbl_appointment.created_at', '>=', date($request->to));
-            $facilities_ever_enrolled = $facilities_ever_enrolled->where('created_at', '>=', date($request->from))->where('created_at', '<=', date($request->to));
+            $facilities_ever_enrolled = $facilities_ever_enrolled->where('tbl_partner_facility.created_at', '>=', date($request->from))->where('tbl_partner_facility.created_at', '<=', date($request->to));
             $clients_male = $clients_male->where('tbl_client.created_at', '>=', date($request->from))->where('tbl_client.created_at', '<=', date($request->to));
             $clients_female = $clients_female->where('tbl_client.created_at', '>=', date($request->from))->where('tbl_client.created_at', '<=', date($request->to));
             $unknown_gender = $unknown_gender->where('tbl_client.created_at', '>=', date($request->from))->where('tbl_client.created_at', '<=', date($request->to));
@@ -3164,7 +3139,7 @@ class NewDashboardController extends Controller
         $data["client"]        = $client->count();
         $data["facilities_ever_enrolled"]        = $facilities_ever_enrolled->count();
         $data["client_ever_enrolled"]        = $client_ever_enrolled->count();
-        $data["active_facilities"]        = $active_facilities->count();
+        $data["active_facilities"]        = $active_facilities->get()->count();
         $data["clients_male"]        = $clients_male->count();
         $data["clients_female"]        = $clients_female->count();
         $data["unknown_gender"]        = $unknown_gender->count();
@@ -3835,6 +3810,7 @@ class NewDashboardController extends Controller
         $selected_facilites = $request->facilities;
         $selected_from = $request->from;
         $selected_to = $request->to;
+        $selected_module = $request->module;
 
         if (Auth::user()->access_level == 'Facility') {
             $appointment = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
@@ -4317,6 +4293,52 @@ class NewDashboardController extends Controller
             $appointment_not_honored_to_twentyfour = $appointment_not_honored_to_twentyfour->where('tbl_appointment.created_at', '>=', date($request->from))->where('tbl_appointment.created_at', '<=', date($request->to));
             $appointment_not_honored_to_twentyfive_above = $appointment_not_honored_to_twentyfive_above->where('tbl_appointment.created_at', '>=', date($request->from))->where('tbl_appointment.created_at', '<=', date($request->to));
             $appointment_not_honored_to_uknown_age = $appointment_not_honored_to_uknown_age->where('tbl_appointment.created_at', '>=', date($request->from))->where('tbl_appointment.created_at', '<=', date($request->to));
+        }
+        if (!empty($selected_module == 'DSD')) {
+            $appointment = $appointment->join('tbl_dfc_module', 'tbl_client.id', '=', 'tbl_dfc_module.client_id');
+            $appointment_honoured = $appointment_honoured->join('tbl_dfc_module', 'tbl_client.id', '=', 'tbl_dfc_module.client_id');
+            $appointment_not_honoured = $appointment_not_honoured->join('tbl_dfc_module', 'tbl_client.id', '=', 'tbl_dfc_module.client_id');
+            $appointment_honoured_male = $appointment_honoured_male->join('tbl_dfc_module', 'tbl_client.id', '=', 'tbl_dfc_module.client_id');
+            $appointment_honoured_female = $appointment_honoured_female->join('tbl_dfc_module', 'tbl_client.id', '=', 'tbl_dfc_module.client_id');
+            $appointment_honoured_uknown_gender = $appointment_honoured_uknown_gender->join('tbl_dfc_module', 'tbl_client.id', '=', 'tbl_dfc_module.client_id');
+            $appointment_honored_to_nine = $appointment_honored_to_nine->join('tbl_dfc_module', 'tbl_client.id', '=', 'tbl_dfc_module.client_id');
+            $appointment_honored_to_fourteen = $appointment_honored_to_fourteen->join('tbl_dfc_module', 'tbl_client.id', '=', 'tbl_dfc_module.client_id');
+            $appointment_honored_to_nineteen = $appointment_honored_to_nineteen->join('tbl_dfc_module', 'tbl_client.id', '=', 'tbl_dfc_module.client_id');
+            $appointment_honored_to_twentyfour = $appointment_honored_to_twentyfour->join('tbl_dfc_module', 'tbl_client.id', '=', 'tbl_dfc_module.client_id');
+            $appointment_honored_to_twentyfive_above = $appointment_honored_to_twentyfive_above->join('tbl_dfc_module', 'tbl_client.id', '=', 'tbl_dfc_module.client_id');
+            $appointment_honored_to_uknown_age = $appointment_honored_to_uknown_age->join('tbl_dfc_module', 'tbl_client.id', '=', 'tbl_dfc_module.client_id');
+            $appointment_not_honoured_male = $appointment_not_honoured_male->join('tbl_dfc_module', 'tbl_client.id', '=', 'tbl_dfc_module.client_id');
+            $appointment_not_honoured_female = $appointment_not_honoured_female->join('tbl_dfc_module', 'tbl_client.id', '=', 'tbl_dfc_module.client_id');
+            $appointment_not_honoured_uknown_gender = $appointment_not_honoured_uknown_gender->join('tbl_dfc_module', 'tbl_client.id', '=', 'tbl_dfc_module.client_id');
+            $appointment_not_honored_to_nine = $appointment_not_honored_to_nine->join('tbl_dfc_module', 'tbl_client.id', '=', 'tbl_dfc_module.client_id');
+            $appointment_not_honored_to_fourteen = $appointment_not_honored_to_fourteen->join('tbl_dfc_module', 'tbl_client.id', '=', 'tbl_dfc_module.client_id');
+            $appointment_not_honored_to_nineteen = $appointment_not_honored_to_nineteen->join('tbl_dfc_module', 'tbl_client.id', '=', 'tbl_dfc_module.client_id');
+            $appointment_not_honored_to_twentyfour = $appointment_not_honored_to_twentyfour->join('tbl_dfc_module', 'tbl_client.id', '=', 'tbl_dfc_module.client_id');
+            $appointment_not_honored_to_twentyfive_above = $appointment_not_honored_to_twentyfive_above->join('tbl_dfc_module', 'tbl_client.id', '=', 'tbl_dfc_module.client_id');
+            $appointment_not_honored_to_uknown_age = $appointment_not_honored_to_uknown_age->join('tbl_dfc_module', 'tbl_client.id', '=', 'tbl_dfc_module.client_id');
+        }
+        if (!empty($selected_module == 'PMTCT')) {
+            $appointment = $appointment->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id');
+            $appointment_honoured = $appointment_honoured->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id');
+            $appointment_not_honoured = $appointment_not_honoured->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id');
+            $appointment_honoured_male = $appointment_honoured_male->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id');
+            $appointment_honoured_female = $appointment_honoured_female->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id');
+            $appointment_honoured_uknown_gender = $appointment_honoured_uknown_gender->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id');
+            $appointment_honored_to_nine = $appointment_honored_to_nine->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id');
+            $appointment_honored_to_fourteen = $appointment_honored_to_fourteen->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id');
+            $appointment_honored_to_nineteen = $appointment_honored_to_nineteen->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id');
+            $appointment_honored_to_twentyfour = $appointment_honored_to_twentyfour->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id');
+            $appointment_honored_to_twentyfive_above = $appointment_honored_to_twentyfive_above->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id');
+            $appointment_honored_to_uknown_age = $appointment_honored_to_uknown_age->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id');
+            $appointment_not_honoured_male = $appointment_not_honoured_male->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id');
+            $appointment_not_honoured_female = $appointment_not_honoured_female->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id');
+            $appointment_not_honoured_uknown_gender = $appointment_not_honoured_uknown_gender->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id');
+            $appointment_not_honored_to_nine = $appointment_not_honored_to_nine->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id');
+            $appointment_not_honored_to_fourteen = $appointment_not_honored_to_fourteen->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id');
+            $appointment_not_honored_to_nineteen = $appointment_not_honored_to_nineteen->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id');
+            $appointment_not_honored_to_twentyfour = $appointment_not_honored_to_twentyfour->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id');
+            $appointment_not_honored_to_twentyfive_above = $appointment_not_honored_to_twentyfive_above->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id');
+            $appointment_not_honored_to_uknown_age = $appointment_not_honored_to_uknown_age->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id');
         }
 
         $data["appointment"]        = $appointment->count();

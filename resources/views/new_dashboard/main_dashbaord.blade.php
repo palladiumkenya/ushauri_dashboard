@@ -18,7 +18,7 @@
     <form role="form" method="get" action="#" id="dataFilter">
         {{ csrf_field() }}
         <div class="row">
-            <div class="col">
+            <div class="col-lg-2">
                 <div class="form-group">
 
                     <select class="form-control select2" id="partners" name="partner">
@@ -30,7 +30,7 @@
                     </select>
                 </div>
             </div>
-            <div class="col">
+            <div class="col-lg-2">
                 <div class="form-group">
                     <select class="form-control county  input-rounded input-sm select2" id="counties" name="county">
                         <option value="">County:</option>
@@ -38,7 +38,7 @@
                     </select>
                 </div>
             </div>
-            <div class="col">
+            <div class="col-lg-2">
                 <div class="form-group">
                     <span class="filter_sub_county_wait" style="display: none;">Loading , Please Wait ...</span>
                     <select class="form-control subcounty input-rounded input-sm select2" id="subcounties" name="subcounty">
@@ -47,7 +47,7 @@
                     </select>
                 </div>
             </div>
-            <div class="col">
+            <div class="col-lg-2">
                 <div class="form-group">
                     <span class="filter_facility_wait" style="display: none;">.</span>
 
@@ -57,7 +57,7 @@
                     </select>
                 </div>
             </div>
-            <div class="col">
+            <div class="col-lg-2">
                 <div class="form-group">
                     <span class="filter_facility_wait" style="display: none;"></span>
 
@@ -69,9 +69,12 @@
                 </div>
             </div>
 
-            <div class='col'>
+            <div class='col-lg-3'>
                 <div class="form-group">
                     <div class="input-group">
+                        <div class="col-md-4">
+                            <label for="firstName1">From</label>
+                        </div>
 
                         <div class="col-md-10">
 
@@ -85,10 +88,12 @@
                     </div>
                 </div>
             </div>
-            <div class="col">
+            <div class="col-lg-3">
                 <div class="form-group">
                     <div class="input-group">
-
+                        <div class="col-md-4">
+                            <label for="firstName1">To</label>
+                        </div>
                         <div class="col-md-10">
 
                             <input type="date" id="to" class="form-control" placeholder="To" name="to">
@@ -101,8 +106,11 @@
                     </div>
                 </div>
             </div>
-            <div class="col">
+            <div class="col-lg-2">
                 <div class="form-group">
+                    <div class="col-md-4">
+
+                    </div>
                     <span class="filter_facility_wait" style="display: none;"></span>
                     <button class="btn btn-default filter btn-round  btn-small btn-primary  " type="submit" name="filter" id="filter"> <i class="fa fa-filter"></i>
                         Filter</button>
@@ -151,30 +159,30 @@
                     </div>
                 </div>
             </div>
-               <div class="col-lg-3">
-                    <div class="form-group">
-                        <div class="input-group">
+            <div class="col-lg-3">
+                <div class="form-group">
+                    <div class="input-group">
 
-                            <div class="col-md-10">
+                        <div class="col-md-10">
 
-                                <input type="date" id="to" class="form-control" placeholder="To" name="to">
-                            </div>
-                            <div class="input-group-append">
-                                <button class="btn btn-secondary" type="button">
-                                    <i class="icon-regular i-Calendar-4"></i>
-                                </button>
-                            </div>
+                            <input type="date" id="to" class="form-control" placeholder="To" name="to">
+                        </div>
+                        <div class="input-group-append">
+                            <button class="btn btn-secondary" type="button">
+                                <i class="icon-regular i-Calendar-4"></i>
+                            </button>
                         </div>
                     </div>
                 </div>
-                <div class="col-lg-3">
-                    <div class="form-group">
-                        <span class="filter_facility_wait" style="display: none;"></span>
-                        <button class="btn btn-default filter btn-round  btn-small btn-primary  " type="submit" name="filter" id="filter"> <i class="fa fa-filter"></i>
-                            Filter</button>
-                    </div>
+            </div>
+            <div class="col-lg-3">
+                <div class="form-group">
+                    <span class="filter_facility_wait" style="display: none;"></span>
+                    <button class="btn btn-default filter btn-round  btn-small btn-primary  " type="submit" name="filter" id="filter"> <i class="fa fa-filter"></i>
+                        Filter</button>
                 </div>
             </div>
+        </div>
 
     </form>
 
@@ -462,6 +470,7 @@
                 $("#client").html(data.client);
                 $("#client_ever_enrolled").html(data.client_ever_enrolled);
                 $("#facilities_ever_enrolled").html(data.facilities_ever_enrolled);
+                $("#active_facilities").html(data.active_facilities);
                 Clients_male = parseInt(data.clients_male)
                 Clients_female = parseInt(data.clients_female)
                 Unknown_gender = parseInt(data.unknown_gender)
@@ -472,7 +481,7 @@
                 Client_to_twentyfive_above = parseInt(data.client_to_twentyfive_above)
                 Client_unknown_age = parseInt(data.client_unknown_age)
 
-                console.log(Clients_male);
+
 
                 clientGender.series[0].setData([Clients_male, Clients_female, Unknown_gender]);
                 clientAge.series[0].setData([Client_to_nine, Client_to_fourteen, Client_to_nineteen, Client_to_twentyfour, Client_to_twentyfive_above, Client_unknown_age]);
