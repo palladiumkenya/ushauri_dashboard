@@ -16,9 +16,10 @@
                     <div class="card text-left">
 
                         <div class="card-body">
-                        <! <h4 class="card-title mb-3">Client Consent List</h4>
+                        <h4 class="card-title mb-3"> Client Consent List</h4>
+                        <h4 class="card-title mb-3">Showing {{count($consented_clients)}}</h4>
                             <div class="col-md-12" style="margin-top:10px; ">
-
+                                {{ $consented_clients->onEachSide(5)->links() }}
                             </div>
                                 <div class="table-responsive">
                                     <table id="multicolumn_ordering_table" class="display table table-striped table-bordered" style="width:100%">
@@ -48,7 +49,7 @@
                                                         <td> {{ $loop->iteration }}</td>
                                                         <td>  {{$consent->clinic_number}}</td>
                                                         <td>  {{$consent->file_no}}</td>
-                                                        <td>  {{ucwords($consent->f_name)}} {{ucwords($consent->m_name)}} {{ucwords($consent->l_name)}}</td>
+                                                        <td>  {{$consent->f_name}} {{$consent->m_name}} {{$consent->l_name}}</td>
                                                         <td>  {{$consent->phone_no}}</td>
                                                         <td>  {{$consent->dob}}</td>
                                                         <td>  {{$consent->name}}</td>

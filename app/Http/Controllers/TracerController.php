@@ -54,12 +54,12 @@ class TracerController extends Controller
   }
   public function tracing_cost()
   {
-    if (Auth::user()->access_level == 'Admin') {
+    if (Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Donor') {
       $tracing_cost = Outcome::join('tbl_users', 'tbl_clnt_outcome.created_by', '=', 'tbl_users.id')
         ->join('tbl_client', 'tbl_clnt_outcome.client_id', '=', 'tbl_client.id')
         ->select('tbl_clnt_outcome.app_status', DB::raw("CONCAT(`tbl_users`.`f_name`, ' ', `tbl_users`.`m_name`, ' ', `tbl_users`.`l_name`) as tracer_name"), 'tbl_client.clinic_number', 'tbl_clnt_outcome.tracing_cost')
         ->whereNotNull('tbl_clnt_outcome.tracing_cost')
-        ->get();
+        ->paginate(1000);
 
       $total_costing = Outcome::join('tbl_users', 'tbl_clnt_outcome.created_by', '=', 'tbl_users.id')
         ->join('tbl_client', 'tbl_clnt_outcome.client_id', '=', 'tbl_client.id')

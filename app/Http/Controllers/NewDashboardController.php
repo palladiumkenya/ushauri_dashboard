@@ -1002,19 +1002,19 @@ class NewDashboardController extends Controller
             $appointment = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
                 ->select('tbl_appointment.id')
                 ->where('tbl_client.mfl_code', Auth::user()->facility_id)
-                ->count();
+                ->count('tbl_appointment.id');
             $appointment_honoured = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
                 ->select('tbl_appointment.id')
                 ->where('tbl_appointment.date_attended', '=', DB::raw('tbl_appointment.appntmnt_date'))
                 ->where('tbl_client.mfl_code', Auth::user()->facility_id)
-                ->count();
+                ->count('tbl_appointment.id');
 
             // dd($appointment_honoured);
             $appointment_not_honoured = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
                 ->select('tbl_appointment.id')
                 ->whereIn('tbl_appointment.app_status', ['Defaulted', 'LTFU', 'Missed'])
                 ->where('tbl_client.mfl_code', Auth::user()->facility_id)
-                ->count();
+                ->count('tbl_appointment.id');
 
             // appointment honored by gender
             $appointment_honoured_male = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
@@ -1027,13 +1027,13 @@ class NewDashboardController extends Controller
                 ->where('tbl_appointment.date_attended', '=', DB::raw('tbl_appointment.appntmnt_date'))
                 ->where('tbl_client.gender', '=', '1')
                 ->where('tbl_client.mfl_code', Auth::user()->facility_id)
-                ->count();
+                ->count('tbl_appointment.id');
             $appointment_honoured_uknown_gender = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
                 ->where('tbl_appointment.date_attended', '=', DB::raw('tbl_appointment.appntmnt_date'))
                 ->where('tbl_client.gender', '!=', '1')
                 ->where('tbl_client.gender', '!=', '2')
                 ->where('tbl_client.mfl_code', Auth::user()->facility_id)
-                ->count();
+                ->count('tbl_appointment.id');
             // appointment honored by age
             $appointment_honored_to_nine = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
                 ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
@@ -1074,25 +1074,25 @@ class NewDashboardController extends Controller
                 ->where('tbl_client.dob', '=', '')
                 ->orWhereNull('tbl_client.dob')
                 ->where('tbl_client.mfl_code', Auth::user()->facility_id)
-                ->count();
+                ->count('tbl_appointment.id');
             // appointment not honored by gender
             $appointment_not_honoured_male = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
                 ->where('tbl_client.gender', '=', '2')
                 ->whereIn('tbl_appointment.app_status', ['Defaulted', 'LTFU', 'Missed'])
                 ->where('tbl_client.mfl_code', Auth::user()->facility_id)
-                ->count();
+                ->count('tbl_appointment.id');
 
             $appointment_not_honoured_female = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
                 ->where('tbl_client.gender', '=', '1')
                 ->whereIn('tbl_appointment.app_status', ['Defaulted', 'LTFU', 'Missed'])
                 ->where('tbl_client.mfl_code', Auth::user()->facility_id)
-                ->count();
+                ->count('tbl_appointment.id');
             $appointment_not_honoured_uknown_gender = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
                 ->where('tbl_client.gender', '!=', '1')
                 ->where('tbl_client.gender', '!=', '2')
                 ->whereIn('tbl_appointment.app_status', ['Defaulted', 'LTFU', 'Missed'])
                 ->where('tbl_client.mfl_code', Auth::user()->facility_id)
-                ->count();
+                ->count('tbl_appointment.id');
             // appointment not honored by age
             $appointment_not_honored_to_nine = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
                 ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
@@ -1133,7 +1133,7 @@ class NewDashboardController extends Controller
                 ->orWhereNull('tbl_client.dob')
                 ->whereIn('tbl_appointment.app_status', ['Defaulted', 'LTFU', 'Missed'])
                 ->where('tbl_client.mfl_code', Auth::user()->facility_id)
-                ->count();
+                ->count('tbl_appointment.id');
         }
         if (Auth::user()->access_level == 'Partner') {
             $all_partners = Partner::where('status', '=', 'Active')->where('id', Auth::user()->partner_id)->pluck('name', 'id');
@@ -1143,13 +1143,13 @@ class NewDashboardController extends Controller
                 ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
                 ->select('tbl_appointment.id')
                 ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
-                ->count();
+                ->count('tbl_appointment.id');
             $appointment_honoured = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
                 ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
                 ->select('tbl_appointment.id')
                 ->where('tbl_appointment.date_attended', '=', DB::raw('tbl_appointment.appntmnt_date'))
                 ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
-                ->count();
+                ->count('tbl_appointment.id');
 
             // dd($appointment_honoured);
             $appointment_not_honoured = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
@@ -1157,7 +1157,7 @@ class NewDashboardController extends Controller
                 ->select('tbl_appointment.id')
                 ->whereIn('tbl_appointment.app_status', ['Defaulted', 'LTFU', 'Missed'])
                 ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
-                ->count();
+                ->count('tbl_appointment.id');
 
             // appointment honored by gender
             $appointment_honoured_male = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
@@ -1172,14 +1172,14 @@ class NewDashboardController extends Controller
                 ->where('tbl_appointment.date_attended', '=', DB::raw('tbl_appointment.appntmnt_date'))
                 ->where('tbl_client.gender', '=', '1')
                 ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
-                ->count();
+                ->count('tbl_appointment.id');
             $appointment_honoured_uknown_gender = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
                 ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
                 ->where('tbl_appointment.date_attended', '=', DB::raw('tbl_appointment.appntmnt_date'))
                 ->where('tbl_client.gender', '!=', '1')
                 ->where('tbl_client.gender', '!=', '2')
                 ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
-                ->count();
+                ->count('tbl_appointment.id');
             // appointment honored by age
             $appointment_honored_to_nine = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
                 ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
@@ -1221,28 +1221,28 @@ class NewDashboardController extends Controller
                 ->where('tbl_client.dob', '=', '')
                 ->orWhereNull('tbl_client.dob')
                 ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
-                ->count();
+                ->count('tbl_appointment.id');
             // appointment not honored by gender
             $appointment_not_honoured_male = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
                 ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
                 ->where('tbl_client.gender', '=', '2')
                 ->whereIn('tbl_appointment.app_status', ['Defaulted', 'LTFU', 'Missed'])
                 ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
-                ->count();
+                ->count('tbl_appointment.id');
 
             $appointment_not_honoured_female = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
                 ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
                 ->where('tbl_client.gender', '=', '1')
                 ->whereIn('tbl_appointment.app_status', ['Defaulted', 'LTFU', 'Missed'])
                 ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
-                ->count();
+                ->count('tbl_appointment.id');
             $appointment_not_honoured_uknown_gender = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
                 ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
                 ->where('tbl_client.gender', '!=', '1')
                 ->where('tbl_client.gender', '!=', '2')
                 ->whereIn('tbl_appointment.app_status', ['Defaulted', 'LTFU', 'Missed'])
                 ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
-                ->count();
+                ->count('tbl_appointment.id');
             // appointment not honored by age
             $appointment_not_honored_to_nine = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
                 ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
@@ -1284,7 +1284,7 @@ class NewDashboardController extends Controller
                 ->orWhereNull('tbl_client.dob')
                 ->whereIn('tbl_appointment.app_status', ['Defaulted', 'LTFU', 'Missed'])
                 ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
-                ->count();
+                ->count('tbl_appointment.id');
         }
 
         if (Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Donor') {
@@ -1292,139 +1292,100 @@ class NewDashboardController extends Controller
             $indicator = Indicator::select(['name', 'description'])->get();
             // main appointments
             $appointment = Appointments::select('id')
-                ->count();
+                ->count('id');
             $appointment_honoured = Appointments::select('id')
                 ->where('date_attended', '=', DB::raw('appntmnt_date'))
-                ->count();
+                ->count('id');
             // dd($appointment_honoured);
             $appointment_not_honoured = Appointments::select('id')
                 ->whereIn('app_status', ['Defaulted', 'LTFU', 'Missed'])
-                ->count();
+                ->count('id');
 
             // appointment honored by gender
             $appointment_honoured_male = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
                 ->select('tbl_appointment.id')
                 ->where('tbl_appointment.date_attended', '=', DB::raw('tbl_appointment.appntmnt_date'))
                 ->where('tbl_client.gender', '=', '2')
-                ->count();
+                ->count('tbl_appointment.id');
             $appointment_honoured_female = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
                 ->where('tbl_appointment.date_attended', '=', DB::raw('tbl_appointment.appntmnt_date'))
                 ->where('tbl_client.gender', '=', '1')
-                ->count();
+                ->count('tbl_appointment.id');
             $appointment_honoured_uknown_gender = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
                 ->where('tbl_appointment.date_attended', '=', DB::raw('tbl_appointment.appntmnt_date'))
                 ->where('tbl_client.gender', '!=', '1')
                 ->where('tbl_client.gender', '!=', '2')
-                ->count();
+                ->count('tbl_appointment.id');
             // appointment honored by age
-            $appointment_honored_to_nine = Cache::remember('appointment-honored-to-nine', 10, function () {
-                return Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
-                    ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+            $appointment_honored_to_nine = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
                     ->select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) > 0) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 9)) then `tbl_client`.`id` end)) AS count"))
                     ->where('tbl_appointment.date_attended', '=', DB::raw('tbl_appointment.appntmnt_date'))
                     ->pluck('count');
-            });
-            $appointment_honored_to_fourteen = Cache::remember('appointment-honored-to-fourteen', 10, function () {
-                return Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
-                    ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+            $appointment_honored_to_fourteen = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
                     ->select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 10) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 14)) then `tbl_client`.`id` end)) AS count"))
                     ->where('tbl_appointment.date_attended', '=', DB::raw('tbl_appointment.appntmnt_date'))
                     ->pluck('count');
-            });
-            $appointment_honored_to_nineteen = Cache::remember('appointment-honored-to-nineteen', 10, function () {
-                return Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
-                    ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+            $appointment_honored_to_nineteen = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
                     ->select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 15) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 19)) then `tbl_client`.`id` end)) AS count"))
                     ->where('tbl_appointment.date_attended', '=', DB::raw('tbl_appointment.appntmnt_date'))
                     ->pluck('count');
-            });
-            $appointment_honored_to_twentyfour = Cache::remember('appointment-honored-to-twentyfour', 10, function () {
-                return Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
-                    ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+            $appointment_honored_to_twentyfour = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
                     ->select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 20) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 24)) then `tbl_client`.`id` end)) AS count"))
                     ->where('tbl_appointment.date_attended', '=', DB::raw('tbl_appointment.appntmnt_date'))
                     ->pluck('count');
-            });
-            $appointment_honored_to_twentyfive_above = Cache::remember('appointment-honored-to-twentyfive_above', 10, function () {
-                return Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
-                    ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+            $appointment_honored_to_twentyfive_above = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
                     ->select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 25)) then `tbl_client`.`id` end)) AS count"))
                     ->where('tbl_appointment.date_attended', '=', DB::raw('tbl_appointment.appntmnt_date'))
                     ->pluck('count');
-            });
-            $appointment_honored_to_uknown_age = Cache::remember('appointment_honored-to-uknown-age', 10, function () {
-                return Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+            $appointment_honored_to_uknown_age = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
                     ->select('tbl_client.dob')
                     ->where('tbl_appointment.date_attended', '=', DB::raw('tbl_appointment.appntmnt_date'))
                     ->where('tbl_client.dob', '=', '')
                     ->orWhereNull('tbl_client.dob')
                     ->count();
-            });
 
             // appointment not honored by gender
-            $appointment_not_honoured_male = Cache::remember('appointment-not-honoured-male', 10, function () {
-                return Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+            $appointment_not_honoured_male = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
                     ->where('tbl_client.gender', '=', '2')
                     ->whereIn('app_status', ['Defaulted', 'LTFU', 'Missed'])
-                    ->count();
-            });
-            $appointment_not_honoured_female = Cache::remember('appointment-not-honoured-female', 10, function () {
-                return Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                    ->count('tbl_appointment.id');
+            $appointment_not_honoured_female = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
                     ->where('tbl_client.gender', '=', '1')
                     ->whereIn('app_status', ['Defaulted', 'LTFU', 'Missed'])
-                    ->count();
-            });
-            $appointment_not_honoured_uknown_gender = Cache::remember('appointment-not-honoured-uknown-gender', 10, function () {
-                return Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                    ->count('tbl_appointment.id');
+            $appointment_not_honoured_uknown_gender = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
                     ->where('tbl_client.gender', '!=', '1')
                     ->where('tbl_client.gender', '!=', '2')
                     ->whereIn('app_status', ['Defaulted', 'LTFU', 'Missed'])
-                    ->count();
-            });
+                    ->count('tbl_appointment.id');
             // appointment not honored by age
-            $appointment_not_honored_to_nine = Cache::remember('appointment-not-honored-to-nine', 10, function () {
-                return Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
-                    ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+            $appointment_not_honored_to_nine = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
                     ->select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) > 0) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 9)) then `tbl_client`.`id` end)) AS count"))
                     ->whereIn('app_status', ['Defaulted', 'LTFU', 'Missed'])
                     ->pluck('count');
-            });
-            $appointment_not_honored_to_fourteen = Cache::remember('appointment-not-honored-to-fourteen', 10, function () {
-                return Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
-                    ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+
+            $appointment_not_honored_to_fourteen = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
                     ->select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 10) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 14)) then `tbl_client`.`id` end)) AS count"))
                     ->whereIn('app_status', ['Defaulted', 'LTFU', 'Missed'])
                     ->pluck('count');
-            });
-            $appointment_not_honored_to_nineteen = Cache::remember('appointment_not_honored_to_nineteen', 10, function () {
-                return Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
-                    ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+            $appointment_not_honored_to_nineteen = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
                     ->select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 15) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 19)) then `tbl_client`.`id` end)) AS count"))
                     ->whereIn('app_status', ['Defaulted', 'LTFU', 'Missed'])
                     ->pluck('count');
-            });
-            $appointment_not_honored_to_twentyfour = Cache::remember('appointment_not_honored_to_twentyfour', 10, function () {
-                return Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
-                    ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+            $appointment_not_honored_to_twentyfour = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
                     ->select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 20) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 24)) then `tbl_client`.`id` end)) AS count"))
                     ->whereIn('app_status', ['Defaulted', 'LTFU', 'Missed'])
                     ->pluck('count');
-            });
-            $appointment_not_honored_to_twentyfive_above = Cache::remember('appointment_not_honored_to_twentyfive_above', 10, function () {
-                return Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
-                    ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+            $appointment_not_honored_to_twentyfive_above = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
                     ->select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 25)) then `tbl_client`.`id` end)) AS count"))
                     ->whereIn('app_status', ['Defaulted', 'LTFU', 'Missed'])
                     ->pluck('count');
-            });
-            $appointment_not_honored_to_uknown_age = Cache::remember('appointment_not_honored_to_uknown_age', 10, function () {
-                return Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+            $appointment_not_honored_to_uknown_age = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
                     ->select('tbl_client.dob')
                     ->where('tbl_client.dob', '=', '')
                     ->orWhereNull('tbl_client.dob')
                     ->whereIn('app_status', ['Defaulted', 'LTFU', 'Missed'])
-                    ->count();
-            });
+                    ->count('tbl_appointment.id');
         }
 
 
@@ -1873,205 +1834,142 @@ class NewDashboardController extends Controller
             $indicator = Indicator::select(['name', 'description'])->get();
             // main appointments
             // dd($appointment_honoured);
-            $appointment_not_honoured = Appointments::select("id")
-                    ->whereIn('app_status', ['Defaulted', 'LTFU', 'Missed'])
-                    ->count();
+            $appointment_not_honoured = Appointments::whereIn('app_status', ['Defaulted', 'LTFU', 'Missed'])
+                    ->count('id');
 
           // missed appointments
 
-            $appointment_missed = Cache::remember('appointment_missed', 10, function () {
-                return Appointments::where('app_status', '=', 'Missed')
-                    ->count();
-            });
-            $appointment_defaulted = Cache::remember('appointment_defaulted', 10, function () {
-                return Appointments::where('app_status', '=', 'Defaulted')
-                    ->count();
-            });
-            $appointment_lftu = Cache::remember('appointment_lftu', 10, function () {
-                return Appointments::where('app_status', '=', 'LTFU')
-                    ->count();
-            });
+            $appointment_missed = Appointments::where('app_status', '=', 'Missed')
+                    ->count('id');
+            $appointment_defaulted = Appointments::where('app_status', '=', 'Defaulted')
+                    ->count('id');
+            $appointment_lftu = Appointments::where('app_status', '=', 'LTFU')
+                    ->count('id');
 
             // missed appointment by gender
-            $appointment_missed_female = Cache::remember('appointment_missed_female', 10, function () {
-                return Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+            $appointment_missed_female = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
                     ->where('tbl_appointment.app_status', '=', 'Missed')
                     ->where('tbl_client.gender', '=', '1')
-                    ->count();
-            });
-            $appointment_missed_male = Cache::remember('appointment_missed_male', 10, function () {
-                return Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                    ->count('tbl_appointment.id');
+            $appointment_missed_male = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
                     ->where('tbl_appointment.app_status', '=', 'Missed')
                     ->where('tbl_client.gender', '=', '2')
-                    ->count();
-            });
-            $appointment_missed_uknown_gender = Cache::remember('appointment_missed_uknown_gender', 10, function () {
-                return Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                    ->count('tbl_appointment.id');
+            $appointment_missed_uknown_gender = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
                     ->where('tbl_appointment.app_status', '=', 'Missed')
                     ->where('tbl_client.gender', '!=', '1')
                     ->where('tbl_client.gender', '!=', '2')
-                    ->count();
-            });
+                    ->count('tbl_appointment.id');
             // missed appointment by age
-            $appointment_missed_to_nine = Cache::remember('appointment_missed_to_nine', 10, function () {
-                return Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+            $appointment_missed_to_nine = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
                     ->select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) > 0) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 9)) then `tbl_client`.`id` end)) AS count"))
                     ->where('tbl_appointment.app_status', '=', 'Missed')
                     ->pluck('count');
-            });
-            $appointment_missed_to_fourteen = Cache::remember('appointment_missed_to_fourteen', 10, function () {
-                return Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+            $appointment_missed_to_fourteen = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
                     ->select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 10) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 14)) then `tbl_client`.`id` end)) AS count"))
                     ->where('tbl_appointment.app_status', '=', 'Missed')
                     ->pluck('count');
-            });
-            $appointment_missed_to_nineteen = Cache::remember('appointment_missed_to_nineteen', 10, function () {
-                return Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+            $appointment_missed_to_nineteen = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
                     ->select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 15) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 19)) then `tbl_client`.`id` end)) AS count"))
                     ->where('tbl_appointment.app_status', '=', 'Missed')
                     ->pluck('count');
-            });
-            $appointment_missed_to_twentyfour = Cache::remember('appointment_missed_to_twentyfour', 10, function () {
-                return Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+            $appointment_missed_to_twentyfour = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
                     ->select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 20) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 24)) then `tbl_client`.`id` end)) AS count"))
                     ->where('tbl_appointment.app_status', '=', 'Missed')
                     ->pluck('count');
-            });
-            $appointment_missed_to_twentyfive_above = Cache::remember('appointment_missed_to_twentyfive_above', 10, function () {
-                return Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+            $appointment_missed_to_twentyfive_above = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
                     ->select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 25)) then `tbl_client`.`id` end)) AS count"))
                     ->where('tbl_appointment.app_status', '=', 'Missed')
                     ->pluck('count');
-            });
-            $appointment_missed_to_uknown_age = Cache::remember('appointment_missed_to_uknown_age', 10, function () {
-                return Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+            $appointment_missed_to_uknown_age = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
                     ->select('tbl_client.dob')
                     ->where('tbl_client.dob', '=', '')
                     ->orWhereNull('tbl_client.dob')
                     ->where('tbl_appointment.app_status', '=', 'Missed')
-                    ->count();
-            });
-
+                    ->count('tbl_appointment.id');
             // defaulted appointment by gender
-            $appointment_defaulted_female = Cache::remember('appointment_defaulted_female', 10, function () {
-                return Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+            $appointment_defaulted_female = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
                     ->where('tbl_appointment.app_status', '=', 'Defaulted')
                     ->where('tbl_client.gender', '=', '1')
-                    ->count();
-            });
-            $appointment_defaulted_male = Cache::remember('appointment_defaulted_male', 10, function () {
-                return Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                    ->count('tbl_appointment.id');
+            $appointment_defaulted_male = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
                     ->where('tbl_appointment.app_status', '=', 'Defaulted')
                     ->where('tbl_client.gender', '=', '2')
-                    ->count();
-            });
-            $appointment_defaulted_uknown_gender = Cache::remember('appointment_defaulted_uknown_gender', 10, function () {
-                return Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                    ->count('tbl_appointment.id');
+            $appointment_defaulted_uknown_gender = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
                     ->where('tbl_appointment.app_status', '=', 'Defaulted')
                     ->where('tbl_client.gender', '!=', '1')
                     ->where('tbl_client.gender', '!=', '2')
-                    ->count();
-            });
+                    ->count('tbl_appointment.id');
 
             // defaulted appointment by age
-            $appointment_defaulted_to_nine = Cache::remember('appointment_defaulted_to_nine', 10, function () {
-                return Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+            $appointment_defaulted_to_nine = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
                     ->select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) > 0) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 9)) then `tbl_client`.`id` end)) AS count"))
                     ->where('tbl_appointment.app_status', '=', 'Defaulted')
                     ->pluck('count');
-            });
-            $appointment_defaulted_to_fourteen = Cache::remember('appointment_defaulted_to_fourteen', 10, function () {
-                return Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+            $appointment_defaulted_to_fourteen = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
                     ->select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 10) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 14)) then `tbl_client`.`id` end)) AS count"))
                     ->where('tbl_appointment.app_status', '=', 'Defaulted')
                     ->pluck('count');
-            });
-            $appointment_defaulted_to_nineteen = Cache::remember('appointment_defaulted_to_nineteen', 10, function () {
-                return Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+            $appointment_defaulted_to_nineteen = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
                     ->select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 15) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 19)) then `tbl_client`.`id` end)) AS count"))
                     ->where('tbl_appointment.app_status', '=', 'Defaulted')
                     ->pluck('count');
-            });
-            $appointment_defaulted_to_twentyfour = Cache::remember('appointment_defaulted_to_twentyfour', 10, function () {
-                return Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+            $appointment_defaulted_to_twentyfour = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
                     ->select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 20) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 24)) then `tbl_client`.`id` end)) AS count"))
                     ->where('tbl_appointment.app_status', '=', 'Defaulted')
                     ->pluck('count');
-            });
-            $appointment_defaulted_to_twentyfive_above = Cache::remember('appointment_defaulted_to_twentyfive_above', 10, function () {
-                return Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+            $appointment_defaulted_to_twentyfive_above = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
                     ->select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 25)) then `tbl_client`.`id` end)) AS count"))
                     ->where('tbl_appointment.app_status', '=', 'Defaulted')
                     ->pluck('count');
-            });
-            $appointment_defaulted_to_uknown_age = Cache::remember('appointment_defaulted_to_uknown_age', 10, function () {
-                return Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+            $appointment_defaulted_to_uknown_age = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
                     ->select('tbl_client.dob')
                     ->where('tbl_client.dob', '=', '')
                     ->orWhereNull('tbl_client.dob')
                     ->where('tbl_appointment.app_status', '=', 'Defaulted')
-                    ->count();
-            });
+                    ->count('tbl_appointment.id');
             // ltfu appointment by gender
-            $appointment_ltfu_female = Cache::remember('appointment_ltfu_female', 10, function () {
-                return Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+            $appointment_ltfu_female = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
                     ->where('tbl_appointment.app_status', '=', 'LTFU')
                     ->where('tbl_client.gender', '=', '1')
-                    ->count();
-            });
-            $appointment_ltfu_male = Cache::remember('appointment_ltfu_male', 10, function () {
-                return Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                    ->count('tbl_appointment.id');
+            $appointment_ltfu_male = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
                     ->where('tbl_appointment.app_status', '=', 'LTFU')
                     ->where('tbl_client.gender', '=', '2')
-                    ->count();
-            });
-            $appointment_ltfu_uknown_gender = Cache::remember('appointment_ltfu_uknown_gender', 10, function () {
-                return Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                    ->count('tbl_appointment.id');
+            $appointment_ltfu_uknown_gender = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
                     ->where('tbl_appointment.app_status', '=', 'LTFU')
                     ->where('tbl_client.gender', '!=', '1')
                     ->where('tbl_client.gender', '!=', '2')
-                    ->count();
-            });
-
+                    ->count('tbl_appointment.id');
             // ltfu appointment by age
-            $appointment_ltfu_to_nine = Cache::remember('appointment_ltfu_to_nine', 10, function () {
-                return Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+            $appointment_ltfu_to_nine = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
                     ->select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) > 0) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 9)) then `tbl_client`.`id` end)) AS count"))
                     ->where('tbl_appointment.app_status', '=', 'LTFU')
                     ->pluck('count');
-            });
-            $appointment_ltfu_to_fourteen = Cache::remember('appointment_ltfu_to_fourteen', 10, function () {
-                return Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+            $appointment_ltfu_to_fourteen = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
                     ->select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 10) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 14)) then `tbl_client`.`id` end)) AS count"))
                     ->where('tbl_appointment.app_status', '=', 'LTFU')
                     ->pluck('count');
-            });
-            $appointment_ltfu_to_nineteen = Cache::remember('appointment_ltfu_to_nineteen', 10, function () {
-                return Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+            $appointment_ltfu_to_nineteen = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
                     ->select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 15) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 19)) then `tbl_client`.`id` end)) AS count"))
                     ->where('tbl_appointment.app_status', '=', 'LTFU')
                     ->pluck('count');
-            });
-            $appointment_ltfu_to_twentyfour = Cache::remember('appointment_ltfu_to_twentyfour', 10, function () {
-                return Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+            $appointment_ltfu_to_twentyfour = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
                     ->select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 20) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 24)) then `tbl_client`.`id` end)) AS count"))
                     ->where('tbl_appointment.app_status', '=', 'LTFU')
                     ->pluck('count');
-            });
-            $appointment_ltfu_to_twentyfive_above = Cache::remember('appointment_ltfu_to_twentyfive_above', 10, function () {
-                return Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+            $appointment_ltfu_to_twentyfive_above = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
                     ->select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 25)) then `tbl_client`.`id` end)) AS count"))
                     ->where('tbl_appointment.app_status', '=', 'LTFU')
                     ->pluck('count');
-            });
-            $appointment_ltfu_to_uknown_age = Cache::remember('appointment_ltfu_to_uknown_age', 10, function () {
-                return Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+            $appointment_ltfu_to_uknown_age = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
                     ->select('tbl_client.dob')
                     ->where('tbl_client.dob', '=', '')
                     ->orWhereNull('tbl_client.dob')
                     ->where('tbl_appointment.app_status', '=', 'LTFU')
-                    ->count();
-            });
+                    ->count('tbl_appointment.id');
         }
 
         return view('new_dashboard.missed_dashboard', compact(

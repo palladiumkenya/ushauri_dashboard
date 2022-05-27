@@ -15,10 +15,10 @@
 
 <div class="col">
 
-<form role="form" method="get" action="#" id="dataFilter">
+    <form role="form" method="get" action="#" id="dataFilter">
         {{ csrf_field() }}
         <div class="row">
-            <div class="col">
+            <div class="col-lg-3">
                 <div class="form-group">
 
                     <select class="form-control select2" id="partners" name="partner">
@@ -30,7 +30,7 @@
                     </select>
                 </div>
             </div>
-            <div class="col">
+            <div class="col-lg-3">
                 <div class="form-group">
                     <select class="form-control county  input-rounded input-sm select2" id="counties" name="county">
                         <option value="">County:</option>
@@ -38,7 +38,7 @@
                     </select>
                 </div>
             </div>
-            <div class="col">
+            <div class="col-lg-3">
                 <div class="form-group">
                     <span class="filter_sub_county_wait" style="display: none;">Loading , Please Wait ...</span>
                     <select class="form-control subcounty input-rounded input-sm select2" id="subcounties" name="subcounty">
@@ -47,7 +47,7 @@
                     </select>
                 </div>
             </div>
-            <div class="col">
+            <div class="col-lg-3">
                 <div class="form-group">
                     <span class="filter_facility_wait" style="display: none;">.</span>
 
@@ -57,7 +57,7 @@
                     </select>
                 </div>
             </div>
-            <div class="col">
+            <div class="col-lg-3">
                 <div class="form-group">
                     <span class="filter_facility_wait" style="display: none;"></span>
 
@@ -70,46 +70,49 @@
             </div>
 
             <div class='col'>
-                                <div class="form-group">
-                                    <div class="input-group">
-
-                                        <div class="col-md-10">
-
-                                            <input type="date" id="from" class="form-control" placeholder="From" name="from">
-                                        </div>
-                                        <div class="input-group-append">
-                                            <button class="btn btn-secondary" type="button">
-                                                <i class="icon-regular i-Calendar-4"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-            <div class="col">
-            <div class='col'>
-                                <div class="form-group">
-                                    <div class="input-group">
-
-                                        <div class="col-md-10">
-
-                                            <input type="date" id="to" class="form-control" placeholder="To" name="to">
-                                        </div>
-                                        <div class="input-group-append">
-                                            <button class="btn btn-secondary" type="button">
-                                                <i class="icon-regular i-Calendar-4"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-            <div class="col">
                 <div class="form-group">
-                    <span class="filter_facility_wait" style="display: none;"></span>
-                    <button class="btn btn-default filter btn-round  btn-small btn-primary  " type="submit" name="filter" id="filter"> <i class="fa fa-filter"></i>
-                        Filter</button>
+                    <div class="input-group">
+                    <div class="col-md-2">
+                            <label for="firstName1">From</label>
+                        </div>
+                        <div class="col-md-10">
+
+                            <input type="date" id="from" class="form-control" placeholder="From" name="from">
+                        </div>
+                        <div class="input-group-append">
+                            <button class="btn btn-secondary" type="button">
+                                <i class="icon-regular i-Calendar-4"></i>
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
+                <div class='col'>
+                    <div class="form-group">
+                        <div class="input-group">
+                        <div class="col-md-2">
+                            <label for="firstName1">To</label>
+                        </div>
+                            <div class="col-md-10">
+
+                                <input type="date" id="to" class="form-control" placeholder="To" name="to">
+                            </div>
+                            <div class="input-group-append">
+                                <button class="btn btn-secondary" type="button">
+                                    <i class="icon-regular i-Calendar-4"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-group">
+                        <span class="filter_facility_wait" style="display: none;"></span>
+                        <button class="btn btn-default filter btn-round  btn-small btn-primary  " type="submit" name="filter" id="filter"> <i class="fa fa-filter"></i>
+                            Filter</button>
+                    </div>
+                </div>
+            </div>
 
     </form>
 
@@ -152,30 +155,30 @@
                     </div>
                 </div>
             </div>
-                <div class='col-lg-3'>
-                    <div class="form-group">
-                        <div class="input-group">
+            <div class='col-lg-3'>
+                <div class="form-group">
+                    <div class="input-group">
 
-                            <div class="col-md-10">
+                        <div class="col-md-10">
 
-                                <input type="date" id="to" class="form-control" placeholder="To" name="to">
-                            </div>
-                            <div class="input-group-append">
-                                <button class="btn btn-secondary" type="button">
-                                    <i class="icon-regular i-Calendar-4"></i>
-                                </button>
-                            </div>
+                            <input type="date" id="to" class="form-control" placeholder="To" name="to">
+                        </div>
+                        <div class="input-group-append">
+                            <button class="btn btn-secondary" type="button">
+                                <i class="icon-regular i-Calendar-4"></i>
+                            </button>
                         </div>
                     </div>
                 </div>
-                <div class="col-lg-3">
-                    <div class="form-group">
-                        <span class="filter_facility_wait" style="display: none;"></span>
-                        <button class="btn btn-default filter btn-round  btn-small btn-primary  " type="submit" name="filter" id="filter"> <i class="fa fa-filter"></i>
-                            Filter</button>
-                    </div>
+            </div>
+            <div class="col-lg-3">
+                <div class="form-group">
+                    <span class="filter_facility_wait" style="display: none;"></span>
+                    <button class="btn btn-default filter btn-round  btn-small btn-primary  " type="submit" name="filter" id="filter"> <i class="fa fa-filter"></i>
+                        Filter</button>
                 </div>
             </div>
+        </div>
 
     </form>
 
@@ -184,14 +187,14 @@
 <nav>
     <div class="nav nav-tabs" id="nav-tab" role="tablist">
         <a class="nav-item nav-link active" id="nav-appointment-tab" data-toggle="tab" href="#nav-appointment" role="tab" aria-controls="nav-appointmen" aria-selected="true">Appointments</a>
-        <a class="nav-item nav-link"  data-toggle="tab" href="#nav-indicators" role="tab"  aria-selected="false">Indicators Definitions</a>
+        <a class="nav-item nav-link" data-toggle="tab" href="#nav-indicators" role="tab" aria-selected="false">Indicators Definitions</a>
     </div>
 </nav>
 <div class="tab-content" id="nav-tabContent">
     <!-- main dashbaord starts -->
-  <div class="tab-pane fade show active" id="nav-appointment" role="tabpanel" aria-labelledby="nav-appointment-tab">
+    <div class="tab-pane fade show active" id="nav-appointment" role="tabpanel" aria-labelledby="nav-appointment-tab">
 
-    <div class="row">
+        <div class="row">
             <div class="col-lg-4 ">
                 <div class="card card-icon-bg card-icon-bg-primary o-hidden mb-4 h-75">
                     <div class="card-body text-center">
@@ -263,11 +266,14 @@
     </div>
     <!-- main dashbaord ends -->
     <div class="tab-pane fade" id="nav-indicators" role="tabpanel" aria-labelledby="nav-indicators-tab">
-    @if (count($indicator) > 0)
-      @foreach($indicator as $result)
-      <h6>{{$result->name}}<h6> <h6>{{$result->description}}<h6>
-      @endforeach
-    @endif
+        @if (count($indicator) > 0)
+        @foreach($indicator as $result)
+        <h6>{{$result->name}}
+            <h6>
+                <h6>{{$result->description}}
+                    <h6>
+                        @endforeach
+                        @endif
     </div>
 </div>
 
@@ -497,7 +503,7 @@
         }],
 
     });
-// APPOINTMENT HONOURED AGE
+    // APPOINTMENT HONOURED AGE
     var appointment_honouredAge = Highcharts.chart('appointment_honoured_age', {
         chart: {
             type: 'column'
@@ -586,7 +592,7 @@
         }],
 
     });
-// APPOINTMENT NOT HONOURED AGE
+    // APPOINTMENT NOT HONOURED AGE
     var appointment_not_honouredAge = Highcharts.chart('appointment_not_honoured_age', {
         chart: {
             type: 'column'

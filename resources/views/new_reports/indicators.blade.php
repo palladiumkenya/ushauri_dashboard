@@ -5,42 +5,30 @@
 @endsection
 
 @section('main-content')
-<div class="breadcrumb">
-                <ul>
-                    <li><a href="">Tracing Cost</a></li>
-                    <li></li>
-                </ul>
-            </div>
 
 <div class="col-md-12 mb-4">
                     <div class="card text-left">
 
                         <div class="card-body">
-                        <h4 class="card-title mb-3">Showing {{count($tracing_cost)}}</h4>
-                            <div class="col-md-12" style="margin-top:10px; ">
-                                {{ $tracing_cost->onEachSide(5)->links() }}
-                            </div>
+                        <h4 class="card-title mb-3">Indicators Definition Table</h4>
+
                                 <div class="table-responsive">
                                     <table id="multicolumn_ordering_table" class="display table table-striped table-bordered" style="width:100%">
                                         <thead>
                                             <tr>
                                                 <th>No.</th>
-                                                <th>Clinic Number</th>
-                                                <th>Appointment Status</th>
-                                                <th>Tracer Name</th>
-                                                <th>Tracing Cost</th>
-
+                                                <th>INDICATOR TERM</th>
+                                                <th>DESCRIPTION</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            @if (count($tracing_cost) > 0)
-                                                @foreach($tracing_cost as $result)
+                                            @if (count($indicators) > 0)
+                                                @foreach($indicators as $indicator)
                                                     <tr>
                                                         <td> {{ $loop->iteration }}</td>
-                                                        <td>  {{$result->clinic_number}}</td>
-                                                        <td>  {{$result->app_status}}</td>
-                                                        <td>  {{$result->tracer_name}}</td>
-                                                        <td>  {{$result->tracing_cost}}</td>
+                                                        <td>  {{$indicator->name}}</td>
+                                                        <td>  {{$indicator->description}}</td>
+
                                                     </tr>
                                                 @endforeach
                                             @endif
@@ -81,29 +69,20 @@
         buttons: [
             {
             extend: 'copy',
-            title: 'Tracing Cost',
-            filename: 'Tracing Cost'
+            title: 'Defination List',
+            filename: 'Defination List'
             },
             {
             extend: 'csv',
-            title: 'Tracing Cost',
-            filename: 'Tracing Cost'
-            },
-            {
-            extend: 'excel',
-            title: 'Tracing Cost',
-            filename: 'Tracing Cost'
-            },
-            {
-            extend: 'pdf',
-            title: 'Tracing Cost',
-            filename: 'Tracing Cost'
-            },
-            {
-            extend: 'print',
-            title: 'Tracing Cost',
-            filename: 'Tracing Cost'
-            }
+            exportOptions: {
+                  columns: ':visible',
+                  modifier:{
+                    page:'all'
+                  }
+              },
+            title: 'Defination List',
+            filename: 'Defination List'
+            }, 'excel', 'pdf', 'print'
         ]
     });</script>
 

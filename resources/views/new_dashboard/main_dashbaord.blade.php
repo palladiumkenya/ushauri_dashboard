@@ -18,7 +18,7 @@
     <form role="form" method="get" action="#" id="dataFilter">
         {{ csrf_field() }}
         <div class="row">
-            <div class="col-lg-2">
+            <div class="col-lg-3">
                 <div class="form-group">
 
                     <select class="form-control select2" id="partners" name="partner">
@@ -30,16 +30,18 @@
                     </select>
                 </div>
             </div>
-            <div class="col-lg-2">
+            <div class="col-lg-3">
                 <div class="form-group">
+
                     <select class="form-control county  input-rounded input-sm select2" id="counties" name="county">
                         <option value="">County:</option>
                         <option value=""></option>
                     </select>
                 </div>
             </div>
-            <div class="col-lg-2">
+            <div class="col-lg-3">
                 <div class="form-group">
+
                     <span class="filter_sub_county_wait" style="display: none;">Loading , Please Wait ...</span>
                     <select class="form-control subcounty input-rounded input-sm select2" id="subcounties" name="subcounty">
                         <option value=""> Sub County : </option>
@@ -47,7 +49,7 @@
                     </select>
                 </div>
             </div>
-            <div class="col-lg-2">
+            <div class="col-lg-3">
                 <div class="form-group">
                     <span class="filter_facility_wait" style="display: none;">.</span>
 
@@ -57,7 +59,7 @@
                     </select>
                 </div>
             </div>
-            <div class="col-lg-2">
+            <div class="col-lg-3">
                 <div class="form-group">
                     <span class="filter_facility_wait" style="display: none;"></span>
 
@@ -69,10 +71,10 @@
                 </div>
             </div>
 
-            <div class='col-lg-3'>
+            <div class='col'>
                 <div class="form-group">
                     <div class="input-group">
-                        <div class="col-md-4">
+                        <div class="col-md-2">
                             <label for="firstName1">From</label>
                         </div>
 
@@ -88,10 +90,10 @@
                     </div>
                 </div>
             </div>
-            <div class="col-lg-3">
+            <div class="col">
                 <div class="form-group">
                     <div class="input-group">
-                        <div class="col-md-4">
+                        <div class="col-md-2">
                             <label for="firstName1">To</label>
                         </div>
                         <div class="col-md-10">
@@ -106,7 +108,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-lg-2">
+            <div class="col">
                 <div class="form-group">
                     <div class="col-md-4">
 
@@ -177,6 +179,7 @@
             </div>
             <div class="col-lg-3">
                 <div class="form-group">
+
                     <span class="filter_facility_wait" style="display: none;"></span>
                     <button class="btn btn-default filter btn-round  btn-small btn-primary  " type="submit" name="filter" id="filter"> <i class="fa fa-filter"></i>
                         Filter</button>
@@ -305,6 +308,7 @@
 
     </div>
 </div>
+
 
 
 
@@ -485,6 +489,7 @@
 
                 clientGender.series[0].setData([Clients_male, Clients_female, Unknown_gender]);
                 clientAge.series[0].setData([Client_to_nine, Client_to_fourteen, Client_to_nineteen, Client_to_twentyfour, Client_to_twentyfive_above, Client_unknown_age]);
+
 
 
             }

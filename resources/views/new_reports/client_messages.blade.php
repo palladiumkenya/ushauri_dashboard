@@ -10,9 +10,9 @@
                     <div class="card text-left">
 
                         <div class="card-body">
-                        <h4 class="card-title mb-3">Showing {{count($appointments)}}</h4>
+                        <h4 class="card-title mb-3">Showing {{count($client_messages)}}</h4>
                             <div class="col-md-12" style="margin-top:10px; ">
-                                {{ $appointments->onEachSide(5)->links() }}
+                                {{ $client_messages->onEachSide(5)->links() }}
                             </div>
                                 <div class="table-responsive">
                                     <table id="multicolumn_ordering_table" class="display table table-striped table-bordered" style="width:100%">
@@ -22,39 +22,45 @@
                                                 <th>CCC Number</th>
                                                 <th>Client Name</th>
                                                 <th>Gender</th>
-                                                <th>DOB</th>
+                                                <th>Language</th>
                                                 <th>Phone No</th>
-                                                <th>Consent</th>
-                                                <th>Appointment Type</th>
-                                                <th>Appointment Date</th>
-                                                <th>Appointment Status</th>
+                                                <th>Message</th>
+                                                <th>Message Status</th>
+                                                <th>Failed Reason</th>
                                                 <th>Date Created</th>
+                                                <th>Appointment Date</th>
+                                                <th>Appointment Type</th>
+                                                <th>Appointment Status</th>
                                                 <th>Facility Name</th>
                                                 <th>MFL Code</th>
                                                 <th>Partner Name</th>
+                                                <th>Sub County</th>
                                                 <th>County</th>
 
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            @if (count($appointments) > 0)
-                                                @foreach($appointments as $appointment)
+                                            @if (count($client_messages) > 0)
+                                                @foreach($client_messages as $client)
                                                     <tr>
                                                         <td> {{ $loop->iteration }}</td>
-                                                        <td>  {{$appointment->clinic_number}}</td>
-                                                        <td> {{$appointment->f_name}} {{$appointment->m_name}} {{$appointment->l_name}}</td>
-                                                        <td>  {{$appointment->gender}}</td>
-                                                        <td>  {{$appointment->dob}}</td>
-                                                        <td>  {{$appointment->phone_no}}</td>
-                                                        <td>  {{$appointment->smsenable}}</td>
-                                                        <td>  {{$appointment->app_type}}</td>
-                                                        <td>  {{$appointment->appntmnt_date}}</td>
-                                                        <td>  {{$appointment->app_status}}</td>
-                                                        <td>  {{date('d-m-Y', strtotime($appointment->created_at))}}</td>
-                                                        <td>  {{$appointment->facility}}</td>
-                                                        <td>  {{$appointment->code}}</td>
-                                                        <td>  {{$appointment->partner}}</td>
-                                                        <td> {{$appointment->county}}</td>
+                                                        <td>  {{$client->clinic_number}}</td>
+                                                        <td> {{$client->f_name}} {{$client->m_name}} {{$client->l_name}}</td>
+                                                        <td>  {{$client->gender}}</td>
+                                                        <td>  {{$client->language}}</td>
+                                                        <td>  {{$client->phone_no}}</td>
+                                                        <td>  {{$client->msg}}</td>
+                                                        <td>  {{$client->callback_status}}</td>
+                                                        <td>  {{$client->failure_reason}}</td>
+                                                        <td>  {{date('d-m-Y', strtotime($client->updated_at))}}</td>
+                                                        <td>  {{$client->appointment_date}}</td>
+                                                        <td> {{$client->app_type}}</td>
+                                                        <td> {{$client->app_status}}</td>
+                                                        <td> {{$client->facility}}</td>
+                                                        <td> {{$client->code}}</td>
+                                                        <td> {{$client->partner}}</td>
+                                                        <td> {{$client->subcounty}}</td>
+                                                        <td> {{$client->county}}</td>
 
                                                     </tr>
                                                 @endforeach
@@ -96,8 +102,8 @@
         buttons: [
             {
             extend: 'copy',
-            title: 'Clients List',
-            filename: 'Clients List'
+            title: 'Clients Messages',
+            filename: 'Clients Messages'
             },
             {
             extend: 'csv',
@@ -107,8 +113,8 @@
                     page:'all'
                   }
               },
-            title: 'Clients List',
-            filename: 'Clients List'
+            title: 'Clients Messages',
+            filename: 'Clients Messages'
             }, 'excel', 'pdf', 'print'
         ]
     });</script>

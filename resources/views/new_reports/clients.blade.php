@@ -82,7 +82,7 @@
             targets: [4],
             orderData: [4, 0]
         }],
-        "paging": false,
+        "paging": true,
         "responsive":true,
         "ordering": true,
         "info": true,

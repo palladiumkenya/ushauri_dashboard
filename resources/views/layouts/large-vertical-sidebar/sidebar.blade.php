@@ -40,13 +40,13 @@
                 </a>
                 <div class="triangle"></div>
             </li>
-            <li class="nav-item {{ request()->is('groups/*') ? 'active' : '' }}" data-item="groups">
+            <!-- <li class="nav-item {{ request()->is('groups/*') ? 'active' : '' }}" data-item="groups">
                 <a class="nav-item-hold" href="#">
                     <i class="nav-icon i-Business-Mens"></i>
                     <span class="nav-text">Groups</span>
                 </a>
                 <div class="triangle"></div>
-            </li>
+            </li> -->
 
             <li class="nav-item {{ request()->is('tracing/*') ? 'active' : '' }}" data-item="tracing">
                 <a class="nav-item-hold" href="#">
@@ -64,24 +64,31 @@
                 </a>
                 <div class="triangle"></div>
             </li>
-            <li class="nav-item {{ request()->is('dsd/*') ? 'active' : '' }}" data-item="dsd">
+            <!-- <li class="nav-item {{ request()->is('dsd/*') ? 'active' : '' }}" data-item="dsd">
                 <a class="nav-item-hold" href="">
                     <i class="nav-icon i-Clock-3"></i>
                     <span class="nav-text">DSD Report</span>
                 </a>
                 <div class="triangle"></div>
-            </li>
-            <li class="nav-item {{ request()->is('pmtct/*') ? 'active' : '' }}" data-item="pmtct">
+            </li> -->
+            <!-- <li class="nav-item {{ request()->is('pmtct/*') ? 'active' : '' }}" data-item="pmtct">
                 <a class="nav-item-hold" href="">
                     <i class="nav-icon i-Conference"></i>
                     <span class="nav-text">PMTCT Reports</span>
                 </a>
                 <div class="triangle"></div>
-            </li>
+            </li> -->
             <li class="nav-item {{ request()->is('reports/*') ? 'active' : '' }}" data-item="reports">
                 <a class="nav-item-hold" href="">
                     <i class="nav-icon i-Receipt"></i>
                     <span class="nav-text">Reports</span>
+                </a>
+                <div class="triangle"></div>
+            </li>
+            <li class="nav-item {{ request()->is('indicators/*') ? 'active' : '' }}" data-item="indicators">
+                <a class="nav-item-hold" href="">
+                    <i class="nav-icon i-Receipt"></i>
+                    <span class="nav-text">Indicators</span>
                 </a>
                 <div class="triangle"></div>
             </li>
@@ -97,8 +104,11 @@
             <li class="nav-item ">
 
 
-                <a class="{{ Route::currentRouteName()=='Reports-facility_home' ? 'open' : '' }}" href="{{route('Reports-facility_home')}}">
+                <a class="{{ Route::currentRouteName()=='dashboard' ? 'open' : '' }}" href="{{route('dashboard')}}">
                     <span class=" text-muted">Summary</span>
+                </a>
+                <a class="{{ Route::currentRouteName()=='Reports-facility_home' ? 'open' : '' }}" href="{{route('Reports-facility_home')}}">
+                    <span class=" text-muted">Appointment Register</span>
                 </a>
             </li>
             @endif
@@ -112,17 +122,17 @@
 
             </li>
 
-            <li class="nav-item">
+            <!-- <li class="nav-item">
                 <a class="{{ Route::currentRouteName()=='report-appointment-dashboard' ? 'open' : '' }}" href="{{route('report-appointment-dashboard')}}">
                     <span class=" text-muted">Appointments</span>
                 </a>
-            </li>
+            </li> -->
             @if (Auth::user()->access_level == 'Admin')
-            <li class="nav-item">
+            <!-- <li class="nav-item">
                 <a class="{{ Route::currentRouteName()=='report-IL-dashboard' ? 'open' : '' }}" href="{{route('report-IL-dashboard')}}">
                     <span class=" text-muted">IL Extract</span>
                 </a>
-            </li>
+            </li> -->
             @endif
 
             @if (Auth::user()->access_level == 'Admin')
@@ -137,6 +147,11 @@
         <ul class="childNav" data-parent="clients">
 
             @if (Auth::user()->access_level == 'Facility')
+            <li class="nav-item">
+                <a class="{{ Route::currentRouteName()=='client_dashboard' ? 'open' : '' }}" href="{{route('client_dashboard')}}">
+                    <span class="item-name">Clients Dashboard</span>
+                </a>
+            </li>
 
             <li class="nav-item">
                 <a class="{{ Route::currentRouteName()=='profile' ? 'open' : '' }}" href="{{route('profile')}}">
@@ -150,8 +165,8 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a class="{{ Route::currentRouteName()=='report-clients-list' ? 'open' : '' }}" href={{route('report-clients-list')}}>
-                    <span class="item-name">Clients</span>
+            <a class="{{ Route::currentRouteName()=='clients_list' ? 'open' : '' }}" href="{{route('clients_list')}}">
+                    <span class="item-name">Clients List</span>
                 </a>
             </li>
 
@@ -164,13 +179,13 @@
             @if (Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Partner' || Auth::user()->access_level == 'Donor' || Auth::user()->access_level == 'County' || Auth::user()->access_level == 'Sub County')
 
             <li class="nav-item">
-                <a class="{{ Route::currentRouteName()=='Reports-clients_dashboard' ? 'open' : '' }}" href="{{route('Reports-clients_dashboard')}}">
-                    <span class="item-name">Clients</span>
+                <a class="{{ Route::currentRouteName()=='client_dashboard' ? 'open' : '' }}" href="{{route('client_dashboard')}}">
+                    <span class="item-name">Clients Dashboard</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a class="{{ Route::currentRouteName()=='clients_list' ? 'open' : '' }}" href="{{route('clients_list')}}">
-                    <span class="item-name">Clients New</span>
+                    <span class="item-name">Clients List</span>
                 </a>
             </li>
             <li class="nav-item">
@@ -184,21 +199,36 @@
         <ul class="childNav" data-parent="main_appointments">
             <li class="nav-item">
                 <a href="{{route('appointment_charts')}}">
-                    <span class="item-name">Appointment</span>
+                    <span class="item-name">Appointment Dashboard</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a href="{{route('missed_appointment_charts')}}">
-                    <span class="item-name">Missed Appointment</span>
+                    <span class="item-name">Missed Appointment Dashboard</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{route('appointment_list')}}">
+                    <span class="item-name">Appointment List</span>
                 </a>
             </li>
         </ul>
         @endif
         @if (Auth::user()->access_level == 'Facility')
         <ul class="childNav" data-parent="appointments">
+        <li class="nav-item">
+                <a href="{{route('appointment_charts')}}">
+                    <span class="item-name">Appointment Dashboard</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{route('missed_appointment_charts')}}">
+                    <span class="item-name">Missed Appointment Dashboard</span>
+                </a>
+            </li>
             <li class="nav-item dropdown-sidemenu">
                 <a>
-                    <span class="item-name">Appointment Diary</span>
+                    <span class="item-name">Future Appointment Diary</span>
                     <i class="dd-arrow i-Arrow-Down"></i>
                 </a>
                 <ul class="submenu">
@@ -208,7 +238,7 @@
                     </li>
                 </ul>
             </li>
-            <li class="nav-item dropdown-sidemenu">
+            <!-- <li class="nav-item dropdown-sidemenu">
                 <a>
 
                     <span class="item-name">Defaulter Diary</span>
@@ -232,27 +262,18 @@
                         </a>
                     </li>
                 </ul>
-            </li>
+            </li> -->
             <li class="nav-item">
                 <a href="{{route('future-apps')}}">
                     <span class="item-name">Edit Appointment</span>
                 </a>
             </li>
             <li class="nav-item">
-                <a href="{{route('report-appointments')}}">
-                    <span class="item-name">Appointments</span>
+                <a href="{{route('appointment_list')}}">
+                    <span class="item-name">Appointments List</span>
                 </a>
             </li>
-            <li class="nav-item">
-                <a href="{{route('appointment_charts')}}">
-                    <span class="item-name">New Appointment</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="{{route('missed_appointment_charts')}}">
-                    <span class="item-name">Missed Appointment</span>
-                </a>
-            </li>
+
             <li class="nav-item">
                 <a href="{{route('app_calendar')}}">
                     <span class="item-name">Calender</span>
@@ -437,14 +458,14 @@
             </li>
             @endif
         </ul>
-        <ul class="childNav" data-parent="dsd">
+        <!-- <ul class="childNav" data-parent="dsd">
             <li class="nav-item">
                 <a class="" href="{{route('Reports-dsd')}}">
                     <span class="item-name">DSD Dairy</span>
                 </a>
             </li>
-        </ul>
-        <ul class="childNav" data-parent="pmtct">
+        </ul> -->
+        <!-- <ul class="childNav" data-parent="pmtct">
             <li class="nav-item dropdown-sidemenu">
                 <a>
                     <span class="item-name">PMTCT Reports</span>
@@ -503,47 +524,117 @@
                 </ul>
             </li>
 
-        </ul>
+        </ul> -->
         <ul class="childNav" data-parent="reports">
             @if (Auth::user()->role_id == 12 || Auth::user()->access_level == 'Partner' || Auth::user()->access_level == 'Admin')
-            <li class="nav-item">
+            <!-- <li class="nav-item">
                 <a class="" href="{{route('admin-tracer-clients')}}">
                     <span class="item-name">Client Tracer</span>
                 </a>
-            </li>
+            </li> -->
             @endif
-            @if (Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Partner' || Auth::user()->access_level == 'Donor')
-            <li class="nav-item">
-                <a class="" href="{{route('tracing-cost')}}">
-                    <span class="item-name">Tracing Cost</span>
+
+            <li class="nav-item dropdown-sidemenu">
+                <a>
+                    <span class="item-name">Client</span>
+                    <i class="dd-arrow i-Arrow-Down"></i>
                 </a>
+                <ul class="submenu">
+                    <li>
+                        <a href="{{route('report-consented')}}">
+                            <span class="item-name">Consented</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{route('Reports-dsd')}}">
+                            <span class="item-name">DSD Clients</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{route('report-all_heis')}}">
+                            <span class="item-name">PMTCT Clients</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{route('report-all_heis')}}">
+                            <span class="item-name">HEI List</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{route('admin-tracer-clients')}}">
+                            <span class="item-name">Client Tracer</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{route('report-transfer')}}">
+                            <span class="item-name">Transfers</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{route('report-deactivated_clients')}}">
+                            <span class="item-name">Deactivated</span>
+                        </a>
+                    </li>
+                </ul>
             </li>
-            @endif
+            <li class="nav-item dropdown-sidemenu">
+                <a>
+                    <span class="item-name">Appointment</span>
+                    <i class="dd-arrow i-Arrow-Down"></i>
+                </a>
+                <ul class="submenu">
+                    <li>
+                        <a href="{{route('report-today_appointments')}}">
+                            <span class="item-name">Today's Appointment</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{route('tracing-cost')}}">
+                            <span class="item-name">Tracing Cost</span>
+                        </a>
+                    </li>
+
+                </ul>
+            </li>
+            <li class="nav-item dropdown-sidemenu">
+                <a>
+                    <span class="item-name">Messages</span>
+                    <i class="dd-arrow i-Arrow-Down"></i>
+                </a>
+                <ul class="submenu">
+                    <li>
+                        <a href="{{route('client_message')}}">
+                            <span class="item-name">Client Messages</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li class="nav-item dropdown-sidemenu">
+                <a>
+                    <span class="item-name">Facilities</span>
+                    <i class="dd-arrow i-Arrow-Down"></i>
+                </a>
+                <ul class="submenu">
+                    <li>
+                        <a href="{{route('my_facilities')}}">
+                            <span class="item-name">My Facilities</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{route('active_facilities_list')}}">
+                            <span class="item-name">Active Facilities</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+
+
             <li class="nav-item">
                 <a href="{{route('report-lab_investigation')}}">
                     <span class="item-name">Lab Investigation</span>
                 </a>
             </li>
-            <li class="nav-item">
-                <a class="" href="{{route('my_facilities')}}">
-                    <span class="item-name">My Facilities</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="{{route('report-deactivated_clients')}}">
-                    <span class="item-name">Deactivated</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="{{route('report-transfer')}}">
-                    <span class="item-name">Transfers</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="{{route('message-extract-report')}}">
-                    <span class="item-name">Messages Extract</span>
-                </a>
-            </li>
+
             @if (Auth::user()->access_level == 'Admin')
             <li class="nav-item">
                 <a href="{{route('access-report')}}">
@@ -551,17 +642,7 @@
                 </a>
             </li>
             @endif
-            <li class="nav-item">
-                <a href="{{route('report-consented')}}">
-                    <span class="item-name">Consented Reports</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="{{route('report-today_appointments')}}">
-                    <span class="item-name">Todays Appointment</span>
-                </a>
-            </li>
-            <li class="nav-item">
+            <!-- <li class="nav-item">
                 <a href="{{route('monthly-appointment-summary')}}">
                     <span class="item-name">Monthly Appointment</span>
                 </a>
@@ -570,10 +651,18 @@
                 <a href="{{route('client-summary-report')}}">
                     <span class="item-name">Summary Report</span>
                 </a>
-            </li>
-            <li class="nav-item">
+            </li> -->
+            <!-- <li class="nav-item">
                 <a href="{{route('tracing-outcome-report')}}">
                     <span class="item-name">Tracing OutCome</span>
+                </a>
+            </li> -->
+
+        </ul>
+        <ul class="childNav" data-parent="indicators">
+            <li class="nav-item">
+                <a href={{route('indicators')}}>
+                    <span class="item-name">Definitions</span>
                 </a>
             </li>
 

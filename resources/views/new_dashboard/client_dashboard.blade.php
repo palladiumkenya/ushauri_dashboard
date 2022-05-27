@@ -15,7 +15,7 @@
     <form role="form" method="get" action="#" id="dataFilter">
         {{ csrf_field() }}
         <div class="row">
-            <div class="col">
+            <div class="col-lg-3">
                 <div class="form-group">
 
                     <select class="form-control select2" id="partners" name="partner">
@@ -27,7 +27,7 @@
                     </select>
                 </div>
             </div>
-            <div class="col">
+            <div class="col-lg-3">
                 <div class="form-group">
                     <select class="form-control county  input-rounded input-sm select2" id="counties" name="county">
                         <option value="">County:</option>
@@ -35,7 +35,7 @@
                     </select>
                 </div>
             </div>
-            <div class="col">
+            <div class="col-lg-3">
                 <div class="form-group">
                     <span class="filter_sub_county_wait" style="display: none;">Loading , Please Wait ...</span>
                     <select class="form-control subcounty input-rounded input-sm select2" id="subcounties" name="subcounty">
@@ -44,7 +44,7 @@
                     </select>
                 </div>
             </div>
-            <div class="col">
+            <div class="col-lg-3">
                 <div class="form-group">
                     <span class="filter_facility_wait" style="display: none;">.</span>
 
@@ -54,7 +54,7 @@
                     </select>
                 </div>
             </div>
-            <div class="col">
+            <div class="col-lg-3">
                 <div class="form-group">
                     <span class="filter_facility_wait" style="display: none;"></span>
 
@@ -69,7 +69,9 @@
             <div class='col'>
                 <div class="form-group">
                     <div class="input-group">
-
+                        <div class="col-md-2">
+                            <label for="firstName1">From</label>
+                        </div>
                         <div class="col-md-10">
 
                             <input type="date" id="from" class="form-control" placeholder="From" name="from">
@@ -83,30 +85,31 @@
                 </div>
             </div>
             <div class="col">
-                <div class='col'>
-                    <div class="form-group">
-                        <div class="input-group">
+                <div class="form-group">
+                    <div class="input-group">
+                        <div class="col-md-2">
+                            <label for="firstName1">To</label>
+                        </div>
+                        <div class="col-md-10">
 
-                            <div class="col-md-10">
-
-                                <input type="date" id="to" class="form-control" placeholder="To" name="to">
-                            </div>
-                            <div class="input-group-append">
-                                <button class="btn btn-secondary" type="button">
-                                    <i class="icon-regular i-Calendar-4"></i>
-                                </button>
-                            </div>
+                            <input type="date" id="to" class="form-control" placeholder="To" name="to">
+                        </div>
+                        <div class="input-group-append">
+                            <button class="btn btn-secondary" type="button">
+                                <i class="icon-regular i-Calendar-4"></i>
+                            </button>
                         </div>
                     </div>
                 </div>
-                <div class="col">
-                    <div class="form-group">
-                        <span class="filter_facility_wait" style="display: none;"></span>
-                        <button class="btn btn-default filter btn-round  btn-small btn-primary  " type="submit" name="filter" id="filter"> <i class="fa fa-filter"></i>
-                            Filter</button>
-                    </div>
+            </div>
+            <div class="col">
+                <div class="form-group">
+                    <span class="filter_facility_wait" style="display: none;"></span>
+                    <button class="btn btn-default filter btn-round  btn-small btn-primary  " type="submit" name="filter" id="filter"> <i class="fa fa-filter"></i>
+                        Filter</button>
                 </div>
             </div>
+        </div>
 
     </form>
 
@@ -282,8 +285,8 @@
 
 <!-- Sweet alert -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
 
 
 <script type="text/javascript">
