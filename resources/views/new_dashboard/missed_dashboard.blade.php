@@ -143,7 +143,9 @@
             <div class='col-lg-3'>
                 <div class="form-group">
                     <div class="input-group">
-
+                    <div class="col-md-2">
+                            <label for="firstName1">From</label>
+                        </div>
                         <div class="col-md-10">
 
                             <input type="date" id="from" class="form-control" placeholder="From" name="from">
@@ -159,7 +161,9 @@
             <div class='col-lg-3'>
                 <div class="form-group">
                     <div class="input-group">
-
+                    <div class="col-md-2">
+                            <label for="firstName1">To</label>
+                        </div>
                         <div class="col-md-10">
 
                             <input type="date" id="to" class="form-control" placeholder="To" name="to">
@@ -188,7 +192,7 @@
 <nav>
     <div class="nav nav-tabs" id="nav-tab" role="tablist">
         <a class="nav-item nav-link active" id="nav-missed-tab" data-toggle="tab" href="#nav-missed" role="tab" aria-controls="nav-missed" aria-selected="true">Missed Appointnments</a>
-        <a class="nav-item nav-link" data-toggle="tab" href="#nav-indicators" role="tab" aria-selected="false">Indicators Definitions</a>
+        <a class="nav-item nav-link" data-toggle="tab" href="#nav-indicators" role="tab" aria-selected="false"></a>
     </div>
 </nav>
 <div class="tab-content" id="nav-tabContent">
