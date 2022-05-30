@@ -100,7 +100,7 @@
                                                         <td>  {{$clients->gender}}</td>
                                                         <td>  {{$clients->group_name}}</td>
                                                         <td>  {{$clients->marital}}</td>
-                                                        <td>  {{$clients->created_at}}</td>
+                                                        <td>  {{date('d-m-Y', strtotime($clients->created_at))}}</td>
                                                         <td>  {{$clients->month_year}}</td>
                                                         <td>  {{$clients->consented}}</td>
                                                         <td>  {{$clients->LANGUAGE}}</td>
