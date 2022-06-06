@@ -588,11 +588,13 @@
                             <span class="item-name">Today's Appointment</span>
                         </a>
                     </li>
+                    @if (Auth::user()->access_level == 'Partner' || Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Donor')
                     <li>
                         <a href="{{route('tracing-cost')}}">
                             <span class="item-name">Tracing Cost</span>
                         </a>
                     </li>
+                    @endif
 
                 </ul>
             </li>
