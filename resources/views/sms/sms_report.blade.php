@@ -27,7 +27,7 @@
                             <label for="firstName1">From</label>
                         </div>
                         <div class="col-md-10">
-                            <input type="date" id="from" class="form-control" data-width="100%" placeholder="YYYY-mm-dd" name="from">
+                            <input type="date" id="from" class="form-control" data-width="100%" placeholder="YYYY-mm-dd" name="from" max="{{date("Y-m-d")}}">
                         </div>
                         <div class="input-group-append">
                             <button class="btn btn-secondary" type="button">
@@ -46,7 +46,7 @@
                         </div>
                         <div class="col-md-10">
 
-                            <input type="date" id="to" class="form-control" placeholder="YYYY-mm-dd" name="to">
+                            <input type="date" id="to" class="form-control" placeholder="YYYY-mm-dd" name="to" max="{{date("Y-m-d")}}">
                         </div>
                         <div class="input-group-append">
                             <button class="btn btn-secondary" type="button">
@@ -328,7 +328,7 @@
         yAxis: {
             min: 0,
             title: {
-                text: 'Count'
+                text: 'Number'
             },
             stackLabels: {
                 enabled: true,
@@ -356,10 +356,9 @@
             }
         },
         series: [{
-                name: 'SMS Count',
-                data: [Success, Failed_blacklist, Failed_absent, Failed_deliveryfailure, Failed_inactive, Rejected_inactive, Rejected_blacklist, Rejected_deliveryfailure]
-            }
-        ],
+            name: 'SMS Count',
+            data: [Success, Failed_blacklist, Failed_absent, Failed_deliveryfailure, Failed_inactive, Rejected_inactive, Rejected_blacklist, Rejected_deliveryfailure]
+        }],
     });
 
     var costAnalytics = Highcharts.chart('cost_analytics', {
@@ -375,7 +374,7 @@
         yAxis: {
             min: 0,
             title: {
-                text: 'Count'
+                text: 'Cost'
             },
             stackLabels: {
                 enabled: true,
@@ -460,27 +459,27 @@
 
             },
             title: {
-                text: 'Partners Delivered SMS '
+                text: 'Numbers of Delivered SMS By Partners'
             },
             xAxis: {
                 type: 'category'
             },
             yAxis: {
-            min: 0,
-            title: {
-                text: 'Count'
-            },
-            stackLabels: {
-                enabled: true,
-                style: {
-                    fontWeight: 'bold',
-                    color: ( // theme
-                        Highcharts.defaultOptions.title.style &&
-                        Highcharts.defaultOptions.title.style.color
-                    ) || 'gray'
+                min: 0,
+                title: {
+                    text: 'Numbers'
+                },
+                stackLabels: {
+                    enabled: true,
+                    style: {
+                        fontWeight: 'bold',
+                        color: ( // theme
+                            Highcharts.defaultOptions.title.style &&
+                            Highcharts.defaultOptions.title.style.color
+                        ) || 'gray'
+                    }
                 }
-            }
-        },
+            },
 
             legend: {
                 enabled: false
@@ -500,9 +499,9 @@
                 colorByPoint: false,
                 data: partner_delivered_array,
                 dataSorting: {
-            enabled: true,
-            sortKey: 'y'
-        }
+                    enabled: true,
+                    sortKey: 'y'
+                }
 
             }],
 
@@ -517,27 +516,27 @@
 
             },
             title: {
-                text: 'Partners Failed SMS '
+                text: 'Number of Failed SMS By Partner '
             },
             xAxis: {
                 type: 'category'
             },
             yAxis: {
-            min: 0,
-            title: {
-                text: 'Count'
-            },
-            stackLabels: {
-                enabled: true,
-                style: {
-                    fontWeight: 'bold',
-                    color: ( // theme
-                        Highcharts.defaultOptions.title.style &&
-                        Highcharts.defaultOptions.title.style.color
-                    ) || 'gray'
+                min: 0,
+                title: {
+                    text: 'Number'
+                },
+                stackLabels: {
+                    enabled: true,
+                    style: {
+                        fontWeight: 'bold',
+                        color: ( // theme
+                            Highcharts.defaultOptions.title.style &&
+                            Highcharts.defaultOptions.title.style.color
+                        ) || 'gray'
+                    }
                 }
-            }
-        },
+            },
 
             legend: {
                 enabled: false
@@ -557,9 +556,9 @@
                 colorByPoint: false,
                 data: partner_failed_array,
                 dataSorting: {
-            enabled: true,
-            sortKey: 'y'
-        }
+                    enabled: true,
+                    sortKey: 'y'
+                }
 
             }],
 
@@ -574,27 +573,27 @@
 
             },
             title: {
-                text: 'Partners SMS Cost Distribution '
+                text: 'SMS Cost Distribution By Partners'
             },
             xAxis: {
                 type: 'category'
             },
             yAxis: {
-            min: 0,
-            title: {
-                text: 'Count'
-            },
-            stackLabels: {
-                enabled: true,
-                style: {
-                    fontWeight: 'bold',
-                    color: ( // theme
-                        Highcharts.defaultOptions.title.style &&
-                        Highcharts.defaultOptions.title.style.color
-                    ) || 'gray'
+                min: 0,
+                title: {
+                    text: 'Cost'
+                },
+                stackLabels: {
+                    enabled: true,
+                    style: {
+                        fontWeight: 'bold',
+                        color: ( // theme
+                            Highcharts.defaultOptions.title.style &&
+                            Highcharts.defaultOptions.title.style.color
+                        ) || 'gray'
+                    }
                 }
-            }
-        },
+            },
 
             legend: {
                 enabled: false
@@ -614,9 +613,9 @@
                 colorByPoint: false,
                 data: partner_cost_array,
                 dataSorting: {
-            enabled: true,
-            sortKey: 'y'
-        }
+                    enabled: true,
+                    sortKey: 'y'
+                }
 
             }],
 
@@ -631,27 +630,27 @@
 
             },
             title: {
-                text: 'Counties SMS Cost Distribution '
+                text: 'SMS Cost Distribution By Counties'
             },
             xAxis: {
                 type: 'category'
             },
             yAxis: {
-            min: 0,
-            title: {
-                text: 'Count'
-            },
-            stackLabels: {
-                enabled: false,
-                style: {
-                    fontWeight: 'bold',
-                    color: ( // theme
-                        Highcharts.defaultOptions.title.style &&
-                        Highcharts.defaultOptions.title.style.color
-                    ) || 'gray'
+                min: 0,
+                title: {
+                    text: 'Cost'
+                },
+                stackLabels: {
+                    enabled: false,
+                    style: {
+                        fontWeight: 'bold',
+                        color: ( // theme
+                            Highcharts.defaultOptions.title.style &&
+                            Highcharts.defaultOptions.title.style.color
+                        ) || 'gray'
+                    }
                 }
-            }
-        },
+            },
 
             legend: {
                 enabled: false
@@ -671,9 +670,9 @@
                 colorByPoint: false,
                 data: county_cost_array,
                 dataSorting: {
-            enabled: true,
-            sortKey: 'y'
-        }
+                    enabled: true,
+                    sortKey: 'y'
+                }
 
             }],
 
@@ -682,7 +681,6 @@
             }
         })
     });
-
 </script>
 
 @endsection

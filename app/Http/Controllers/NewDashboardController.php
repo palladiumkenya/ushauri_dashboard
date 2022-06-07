@@ -220,7 +220,7 @@ class NewDashboardController extends Controller
         }
         if (Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Donor') {
 
-            $all_partners = Partner::where('status', '=', 'Active')->pluck('name', 'id');
+            $all_partners = Partner::where('status', '=', 'Active')->orderBy('name', 'ASC')->pluck('name', 'id');
             $client = Client::where('status', '=', 'Active')->whereNull('hei_no')->count('id');
             $client_ever_enrolled = Client::whereNull('hei_no')->count('id');
 
@@ -806,7 +806,7 @@ class NewDashboardController extends Controller
         }
         if (Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Donor') {
 
-            $all_partners = Partner::where('status', '=', 'Active')->pluck('name', 'id');
+            $all_partners = Partner::where('status', '=', 'Active')->orderBy('name', 'ASC')->pluck('name', 'id');
             $client = Client::where('status', '=', 'Active')->whereNull('hei_no')->count('clinic_number');
             $indicator = Indicator::select(['name', 'description'])->get();
 
@@ -1288,7 +1288,7 @@ class NewDashboardController extends Controller
         }
 
         if (Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Donor') {
-            $all_partners = Partner::where('status', '=', 'Active')->pluck('name', 'id');
+            $all_partners = Partner::where('status', '=', 'Active')->orderBy('name', 'ASC')->pluck('name', 'id');
             $indicator = Indicator::select(['name', 'description'])->get();
             // main appointments
             $appointment = Appointments::select('id')
@@ -1830,7 +1830,7 @@ class NewDashboardController extends Controller
         }
 
         if (Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Donor') {
-            $all_partners = Partner::where('status', '=', 'Active')->pluck('name', 'id');
+            $all_partners = Partner::where('status', '=', 'Active')->orderBy('name', 'ASC')->pluck('name', 'id');
             $indicator = Indicator::select(['name', 'description'])->get();
             // main appointments
             // dd($appointment_honoured);
