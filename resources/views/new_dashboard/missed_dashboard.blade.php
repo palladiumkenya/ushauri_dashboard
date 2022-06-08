@@ -99,9 +99,7 @@
                             <input type="date" id="to" class="form-control" placeholder="To" name="to">
                         </div>
                         <div class="input-group-append">
-                            <button class="btn btn-secondary" type="button">
-                                <i class="icon-regular i-Calendar-4"></i>
-                            </button>
+                          
                         </div>
                     </div>
                 </div>
@@ -151,9 +149,7 @@
                             <input type="date" id="from" class="form-control" placeholder="From" name="from">
                         </div>
                         <div class="input-group-append">
-                            <button class="btn btn-secondary" type="button">
-                                <i class="icon-regular i-Calendar-4"></i>
-                            </button>
+                         
                         </div>
                     </div>
                 </div>
@@ -169,9 +165,7 @@
                             <input type="date" id="to" class="form-control" placeholder="To" name="to">
                         </div>
                         <div class="input-group-append">
-                            <button class="btn btn-secondary" type="button">
-                                <i class="icon-regular i-Calendar-4"></i>
-                            </button>
+                           
                         </div>
                     </div>
                 </div>
@@ -439,6 +433,11 @@
         let from = $('#from').val();
         let to = $('#to').val();
         let module = $('#module').val();
+        Swal.fire({
+                title: "Please wait, Loading Charts!",
+                showConfirmButton: false,
+                allowOutsideClick: false
+            });
         $.ajaxSetup({
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -497,6 +496,7 @@
                 appointment_defaultedAge.series[0].setData([Appointment_defaulted_to_nine, Appointment_defaulted_to_fourteen, Appointment_defaulted_to_nineteen, Appointment_defaulted_to_twentyfour, Appointment_defaulted_to_twentyfive_above, Appointment_defaulted_to_uknown_age]);
                 appointment_ltfuGender.series[0].setData([Appointment_ltfu_male, Appointment_ltfu_female, Appointment_ltfu_uknown_gender]);
                 appointment_lftuAge.series[0].setData([Appointment_ltfu_to_nine, Appointment_ltfu_to_fourteen, Appointment_ltfu_to_nineteen, Appointment_ltfu_to_twentyfour, Appointment_ltfu_to_twentyfive_above, Appointment_ltfu_to_uknown_age]);
+                Swal.close();
 
             }
         });

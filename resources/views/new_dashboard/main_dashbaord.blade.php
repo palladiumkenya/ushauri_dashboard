@@ -83,9 +83,7 @@
                             <input type="date" id="from" class="form-control" placeholder="From" name="from">
                         </div>
                         <div class="input-group-append">
-                            <button class="btn btn-secondary" type="button">
-                                <i class="icon-regular i-Calendar-4"></i>
-                            </button>
+                          
                         </div>
                     </div>
                 </div>
@@ -101,9 +99,7 @@
                             <input type="date" id="to" class="form-control" placeholder="To" name="to">
                         </div>
                         <div class="input-group-append">
-                            <button class="btn btn-secondary" type="button">
-                                <i class="icon-regular i-Calendar-4"></i>
-                            </button>
+                         
                         </div>
                     </div>
                 </div>
@@ -156,9 +152,7 @@
                             <input type="date" id="from" class="form-control" placeholder="From" name="from">
                         </div>
                         <div class="input-group-append">
-                            <button class="btn btn-secondary" type="button">
-                                <i class="icon-regular i-Calendar-4"></i>
-                            </button>
+                            
                         </div>
                     </div>
                 </div>
@@ -174,9 +168,7 @@
                             <input type="date" id="to" class="form-control" placeholder="To" name="to">
                         </div>
                         <div class="input-group-append">
-                            <button class="btn btn-secondary" type="button">
-                                <i class="icon-regular i-Calendar-4"></i>
-                            </button>
+                         
                         </div>
                     </div>
                 </div>
@@ -456,6 +448,12 @@
         let from = $('#from').val();
         let to = $('#to').val();
         let module = $('#module').val();
+
+        Swal.fire({
+                title: "Please wait, Loading Charts!",
+                showConfirmButton: false,
+                allowOutsideClick: false
+            });
         $.ajaxSetup({
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -475,6 +473,7 @@
             },
             url: "{{ route('filter_dashboard_charts') }}",
             success: function(data) {
+             
                 $("#client").html(data.client);
                 $("#client_ever_enrolled").html(data.client_ever_enrolled);
                 $("#facilities_ever_enrolled").html(data.facilities_ever_enrolled);
@@ -494,6 +493,7 @@
                 clientGender.series[0].setData([Clients_male, Clients_female, Unknown_gender]);
                 clientAge.series[0].setData([Client_to_nine, Client_to_fourteen, Client_to_nineteen, Client_to_twentyfour, Client_to_twentyfive_above, Client_unknown_age]);
 
+                Swal.close();
 
 
             }
