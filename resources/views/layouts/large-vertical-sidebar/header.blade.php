@@ -1,6 +1,6 @@
 <div class="main-header">
     <div class="logo">
-    <img class="pl-3" src="{{ asset('assets/images/ushauri.jpeg') }}" alt="ushauri">
+    <img class="pl-3" src="{{ asset('assets/images/ushauriNew_log.jpeg') }}" alt="ushauri">
     </div>
 
     <div class="menu-toggle">
@@ -14,7 +14,7 @@
         <div class="dropdown mega-menu d-none d-md-block">
 
 
-            <img class="pl-3" src="{{ asset('assets/images/moh.png') }}" alt="ushauri">
+            <img class="pl-3" src="{{ asset('assets/images/MOH_New.png') }}" alt="ushauri">
 
 
         </div>
@@ -26,7 +26,7 @@
     </div>
 
     <div style="margin: auto">
-    
+
     </div>
 
 

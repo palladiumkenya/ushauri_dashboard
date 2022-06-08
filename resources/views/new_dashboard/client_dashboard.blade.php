@@ -74,7 +74,7 @@
                         </div>
                         <div class="col-md-10">
 
-                            <input type="date" id="from" class="form-control" placeholder="From" name="from">
+                            <input type="date" id="from" class="form-control" placeholder="From" name="from" max="{{date("Y-m-d")}}">
                         </div>
                         <div class="input-group-append">
                             <button class="btn btn-secondary" type="button">
@@ -92,7 +92,7 @@
                         </div>
                         <div class="col-md-10">
 
-                            <input type="date" id="to" class="form-control" placeholder="To" name="to">
+                            <input type="date" id="to" class="form-control" placeholder="To" name="to" max="{{date("Y-m-d")}}">
                         </div>
                         <div class="input-group-append">
                             <button class="btn btn-secondary" type="button">
@@ -141,7 +141,7 @@
                         </div>
                         <div class="col-md-10">
 
-                            <input type="date" id="from" class="form-control" placeholder="From" name="from">
+                            <input type="date" id="from" class="form-control" placeholder="From" name="from" max="{{date("Y-m-d")}}">
                         </div>
                         <div class="input-group-append">
                             <button class="btn btn-secondary" type="button">
@@ -160,7 +160,7 @@
                         </div>
                         <div class="col-md-10">
 
-                            <input type="date" id="to" class="form-control" placeholder="To" name="to">
+                            <input type="date" id="to" class="form-control" placeholder="To" name="to" max="{{date("Y-m-d")}}">
                         </div>
                         <div class="input-group-append">
                             <button class="btn btn-secondary" type="button">

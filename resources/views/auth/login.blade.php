@@ -69,7 +69,7 @@
                                 </div>
                                 @endif
                                 <div class=" center">
-                                    <img class="pl-3" src="{{ asset('assets/images/login/moh.png') }}" alt="ushauri" height="40" style="margin-left: 20px;">
+                                    <img class="pl-3" src="{{ asset('assets/images/login/MOH_New.png') }}" alt="ushauri" height="40" style="margin-left: 20px;">
                                     <img class="pl-3" src="{{ asset('assets/images/login/CDC-LOGO.jpg') }}" alt="ushauri" height="40" style="margin-left: 95px;">
                                     <img class="pl-3" src="{{ asset('assets/images/login/logo_3.png') }}" alt="ushauri" width="31%" style="margin-left: 95px;">
                             </div>
