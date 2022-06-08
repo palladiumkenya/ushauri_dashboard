@@ -80,9 +80,7 @@
                             <input type="date" id="from" class="form-control" placeholder="From" name="from" max="{{date("Y-m-d")}}">
                         </div>
                         <div class="input-group-append">
-                            <button class="btn btn-secondary" type="button">
-                                <i class="icon-regular i-Calendar-4"></i>
-                            </button>
+                            
                         </div>
                     </div>
                 </div>
@@ -98,9 +96,7 @@
                                 <input type="date" id="to" class="form-control" placeholder="To" name="to" max="{{date("Y-m-d")}}">
                             </div>
                             <div class="input-group-append">
-                                <button class="btn btn-secondary" type="button">
-                                    <i class="icon-regular i-Calendar-4"></i>
-                                </button>
+                                
                             </div>
                         </div>
                     </div>
@@ -150,9 +146,7 @@
                             <input type="date" id="from" class="form-control" placeholder="From" name="from" max="{{date("Y-m-d")}}">
                         </div>
                         <div class="input-group-append">
-                            <button class="btn btn-secondary" type="button">
-                                <i class="icon-regular i-Calendar-4"></i>
-                            </button>
+                          
                         </div>
                     </div>
                 </div>
@@ -168,9 +162,7 @@
                             <input type="date" id="to" class="form-control" placeholder="To" name="to" max="{{date("Y-m-d")}}">
                         </div>
                         <div class="input-group-append">
-                            <button class="btn btn-secondary" type="button">
-                                <i class="icon-regular i-Calendar-4"></i>
-                            </button>
+                           
                         </div>
                     </div>
                 </div>
@@ -410,6 +402,11 @@
         let from = $('#from').val();
         let to = $('#to').val();
         let module = $('#module').val();
+        Swal.fire({
+                title: "Please wait, Loading Charts!",
+                showConfirmButton: false,
+                allowOutsideClick: false
+            });
         $.ajaxSetup({
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -458,6 +455,7 @@
                 appointment_honouredAge.series[0].setData([Appointment_honored_to_nine, Appointment_honored_to_fourteen, Appointment_honored_to_nineteen, Appointment_honored_to_twentyfour, Appointment_honored_to_twentyfive_above, Appointment_honored_to_uknown_age]);
                 appointment_not_honouredGender.series[0].setData([Appointment_not_honoured_male, Appointment_not_honoured_female, Appointment_not_honoured_uknown_gender]);
                 appointment_not_honouredAge.series[0].setData([Appointment_not_honored_to_nine, Appointment_not_honored_to_fourteen, Appointment_not_honored_to_nineteen, Appointment_not_honored_to_twentyfour, Appointment_not_honored_to_twentyfive_above, Appointment_not_honored_to_uknown_age]);
+                Swal.close();
             }
         });
     });

@@ -30,9 +30,7 @@
                             <input type="date" id="from" class="form-control" data-width="100%" placeholder="YYYY-mm-dd" name="from" max="{{date("Y-m-d")}}">
                         </div>
                         <div class="input-group-append">
-                            <button class="btn btn-secondary" type="button">
-                                <i class="icon-regular i-Calendar-4"></i>
-                            </button>
+                            
                         </div>
                     </div>
                 </div>
@@ -49,9 +47,7 @@
                             <input type="date" id="to" class="form-control" placeholder="YYYY-mm-dd" name="to" max="{{date("Y-m-d")}}">
                         </div>
                         <div class="input-group-append">
-                            <button class="btn btn-secondary" type="button">
-                                <i class="icon-regular i-Calendar-4"></i>
-                            </button>
+                         
                         </div>
                     </div>
                 </div>
@@ -250,6 +246,11 @@
         let counties = $('#counties').val();
         let subcounties = $('#subcounties').val();
         let facilities = $('#facilities').val();
+        Swal.fire({
+                title: "Please wait, Loading Charts!",
+                showConfirmButton: false,
+                allowOutsideClick: false
+            });
         $.ajaxSetup({
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -288,6 +289,7 @@
 
                 smsAnalytics.series[0].setData([Success, Failed_blacklist, Failed_absent, Failed_deliveryfailure, Failed_inactive, Rejected_blacklist, Rejected_inactive, Rejected_deliveryfailure]);
                 costAnalytics.series[0].setData([Success_cost, Failed_backlist_cost, Failed_absent_cost, Failed_delivery_cost, Failed_inactive_cost, Rejected_blacklist_cost, Rejected_inactive_cost, Rejected_delivery_cost]);
+                Swal.close();
 
             }
         });
