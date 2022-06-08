@@ -41,7 +41,7 @@
 
     <div class="row">
 
-        <a class="btn btn-primary pull-right" href="">Download Script</a>
+        <a class="btn btn-primary pull-right" href="{{ route('client-script-download') }}">Download Script</a>
     </div>
 
 </div>

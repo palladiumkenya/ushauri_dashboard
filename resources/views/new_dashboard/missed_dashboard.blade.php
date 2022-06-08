@@ -99,7 +99,7 @@
                             <input type="date" id="to" class="form-control" placeholder="To" name="to" max="{{date("Y-m-d")}}">
                         </div>
                         <div class="input-group-append">
-                          
+
                         </div>
                     </div>
                 </div>
@@ -149,7 +149,7 @@
                             <input type="date" id="from" class="form-control" placeholder="From" name="from" max="{{date("Y-m-d")}}">
                         </div>
                         <div class="input-group-append">
-                         
+
                         </div>
                     </div>
                 </div>
@@ -165,7 +165,7 @@
                             <input type="date" id="to" class="form-control" placeholder="To" name="to" max="{{date("Y-m-d")}}">
                         </div>
                         <div class="input-group-append">
-                           
+
                         </div>
                     </div>
                 </div>
@@ -308,6 +308,10 @@
 <script src="https://code.highcharts.com/modules/export-data.js"></script>
 <script src="https://code.highcharts.com/modules/accessibility.js"></script>
 <script src="https://code.highcharts.com/themes/high-contrast-light.js"></script>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
 
 
 <script type="text/javascript">

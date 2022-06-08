@@ -147,6 +147,7 @@ Route::group(['middleware' => 'auth'], function () {
   Route::post('/import/client/file', ['uses' => 'App\Http\Controllers\BulkUploadController@importClients', 'as' => 'client-file-import']);
   Route::post('/import/client/second', ['uses' => 'App\Http\Controllers\BulkUploadController@importSecondClients', 'as' => 'client-second-import']);
   Route::get('/download/client/template', ['uses' => 'App\Http\Controllers\BulkUploadController@downloadClientTemplate', 'as' => 'client-template-download']);
+  Route::get('/download/client/script', ['uses' => 'App\Http\Controllers\BulkUploadController@downloadClientScript', 'as' => 'client-script-download']);
 
 
   // PMTCT routes

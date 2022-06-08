@@ -274,4 +274,9 @@ class BulkUploadController extends Controller
         $path = public_path('template/UshauriTemplate.xlsx');
         return response()->download($path);
     }
+    public function downloadClientScript()
+    {
+        $path = public_path('template/UshauriExtract.sql');
+        return response()->download($path);
+    }
 }
