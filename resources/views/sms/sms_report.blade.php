@@ -30,7 +30,7 @@
                             <input type="date" id="from" class="form-control" data-width="100%" placeholder="YYYY-mm-dd" name="from" max="{{date("Y-m-d")}}">
                         </div>
                         <div class="input-group-append">
-                            
+
                         </div>
                     </div>
                 </div>
@@ -47,7 +47,7 @@
                             <input type="date" id="to" class="form-control" placeholder="YYYY-mm-dd" name="to" max="{{date("Y-m-d")}}">
                         </div>
                         <div class="input-group-append">
-                         
+
                         </div>
                     </div>
                 </div>
@@ -160,6 +160,10 @@
 <script src="https://code.highcharts.com/modules/exporting.js"></script>
 <script src="https://code.highcharts.com/modules/export-data.js"></script>
 <script src="https://code.highcharts.com/modules/accessibility.js"></script>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
 
 <script type="text/javascript">
     $(document).ready(function() {
@@ -295,18 +299,14 @@
     var Failed_absent = <?php echo json_encode($failed_absent) ?>;
     var Failed_inactive = <?php echo json_encode($failed_inactive) ?>;
     var Failed_deliveryfailure = <?php echo json_encode($failed_deliveryfailure) ?>;
-    // var Rejected_blacklist = <?php echo json_encode($rejected_blacklist) ?>;
-    // var Rejected_inactive = <?php echo json_encode($rejected_inactive) ?>;
-    // var Rejected_deliveryfailure = <?php echo json_encode($rejected_deliveryfailure) ?>;
+
 
     var Success_cost = <?php echo json_encode($success_cost) ?>;
     var Failed_backlist_cost = <?php echo json_encode($failed_blacklist_cost) ?>;
     var Failed_absent_cost = <?php echo json_encode($failed_absent_cost) ?>;
     var Failed_inactive_cost = <?php echo json_encode($failed_inactive_cost) ?>;
     var Failed_delivery_cost = <?php echo json_encode($failed_deliveryfailure_cost) ?>;
-    // var Rejected_blacklist_cost = <?php echo json_encode($rejected_blacklist_cost) ?>;
-    // var Rejected_inactive_cost = <?php echo json_encode($rejected_inactive_cost) ?>;
-    // var Rejected_delivery_cost = <?php echo json_encode($rejected_deliveryfailure_cost) ?>;
+
 
     var partner_delivery = <?php echo json_encode($delivered_partners) ?>;
     console.log(partner_delivery);
