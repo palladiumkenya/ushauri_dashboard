@@ -4727,7 +4727,7 @@ class NewDashboardController extends Controller
                 WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
                 date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
                 WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"))
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"));
 
             // appointment not honored by gender
             $appointment_not_honoured_male = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
