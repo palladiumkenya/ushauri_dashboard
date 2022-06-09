@@ -13,11 +13,11 @@ class Appointments extends Model
     public $incrementing = false;
 
     protected $fillable = [
-        'app_type_1', 'reason', 'appntmnt_date'
+        'client_id', 'app_type_1', 'reason', 'appntmnt_date', 'date_attended'
 
     ];
 
     public function client(){
-        return $this->belongsTo('App\Models\Client','client_id','id');
+        return $this->belongsTo(Client::class,'client_id');
     }
 }

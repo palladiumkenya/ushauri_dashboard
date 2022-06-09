@@ -56,8 +56,8 @@ Route::group(['middleware' => 'auth'], function () {
 
   // Dashboard routes
   Route::get('/main_graph_dashboard', ['uses' => 'App\Http\Controllers\DashboardController@main_graph_dashboard', 'as' => 'main_graph_dashboard']);
-  Route::get('/filter_client_dashboard', ['uses'=>'App\Http\Controllers\DashboardController@filter_client_dashboard', 'as' => 'filter_client_dashboard']);
-  Route::get('/filter_appointment_dashboard', ['uses'=>'App\Http\Controllers\AppointmentController@filter_appointment_dashboard', 'as' => 'filter_appointment_dashboard']);
+  Route::get('/filter_client_dashboard', ['uses' => 'App\Http\Controllers\DashboardController@filter_client_dashboard', 'as' => 'filter_client_dashboard']);
+  Route::get('/filter_appointment_dashboard', ['uses' => 'App\Http\Controllers\AppointmentController@filter_appointment_dashboard', 'as' => 'filter_appointment_dashboard']);
   Route::get('/filter_dashboard', ['uses' => 'App\Http\Controllers\DashboardController@filter_dashboard', 'as' => 'filter_dashboard']);
   Route::get('/get_dashboard_counties/{id}', ['uses' => 'App\Http\Controllers\DashboardController@get_counties', 'as' => 'get_counties']);
   Route::get('/get_dashboard_sub_counties/{id}', ['uses' => 'App\Http\Controllers\DashboardController@get_dashboard_sub_counties', 'as' => 'get_dashboard_sub_counties']);
@@ -147,6 +147,7 @@ Route::group(['middleware' => 'auth'], function () {
   Route::post('/import/client/file', ['uses' => 'App\Http\Controllers\BulkUploadController@importClients', 'as' => 'client-file-import']);
   Route::post('/import/client/second', ['uses' => 'App\Http\Controllers\BulkUploadController@importSecondClients', 'as' => 'client-second-import']);
   Route::get('/download/client/template', ['uses' => 'App\Http\Controllers\BulkUploadController@downloadClientTemplate', 'as' => 'client-template-download']);
+  Route::get('/download/client/script', ['uses' => 'App\Http\Controllers\BulkUploadController@downloadClientScript', 'as' => 'client-script-download']);
 
 
   // PMTCT routes
@@ -197,6 +198,22 @@ Route::group(['middleware' => 'auth'], function () {
   Route::get('/sms/analytics', ['uses' => 'App\Http\Controllers\SMSReportController@success_sms', 'as' => 'sms-analytics']);
   Route::get('/filter_sms', ['uses' => 'App\Http\Controllers\SMSReportController@filter_sms', 'as' => 'filter_sms']);
   Route::get('/filters_sms', ['uses' => 'App\Http\Controllers\SMSReportController@filtering_sms', 'as' => 'filtering_sms']);
+
+  // new dashbaord routes
+  Route::get('/admin/dashboard', ['uses' => 'App\Http\Controllers\NewDashboardController@dashboard', 'as' => 'dashboard']);
+  Route::get('/admin/client/dashboard', ['uses' => 'App\Http\Controllers\NewDashboardController@client_dashboard', 'as' => 'client_dashboard']);
+  Route::get('/admin/appointment/dashboard', ['uses' => 'App\Http\Controllers\NewDashboardController@appointment_charts', 'as' => 'appointment_charts']);
+  Route::get('/admin/appointment/missed/dashboard', ['uses' => 'App\Http\Controllers\NewDashboardController@missed_appointment_charts', 'as' => 'missed_appointment_charts']);
+  Route::get('/filter_charts', ['uses' => 'App\Http\Controllers\NewDashboardController@filter_charts', 'as' => 'filter_charts']);
+  Route::get('/filter_dashboard_charts', ['uses' => 'App\Http\Controllers\NewDashboardController@filter_dashboard_charts', 'as' => 'filter_dashboard_charts']);
+  Route::get('/filter_missed_appointment_charts', ['uses' => 'App\Http\Controllers\NewDashboardController@filter_missed_appointment_charts', 'as' => 'filter_missed_appointment_charts']);
+  Route::get('/filter_appointment_charts', ['uses' => 'App\Http\Controllers\NewDashboardController@filter_appointment_charts', 'as' => 'filter_appointment_charts']);
+  Route::get('/filter_client_charts', ['uses' => 'App\Http\Controllers\NewDashboardController@filter_client_charts', 'as' => 'filter_client_charts']);
+
+  // new linelists rooutes
+  Route::get('/new/clients/list', ['uses' => 'App\Http\Controllers\NewReportController@clients_list', 'as' => 'clients_list']);
+  Route::get('/new/appointment/list', ['uses' => 'App\Http\Controllers\NewReportController@appointment_list', 'as' => 'appointment_list']);
+  Route::get('/active/facilities/list', ['uses' => 'App\Http\Controllers\NewReportController@active_facility', 'as' => 'active_facilities_list']);
+  Route::get('/indicators/definition', ['uses' => 'App\Http\Controllers\NewReportController@indicators', 'as' => 'indicators']);
+  Route::get('/client/messages', ['uses' => 'App\Http\Controllers\NewReportController@client_message', 'as' => 'client_message']);
 });
-
-

@@ -11,8 +11,13 @@ class Facility extends Model
     public $table = 'tbl_master_facility';
     public $timestamps = false;
     public $incrementing = false;
-    
+
     protected $fillable = [
-        
+
     ];
+
+    public function client()
+    {
+        return $this->belongsTo(Client::class, 'mfl_code');
+    }
 }

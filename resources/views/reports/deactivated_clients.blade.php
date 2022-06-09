@@ -16,9 +16,10 @@
                     <div class="card text-left">
 
                         <div class="card-body">
-                        <! <h4 class="card-title mb-3">{{count($all_deactivated_clients)}} Deactivated clients</h4>
+                        <h4 class="card-title mb-3">{{count($all_deactivated_clients)}} Deactivated clients</h4>
+                        <h4 class="card-title mb-3">Showing {{count($all_deactivated_clients)}}</h4>
                             <div class="col-md-12" style="margin-top:10px; ">
-
+                                {{ $all_deactivated_clients->onEachSide(5)->links() }}
                             </div>
                                 <div class="table-responsive">
                                     <table id="multicolumn_ordering_table" class="display table table-striped table-bordered" style="width:100%">

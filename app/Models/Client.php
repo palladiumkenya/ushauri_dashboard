@@ -16,8 +16,20 @@ class Client extends Model
 
         'clinic_number', 'consent_date', 'smsenable', 'language_id', 'motivational_enable', 'txt_time', 'phone_no'
     ];
-    public function age() {
-        return $this->dob->diffInYears(\Carbon::now());
+//     protected $appends = ['age'];
+
+// public function getAgeAttribute()
+// {
+//     return Carbon::parse($this->attributes['dob'])->age;
+// }
+    public function appointment()
+    {
+        return $this->hasMany(Appointments::class, 'client_id');
+    }
+
+    Public function partner()
+    {
+        return $this->hasOne(Partner::class);
     }
 
 

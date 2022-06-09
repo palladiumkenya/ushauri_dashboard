@@ -21,7 +21,8 @@ class SMSReportController extends Controller
         $all_partners = Partner::where('status', '=', 'Active')->pluck('name', 'id');
 
         $delivered_partners = ClientOutgoing::join('tbl_client', 'tbl_clnt_outgoing.clnt_usr_id', '=', 'tbl_client.id')
-            ->join('tbl_partner', 'tbl_client.partner_id', '=', 'tbl_partner.id')
+            ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+            ->join('tbl_partner', 'tbl_partner_facility.partner_id', '=', 'tbl_partner.id')
             ->select('tbl_partner.name', DB::raw('count(tbl_clnt_outgoing.callback_status) as total'))
             ->where('tbl_clnt_outgoing.callback_status', '=', 'Success')
             ->groupBy('tbl_partner.name')
@@ -29,14 +30,16 @@ class SMSReportController extends Controller
             ->get();
         // dd($delivered_partners);
         $failed_partners = ClientOutgoing::join('tbl_client', 'tbl_clnt_outgoing.clnt_usr_id', '=', 'tbl_client.id')
-            ->join('tbl_partner', 'tbl_client.partner_id', '=', 'tbl_partner.id')
+            ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+            ->join('tbl_partner', 'tbl_partner_facility.partner_id', '=', 'tbl_partner.id')
             ->select('tbl_partner.name', DB::raw('count(tbl_clnt_outgoing.callback_status) as total'))
             ->where('tbl_clnt_outgoing.callback_status', '=', 'Failed')
             ->groupBy('tbl_partner.name')
             ->get();
 
         $cost_partners = ClientOutgoing::join('tbl_client', 'tbl_clnt_outgoing.clnt_usr_id', '=', 'tbl_client.id')
-            ->join('tbl_partner', 'tbl_client.partner_id', '=', 'tbl_partner.id')
+            ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+            ->join('tbl_partner', 'tbl_partner_facility.partner_id', '=', 'tbl_partner.id')
             ->select('tbl_partner.name', DB::raw("ROUND(SUM(SUBSTRING(tbl_clnt_outgoing.cost, 5)), 0) as total_cost"))
             ->groupBy('tbl_partner.name')
             ->get();
@@ -109,6 +112,7 @@ class SMSReportController extends Controller
             ->where('callback_status', '=', 'Failed')
             ->where('failure_reason', '=', 'DeliveryFailure')
             ->pluck('total_cost');
+
         // $rejected_blacklist_cost = ClientOutgoing::select(\DB::raw("ROUND(SUM(SUBSTRING(cost, 5)), 0) as total_cost"))
         //     ->where('callback_status', '=', 'Rejected')
         //     ->where('failure_reason', '=', 'UserInBlacklist')
@@ -121,6 +125,23 @@ class SMSReportController extends Controller
         //     ->where('callback_status', '=', 'Rejected')
         //     ->where('failure_reason', '=', 'DeliveryFailure')
         //     ->pluck('total_cost');
+
+//         $rejected_blacklist_cost = ClientOutgoing::select(\DB::raw("ROUND(SUM(SUBSTRING(cost, 5)), 0) as total_cost"))
+//             ->where('callback_status', '=', 'Rejected')
+//             ->where('failure_reason', '=', 'UserInBlacklist')
+//             ->pluck('total_cost');
+//         $rejected_inactive_cost = ClientOutgoing::select(\DB::raw("ROUND(SUM(SUBSTRING(cost, 5)), 0) as total_cost"))
+//             ->where('callback_status', '=', 'Rejected')
+//             ->where('failure_reason', '=', 'UserInactive')
+//             ->pluck('total_cost');
+//         $rejected_deliveryfailure_cost = ClientOutgoing::select(\DB::raw("ROUND(SUM(SUBSTRING(cost, 5)), 0) as total_cost"))
+//             ->where('callback_status', '=', 'Rejected')
+//             ->where('failure_reason', '=', 'DeliveryFailure')
+//             ->pluck('total_cost');
+        $total_cost = ClientOutgoing::select(\DB::raw("ROUND(SUM(SUBSTRING(cost, 5)), 0) as total_cost"))
+            ->whereNotNull('callback_status')
+            ->pluck('total_cost');
+
 
         $all_partners = Partner::where('status', '=', 'Active')
             ->pluck('name', 'id');
@@ -140,7 +161,8 @@ class SMSReportController extends Controller
             'delivered_partners',
             'failed_partners',
             'cost_partners',
-            'cost_counties'
+            'cost_counties',
+            'total_cost'
         ));
     }
 
@@ -456,6 +478,7 @@ class SMSReportController extends Controller
             ->where('failure_reason', '=', 'DeliveryFailure')
             ->whereDate('tbl_clnt_outgoing.created_at', '>=', date($request->from))->whereDate('tbl_clnt_outgoing.created_at', '<=', date($request->to))
             ->pluck('total_cost');
+
         // $rejected_blacklist_cost = ClientOutgoing::select(\DB::raw("ROUND(SUM(SUBSTRING(cost, 5)), 0) as total_cost"))
         //     ->where('callback_status', '=', 'Rejected')
         //     ->where('failure_reason', '=', 'UserInBlacklist')
@@ -472,6 +495,27 @@ class SMSReportController extends Controller
         //     ->whereDate('tbl_clnt_outgoing.created_at', '>=', date($request->from))->whereDate('tbl_clnt_outgoing.created_at', '<=', date($request->to))
         //     ->pluck('total_cost');
 
+//         $rejected_blacklist_cost = ClientOutgoing::select(\DB::raw("ROUND(SUM(SUBSTRING(cost, 5)), 0) as total_cost"))
+//             ->where('callback_status', '=', 'Rejected')
+//             ->where('failure_reason', '=', 'UserInBlacklist')
+//             ->whereDate('tbl_clnt_outgoing.created_at', '>=', date($request->from))->whereDate('tbl_clnt_outgoing.created_at', '<=', date($request->to))
+//             ->pluck('total_cost');
+//         $rejected_inactive_cost = ClientOutgoing::select(\DB::raw("ROUND(SUM(SUBSTRING(cost, 5)), 0) as total_cost"))
+//             ->where('callback_status', '=', 'Rejected')
+//             ->where('failure_reason', '=', 'UserInactive')
+//             ->whereDate('tbl_clnt_outgoing.created_at', '>=', date($request->from))->whereDate('tbl_clnt_outgoing.created_at', '<=', date($request->to))
+//             ->pluck('total_cost');
+//         $rejected_deliveryfailure_cost = ClientOutgoing::select(\DB::raw("ROUND(SUM(SUBSTRING(cost, 5)), 0) as total_cost"))
+//             ->where('callback_status', '=', 'Rejected')
+//             ->where('failure_reason', '=', 'DeliveryFailure')
+//             ->whereDate('tbl_clnt_outgoing.created_at', '>=', date($request->from))->whereDate('tbl_clnt_outgoing.created_at', '<=', date($request->to))
+//             ->pluck('total_cost');
+        $total_cost = ClientOutgoing::select(\DB::raw("ROUND(SUM(SUBSTRING(cost, 5)), 0) as total_cost"))
+            ->whereNotNull('callback_status')
+            ->whereDate('tbl_clnt_outgoing.created_at', '>=', date($request->from))->whereDate('tbl_clnt_outgoing.created_at', '<=', date($request->to))
+            ->pluck('total_cost');
+
+
         return view('sms.sms_report', compact(
             'success',
             'failed_blacklist',
@@ -486,7 +530,8 @@ class SMSReportController extends Controller
             'delivered_partners',
             'failed_partners',
             'cost_partners',
-            'cost_counties'
+            'cost_counties',
+            'total_cost'
         ));
     }
 }

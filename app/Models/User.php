@@ -6,6 +6,7 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Carbon\Carbon;
 
 class User extends Authenticatable
 {
@@ -20,6 +21,11 @@ class User extends Authenticatable
     protected $fillable = [
         'f_name', 'm_name', 'l_name', 'dob', 'e_mail', 'email', 'phone_no', 'partner_id', 'facility_id', 'donor_id', 'f_name', 'created_at', 'updated_at', 'status', 'first_access', 'access_level', 'daily_report', 'weekly_report', 'monthly_report', 'month3_report', 'month6_report', 'Yearly_report', 'view_client', 'role_id', 'clinic_id',
     ];
+    public function getAgeAttribute()
+{
+    // return $this->dob->diffInYears(\Carbon\Carbon::now())->format('Y-m-d');
+    return Carbon::parse($this->attributes['dob'])->age;
+}
 
     /**
      * The attributes that should be hidden for arrays.

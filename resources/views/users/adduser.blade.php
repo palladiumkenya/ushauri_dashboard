@@ -55,6 +55,7 @@
                             <label for="rolename">Role Name</label>
                             <select class="form-control" data-width="100%" id="rolename" name="rolename">
                                 <option value="">Please select </option>
+                                <option value=""> </option>
                                 <option></option>
                             </select>
                         </div>
@@ -239,6 +240,7 @@
 
 
                         $('select[name="rolename"]').empty();
+                        $('select[name="rolename"]').append('<option value="">Please select</option>');
                         $.each(data, function(key, value) {
                             $('select[name="rolename"]').append('<option value="' + key + '">' + value + '</option>');
                         });

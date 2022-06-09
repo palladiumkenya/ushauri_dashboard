@@ -191,19 +191,19 @@ class PmtcController extends Controller
     {
         if (Auth::user()->access_level == 'Admin') {
         $all_hei = Client::select('clinic_number', 'f_name', 'm_name', 'l_name', 'dob', 'client_status', 'phone_no', 'enrollment_date', 'art_date', 'hei_no')
-        ->whereNotNull('hei_no')->get();
+        ->whereNotNull('hei_no')->paginate(1000);
         }
 
         if (Auth::user()->access_level == 'Facility') {
             $all_hei = Client::select('clinic_number', 'f_name', 'm_name', 'l_name', 'dob', 'client_status', 'phone_no', 'enrollment_date', 'art_date', 'hei_no')
             ->where('mfl_code', Auth::user()->facility_id)
-            ->whereNotNull('hei_no')->get();
+            ->whereNotNull('hei_no')->paginate(1000);
         }
 
         if (Auth::user()->access_level == 'Partner') {
             $all_hei = Client::select('clinic_number', 'f_name', 'm_name', 'l_name', 'dob', 'client_status', 'phone_no', 'enrollment_date', 'art_date', 'hei_no')
             ->where('partner_id', Auth::user()->partner_id)
-            ->whereNotNull('hei_no')->get();
+            ->whereNotNull('hei_no')->paginate(1000);
         }
 
         return view('pmtct/all_heis', compact('all_hei'));

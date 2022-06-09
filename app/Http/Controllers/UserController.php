@@ -53,7 +53,7 @@ class UserController extends Controller
                     'tbl_clinic.id as clinic_id'
                 )
                 ->where('tbl_users.status', '=', 'Active')
-                ->where('tbl_users.partner_id', Auth::user()->partner_id)
+                ->where('tbl_users.partner_id', '=', Auth::user()->partner_id)
                 ->get();
         }
 
@@ -93,7 +93,6 @@ class UserController extends Controller
                 ->get();
         }
         $access_level = AccessLevel::all()->where('status', '=', 'Active');
-        $partners = Partner::all();
         $donors = Donor::all();
         $facilities = PartnerFacility::join('tbl_master_facility', 'tbl_partner_facility.mfl_code', '=', 'tbl_master_facility.code')
             ->select('tbl_partner_facility.id', 'tbl_master_facility.name', 'tbl_partner_facility.mfl_code as code')
@@ -104,9 +103,11 @@ class UserController extends Controller
         if (Auth::user()->access_level == 'Partner') {
             $roles = Role::all()->where('status', '=', 'Active')
                 ->where('access_level', '=', 'Facility');
+            $partners = Partner::all()->where('status', '=', 'Active')->where('id',  Auth::user()->partner_id);
         }
         if (Auth::user()->access_level == 'Admin') {
             $roles = Role::all()->where('status', '=', 'Active');
+            $partners = Partner::all()->where('status', '=', 'Active');
         }
         $sub_counties = SubCounty::all();
 
@@ -135,6 +136,7 @@ class UserController extends Controller
         $sub_counties = SubCounty::all();
         $access_level = AccessLevel::all()->where('status', '=', 'Active');
         if (Auth::user()->access_level == 'Partner') {
+            $partners = Partner::all()->where('status', '=', 'Active')->where('id',  Auth::user()->partner_id);
             $access_level = AccessLevel::all()->where('status', '=', 'Active')
                 // ->where('name', '=', 'Partner')
                 ->where('name', '=', 'Facility');

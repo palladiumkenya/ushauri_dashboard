@@ -26,6 +26,8 @@ class ClientListController extends Controller
         $all_clients = Client::select('tbl_clinic.name', 'tbl_client.file_no', 'tbl_client.file_no', DB::raw("CONCAT(`tbl_client`.`f_name`, ' ', `tbl_client`.`m_name`, ' ', `tbl_client`.`l_name`) as client_name"), 'tbl_groups.name AS group_name', 'tbl_client.dob', 'tbl_client.status', 'tbl_client.clinic_number', 'tbl_client.phone_no', 'tbl_client.created_at', 'tbl_client.enrollment_date', 'tbl_client.art_date', 'tbl_client.client_status')
             ->join('tbl_groups', 'tbl_groups.id', '=', 'tbl_client.group_id')
             ->join('tbl_clinic', 'tbl_clinic.id', '=', 'tbl_client.clinic_id')
+            ->where('tbl_client.status', '=', 'Active')
+            ->whereNull('tbl_client.hei_no')
             ->whereNotNull('tbl_client.clinic_number');
 
         if (Auth::user()->access_level == 'Facility') {
@@ -183,6 +185,7 @@ class ClientListController extends Controller
                     'tbl_marital_status.marital'
                 )
                 ->where('tbl_client.clinic_number', 'LIKE', '%' . $upn_search . '%')
+                ->whereNull('tbl_client.hei_no')
                 ->where('tbl_client.mfl_code', Auth::user()->facility_id)
                 ->get();
 
@@ -263,6 +266,7 @@ class ClientListController extends Controller
                 ->join('tbl_message_types', 'tbl_clnt_outgoing.message_type_id', '=', 'tbl_message_types.id')
                 ->select('tbl_client.clinic_number', 'tbl_message_types.name as message_type', 'tbl_clnt_outgoing.destination', 'tbl_clnt_outgoing.created_at', 'tbl_clnt_outgoing.msg')
                 ->where('tbl_client.clinic_number', 'LIKE', '%' . $upn_search . '%')
+                ->whereNull('tbl_client.hei_no')
                 ->where('tbl_client.mfl_code', Auth::user()->facility_id)
                 ->get();
             $appointment_outcome = Outcome::join('tbl_client', 'tbl_clnt_outcome.client_id', '=', 'tbl_client.id')
@@ -272,6 +276,7 @@ class ClientListController extends Controller
                 ->join('tbl_outcome', 'tbl_clnt_outcome.outcome', '=', 'tbl_outcome.id')
                 ->select('tbl_client.clinic_number', 'tbl_client.file_no', 'tbl_appointment.appntmnt_date', 'tbl_appointment_types.name as app_type', 'tbl_clnt_outcome.tracer_name', 'tbl_final_outcome.name as final_outcome', 'tbl_outcome.name as outcome')
                 ->where('tbl_client.clinic_number', 'LIKE', '%' . $upn_search . '%')
+                ->whereNull('tbl_client.hei_no')
                 ->where('tbl_client.mfl_code', Auth::user()->facility_id)
                 ->get();
         }
@@ -297,6 +302,7 @@ class ClientListController extends Controller
                     'client_report.created_at',
                     'client_report.month_year',
                     'client_report.LANGUAGE',
+                    'client_report.consented',
                     'client_report.txt_time',
                     'client_report.partner_name',
                     'client_report.county',
