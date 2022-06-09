@@ -270,21 +270,15 @@
                 Failed_absent = parseInt(data.failed_absent)
                 Failed_inactive = parseInt(data.failed_inactive)
                 Failed_deliveryfailure = parseInt(data.failed_deliveryfailure)
-                Rejected_blacklist = parseInt(data.rejected_blacklist)
-                Rejected_inactive = parseInt(data.rejected_inactive)
-                Rejected_deliveryfailure = parseInt(data.rejected_deliveryfailure)
 
                 Success_cost = parseInt(data.success_cost)
                 Failed_blacklist_cost = parseInt(data.failed_blacklist_cost)
                 Failed_absent_cost = parseInt(data.failed_absent_cost)
                 Failed_inactive_cost = parseInt(data.failed_inactive_cost)
                 Failed_deliveryfailure_cost = parseInt(data.failed_deliveryfailure_cost)
-                Rejected_blacklist_cost = parseInt(data.rejected_blacklist_cost)
-                Rejected_inactive_cost = parseInt(data.rejected_inactive_cost)
-                Rejected_deliveryfailure_cost = parseInt(data.rejected_deliveryfailure_cost)
 
-                smsAnalytics.series[0].setData([Success, Failed_blacklist, Failed_absent, Failed_deliveryfailure, Failed_inactive, Rejected_blacklist, Rejected_inactive, Rejected_deliveryfailure]);
-                costAnalytics.series[0].setData([Success_cost, Failed_backlist_cost, Failed_absent_cost, Failed_delivery_cost, Failed_inactive_cost, Rejected_blacklist_cost, Rejected_inactive_cost, Rejected_delivery_cost]);
+                smsAnalytics.series[0].setData([Success, Failed_blacklist, Failed_absent, Failed_deliveryfailure, Failed_inactive]);
+                costAnalytics.series[0].setData([Success_cost, Failed_backlist_cost, Failed_absent_cost, Failed_delivery_cost, Failed_inactive_cost]);
 
             }
         });
@@ -295,18 +289,18 @@
     var Failed_absent = <?php echo json_encode($failed_absent) ?>;
     var Failed_inactive = <?php echo json_encode($failed_inactive) ?>;
     var Failed_deliveryfailure = <?php echo json_encode($failed_deliveryfailure) ?>;
-    var Rejected_blacklist = <?php echo json_encode($rejected_blacklist) ?>;
-    var Rejected_inactive = <?php echo json_encode($rejected_inactive) ?>;
-    var Rejected_deliveryfailure = <?php echo json_encode($rejected_deliveryfailure) ?>;
+    // var Rejected_blacklist = <?php echo json_encode($rejected_blacklist) ?>;
+    // var Rejected_inactive = <?php echo json_encode($rejected_inactive) ?>;
+    // var Rejected_deliveryfailure = <?php echo json_encode($rejected_deliveryfailure) ?>;
 
     var Success_cost = <?php echo json_encode($success_cost) ?>;
     var Failed_backlist_cost = <?php echo json_encode($failed_blacklist_cost) ?>;
     var Failed_absent_cost = <?php echo json_encode($failed_absent_cost) ?>;
     var Failed_inactive_cost = <?php echo json_encode($failed_inactive_cost) ?>;
     var Failed_delivery_cost = <?php echo json_encode($failed_deliveryfailure_cost) ?>;
-    var Rejected_blacklist_cost = <?php echo json_encode($rejected_blacklist_cost) ?>;
-    var Rejected_inactive_cost = <?php echo json_encode($rejected_inactive_cost) ?>;
-    var Rejected_delivery_cost = <?php echo json_encode($rejected_deliveryfailure_cost) ?>;
+    // var Rejected_blacklist_cost = <?php echo json_encode($rejected_blacklist_cost) ?>;
+    // var Rejected_inactive_cost = <?php echo json_encode($rejected_inactive_cost) ?>;
+    // var Rejected_delivery_cost = <?php echo json_encode($rejected_deliveryfailure_cost) ?>;
 
     var partner_delivery = <?php echo json_encode($delivered_partners) ?>;
     console.log(partner_delivery);
@@ -316,10 +310,10 @@
             type: 'column'
         },
         title: {
-            text: 'SMS Status Analytics'
+            text: 'SMS Delivery Status Analytics'
         },
         xAxis: {
-            categories: ['Delivered', 'Failed Blacklist', 'Failed AbsentSubscriber', 'Failed DeliveryFailure', 'Failed Inactive', 'Rejected Inactive', 'Rejected Blacklist', 'Rejected DeliveryFailure']
+            categories: ['Delivered', 'Service Blacklisted', 'Phone off >48 Hours', 'Failure at Telco', 'Phone No. Inactive']
         },
         yAxis: {
             min: 0,
@@ -353,7 +347,7 @@
         },
         series: [{
                 name: 'SMS Count',
-                data: [Success, Failed_blacklist, Failed_absent, Failed_deliveryfailure, Failed_inactive, Rejected_inactive, Rejected_blacklist, Rejected_deliveryfailure]
+                data: [Success, Failed_blacklist, Failed_absent, Failed_deliveryfailure, Failed_inactive]
             }
             // {
             //     type: 'spline',
@@ -379,7 +373,7 @@
             text: 'SMS Cost Analytics'
         },
         xAxis: {
-            categories: ['Delivered', 'Failed Blacklist', 'Failed AbsentSubscriber', 'Failed DeliveryFailure', 'Failed Inactive', 'Rejected Inactive', 'Rejected Blacklist', 'Rejected DeliveryFailure']
+            categories: ['Delivered', 'Service Blacklisted', 'Phone off >48 Hours', 'Failure at Telco', 'Phone No. Inactive']
         },
         yAxis: {
             min: 0,
@@ -413,7 +407,7 @@
         },
         series: [{
                 name: 'Cost(Ksh)',
-                data: [Success_cost, Failed_backlist_cost, Failed_absent_cost, Failed_delivery_cost, Failed_inactive_cost, Rejected_inactive_cost, Rejected_blacklist_cost, Rejected_delivery_cost]
+                data: [Success_cost, Failed_backlist_cost, Failed_absent_cost, Failed_delivery_cost, Failed_inactive_cost]
             }
 
         ],
@@ -469,7 +463,7 @@
 
             },
             title: {
-                text: 'Partners Delivered SMS '
+                text: 'Delivered SMS By Partner'
             },
             xAxis: {
                 type: 'category'
@@ -543,7 +537,7 @@
 
             },
             title: {
-                text: 'Partners SMS Cost Distribution '
+                text: 'SMS Cost Distribution By Partner'
             },
             xAxis: {
                 type: 'category'
@@ -580,7 +574,7 @@
 
             },
             title: {
-                text: 'Counties SMS Cost Distribution '
+                text: 'SMS Cost Distribution By County'
             },
             xAxis: {
                 type: 'category'
