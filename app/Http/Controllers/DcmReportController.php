@@ -41,7 +41,7 @@ class DcmReportController extends Controller
                 ->join('tbl_appointment', 'tbl_client.id', '=', 'tbl_appointment.client_id')
                 ->selectRaw('tbl_client.clinic_number, tbl_client.f_name, tbl_client.m_name, tbl_client.l_name, tbl_dfc_module.duration_more, tbl_appointment.appntmnt_date')
                 ->where('tbl_client.mfl_code', Auth::user()->facility_id)
-                ->where('tbl_dfc_module.duration_more', '=', 'Unstable')->get();
+                ->where('tbl_dfc_module.duration_more', '=', 'Unstable')->paginate(1000);
         }
 
         if (Auth::user()->access_level == 'Partner') {
