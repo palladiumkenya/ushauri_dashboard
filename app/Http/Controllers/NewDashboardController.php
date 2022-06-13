@@ -131,7 +131,7 @@ class NewDashboardController extends Controller
             date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
             WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
             date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"), '=', '')
-            ->orWhereNull(\DB::raw("CASE
+                ->orWhereNull(\DB::raw("CASE
             WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
             date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
             WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
@@ -480,12 +480,12 @@ class NewDashboardController extends Controller
             });
             $client_consented_uknown_age = Cache::remember('client-consented-uknown-age', 10, function () {
                 return Client::select('smsenable')
-                ->where(\DB::raw("CASE
+                    ->where(\DB::raw("CASE
                 WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
                 date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
                 WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
                 date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"), '=', '')
-                ->orWhereNull(\DB::raw("CASE
+                    ->orWhereNull(\DB::raw("CASE
                 WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
                 date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
                 WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
@@ -546,7 +546,7 @@ class NewDashboardController extends Controller
                 date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
                 WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
                 date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"), '=', '')
-                ->orWhereNull(\DB::raw("CASE
+                    ->orWhereNull(\DB::raw("CASE
                 WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
                 date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
                 WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
@@ -693,7 +693,7 @@ class NewDashboardController extends Controller
                 date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
                 WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
                 date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"), '=', '')
-                ->orWhereNull(\DB::raw("CASE
+                    ->orWhereNull(\DB::raw("CASE
                 WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
                 date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
                 WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
@@ -760,7 +760,7 @@ class NewDashboardController extends Controller
                 date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
                 WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
                 date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"), '=', '')
-                ->orWhereNull(\DB::raw("CASE
+                    ->orWhereNull(\DB::raw("CASE
                 WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
                 date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
                 WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
@@ -815,48 +815,48 @@ class NewDashboardController extends Controller
             });
             // non consented clients by gender
             $client_nonconsented_male = Client::where('smsenable', '!=', 'Yes')
-                    ->where('status', '=', 'Active')
-                    ->whereNull('hei_no')
-                    ->where('gender', '=', '2')
-                    ->count();
+                ->where('status', '=', 'Active')
+                ->whereNull('hei_no')
+                ->where('gender', '=', '2')
+                ->count();
             $client_nonconsented_female = Client::where('smsenable', '!=', 'Yes')
-                    ->where('status', '=', 'Active')
-                    ->whereNull('hei_no')
-                    ->where('gender', '=', '1')
-                    ->count();
+                ->where('status', '=', 'Active')
+                ->whereNull('hei_no')
+                ->where('gender', '=', '1')
+                ->count();
             $client_nonconsented_uknown_gender = Client::where('smsenable', '!=', 'Yes')
-                    ->where('gender', '!=', '1')
-                    ->where('gender', '!=', '2')
-                    ->count();
+                ->where('gender', '!=', '1')
+                ->where('gender', '!=', '2')
+                ->count();
 
             // consented clients by age distribution
             $client_consented_to_nine = Client::select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) > 0) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 9)) then `tbl_client`.`id` end)) AS count"))
-                    ->where('smsenable', '=', 'Yes')
-                    ->where('status', '=', 'Active')
-                    ->whereNull('hei_no')
-                    ->pluck('count');
+                ->where('smsenable', '=', 'Yes')
+                ->where('status', '=', 'Active')
+                ->whereNull('hei_no')
+                ->pluck('count');
             $client_consented_to_fourteen = Client::select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 10) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 14)) then `tbl_client`.`id` end)) AS count"))
-                    ->where('smsenable', '=', 'Yes')
-                    ->where('status', '=', 'Active')
-                    ->whereNull('hei_no')
-                    ->pluck('count');
+                ->where('smsenable', '=', 'Yes')
+                ->where('status', '=', 'Active')
+                ->whereNull('hei_no')
+                ->pluck('count');
             $client_consented_to_nineteen = Client::select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 15) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 19)) then `tbl_client`.`id` end)) AS count"))
-                    ->where('smsenable', '=', 'Yes')
-                    ->where('status', '=', 'Active')
-                    ->whereNull('hei_no')
-                    ->pluck('count');
+                ->where('smsenable', '=', 'Yes')
+                ->where('status', '=', 'Active')
+                ->whereNull('hei_no')
+                ->pluck('count');
             $client_consented_to_twentyfour = Client::select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 20) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 24)) then `tbl_client`.`id` end)) AS count"))
-                    ->where('smsenable', '=', 'Yes')
-                    ->where('status', '=', 'Active')
-                    ->whereNull('hei_no')
-                    ->pluck('count');
+                ->where('smsenable', '=', 'Yes')
+                ->where('status', '=', 'Active')
+                ->whereNull('hei_no')
+                ->pluck('count');
             $client_consented_to_twentyfive_above = Client::select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 25)) then `tbl_client`.`id` end)) AS count"))
-                    ->where('smsenable', '=', 'Yes')
-                    ->where('status', '=', 'Active')
-                    ->whereNull('hei_no')
-                    ->pluck('count');
+                ->where('smsenable', '=', 'Yes')
+                ->where('status', '=', 'Active')
+                ->whereNull('hei_no')
+                ->pluck('count');
             $client_consented_uknown_age = Client::select('smsenable')
-                    ->where(\DB::raw("CASE
+                ->where(\DB::raw("CASE
                 WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
                 date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
                 WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
@@ -866,40 +866,40 @@ class NewDashboardController extends Controller
                 date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
                 WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
                 date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"))
-                    ->where('status', '=', 'Active')
-                    ->whereNull('hei_no')
-                    ->where('smsenable', '=', 'Yes')
-                    ->count();
+                ->where('status', '=', 'Active')
+                ->whereNull('hei_no')
+                ->where('smsenable', '=', 'Yes')
+                ->count();
             // non consented clients by age distribution
             $client_nonconsented_to_nine = Client::select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) > 0) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 9)) then `tbl_client`.`id` end)) AS count"))
-                    ->where('smsenable', '!=', 'Yes')
-                    ->where('status', '=', 'Active')
-                    ->whereNull('hei_no')
-                    ->pluck('count');
+                ->where('smsenable', '!=', 'Yes')
+                ->where('status', '=', 'Active')
+                ->whereNull('hei_no')
+                ->pluck('count');
             $client_nonconsented_to_fourteen = Client::select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 10) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 14)) then `tbl_client`.`id` end)) AS count"))
-                    ->where('smsenable', '!=', 'Yes')
-                    ->where('status', '=', 'Active')
-                    ->whereNull('hei_no')
-                    ->pluck('count');
+                ->where('smsenable', '!=', 'Yes')
+                ->where('status', '=', 'Active')
+                ->whereNull('hei_no')
+                ->pluck('count');
             $client_nonconsented_to_nineteen = Client::select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 15) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 19)) then `tbl_client`.`id` end)) AS count"))
-                    ->where('smsenable', '!=', 'Yes')
-                    ->where('status', '=', 'Active')
-                    ->whereNull('hei_no')
-                    ->pluck('count');
+                ->where('smsenable', '!=', 'Yes')
+                ->where('status', '=', 'Active')
+                ->whereNull('hei_no')
+                ->pluck('count');
             $client_nonconsented_to_twentyfour = Client::select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 20) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 24)) then `tbl_client`.`id` end)) AS count"))
-                    ->where('smsenable', '!=', 'Yes')
-                    ->where('status', '=', 'Active')
-                    ->whereNull('hei_no')
-                    ->pluck('count');
+                ->where('smsenable', '!=', 'Yes')
+                ->where('status', '=', 'Active')
+                ->whereNull('hei_no')
+                ->pluck('count');
             $client_nonconsented_to_twentyfive_above = Client::select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 25)) then `tbl_client`.`id` end)) AS count"))
-                    ->where('smsenable', '!=', 'Yes')
-                    ->where('status', '=', 'Active')
-                    ->whereNull('hei_no')
-                    ->pluck('count');
+                ->where('smsenable', '!=', 'Yes')
+                ->where('status', '=', 'Active')
+                ->whereNull('hei_no')
+                ->pluck('count');
             $client_nonconsented_uknown_age = Client::select('smsenable')
-                    ->where('status', '=', 'Active')
-                    ->whereNull('hei_no')
-                    ->where(\DB::raw("CASE
+                ->where('status', '=', 'Active')
+                ->whereNull('hei_no')
+                ->where(\DB::raw("CASE
                 WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
                 date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
                 WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
@@ -909,8 +909,8 @@ class NewDashboardController extends Controller
                 date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
                 WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
                 date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"))
-                    ->where('smsenable', '!=', 'Yes')
-                    ->count();
+                ->where('smsenable', '!=', 'Yes')
+                ->count();
         }
 
 
@@ -3144,7 +3144,7 @@ class NewDashboardController extends Controller
                 ->orderBy('tbl_appointment.created_at', 'DESC')
                 ->groupBy('tbl_partner_facility.mfl_code')
                 ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id);
-            $facilities_ever_enrolled = PartnerFacility::join('tbl_client', 'tbl_partner_facility.mfl_code', '=', 'tbl_client.mfl_code')
+            $facilities_ever_enrolled = PartnerFacility::select('tbl_partner_facility.mfl_code')
                 ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id);
             // active clients by gender
             $clients_male = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
