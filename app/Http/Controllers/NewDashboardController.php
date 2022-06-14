@@ -15,6 +15,7 @@ use App\Models\County;
 use App\Models\SubCounty;
 use App\Models\PartnerFacility;
 use App\Models\ActiveFacilities;
+use App\Models\Dcm;
 use App\Models\Indicator;
 use Auth;
 use Carbon\Carbon;
@@ -3144,8 +3145,7 @@ class NewDashboardController extends Controller
                 ->orderBy('tbl_appointment.created_at', 'DESC')
                 ->groupBy('tbl_partner_facility.mfl_code')
                 ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id);
-            $facilities_ever_enrolled = PartnerFacility::select('tbl_partner_facility.mfl_code')
-                ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id);
+            $facilities_ever_enrolled =  PartnerFacility::select('tbl_partner_facility.mfl_code')->where('tbl_partner_facility.partner_id', Auth::user()->partner_id);
             // active clients by gender
             $clients_male = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
                 ->select('tbl_client.id')
@@ -3343,7 +3343,7 @@ class NewDashboardController extends Controller
             $client = $client->where('tbl_partner_facility.county_id', $selected_counties);
             $client_ever_enrolled = $client_ever_enrolled->where('tbl_partner_facility.county_id', $selected_counties);
             $active_facilities = $active_facilities->where('tbl_partner_facility.county_id', $selected_counties);
-            $facilities_ever_enrolled = $facilities_ever_enrolled->where('tbl_partner_facility.county_id', $selected_counties);
+            $facilities_ever_enrolled = $facilities_ever_enrolled->where('county_id', $selected_counties);
             $clients_male = $clients_male->where('tbl_partner_facility.county_id', $selected_counties);
             $clients_female = $clients_female->where('tbl_partner_facility.county_id', $selected_counties);
             $unknown_gender = $unknown_gender->where('tbl_partner_facility.county_id', $selected_counties);
@@ -3358,7 +3358,7 @@ class NewDashboardController extends Controller
             $client = $client->where('tbl_partner_facility.sub_county_id', $selected_subcounties);
             $client_ever_enrolled = $client_ever_enrolled->where('tbl_partner_facility.sub_county_id', $selected_subcounties);
             $active_facilities = $active_facilities->where('tbl_partner_facility.sub_county_id', $selected_subcounties);
-            $facilities_ever_enrolled = $facilities_ever_enrolled->where('tbl_partner_facility.sub_county_id', $selected_subcounties);
+            $facilities_ever_enrolled = $facilities_ever_enrolled->where('sub_county_id', $selected_subcounties);
             $clients_male = $clients_male->where('tbl_partner_facility.sub_county_id', $selected_subcounties);
             $clients_female = $clients_female->where('tbl_partner_facility.sub_county_id', $selected_subcounties);
             $unknown_gender = $unknown_gender->where('tbl_partner_facility.sub_county_id', $selected_subcounties);
@@ -3403,7 +3403,7 @@ class NewDashboardController extends Controller
             $client = $client->join('tbl_dfc_module', 'tbl_client.id', '=', 'tbl_dfc_module.client_id');
             $client_ever_enrolled = $client_ever_enrolled->join('tbl_dfc_module', 'tbl_client.id', '=', 'tbl_dfc_module.client_id');
             $active_facilities = $active_facilities->join('tbl_dfc_module', 'tbl_client.id', '=', 'tbl_dfc_module.client_id');
-            $facilities_ever_enrolled = $facilities_ever_enrolled->join('tbl_client', 'tbl_partner_facility.mfl_code', '=', 'tbl_client.mfl_code')->join('tbl_dfc_module', 'tbl_client.id', '=', 'tbl_dfc_module.client_id')->groupBy('tbl_partner_facility.mfl_code');
+            $facilities_ever_enrolled = $facilities_ever_enrolled->join('tbl_client', 'tbl_partner_facility.mfl_code', '=', 'tbl_client.mfl_code')->join('tbl_dfc_module', 'tbl_client.id', '=', 'tbl_dfc_module.client_id')->groupBy('tbl_partner_facility.mfl_code')->having(DB::raw('count(tbl_client.mfl_code)'), '>', 0);
             $clients_male = $clients_male->join('tbl_dfc_module', 'tbl_client.id', '=', 'tbl_dfc_module.client_id');
             $clients_female = $clients_female->join('tbl_dfc_module', 'tbl_client.id', '=', 'tbl_dfc_module.client_id');
             $unknown_gender = $unknown_gender->join('tbl_dfc_module', 'tbl_client.id', '=', 'tbl_dfc_module.client_id');
@@ -3418,7 +3418,7 @@ class NewDashboardController extends Controller
             $client = $client->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id');
             $client_ever_enrolled = $client_ever_enrolled->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id');
             $active_facilities = $active_facilities->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id');
-            $facilities_ever_enrolled = $facilities_ever_enrolled->join('tbl_client', 'tbl_partner_facility.mfl_code', '=', 'tbl_client.mfl_code')->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id')->groupBy('tbl_partner_facility.mfl_code');
+            $facilities_ever_enrolled = $facilities_ever_enrolled->join('tbl_client', 'tbl_partner_facility.mfl_code', '=', 'tbl_client.mfl_code')->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id')->groupBy('tbl_partner_facility.mfl_code')->having(DB::raw('count(tbl_client.mfl_code)'), '>', 0);
             $clients_male = $clients_male->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id');
             $clients_female = $clients_female->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id');
             $unknown_gender = $unknown_gender->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id');
@@ -3430,7 +3430,7 @@ class NewDashboardController extends Controller
             $client_unknown_age = $client_unknown_age->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id');
         }
         $data["client"]        = $client->count();
-        $data["facilities_ever_enrolled"]        = $facilities_ever_enrolled->count('tbl_partner_facility.mfl_code');
+        $data["facilities_ever_enrolled"]        = $facilities_ever_enrolled->count('mfl_code');
         $data["client_ever_enrolled"]        = $client_ever_enrolled->count();
         $data["active_facilities"]        = $active_facilities->get()->count();
         $data["clients_male"]        = $clients_male->count();
