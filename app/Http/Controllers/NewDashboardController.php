@@ -3433,7 +3433,7 @@ class NewDashboardController extends Controller
             $client_unknown_age = $client_unknown_age->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id');
         }
         $data["client"]        = $client->count();
-        $data["facilities_ever_enrolled"]        = $facilities_ever_enrolled->count('mfl_code');
+        $data["facilities_ever_enrolled"]        = $facilities_ever_enrolled->count();
         $data["client_ever_enrolled"]        = $client_ever_enrolled->count();
         $data["active_facilities"]        = $active_facilities->get()->count();
         $data["clients_male"]        = $clients_male->count();
