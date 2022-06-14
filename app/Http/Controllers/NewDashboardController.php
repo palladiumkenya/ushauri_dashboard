@@ -3406,7 +3406,7 @@ class NewDashboardController extends Controller
             $client = $client->join('tbl_dfc_module', 'tbl_client.id', '=', 'tbl_dfc_module.client_id');
             $client_ever_enrolled = $client_ever_enrolled->join('tbl_dfc_module', 'tbl_client.id', '=', 'tbl_dfc_module.client_id');
             $active_facilities = $active_facilities->join('tbl_dfc_module', 'tbl_client.id', '=', 'tbl_dfc_module.client_id');
-            $facilities_ever_enrolled = $facilities_ever_enrolled->join('tbl_dfc_module', 'tbl_client.id', '=', 'tbl_dfc_module.client_id')->groupBy('tbl_partner_facility.mfl_code')->having(DB::raw('count(tbl_client.mfl_code)'), '>', 0);
+            $facilities_ever_enrolled = $facilities_ever_enrolled->join('tbl_dfc_module', 'tbl_client.id', '=', 'tbl_dfc_module.client_id')->groupBy('tbl_partner_facility.mfl_code');
             $clients_male = $clients_male->join('tbl_dfc_module', 'tbl_client.id', '=', 'tbl_dfc_module.client_id');
             $clients_female = $clients_female->join('tbl_dfc_module', 'tbl_client.id', '=', 'tbl_dfc_module.client_id');
             $unknown_gender = $unknown_gender->join('tbl_dfc_module', 'tbl_client.id', '=', 'tbl_dfc_module.client_id');
@@ -3421,7 +3421,7 @@ class NewDashboardController extends Controller
             $client = $client->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id');
             $client_ever_enrolled = $client_ever_enrolled->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id');
             $active_facilities = $active_facilities->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id');
-            $facilities_ever_enrolled = $facilities_ever_enrolled->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id')->groupBy('tbl_partner_facility.mfl_code')->having(DB::raw('count(tbl_client.mfl_code)'), '>', 0);
+            $facilities_ever_enrolled = $facilities_ever_enrolled->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id')->groupBy('tbl_partner_facility.mfl_code');
             $clients_male = $clients_male->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id');
             $clients_female = $clients_female->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id');
             $unknown_gender = $unknown_gender->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id');
@@ -3433,7 +3433,7 @@ class NewDashboardController extends Controller
             $client_unknown_age = $client_unknown_age->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id');
         }
         $data["client"]        = $client->count();
-        $data["facilities_ever_enrolled"]        = $facilities_ever_enrolled->count();
+        $data["facilities_ever_enrolled"]        = $facilities_ever_enrolled->having(DB::raw('count(tbl_client.mfl_code)'), '>', 0)->count();
         $data["client_ever_enrolled"]        = $client_ever_enrolled->count();
         $data["active_facilities"]        = $active_facilities->get()->count();
         $data["clients_male"]        = $clients_male->count();
