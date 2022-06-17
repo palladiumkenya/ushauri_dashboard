@@ -285,7 +285,7 @@ class ClientListController extends Controller
 
             $hei_profile = Pmtct::join('tbl_client', 'tbl_pmtct.client_id', '=', 'tbl_client.id')
                 ->join('tbl_gender', 'tbl_pmtct.hei_gender', '=', 'tbl_gender.id')
-                ->join('tbl_caregiver_not_on_care', 'tbl_pmtct.care_give_id', '=', 'tbl_caregiver_not_on_care.id')
+                ->join('tbl_caregiver_not_on_care', 'tbl_pmtct.care_giver_id', '=', 'tbl_caregiver_not_on_care.id')
                 ->select(
                     DB::raw("CONCAT(`tbl_pmtct`.`hei_first_name`, ' ', `tbl_pmtct`.`hei_middle_name`, ' ', `tbl_pmtct`.`hei_last_name`) as hei_name"),
                     'tbl_pmtct.hei_no',
