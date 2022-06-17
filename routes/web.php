@@ -71,6 +71,7 @@ Route::group(['middleware' => 'auth'], function () {
   Route::get('/add/clients', ['uses' => 'App\Http\Controllers\ClientController@index', 'as' => 'new_client']);
   Route::post('/new/clients', ['uses' => 'App\Http\Controllers\ClientController@add_client', 'as' => 'add_client']);
   Route::get('/profile_search', ['uses' => 'App\Http\Controllers\ClientListController@profile_search', 'as' => 'profile_search']);
+  Route::get('/profile_search_hei', ['uses' => 'App\Http\Controllers\ClientListController@profile_search_hei', 'as' => 'profile_search_hei']);
   Route::get('/report/clients/list', ['uses' => 'App\Http\Controllers\ClientListController@get_client_list', 'as' => 'report-clients-list']);
   Route::get('/report/clients/extract', ['uses' => 'App\Http\Controllers\ClientListController@client_extract', 'as' => 'clients-extract']);
   Route::get('/get/clients/extract', ['uses' => 'App\Http\Controllers\ClientListController@filter_client_extract', 'as' => 'filter-clients-extract']);

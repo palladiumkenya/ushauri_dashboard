@@ -258,7 +258,7 @@ class BulkUploadController extends Controller
         $data = array();
 
         if (($handle = fopen($filename, 'r')) !== false) {
-            while (($row = fgetcsv($handle, 10000, $delimiter)) !== false) {
+            while (($row = fgetcsv($handle, 12000, $delimiter)) !== false) {
                 if (!$header) {
                     // print_r("header not empty");
                     $header = $row;

@@ -14,6 +14,7 @@ use App\Models\Outcome;
 use App\Models\Message;
 use App\Models\Facility;
 use App\Models\ClientReport;
+use App\Models\Pmtct;
 use Auth;
 use DB;
 
@@ -279,12 +280,69 @@ class ClientListController extends Controller
                 ->whereNull('tbl_client.hei_no')
                 ->where('tbl_client.mfl_code', Auth::user()->facility_id)
                 ->get();
+
+            $hei_search = $request->input('hei_search');
+
+            $hei_profile = Pmtct::join('tbl_client', 'tbl_pmtct.client_id', '=', 'tbl_client.id')
+                ->join('tbl_gender', 'tbl_pmtct.hei_gender', '=', 'tbl_gender.id')
+                ->join('tbl_caregiver_not_on_care', 'tbl_pmtct.care_give_id', '=', 'tbl_caregiver_not_on_care.id')
+                ->select(
+                    DB::raw("CONCAT(`tbl_pmtct`.`hei_first_name`, ' ', `tbl_pmtct`.`hei_middle_name`, ' ', `tbl_pmtct`.`hei_last_name`) as hei_name"),
+                    'tbl_pmtct.hei_no',
+                    'tbl_pmtct.hei_dob',
+                    'tbl_gender.name as gender',
+                    'tbl_client.clinic_number',
+                    DB::raw("CONCAT(`tbl_caregiver_not_on_care`.`care_giver_fname`, ' ', `tbl_caregiver_not_on_care`.`care_giver_mname`, ' ', `tbl_caregiver_not_on_care`.`care_giver_lname`) as caregiver_name")
+                )
+                ->where('tbl_pmtct.hei_no', 'LIKE', '%' . $hei_search . '%')
+                ->where('tbl_client.mfl_code', Auth::user()->facility_id)
+                ->get();
         }
-        //dd($data);
-        return view('clients.client_profile', compact('client_profile', 'total_appointments', 'future_appointment', 'kept_appointment', 'missed_app', 'defaulted_app', 'ltfu_app', 'refill_app', 'clinical_app', 'adherence_app', 'lab_app', 'viral_app', 'other_app', 'outgoing_msg', 'appointment_outcome'));
+        //dd($hei_profile);
+        return view('clients.client_profile', compact(
+            'client_profile',
+            'total_appointments',
+            'future_appointment',
+            'kept_appointment',
+            'missed_app',
+            'defaulted_app',
+            'ltfu_app',
+            'refill_app',
+            'clinical_app',
+            'adherence_app',
+            'lab_app',
+            'viral_app',
+            'other_app',
+            'outgoing_msg',
+            'appointment_outcome',
+            'hei_profile'
+        ));
     }
 
+    public function profile_search_hei(Request $request)
+    {
+        if (Auth::user()->access_level == 'Facility') {
+            $hei_search = $request->input('hei_search');
 
+            $hei_profile = Pmtct::join('tbl_client', 'tbl_pmtct.client_id', '=', 'tbl_client.id')
+                ->join('tbl_gender', 'tbl_pmtct.hei_gender', '=', 'tbl_gender.id')
+                ->join('tbl_caregiver_not_on_care', 'tbl_pmtct.care_give_id', '=', 'tbl_caregiver_not_on_care.id')
+                ->select(
+                    DB::raw("CONCAT(`tbl_pmtct`.`hei_first_name`, ' ', `tbl_pmtct`.`hei_middle_name`, ' ', `tbl_pmtct`.`hei_last_name`) as hei_name"),
+                    'tbl_pmtct.hei_no',
+                    'tbl_pmtct.hei_dob',
+                    'tbl_gender.name as gender',
+                    'tbl_client.clinic_number',
+                    DB::raw("CONCAT(`tbl_caregiver_not_on_care`.`care_giver_fname`, ' ', `tbl_caregiver_not_on_care`.`care_giver_mname`, ' ', `tbl_caregiver_not_on_care`.`care_giver_lname`) as caregiver_name")
+                )
+                ->where('tbl_pmtct.hei_no', 'LIKE', '%' . $hei_search . '%')
+                ->where('tbl_client.mfl_code', Auth::user()->facility_id)
+                ->get();
+
+            // dd($hei_profile);
+        }
+        return view('clients.client_profile', compact('hei_profile'));
+    }
 
     public function client_extract()
     {
