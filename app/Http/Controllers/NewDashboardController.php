@@ -3421,7 +3421,7 @@ class NewDashboardController extends Controller
             $client = $client->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id');
             $client_ever_enrolled = $client_ever_enrolled->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id');
             $active_facilities = $active_facilities->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id');
-            $facilities_ever_enrolled = $facilities_ever_enrolled->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id')->groupBy('tbl_partner_facility.mfl_code');
+            $facilities_ever_enrolled = $facilities_ever_enrolled->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id')->groupBy('tbl_partner_facility.mfl_code')->having(DB::raw('count(tbl_client.mfl_code)'), '>', 0);
             $clients_male = $clients_male->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id');
             $clients_female = $clients_female->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id');
             $unknown_gender = $unknown_gender->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id');
