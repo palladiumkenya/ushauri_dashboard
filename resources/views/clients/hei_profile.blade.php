@@ -7,13 +7,14 @@
 @section('main-content')
 <div class="breadcrumb">
     <ul>
-        <li><a href="">Client Profile</a></li>
+        <li><a href="">HEI Profile</a></li>
         <li></li>
     </ul>
 </div>
 <nav>
     <div class="nav nav-tabs" id="nav-tab" role="tablist">
-        <a class="nav-item nav-link active" id="nav-dashboard-tab" data-toggle="tab" href="#nav-dashboard" role="tab" aria-controls="nav-dashboard" aria-selected="true">Client Profile</a>
+        <a class="nav-item nav-link active" id="nav-dashboard-tab" data-toggle="tab" href="#nav-dashboard" role="tab" aria-controls="nav-dashboard" aria-selected="true">HEI Profile</a>
+
     </div>
 </nav>
 <div class="tab-content" id="nav-tabContent">
@@ -25,29 +26,29 @@
                     <div style="margin-bottom:10px; ">
                         <div class="Search_Modal" style="display: inline;">
                             <!-- Button to Open the Modal -->
-                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal"> <i class="fa fa-search"></i>
-                                Search Client
+                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#heiModal"> <i class="fa fa-search"></i>
+                                Search HEI
                             </button>
                         </div>
 
                         <!-- The Modal -->
-                        <div class="modal" id="myModal">
+                        <div class="modal" id="heiModal">
                             <div class="modal-dialog">
                                 <div class="modal-content">
 
                                     <!-- Modal Header -->
                                     <div class="modal-header">
-                                        <h4 class="modal-title">Search Client</h4>
+                                        <h4 class="modal-title">Search HEI</h4>
                                         <button type="button" class="close" data-dismiss="modal">&times;</button>
                                     </div>
-                                    <form role="form" method="get" action="{{route('profile_search')}}">
+                                    <form role="form" method="get" action="{{route('profile_search_hei')}}">
                                         {{ csrf_field() }}
 
                                         <!-- Modal body -->
                                         <div class="modal-body">
 
                                             <div class="search_field">
-                                                <input type="text" class="upn_search form-control" id="upn_search" name="upn_search" placeholder="Please Enter UPN No : " />
+                                                <input type="text" class="hei_search form-control" id="hei_search" name="hei_search" placeholder="Please Enter HEI No : " />
                                             </div>
 
                                             <div class="loading_div" style="display: none;">
@@ -95,48 +96,27 @@
                                                                 <tr>
                                                                     <th>No</th>
                                                                     <th>Full Name</th>
-                                                                    <th>Mobile</th>
-                                                                    <th>Marital Status</th>
-                                                                    <th>Language</th>
-                                                                    <th>Client Condition</th>
-                                                                    <th>Date of Birth</th>
-                                                                    <th>Enrollment Date</th>
-                                                                    <th>ART Date</th>
-                                                                    <th>Group</th>
-                                                                    <th>Status</th>
-                                                                    <th>CCC Number</th>
-                                                                    <th>File Number</th>
+                                                                    <th>HEI No</th>
                                                                     <th>Gender</th>
-                                                                    <th>Sms Enable</th>
-                                                                    <th>Consent Date</th>
-
+                                                                    <th>DOB</th>
+                                                                    <th>Mother CCC No</th>
+                                                                    <th>Care Giver Name</th>
                                                                 </tr>
                                                             </thead>
                                                             <tbody>
-
-                                                                @if (count($client_profile) > 0)
-                                                                @foreach($client_profile as $result)
+                                                                @if (count($hei_profile) > 0)
+                                                                @foreach($hei_profile as $result)
                                                                 <tr>
                                                                     <td> {{$loop->iteration }}</td>
-                                                                    <td> {{$result->client_name }}</td>
-                                                                    <td> {{$result->phone_no}}</td>
-                                                                    <td> {{$result->marital}}</td>
-                                                                    <td> {{$result->language}}</td>
-                                                                    <td> {{$result->client_status}}</td>
-                                                                    <td> {{$result->dob}}</td>
-                                                                    <td> {{$result->enrollment_date}}</td>
-                                                                    <td> {{$result->art_date}}</td>
-                                                                    <td> {{$result->group_name}}</td>
-                                                                    <td> {{$result->status}}</td>
-                                                                    <td> {{$result->clinic_number}}</td>
-                                                                    <td> {{$result->file_no}}</td>
+                                                                    <td> {{$result->hei_name }}</td>
+                                                                    <td> {{$result->hei_no}}</td>
                                                                     <td> {{$result->gender}}</td>
-                                                                    <td> {{$result->smsenable}}</td>
-                                                                    <td> {{$result->consent_date}}</td>
+                                                                    <td> {{$result->hei_dob}}</td>
+                                                                    <td> {{$result->clinic_number}}</td>
+                                                                    <td> {{$result->caregiver_name}}</td>
                                                                 </tr>
                                                                 @endforeach
                                                                 @endif
-
                                                             </tbody>
 
                                                         </table>
@@ -205,7 +185,7 @@
                                                             <thead>
                                                                 <tr>
                                                                     <th>No</th>
-                                                                    <th>Clinic Number</th>
+                                                                    <th>HEI Number</th>
                                                                     <th>Phone Number</th>
                                                                     <th>Message Type</th>
                                                                     <th>Message</th>
@@ -220,7 +200,7 @@
                                                                 @foreach($outgoing_msg as $result)
                                                                 <tr>
                                                                     <td> {{$loop->iteration }}</td>
-                                                                    <td> {{$result->clinic_number}}</td>
+                                                                    <td> {{$result->hei_no}}</td>
                                                                     <td> {{$result->destination}}</td>
                                                                     <td> {{$result->message_type}}</td>
                                                                     <td> {{$result->msg}}</td>
@@ -274,8 +254,7 @@
                                                             <thead>
                                                                 <tr>
                                                                     <th>No</th>
-                                                                    <th>Clinic Number</th>
-                                                                    <th>File No</th>
+                                                                    <th>HEI Number</th>
                                                                     <th>Appointment Date</th>
                                                                     <th>Appointment Type</th>
                                                                     <th>Tracer Name</th>
@@ -286,13 +265,11 @@
                                                                 </tr>
                                                             </thead>
                                                             <tbody>
-
                                                                 @if (count($appointment_outcome) > 0)
                                                                 @foreach($appointment_outcome as $result)
                                                                 <tr>
                                                                     <td> {{$loop->iteration }}</td>
-                                                                    <td> {{$result->clinic_number}}</td>
-                                                                    <td> {{$result->file_no}}</td>
+                                                                    <td> {{$result->hei_no}}</td>
                                                                     <td> {{$result->appntmnt_date}}</td>
                                                                     <td> {{$result->app_type}}</td>
                                                                     <td> {{$result->tracer_name}}</td>
@@ -302,6 +279,7 @@
                                                                 </tr>
                                                                 @endforeach
                                                                 @endif
+
 
                                                             </tbody>
 
@@ -330,7 +308,6 @@
             </div>
         </div>
     </div>
-
 </div>
 
 

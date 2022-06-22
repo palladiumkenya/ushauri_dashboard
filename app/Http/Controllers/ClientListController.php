@@ -93,7 +93,7 @@ class ClientListController extends Controller
                 ->count();
             $kept_appointment = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
                 ->select('tbl_appointment.id')
-                ->where('tbl_appointment.appointment_kept', '=', 'Yes')
+                ->where('tbl_appointment.date_attended', '=', DB::raw('tbl_appointment.appntmnt_date'))
                 ->where('tbl_client.mfl_code', Auth::user()->facility_id)
                 ->count();
             $missed_app = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
@@ -154,9 +154,40 @@ class ClientListController extends Controller
                 ->select('tbl_client.clinic_number', 'tbl_client.file_no', 'tbl_appointment.appntmnt_date', 'tbl_appointment_types.name as app_type', 'tbl_clnt_outcome.tracer_name', 'tbl_final_outcome.name as final_outcome', 'tbl_outcome.name as outcome')
                 ->where('tbl_client.mfl_code', Auth::user()->facility_id)
                 ->paginate(1);
+
+            $hei_profile = Pmtct::join('tbl_client', 'tbl_pmtct.client_id', '=', 'tbl_client.id')
+                ->join('tbl_gender', 'tbl_pmtct.hei_gender', '=', 'tbl_gender.id')
+                ->join('tbl_caregiver_not_on_care', 'tbl_pmtct.care_giver_id', '=', 'tbl_caregiver_not_on_care.id')
+                ->select(
+                    DB::raw("CONCAT(`tbl_pmtct`.`hei_first_name`, ' ', `tbl_pmtct`.`hei_middle_name`, ' ', `tbl_pmtct`.`hei_last_name`) as hei_name"),
+                    'tbl_pmtct.hei_no',
+                    'tbl_pmtct.hei_dob',
+                    'tbl_gender.name as gender',
+                    'tbl_client.clinic_number',
+                    DB::raw("CONCAT(`tbl_caregiver_not_on_care`.`care_giver_fname`, ' ', `tbl_caregiver_not_on_care`.`care_giver_mname`, ' ', `tbl_caregiver_not_on_care`.`care_giver_lname`) as caregiver_name")
+                )
+                ->where('tbl_client.mfl_code', Auth::user()->facility_id)
+                ->paginate(1);
         }
         //dd($data);
-        return view('clients.client_profile', compact('client_profile', 'total_appointments', 'future_appointment', 'kept_appointment', 'missed_app', 'defaulted_app', 'ltfu_app', 'refill_app', 'clinical_app', 'adherence_app', 'lab_app', 'viral_app', 'other_app', 'outgoing_msg', 'appointment_outcome'));
+        return view('clients.client_profile', compact(
+            'client_profile',
+            'total_appointments',
+            'future_appointment',
+            'kept_appointment',
+            'missed_app',
+            'defaulted_app',
+            'ltfu_app',
+            'refill_app',
+            'clinical_app',
+            'adherence_app',
+            'lab_app',
+            'viral_app',
+            'other_app',
+            'outgoing_msg',
+            'appointment_outcome',
+            'hei_profile'
+        ));
     }
 
     public function profile_search(Request $request)
@@ -205,7 +236,7 @@ class ClientListController extends Controller
                 ->count();
             $kept_appointment = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
                 ->select('tbl_appointment.id')
-                ->where('tbl_appointment.appointment_kept', '=', 'Yes')
+                ->where('tbl_appointment.date_attended', '=', DB::raw('tbl_appointment.appntmnt_date'))
                 ->where('tbl_client.clinic_number', 'LIKE', '%' . $upn_search . '%')
                 ->where('tbl_client.mfl_code', Auth::user()->facility_id)
                 ->count();
@@ -294,7 +325,7 @@ class ClientListController extends Controller
                     'tbl_client.clinic_number',
                     DB::raw("CONCAT(`tbl_caregiver_not_on_care`.`care_giver_fname`, ' ', `tbl_caregiver_not_on_care`.`care_giver_mname`, ' ', `tbl_caregiver_not_on_care`.`care_giver_lname`) as caregiver_name")
                 )
-                ->where('tbl_pmtct.hei_no', 'LIKE', '%' . $hei_search . '%')
+                ->where('tbl_pmtct.hei_no', $hei_search)
                 ->where('tbl_client.mfl_code', Auth::user()->facility_id)
                 ->get();
         }
@@ -318,6 +349,131 @@ class ClientListController extends Controller
             'hei_profile'
         ));
     }
+    public function get_hei_profile()
+    {
+        if (Auth::user()->access_level == 'Facility') {
+
+            $total_appointments = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->select('tbl_appointment.id')
+                ->whereNotNull('tbl_client.hei_no')
+                ->where('tbl_client.mfl_code', Auth::user()->facility_id)
+                ->count();
+            $future_appointment = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->select('tbl_appointment.id')
+                ->where('tbl_appointment.appntmnt_date', '>=', Now())
+                ->whereNotNull('tbl_client.hei_no')
+                ->where('tbl_client.mfl_code', Auth::user()->facility_id)
+                ->count();
+            $kept_appointment = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->select('tbl_appointment.id')
+                ->where('tbl_appointment.date_attended', '=', DB::raw('tbl_appointment.appntmnt_date'))
+                ->whereNotNull('tbl_client.hei_no')
+                ->where('tbl_client.mfl_code', Auth::user()->facility_id)
+                ->count();
+            $missed_app = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->select('tbl_appointment.id')
+                ->where('tbl_appointment.app_status', '=', 'Missed')
+                ->whereNotNull('tbl_client.hei_no')
+                ->where('tbl_client.mfl_code', Auth::user()->facility_id)
+                ->count();
+            $defaulted_app = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->select('tbl_appointment.id')
+                ->where('tbl_appointment.app_status', '=', 'Defaulted')
+                ->whereNotNull('tbl_client.hei_no')
+                ->where('tbl_client.mfl_code', Auth::user()->facility_id)
+                ->count();
+            $ltfu_app = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->select('tbl_appointment.id')
+                ->where('tbl_appointment.app_status', '=', 'LTFU')
+                ->whereNotNull('tbl_client.hei_no')
+                ->where('tbl_client.mfl_code', Auth::user()->facility_id)
+                ->count();
+            $refill_app = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->select('tbl_appointment.id')
+                ->where('tbl_appointment.app_type_1', '=', '1')
+                ->whereNotNull('tbl_client.hei_no')
+                ->where('tbl_client.mfl_code', Auth::user()->facility_id)
+                ->count();
+            $clinical_app = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->select('tbl_appointment.id')
+                ->where('tbl_appointment.app_type_1', '=', '2')
+                ->whereNotNull('tbl_client.hei_no')
+                ->where('tbl_client.mfl_code', Auth::user()->facility_id)
+                ->count();
+            $adherence_app = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->select('tbl_appointment.id')
+                ->where('tbl_appointment.app_type_1', '=', '3')
+                ->whereNotNull('tbl_client.hei_no')
+                ->where('tbl_client.mfl_code', Auth::user()->facility_id)
+                ->count();
+            $lab_app = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->select('tbl_appointment.id')
+                ->where('tbl_appointment.app_type_1', '=', '4')
+                ->whereNotNull('tbl_client.hei_no')
+                ->where('tbl_client.mfl_code', Auth::user()->facility_id)
+                ->count();
+            $viral_app = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->select('tbl_appointment.id')
+                ->where('tbl_appointment.app_type_1', '=', '5')
+                ->whereNotNull('tbl_client.hei_no')
+                ->where('tbl_client.mfl_code', Auth::user()->facility_id)
+                ->count();
+            $other_app = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->select('tbl_appointment.id')
+                ->where('tbl_appointment.app_type_1', '=', '6')
+                ->whereNotNull('tbl_client.hei_no')
+                ->where('tbl_client.mfl_code', Auth::user()->facility_id)
+                ->count();
+            $outgoing_msg = Message::join('tbl_client', 'tbl_clnt_outgoing.clnt_usr_id', '=', 'tbl_client.id')
+                ->join('tbl_message_types', 'tbl_clnt_outgoing.message_type_id', '=', 'tbl_message_types.id')
+                ->select('tbl_client.clinic_number', 'tbl_client.hei_no', 'tbl_message_types.name as message_type', 'tbl_clnt_outgoing.destination', 'tbl_clnt_outgoing.created_at', 'tbl_clnt_outgoing.msg')
+                ->whereNotNull('tbl_client.hei_no')
+                ->where('tbl_client.mfl_code', Auth::user()->facility_id)
+                ->paginate(1);
+            $appointment_outcome = Outcome::join('tbl_client', 'tbl_clnt_outcome.client_id', '=', 'tbl_client.id')
+                ->join('tbl_appointment', 'tbl_clnt_outcome.appointment_id', '=', 'tbl_appointment.id')
+                ->join('tbl_appointment_types', 'tbl_appointment.app_type_1', '=', 'tbl_appointment_types.id')
+                ->join('tbl_final_outcome', 'tbl_clnt_outcome.fnl_outcome', '=', 'tbl_final_outcome.id')
+                ->join('tbl_outcome', 'tbl_clnt_outcome.outcome', '=', 'tbl_outcome.id')
+                ->select('tbl_client.clinic_number', 'tbl_client.hei_no', 'tbl_client.file_no', 'tbl_appointment.appntmnt_date', 'tbl_appointment_types.name as app_type', 'tbl_clnt_outcome.tracer_name', 'tbl_final_outcome.name as final_outcome', 'tbl_outcome.name as outcome')
+                ->whereNotNull('tbl_client.hei_no')
+                ->where('tbl_client.mfl_code', Auth::user()->facility_id)
+                ->paginate(1);
+
+            $hei_profile = Pmtct::join('tbl_client', 'tbl_pmtct.client_id', '=', 'tbl_client.id')
+                ->join('tbl_gender', 'tbl_pmtct.hei_gender', '=', 'tbl_gender.id')
+                ->leftJoin('tbl_caregiver_not_on_care', 'tbl_pmtct.care_giver_id', '=', 'tbl_caregiver_not_on_care.id')
+                ->select(
+                    DB::raw("CONCAT(`tbl_pmtct`.`hei_first_name`, ' ', `tbl_pmtct`.`hei_middle_name`, ' ', `tbl_pmtct`.`hei_last_name`) as hei_name"),
+                    'tbl_pmtct.hei_no',
+                    'tbl_pmtct.hei_dob',
+                    'tbl_gender.name as gender',
+                    'tbl_client.clinic_number',
+                    DB::raw("CONCAT(`tbl_caregiver_not_on_care`.`care_giver_fname`, ' ', `tbl_caregiver_not_on_care`.`care_giver_mname`, ' ', `tbl_caregiver_not_on_care`.`care_giver_lname`) as caregiver_name")
+                )
+                ->where('tbl_client.mfl_code', Auth::user()->facility_id)
+                ->get();
+
+            // dd($appointment_outcome);
+        }
+        return view('clients.hei_profile', compact(
+            'hei_profile',
+            'total_appointments',
+            'future_appointment',
+            'kept_appointment',
+            'missed_app',
+            'defaulted_app',
+            'ltfu_app',
+            'refill_app',
+            'clinical_app',
+            'adherence_app',
+            'lab_app',
+            'viral_app',
+            'other_app',
+            'outgoing_msg',
+            'appointment_outcome'
+        ));
+    }
 
     public function profile_search_hei(Request $request)
     {
@@ -326,7 +482,7 @@ class ClientListController extends Controller
 
             $hei_profile = Pmtct::join('tbl_client', 'tbl_pmtct.client_id', '=', 'tbl_client.id')
                 ->join('tbl_gender', 'tbl_pmtct.hei_gender', '=', 'tbl_gender.id')
-                ->join('tbl_caregiver_not_on_care', 'tbl_pmtct.care_give_id', '=', 'tbl_caregiver_not_on_care.id')
+                ->leftJoin('tbl_caregiver_not_on_care', 'tbl_pmtct.care_giver_id', '=', 'tbl_caregiver_not_on_care.id')
                 ->select(
                     DB::raw("CONCAT(`tbl_pmtct`.`hei_first_name`, ' ', `tbl_pmtct`.`hei_middle_name`, ' ', `tbl_pmtct`.`hei_last_name`) as hei_name"),
                     'tbl_pmtct.hei_no',
@@ -338,10 +494,141 @@ class ClientListController extends Controller
                 ->where('tbl_pmtct.hei_no', 'LIKE', '%' . $hei_search . '%')
                 ->where('tbl_client.mfl_code', Auth::user()->facility_id)
                 ->get();
+            $total_appointments = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id')
+                ->select('tbl_appointment.id')
+                ->whereNotNull('tbl_client.hei_no')
+                ->where('tbl_pmtct.hei_no', 'LIKE', '%' . $hei_search . '%')
+                ->where('tbl_client.mfl_code', Auth::user()->facility_id)
+                ->count();
+            $future_appointment = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id')
+                ->select('tbl_appointment.id')
+                ->where('tbl_appointment.appntmnt_date', '>=', Now())
+                ->whereNotNull('tbl_client.hei_no')
+                ->where('tbl_pmtct.hei_no', 'LIKE', '%' . $hei_search . '%')
+                ->where('tbl_client.mfl_code', Auth::user()->facility_id)
+                ->count();
+            $kept_appointment = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id')
+                ->select('tbl_appointment.id')
+                ->where('tbl_appointment.date_attended', '=', DB::raw('tbl_appointment.appntmnt_date'))
+                ->whereNotNull('tbl_client.hei_no')
+                ->where('tbl_pmtct.hei_no', 'LIKE', '%' . $hei_search . '%')
+                ->where('tbl_client.mfl_code', Auth::user()->facility_id)
+                ->count();
+            $missed_app = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id')
+                ->select('tbl_appointment.id')
+                ->where('tbl_appointment.app_status', '=', 'Missed')
+                ->whereNotNull('tbl_client.hei_no')
+                ->where('tbl_pmtct.hei_no', 'LIKE', '%' . $hei_search . '%')
+                ->where('tbl_client.mfl_code', Auth::user()->facility_id)
+                ->count();
+            $defaulted_app = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id')
+                ->select('tbl_appointment.id')
+                ->where('tbl_appointment.app_status', '=', 'Defaulted')
+                ->whereNotNull('tbl_client.hei_no')
+                ->where('tbl_pmtct.hei_no', 'LIKE', '%' . $hei_search . '%')
+                ->where('tbl_client.mfl_code', Auth::user()->facility_id)
+                ->count();
+            $ltfu_app = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id')
+                ->select('tbl_appointment.id')
+                ->where('tbl_appointment.app_status', '=', 'LTFU')
+                ->whereNotNull('tbl_client.hei_no')
+                ->where('tbl_pmtct.hei_no', 'LIKE', '%' . $hei_search . '%')
+                ->where('tbl_client.mfl_code', Auth::user()->facility_id)
+                ->count();
+            $refill_app = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id')
+                ->select('tbl_appointment.id')
+                ->where('tbl_appointment.app_type_1', '=', '1')
+                ->whereNotNull('tbl_client.hei_no')
+                ->where('tbl_pmtct.hei_no', 'LIKE', '%' . $hei_search . '%')
+                ->where('tbl_client.mfl_code', Auth::user()->facility_id)
+                ->count();
+            $clinical_app = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id')
+                ->select('tbl_appointment.id')
+                ->where('tbl_appointment.app_type_1', '=', '2')
+                ->whereNotNull('tbl_client.hei_no')
+                ->where('tbl_pmtct.hei_no', 'LIKE', '%' . $hei_search . '%')
+                ->where('tbl_client.mfl_code', Auth::user()->facility_id)
+                ->count();
+            $adherence_app = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id')
+                ->select('tbl_appointment.id')
+                ->where('tbl_appointment.app_type_1', '=', '3')
+                ->whereNotNull('tbl_client.hei_no')
+                ->where('tbl_pmtct.hei_no', 'LIKE', '%' . $hei_search . '%')
+                ->where('tbl_client.mfl_code', Auth::user()->facility_id)
+                ->count();
+            $lab_app = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id')
+                ->select('tbl_appointment.id')
+                ->where('tbl_appointment.app_type_1', '=', '4')
+                ->whereNotNull('tbl_client.hei_no')
+                ->where('tbl_pmtct.hei_no', 'LIKE', '%' . $hei_search . '%')
+                ->where('tbl_client.mfl_code', Auth::user()->facility_id)
+                ->count();
+            $viral_app = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id')
+                ->select('tbl_appointment.id')
+                ->where('tbl_appointment.app_type_1', '=', '5')
+                ->whereNotNull('tbl_client.hei_no')
+                ->where('tbl_pmtct.hei_no', 'LIKE', '%' . $hei_search . '%')
+                ->where('tbl_client.mfl_code', Auth::user()->facility_id)
+                ->count();
+            $other_app = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id')
+                ->select('tbl_appointment.id')
+                ->where('tbl_appointment.app_type_1', '=', '6')
+                ->whereNotNull('tbl_client.hei_no')
+                ->where('tbl_pmtct.hei_no', 'LIKE', '%' . $hei_search . '%')
+                ->where('tbl_client.mfl_code', Auth::user()->facility_id)
+                ->count();
+            $outgoing_msg = Message::join('tbl_client', 'tbl_clnt_outgoing.clnt_usr_id', '=', 'tbl_client.id')
+                ->join('tbl_message_types', 'tbl_clnt_outgoing.message_type_id', '=', 'tbl_message_types.id')
+                ->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id')
+                ->select('tbl_client.clinic_number', 'tbl_client.hei_no', 'tbl_message_types.name as message_type', 'tbl_clnt_outgoing.destination', 'tbl_clnt_outgoing.created_at', 'tbl_clnt_outgoing.msg')
+                ->whereNotNull('tbl_client.hei_no')
+                ->where('tbl_pmtct.hei_no', 'LIKE', '%' . $hei_search . '%')
+                ->where('tbl_client.mfl_code', Auth::user()->facility_id)
+                ->get();
+            $appointment_outcome = Outcome::join('tbl_client', 'tbl_clnt_outcome.client_id', '=', 'tbl_client.id')
+                ->join('tbl_appointment', 'tbl_clnt_outcome.appointment_id', '=', 'tbl_appointment.id')
+                ->join('tbl_appointment_types', 'tbl_appointment.app_type_1', '=', 'tbl_appointment_types.id')
+                ->join('tbl_final_outcome', 'tbl_clnt_outcome.fnl_outcome', '=', 'tbl_final_outcome.id')
+                ->join('tbl_outcome', 'tbl_clnt_outcome.outcome', '=', 'tbl_outcome.id')
+                ->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id')
+                ->select('tbl_client.clinic_number', 'tbl_client.hei_no', 'tbl_client.file_no', 'tbl_appointment.appntmnt_date', 'tbl_appointment_types.name as app_type', 'tbl_clnt_outcome.tracer_name', 'tbl_final_outcome.name as final_outcome', 'tbl_outcome.name as outcome')
+                ->whereNotNull('tbl_client.hei_no')
+                ->where('tbl_pmtct.hei_no', 'LIKE', '%' . $hei_search . '%')
+                ->where('tbl_client.mfl_code', Auth::user()->facility_id)
+                ->get();
+
 
             // dd($hei_profile);
         }
-        return view('clients.client_profile', compact('hei_profile'));
+        return view('clients.hei_profile', compact(
+            'hei_profile',
+            'total_appointments',
+            'future_appointment',
+            'kept_appointment',
+            'missed_app',
+            'defaulted_app',
+            'ltfu_app',
+            'refill_app',
+            'clinical_app',
+            'adherence_app',
+            'lab_app',
+            'viral_app',
+            'other_app',
+            'outgoing_msg',
+            'appointment_outcome'
+        ));
     }
 
     public function client_extract()

@@ -68,6 +68,7 @@ Route::group(['middleware' => 'auth'], function () {
   Route::get('/Reports/clients_dashboard', ['uses' => 'App\Http\Controllers\DashboardController@client_dashboard', 'as' => 'Reports-clients_dashboard']);
   // clients routes
   Route::get('/report/clients/profile', ['uses' => 'App\Http\Controllers\ClientListController@get_client_profile', 'as' => 'profile']);
+  Route::get('/report/HEI/profile', ['uses' => 'App\Http\Controllers\ClientListController@get_hei_profile', 'as' => 'hei-profile']);
   Route::get('/add/clients', ['uses' => 'App\Http\Controllers\ClientController@index', 'as' => 'new_client']);
   Route::post('/new/clients', ['uses' => 'App\Http\Controllers\ClientController@add_client', 'as' => 'add_client']);
   Route::get('/profile_search', ['uses' => 'App\Http\Controllers\ClientListController@profile_search', 'as' => 'profile_search']);

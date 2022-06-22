@@ -152,12 +152,28 @@
                     <span class="item-name">Clients Dashboard</span>
                 </a>
             </li>
+            <li class="nav-item dropdown-sidemenu">
+                <a>
+                    <span class="item-name">Profile</span>
+                    <i class="dd-arrow i-Arrow-Down"></i>
+                </a>
+                <ul class="submenu">
+                    <li><a href="{{route('profile')}}">
+                            <span class="item-name">Client Profile</span>
+                        </a>
+                    </li>
+                    <li><a href="{{route('hei-profile')}}">
+                            <span class="item-name">HEI Profile</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
 
-            <li class="nav-item">
+            <!-- <li class="nav-item">
                 <a class="{{ Route::currentRouteName()=='profile' ? 'open' : '' }}" href="{{route('profile')}}">
                     <span class="item-name">Client Profile</span>
                 </a>
-            </li>
+            </li> -->
 
             <li class="nav-item">
                 <a class="{{ Route::currentRouteName()=='consent-clients' ? 'open' : '' }}" href="{{route('consent-clients')}}">
