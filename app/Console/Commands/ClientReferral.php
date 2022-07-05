@@ -1,0 +1,150 @@
+<?php
+
+namespace App\Console\Commands;
+
+use AfricasTalking\SDK\AfricasTalking;
+
+use App\Http\Controllers\SenderController;
+use Illuminate\Console\Command;
+use App\Models\Client;
+use App\Models\Appointments;
+use App\Models\Facility;
+use App\Models\Ward;
+use App\Models\Content;
+use App\Models\ClientOutgoing;
+use DB;
+
+use function PHPUnit\Framework\isEmpty;
+
+class ClientReferral extends Command
+{
+    /**
+     * The name and signature of the console command.
+     *
+     * @var string
+     */
+    protected $signature = 'client:referral';
+
+    /**
+     * The console command description.
+     *
+     * @var string
+     */
+    protected $description = 'Notify Transfered Clients';
+
+    /**
+     * Create a new command instance.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        parent::__construct();
+    }
+
+    /**
+     * Execute the console command.
+     *
+     * @return int
+     */
+    public function send($to, $message)
+    {
+        $username = "Ushauri_KE";
+        $apiKey = '972bdb6f53893725b09eaa3581a264ebf77b0e816ef5e9cb9f29e0c7738e41c1';
+        $AT       = new AfricasTalking($username, $apiKey);
+
+        // Get one of the services
+        $sms      = $AT->sms();
+        // Use the service
+        $send   = $sms->send([
+            'from' => '40149',
+            'to'      => $to,
+            'message' => $message
+        ]);
+        return $send['status'];
+    }
+    public function handle()
+    {
+        $client = Client::join('tbl_master_facility', 'tbl_client.mfl_code', '=', 'tbl_master_facility.code')
+            ->join('tbl_ward', 'tbl_master_facility.Ward_id', '=', 'tbl_ward.id')
+            ->join('tbl_appointment', 'tbl_client.id', '=', 'tbl_appointment.client_id')
+            ->select(
+                'tbl_client.clinic_number',
+                'tbl_client.id as client_id',
+                'tbl_client.phone_no',
+                'tbl_client.client_type',
+                'tbl_client.f_name',
+                'tbl_client.language_id',
+                'tbl_master_facility.name as facility',
+                'tbl_ward.name as location',
+                DB::raw('(CASE WHEN tbl_appointment.appntmnt_date > Now() THEN tbl_appointment.appntmnt_date ELSE 0 END) as appointment_date')
+            )
+            ->where('tbl_client.client_type', '=', 'Transfer')
+            ->whereNotNull('tbl_client.phone_no')
+            ->whereBetween('tbl_client.updated_at', [now()->subMinutes(30), now()])
+            ->groupBy('tbl_client.id')
+            ->get();
+
+
+
+        foreach ($client as $value) {
+            $phone_no = $value->phone_no;
+            $client_id = $value->client_id;
+            $client_type = $value->client_type;
+            $client_name = $value->f_name;
+            $facility = $value->facility;
+            $location = $value->location;
+            $language = $value->language_id;
+            $appointment_date = $value->appointment_date;
+
+            if (!empty($phone_no)) {
+
+                if ($language !== '1' || $language !== '2'){
+                    $get_message = Content::select('*')->where('identifier', '=', '20')->where('language_id', '=', '2')->get();
+                }else{
+                    $get_message = Content::select('*')->where('identifier', '=', '20')->where('language_id', '=', $language)->get();
+                }
+
+                foreach ($get_message as $value) {
+                    $message = $value->content;
+                    $content_id = $value->id;
+
+                    $new_message = str_replace("XXX", $client_name, $message);
+                    $facility_name = str_replace('FFF', $facility, $new_message);
+                    $location_name = str_replace('LLL', $location, $facility_name);
+                    $final_message = str_replace('YYY', $appointment_date, $location_name);
+
+                    $save_outgoing = new ClientOutgoing;
+
+                    $save_outgoing->destination = $phone_no;
+                    $save_outgoing->msg = $final_message;
+                    $save_outgoing->source = '40149';
+                    $save_outgoing->responded = 'No';
+                    $save_outgoing->status = 'Not Sent';
+                    $save_outgoing->message_type_id = '2';
+                    $save_outgoing->clnt_usr_id = $client_id;
+                    $save_outgoing->recepient_type = 'Client';
+                    $save_outgoing->content_id = $content_id;
+                    // $save_outgoing->created_at = date("Y-m-d H:i:s");
+                    $save_outgoing->created_by = '1';
+
+                    if ($save_outgoing->save()) {
+                        // $sender = new SenderController;
+                        $sender = $this->send($phone_no, $final_message);
+
+                        echo $sender;
+                    } else {
+                        echo 'Could not send the message';
+                    }
+                }
+            } else {
+                echo 'Can not send to an empty phone number';
+            }
+        }
+
+        dd("Clients : {$client}");
+
+
+        // return 0;
+    }
+}
