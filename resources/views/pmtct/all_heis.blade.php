@@ -26,14 +26,13 @@
                                         <thead>
                                             <tr>
                                                 <th>No.</th>
-                                                <th>Clinic Number</th>
+                                                <th>HEI Number</th>
                                                 <th>First Name</th>
                                                 <th>Middle Name</th>
                                                 <th>Last Name</th>
-                                                <th>HEI Number</th>
-                                                <th>Phone No</th>
+                                                <th>Gender</th>
+                                                <th>Mother CCC Number</th>
                                                 <th>Birth Date</th>
-                                                <th>Treatment</th>
 
                                             </tr>
                                         </thead>
@@ -42,14 +41,13 @@
                                                 @foreach($all_hei as $result)
                                                     <tr>
                                                         <td> {{ $loop->iteration }}</td>
-                                                        <td>  {{$result->clinic_number}}</td>
+                                                        <td>  {{$result->hei_no}}</td>
                                                         <td>  {{$result->f_name}}</td>
                                                         <td>  {{$result->m_name}}</td>
                                                         <td>  {{$result->l_name}}</td>
-                                                        <td>  {{$result->hei_no}}</td>
-                                                        <td>  {{$result->phone_no}}</td>
+                                                        <td>  {{$result->gender}}</td>
+                                                        <td>  {{$result->clinic_number}}</td>
                                                         <td>  {{$result->dob}}</td>
-                                                        <td>  {{$result->client_status}}</td>
                                                     </tr>
                                                 @endforeach
                                             @endif
