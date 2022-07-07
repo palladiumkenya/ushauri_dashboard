@@ -200,12 +200,12 @@
                                     </div>
 
                                     <div class="col-md-3 form-group mb-3" id="add_partner_div">
-                                        <label for="partnername">Partner</label>
-                                        <select class="form-control" data-width="100%" id="partnername" name="partnername">
+                                        <label for="partner">Partner</label>
+                                        <select class="form-control" data-width="100%" id="partner" name="partner">
                                             <option value="">Please select </option>
                                             @if (count($partners) > 0)
                                             @foreach($partners as $partner)
-                                            <option value="{{$partner->id }}" {{ $partner->id == old('partnername',$user->partner_id) ? 'selected' : ''}}>{{ ucwords($partner->name) }}</option>
+                                            <option value="{{$partner->id }}" {{ $partner->id == old('partner',$user->partner_id) ? 'selected' : ''}}>{{ ucwords($partner->name) }}</option>
                                             @endforeach
                                             @endif
                                         </select>
@@ -539,7 +539,7 @@ $('#multicolumn_ordering_table').DataTable({
         $('#donor').val(user.donor_id);
         $('#county').val(user.county_id);
         $('#sub_county').val(user.subcounty_id);
-        $('#partnername').val(user.partner_id);
+        $('#partner').val(user.partner_id);
         $('#facilityname').val(user.facility_id);
         $('#clinicname').val(user.clinic_id);
         $('#bio_data').val(user.view_client);

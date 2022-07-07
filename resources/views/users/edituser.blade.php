@@ -92,7 +92,7 @@
                         </div>
 
                         <div class="col-md-3 form-group mb-3" id="add_partner_div">
-                            <label for="lastName1">Partner</label>
+                            <label for="partner">Partner</label>
                             <select class="form-control" data-width="100%" id="partner" name="partner">
                                 <option value="">Please select </option>
                                 @if (count($partners) > 0)
