@@ -11,6 +11,7 @@ use\App\Models\Appointments;
 
 use Carbon\Carbon;
 use Auth;
+use DB;
 
 class PmtcController extends Controller
 {
@@ -193,7 +194,7 @@ class PmtcController extends Controller
     {
         if (Auth::user()->access_level == 'Admin') {
             $all_hei = Pmtct::join('tbl_client', 'tbl_client.id', '=', 'tbl_pmtct.client_id')
-            ->join('tbl_gender', 'tbl_pmtct.hei_gender', '=', 'tbl_gender.id')
+                ->join('tbl_gender', 'tbl_pmtct.hei_gender', '=', 'tbl_gender.id')
                 ->select(
                     'tbl_client.clinic_number',
                     'tbl_pmtct.hei_first_name as f_name',
@@ -208,7 +209,7 @@ class PmtcController extends Controller
 
         if (Auth::user()->access_level == 'Facility') {
             $all_hei = Pmtct::join('tbl_client', 'tbl_client.id', '=', 'tbl_pmtct.client_id')
-            ->join('tbl_gender', 'tbl_pmtct.hei_gender', '=', 'tbl_gender.id')
+                ->join('tbl_gender', 'tbl_pmtct.hei_gender', '=', 'tbl_gender.id')
                 ->select(
                     'tbl_client.clinic_number',
                     'tbl_pmtct.hei_first_name as f_name',
@@ -224,8 +225,8 @@ class PmtcController extends Controller
 
         if (Auth::user()->access_level == 'Partner') {
             $all_hei = Pmtct::join('tbl_client', 'tbl_client.id', '=', 'tbl_pmtct.client_id')
-            ->join('tbl_gender', 'tbl_pmtct.hei_gender', '=', 'tbl_gender.id')
-            ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->join('tbl_gender', 'tbl_pmtct.hei_gender', '=', 'tbl_gender.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
                 ->select(
                     'tbl_client.clinic_number',
                     'tbl_pmtct.hei_first_name as f_name',
@@ -245,12 +246,23 @@ class PmtcController extends Controller
     {
 
         if (Auth::user()->access_level == 'Admin') {
-            $all_booked_heis = Appointments::join('tbl_client', 'tbl_client.id', '=', 'tbl_appointment.client_id')
-                ->selectRaw('tbl_client.clinic_number, tbl_client.f_name, tbl_client.m_name, tbl_client.l_name, tbl_client.hei_no, tbl_client.phone_no, tbl_appointment.appntmnt_date, tbl_appointment.app_type_1')
-                ->where('tbl_appointment.app_status', '=', 'Booked')
-                ->where('tbl_appointment.active_app', '=', 1)
-                ->whereNotNull('tbl_client.hei_no')
-                ->get();;
+            $hei_appointment = Pmtct::join('tbl_client', 'tbl_pmtct.client_id', '=', 'tbl_client.id')
+                ->join('tbl_gender', 'tbl_pmtct.hei_gender', '=', 'tbl_gender.id')
+                ->join('tbl_appointment', 'tbl_client.id', '=', 'tbl_appointment.client_id')
+                ->join('tbl_appointment_types', 'tbl_appointment.app_type_1', '=', 'tbl_appointment_types.id')
+                ->leftJoin('tbl_caregiver_not_on_care', 'tbl_pmtct.care_giver_id', '=', 'tbl_caregiver_not_on_care.id')
+                ->select(
+                    DB::raw("CONCAT(`tbl_pmtct`.`hei_first_name`, ' ', `tbl_pmtct`.`hei_middle_name`, ' ', `tbl_pmtct`.`hei_last_name`) as hei_name"),
+                    'tbl_pmtct.hei_no',
+                    'tbl_pmtct.hei_dob',
+                    'tbl_gender.name as gender',
+                    'tbl_client.clinic_number',
+                    'tbl_appointment.appntmnt_date as app_date',
+                    'tbl_appointment.app_status',
+                    'tbl_appointment_types.name as app_type',
+                    DB::raw("CONCAT(`tbl_caregiver_not_on_care`.`care_giver_fname`, ' ', `tbl_caregiver_not_on_care`.`care_giver_mname`, ' ', `tbl_caregiver_not_on_care`.`care_giver_lname`) as caregiver_name")
+                )
+                ->get();
 
             $all_scheduled_heis = Appointments::join('tbl_client', 'tbl_client.id', '=', 'tbl_appointment.client_id')
                 ->selectRaw('tbl_client.clinic_number, tbl_client.f_name, tbl_client.m_name, tbl_client.l_name, tbl_client.hei_no, tbl_client.phone_no, tbl_appointment.appntmnt_date, tbl_appointment.app_type_1, tbl_appointment.visit_type')
@@ -268,13 +280,25 @@ class PmtcController extends Controller
         }
 
         if (Auth::user()->access_level == 'Facility') {
-            $all_booked_heis = Appointments::join('tbl_client', 'tbl_client.id', '=', 'tbl_appointment.client_id')
-                ->selectRaw('tbl_client.clinic_number, tbl_client.f_name, tbl_client.m_name, tbl_client.l_name, tbl_client.hei_no, tbl_client.phone_no, tbl_appointment.appntmnt_date, tbl_appointment.app_type_1')
-                ->where('tbl_appointment.app_status', '=', 'Booked')
-                ->where('tbl_appointment.active_app', '=', 1)
+            $hei_appointment = Pmtct::join('tbl_client', 'tbl_pmtct.client_id', '=', 'tbl_client.id')
+                ->join('tbl_gender', 'tbl_pmtct.hei_gender', '=', 'tbl_gender.id')
+                ->join('tbl_appointment', 'tbl_client.id', '=', 'tbl_appointment.client_id')
+                ->join('tbl_appointment_types', 'tbl_appointment.app_type_1', '=', 'tbl_appointment_types.id')
+                ->leftJoin('tbl_caregiver_not_on_care', 'tbl_pmtct.care_giver_id', '=', 'tbl_caregiver_not_on_care.id')
+                ->select(
+                    DB::raw("CONCAT(`tbl_pmtct`.`hei_first_name`, ' ', `tbl_pmtct`.`hei_middle_name`, ' ', `tbl_pmtct`.`hei_last_name`) as hei_name"),
+                    'tbl_pmtct.hei_no',
+                    'tbl_pmtct.hei_dob',
+                    'tbl_gender.name as gender',
+                    'tbl_client.clinic_number',
+                    'tbl_appointment.appntmnt_date as app_date',
+                    'tbl_appointment.app_status',
+                    'tbl_appointment_types.name as app_type',
+                    DB::raw("CONCAT(`tbl_caregiver_not_on_care`.`care_giver_fname`, ' ', `tbl_caregiver_not_on_care`.`care_giver_mname`, ' ', `tbl_caregiver_not_on_care`.`care_giver_lname`) as caregiver_name")
+                )
                 ->where('tbl_client.mfl_code', Auth::user()->facility_id)
                 ->whereNotNull('tbl_client.hei_no')
-                ->get();;
+                ->get();
 
             $all_scheduled_heis = Appointments::join('tbl_client', 'tbl_client.id', '=', 'tbl_appointment.client_id')
                 ->selectRaw('tbl_client.clinic_number, tbl_client.f_name, tbl_client.m_name, tbl_client.l_name, tbl_client.hei_no, tbl_client.phone_no, tbl_appointment.appntmnt_date, tbl_appointment.app_type_1, tbl_appointment.visit_type')
@@ -294,13 +318,26 @@ class PmtcController extends Controller
         }
 
         if (Auth::user()->access_level == 'Partner') {
-            $all_booked_heis = Appointments::join('tbl_client', 'tbl_client.id', '=', 'tbl_appointment.client_id')
-                ->selectRaw('tbl_client.clinic_number, tbl_client.f_name, tbl_client.m_name, tbl_client.l_name, tbl_client.hei_no, tbl_client.phone_no, tbl_appointment.appntmnt_date, tbl_appointment.app_type_1')
-                ->where('tbl_appointment.app_status', '=', 'Booked')
-                ->where('tbl_appointment.active_app', '=', 1)
-                ->where('tbl_client.partner_id', Auth::user()->partner_id)
+            $hei_appointment = Pmtct::join('tbl_client', 'tbl_pmtct.client_id', '=', 'tbl_client.id')
+                ->join('tbl_gender', 'tbl_pmtct.hei_gender', '=', 'tbl_gender.id')
+                ->join('tbl_appointment', 'tbl_client.id', '=', 'tbl_appointment.client_id')
+                ->join('tbl_appointment_types', 'tbl_appointment.app_type_1', '=', 'tbl_appointment_types.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->leftJoin('tbl_caregiver_not_on_care', 'tbl_pmtct.care_giver_id', '=', 'tbl_caregiver_not_on_care.id')
+                ->select(
+                    DB::raw("CONCAT(`tbl_pmtct`.`hei_first_name`, ' ', `tbl_pmtct`.`hei_middle_name`, ' ', `tbl_pmtct`.`hei_last_name`) as hei_name"),
+                    'tbl_pmtct.hei_no',
+                    'tbl_pmtct.hei_dob',
+                    'tbl_gender.name as gender',
+                    'tbl_client.clinic_number',
+                    'tbl_appointment.appntmnt_date as app_date',
+                    'tbl_appointment.app_status',
+                    'tbl_appointment_types.name as app_type',
+                    DB::raw("CONCAT(`tbl_caregiver_not_on_care`.`care_giver_fname`, ' ', `tbl_caregiver_not_on_care`.`care_giver_mname`, ' ', `tbl_caregiver_not_on_care`.`care_giver_lname`) as caregiver_name")
+                )
+                ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
                 ->whereNotNull('tbl_client.hei_no')
-                ->get();;
+                ->get();
 
             $all_scheduled_heis = Appointments::join('tbl_client', 'tbl_client.id', '=', 'tbl_appointment.client_id')
                 ->selectRaw('tbl_client.clinic_number, tbl_client.f_name, tbl_client.m_name, tbl_client.l_name, tbl_client.hei_no, tbl_client.phone_no, tbl_appointment.appntmnt_date, tbl_appointment.app_type_1, tbl_appointment.visit_type')
@@ -319,7 +356,7 @@ class PmtcController extends Controller
                 ->get();
         }
 
-        return view('pmtct/hei_appointment_dairy', compact('all_unscheduled_heis', 'all_booked_heis', 'all_scheduled_heis'));
+        return view('pmtct/hei_appointment_dairy', compact('all_unscheduled_heis', 'hei_appointment', 'all_scheduled_heis'));
     }
 
     public function hei_defaulter_dairy()

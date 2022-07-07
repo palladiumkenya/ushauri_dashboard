@@ -6,6 +6,7 @@ use AfricasTalking\SDK\AfricasTalking;
 
 use App\Http\Controllers\SenderController;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Http;
 use App\Models\Client;
 use App\Models\Appointments;
 use App\Models\Facility;
@@ -47,22 +48,21 @@ class ClientReferral extends Command
      *
      * @return int
      */
-    public function send($to, $message)
+    
+    public function send_message($destination, $msg)
     {
-        $username = "Ushauri_KE";
-        $apiKey = '972bdb6f53893725b09eaa3581a264ebf77b0e816ef5e9cb9f29e0c7738e41c1';
-        $AT       = new AfricasTalking($username, $apiKey);
+        $this->httpresponse = Http::withoutVerifying()
+            ->withHeaders(['api-token' => '2aYBQWzHwvp6l0JsCHgxVt8s91A'])
+            ->post('https://prod.kenyahmis.org:8003/api/sender', [
+                'destination' => $destination,
+                'msg' => $msg,
+                'sender_id' => $destination,
 
-        // Get one of the services
-        $sms      = $AT->sms();
-        // Use the service
-        $send   = $sms->send([
-            'from' => '40149',
-            'to'      => $to,
-            'message' => $message
-        ]);
-        return $send['status'];
+            ]);
+
+        return json_decode($this->httpresponse->getBody(), true);
     }
+
     public function handle()
     {
         $client = Client::join('tbl_master_facility', 'tbl_client.mfl_code', '=', 'tbl_master_facility.code')
@@ -81,7 +81,7 @@ class ClientReferral extends Command
             )
             ->where('tbl_client.client_type', '=', 'Transfer')
             ->whereNotNull('tbl_client.phone_no')
-            ->whereBetween('tbl_client.updated_at', [now()->subMinutes(30), now()])
+            ->whereBetween('tbl_client.updated_at', [now()->subMinutes(720), now()])
             ->groupBy('tbl_client.id')
             ->get();
 
@@ -99,9 +99,9 @@ class ClientReferral extends Command
 
             if (!empty($phone_no)) {
 
-                if ($language !== '1' || $language !== '2'){
+                if ($language !== '1' || $language !== '2') {
                     $get_message = Content::select('*')->where('identifier', '=', '20')->where('language_id', '=', '2')->get();
-                }else{
+                } else {
                     $get_message = Content::select('*')->where('identifier', '=', '20')->where('language_id', '=', $language)->get();
                 }
 
@@ -130,9 +130,9 @@ class ClientReferral extends Command
 
                     if ($save_outgoing->save()) {
                         // $sender = new SenderController;
-                        $sender = $this->send($phone_no, $final_message);
+                        $sender = $this->send_message($phone_no, $final_message);
 
-                        echo $sender;
+                        echo json_encode($sender);
                     } else {
                         echo 'Could not send the message';
                     }

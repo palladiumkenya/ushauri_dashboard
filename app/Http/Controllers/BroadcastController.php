@@ -59,15 +59,15 @@ class BroadcastController extends Controller
 
         if (Auth::user()->access_level == 'Facility') {
 
-            return view('broadcast.facility_broadcast')->with($u_data); 
+            return view('broadcast.facility_broadcast')->with($u_data);
 
         } else if(Auth::user()->access_level == 'Partner') {
 
-            return view('broadcast.partner_broadcast')->with($p_data); 
+            return view('broadcast.partner_broadcast')->with($p_data);
 
         } else if(Auth::user()->access_level == 'Admin') {
 
-            return view('broadcast.broadcast')->with($data); 
+            return view('broadcast.broadcast')->with($data);
 
         }
 
@@ -85,39 +85,39 @@ class BroadcastController extends Controller
             ]);
 
             $facility = Facility::where('code', Auth::user()->facility_id)->get();
-        
+
             foreach($request['groups'] as $group_id) {
-    
+
                 $group = Group::find($group_id);
-    
+
                 if (is_null($group))
                     continue;
 
-                foreach($request['genders'] as $gender_id) { 
+                foreach($request['genders'] as $gender_id) {
 
                     $gender = Gender::find($gender_id);
-                    
-                    $clients = Client::where('mfl_code', $facility)->where('group_id', '=', $group->id)->where('gender', $gender->id)->get();     
-                
+
+                    $clients = Client::where('mfl_code', $facility)->where('group_id', '=', $group->id)->where('gender', $gender->id)->get();
+
                     if ($clients->count() == 0)
                         continue;
-            
+
                     foreach ($clients as $client) {
-        
+
                         $dest = $client->phone_no;
-        
+
                         $msg = $request->message;
 
                         SendSMS::dispatch($dest, $msg);
-        
+
                         // $sender = new SenderController;
-        
+
                         // $sender->send($dest, $msg);
-        
-                    }    
-        
+
+                    }
+
                 }
-    
+
             }
 
             return back();
@@ -131,39 +131,39 @@ class BroadcastController extends Controller
                 'message' => 'required'
             ]);
 
-        
+
             foreach($request['groups'] as $group_id) {
-    
-                $group = Group::find($groups_id);
-            
+
+                $group = Group::find($group_id);
+
                 if (is_null($group))
                     continue;
 
-                foreach($request['genders'] as $gender_id) { 
+                foreach($request['genders'] as $gender_id) {
 
                     $gender = Gender::find($gender_id);
-                    
-                    $clients = Client::where('mfl_code', $request->mfl_code)->where('group_id', '=', $group->id)->where('gender', $gender->id)->get();     
-                    
+
+                    $clients = Client::where('mfl_code', $request->mfl_code)->where('group_id', '=', $group->id)->where('gender', $gender->id)->get();
+
                     if ($clients->count() == 0)
                         continue;
-            
+
                     foreach ($clients as $client) {
-        
+
                         $dest = $client->phone_no;
-        
+
                         $msg = $request->message;
-        
+
                         SendSMS::dispatch($dest, $msg);
-        
-                    }    
-        
-                }    
-    
-            }    
+
+                    }
+
+                }
+
+            }
 
             return back();
-      
+
         } else if(Auth::user()->access_level == 'Admin') {
 
             $request->validate([
@@ -171,44 +171,44 @@ class BroadcastController extends Controller
                 'genders' => 'required',
                 'message' => 'required'
             ]);
-        
+
             foreach($request['groups'] as $group_id) {
 
                 $group = Group::find($group_id);
-        
+
                 if (is_null($group))
                     continue;
 
-                foreach($request['genders'] as $gender_id) { 
+                foreach($request['genders'] as $gender_id) {
 
                     $gender = Gender::find($gender_id);
-                    
-                    $clients = Client::where('group_id', '=', $group->id)->where('gender', $gender->id)->get(); 
-                
+
+                    $clients = Client::where('group_id', '=', $group->id)->where('gender', $gender->id)->get();
+
                     if ($clients->count() == 0)
                         continue;
-            
+
                     foreach ($clients as $client) {
-        
+
                         $dest = $client->phone_no;
-        
+
                         $msg = $request->message;
-                        
+
                         if(Str::length($dest) >= 10) {
 
                             SendSMS::dispatch($dest, $msg);
 
                         }
-                
-                    }   
 
-                }   
-                  
+                    }
+
+                }
+
             }
 
             return back();
 
-        }    
+        }
 
     }
 
