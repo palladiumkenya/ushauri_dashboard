@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ScheduleSMSController;
 
 
 /*
@@ -27,6 +28,14 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
   return view('auth/login');
+});
+
+Route::controller(ScheduleSMSController::class)->group(function () {
+    Route::get('/schedule/notified', 'notifiedScheduler'); //schedule appointment notifications
+    Route::get('/schedule/missed', 'missedScheduler'); //schedule missed appointment notifications
+    Route::get('/schedule/defaulted', 'defaultedScheduler'); //schedule defaulter notifications
+    Route::get('/schedule/ltfu', 'ltfuScheduler'); //schedule LTFU notifications
+    Route::get('/sms/sender', 'sender'); //send sms notifications
 });
 
 Auth::routes();
