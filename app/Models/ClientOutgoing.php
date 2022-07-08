@@ -13,5 +13,7 @@ class ClientOutgoing extends Model
     public $timestamps = false;
     public $incrementing = false;
 
-    protected $fillable = [];
+    protected $fillable = [
+        'destination','msg','responded','status','message_type_id','source','clnt_usr_id','recepient_type','content_id','created_by'
+    ];
 }
