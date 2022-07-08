@@ -48,8 +48,8 @@ class ClientReferral extends Command
      *
      * @return int
      */
-    
-    public function send_message($destination, $msg)
+
+    public function send_message($source, $destination, $msg)
     {
         $this->httpresponse = Http::withoutVerifying()
             ->withHeaders(['api-token' => '2aYBQWzHwvp6l0JsCHgxVt8s91A'])
@@ -57,6 +57,7 @@ class ClientReferral extends Command
                 'destination' => $destination,
                 'msg' => $msg,
                 'sender_id' => $destination,
+                'gateway' => $source,
 
             ]);
 
@@ -81,7 +82,7 @@ class ClientReferral extends Command
             )
             ->where('tbl_client.client_type', '=', 'Transfer')
             ->whereNotNull('tbl_client.phone_no')
-            ->whereBetween('tbl_client.updated_at', [now()->subMinutes(720), now()])
+            ->whereDate('tbl_client.updated_at', [now()->subMinutes(30), now()])
             ->groupBy('tbl_client.id')
             ->get();
 
@@ -108,6 +109,7 @@ class ClientReferral extends Command
                 foreach ($get_message as $value) {
                     $message = $value->content;
                     $content_id = $value->id;
+                    $source = '40149';
 
                     $new_message = str_replace("XXX", $client_name, $message);
                     $facility_name = str_replace('FFF', $facility, $new_message);
@@ -130,7 +132,7 @@ class ClientReferral extends Command
 
                     if ($save_outgoing->save()) {
                         // $sender = new SenderController;
-                        $sender = $this->send_message($phone_no, $final_message);
+                        $sender = $this->send_message($source, $phone_no, $final_message);
 
                         echo json_encode($sender);
                     } else {
