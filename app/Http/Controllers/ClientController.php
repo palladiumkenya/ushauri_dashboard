@@ -69,7 +69,7 @@ class ClientController extends Controller
         $new_client->status = $request->status;
         $new_client->group_id = $request->group;
         $new_client->clinic_id = $request->clinic;
-        $new_client->client_type = 'New';
+        $new_client->client_type = "New";
         $new_client->mfl_code = Auth::user()->facility_id;
         $new_client->facility_id = Auth::user()->facility_id;
         $new_client->locator_county = $request->county;

@@ -96,7 +96,7 @@ class BulkUploadController extends Controller
                 $text_time = 7;
                 $wellness = "No";
                 $motivational = "No";
-                $smsenable = "Yes";
+                $smsenable = "No";
                 $language = 2;
 
 
