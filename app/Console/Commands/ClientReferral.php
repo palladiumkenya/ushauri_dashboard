@@ -48,7 +48,6 @@ class ClientReferral extends Command
      *
      * @return int
      */
-
     public function send_message($source, $destination, $msg)
     {
         $this->httpresponse = Http::withoutVerifying()

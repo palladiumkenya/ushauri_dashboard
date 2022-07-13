@@ -30,13 +30,13 @@ Route::get('/', function () {
   return view('auth/login');
 });
 
-Route::controller(ScheduleSMSController::class)->group(function () {
-    Route::get('/schedule/notified', 'notifiedScheduler'); //schedule appointment notifications
-    Route::get('/schedule/missed', 'missedScheduler'); //schedule missed appointment notifications
-    Route::get('/schedule/defaulted', 'defaultedScheduler'); //schedule defaulter notifications
-    Route::get('/schedule/ltfu', 'ltfuScheduler'); //schedule LTFU notifications
-    Route::get('/sms/sender', 'sender'); //send sms notifications
-});
+// Route::controller(ScheduleSMSController::class)->group(function () {
+//     Route::get('/schedule/notified', 'notifiedScheduler'); //schedule appointment notifications
+//     Route::get('/schedule/missed', 'missedScheduler'); //schedule missed appointment notifications
+//     Route::get('/schedule/defaulted', 'defaultedScheduler'); //schedule defaulter notifications
+//     Route::get('/schedule/ltfu', 'ltfuScheduler'); //schedule LTFU notifications
+//     Route::get('/sms/sender', 'sender'); //send sms notifications
+// });
 
 Auth::routes();
 
@@ -71,6 +71,7 @@ Route::group(['middleware' => 'auth'], function () {
   Route::get('/get_dashboard_counties/{id}', ['uses' => 'App\Http\Controllers\DashboardController@get_counties', 'as' => 'get_counties']);
   Route::get('/get_dashboard_sub_counties/{id}', ['uses' => 'App\Http\Controllers\DashboardController@get_dashboard_sub_counties', 'as' => 'get_dashboard_sub_counties']);
   Route::get('/get_dashboard_facilities/{id}', ['uses' => 'App\Http\Controllers\DashboardController@get_dashboard_facilities', 'as' => 'get_dashboard_facilities']);
+  Route::get('/get_wards/{id}', ['uses' => 'App\Http\Controllers\DashboardController@get_wards', 'as' => 'get_wards']);
   //Route::get('get_client_data', ['uses' => 'App\Http\Controllers\DashboardController@get_client_data', 'as' => 'get_client_data']);
   Route::get('/Reports/facility_home', ['uses' => 'App\Http\Controllers\DashboardController@facility_dashboard', 'as' => 'Reports-facility_home']);
   Route::get('/Reports/clients/distribution', ['uses' => 'App\Http\Controllers\DashboardController@client_distribution_graphs', 'as' => 'Reports-clients-distribution']);

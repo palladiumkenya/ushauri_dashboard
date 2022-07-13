@@ -84,7 +84,7 @@ class BroadcastController extends Controller
                 'message' => 'required'
             ]);
 
-            $facility = Facility::where('code', Auth::user()->facility_id)->get();
+            $facility = Facility::where('code', Auth::user()->facility_id)->pluck('code')->first();
 
             foreach($request['groups'] as $group_id) {
 
@@ -116,11 +116,12 @@ class BroadcastController extends Controller
 
                     }
 
+
                 }
 
             }
 
-            return back();
+            // return back();
 
         } else if (Auth::user()->access_level == 'Partner') {
 
@@ -162,7 +163,7 @@ class BroadcastController extends Controller
 
             }
 
-            return back();
+           // return back();
 
         } else if(Auth::user()->access_level == 'Admin') {
 
@@ -206,7 +207,7 @@ class BroadcastController extends Controller
 
             }
 
-            return back();
+            //return back();
 
         }
 
