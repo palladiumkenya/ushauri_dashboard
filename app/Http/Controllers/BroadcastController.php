@@ -14,6 +14,7 @@ use App\Models\Gender;
 use App\Models\Facility;
 use App\Models\PartnerFacility;
 use Carbon\Carbon;
+use Session;
 use Auth;
 
 
@@ -120,6 +121,8 @@ class BroadcastController extends Controller
                 }
 
             }
+            Session::flash('statuscode', 'success');
+            return back()->with('status', 'Message Successfully Sent.');
 
             // return back();
 
@@ -162,6 +165,8 @@ class BroadcastController extends Controller
                 }
 
             }
+            Session::flash('statuscode', 'success');
+            return back()->with('status', 'Message Successfully Sent.');
 
            // return back();
 
@@ -206,7 +211,8 @@ class BroadcastController extends Controller
                 }
 
             }
-
+            Session::flash('statuscode', 'success');
+            return back()->with('status', 'Message Successfully Sent.');
             //return back();
 
         }
