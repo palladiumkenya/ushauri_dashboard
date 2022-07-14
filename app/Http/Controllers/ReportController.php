@@ -13,6 +13,7 @@ use App\Models\UserReport;
 use App\Models\Summary;
 use App\Models\MonthlyApp;
 use App\Models\Partner;
+use App\Models\Dcm;
 use DB;
 use Auth;
 use Cache;
@@ -192,7 +193,7 @@ class ReportController extends Controller
                 'Final_Outcome',
                 'Other_Outcome'
             )
-            ->paginate(1000);
+                ->paginate(1000);
         }
         if (Auth::user()->access_level == 'Facility') {
             $outcome_report = OutcomeReport::select(
@@ -234,7 +235,7 @@ class ReportController extends Controller
             )
                 ->where('partner_id', Auth::user()->partner_id)
                 ->paginate(1000);
-            }
+        }
 
         return view('reports.outcome', compact('outcome_report', 'all_partners'));
     }
@@ -407,5 +408,27 @@ class ReportController extends Controller
 
 
         return view('reports.monthly_appointment', compact('monthly_app_summary', 'all_partners'));
+    }
+
+    public function dsd_clients()
+    {
+        if (Auth::user()->access_level == 'Facility') {
+            $all_dsd_clients = Dcm::select('*')->groupBy('clinic_number')
+                ->where('mfl_code', Auth::user()->facility_id)
+                ->where('stability_status', '=', 'DCM')
+                ->get();
+        }
+        if (Auth::user()->access_level == 'Partner') {
+            $all_dsd_clients = Dcm::select('*')->groupBy('clinic_number')
+                ->where('partner_id', Auth::user()->partner_id)
+                ->where('stability_status', '=', 'DCM')
+                ->paginate(1000);
+        }
+        if (Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Donor') {
+            $all_dsd_clients = Dcm::select('*')->groupBy('clinic_number')
+                ->where('stability_status', '=', 'DCM')
+                ->paginate(1000);
+        }
+        return view('reports.dcm_reports', compact('all_dsd_clients'));
     }
 }

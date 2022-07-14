@@ -192,7 +192,7 @@ class PmtcController extends Controller
 
     public function get_all_hei()
     {
-        if (Auth::user()->access_level == 'Admin') {
+        if (Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Donor') {
             $all_hei = Pmtct::join('tbl_client', 'tbl_client.id', '=', 'tbl_pmtct.client_id')
                 ->join('tbl_gender', 'tbl_pmtct.hei_gender', '=', 'tbl_gender.id')
                 ->select(
@@ -202,9 +202,10 @@ class PmtcController extends Controller
                     'tbl_pmtct.hei_last_name as l_name',
                     'tbl_pmtct.hei_dob as dob',
                     'tbl_gender.name as gender',
-                    'tbl_pmtct.hei_no'
+                    'tbl_pmtct.hei_no',
+                    'tbl_client.status'
                 )
-                ->whereNotNull('hei_no')->paginate(1000);
+                ->whereNotNull('tbl_pmtct.hei_no')->paginate(1000);
         }
 
         if (Auth::user()->access_level == 'Facility') {
@@ -217,7 +218,8 @@ class PmtcController extends Controller
                     'tbl_pmtct.hei_last_name as l_name',
                     'tbl_pmtct.hei_dob as dob',
                     'tbl_gender.name as gender',
-                    'tbl_pmtct.hei_no'
+                    'tbl_pmtct.hei_no',
+                    'tbl_client.status'
                 )
                 ->where('tbl_client.mfl_code', Auth::user()->facility_id)
                 ->whereNotNull('tbl_pmtct.hei_no')->paginate(1000);
@@ -234,7 +236,8 @@ class PmtcController extends Controller
                     'tbl_pmtct.hei_last_name as l_name',
                     'tbl_pmtct.hei_dob as dob',
                     'tbl_gender.name as gender',
-                    'tbl_pmtct.hei_no'
+                    'tbl_pmtct.hei_no',
+                    'tbl_client.status'
                 )
                 ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
                 ->whereNotNull('tbl_pmtct.hei_no')->paginate(1000);
@@ -262,7 +265,7 @@ class PmtcController extends Controller
                     'tbl_appointment_types.name as app_type',
                     DB::raw("CONCAT(`tbl_caregiver_not_on_care`.`care_giver_fname`, ' ', `tbl_caregiver_not_on_care`.`care_giver_mname`, ' ', `tbl_caregiver_not_on_care`.`care_giver_lname`) as caregiver_name")
                 )
-                ->get();
+                ->paginate(1000);
 
             $all_scheduled_heis = Appointments::join('tbl_client', 'tbl_client.id', '=', 'tbl_appointment.client_id')
                 ->selectRaw('tbl_client.clinic_number, tbl_client.f_name, tbl_client.m_name, tbl_client.l_name, tbl_client.hei_no, tbl_client.phone_no, tbl_appointment.appntmnt_date, tbl_appointment.app_type_1, tbl_appointment.visit_type')
@@ -337,7 +340,7 @@ class PmtcController extends Controller
                 )
                 ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
                 ->whereNotNull('tbl_client.hei_no')
-                ->get();
+                ->paginate(1000);
 
             $all_scheduled_heis = Appointments::join('tbl_client', 'tbl_client.id', '=', 'tbl_appointment.client_id')
                 ->selectRaw('tbl_client.clinic_number, tbl_client.f_name, tbl_client.m_name, tbl_client.l_name, tbl_client.hei_no, tbl_client.phone_no, tbl_appointment.appntmnt_date, tbl_appointment.app_type_1, tbl_appointment.visit_type')

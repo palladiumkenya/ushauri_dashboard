@@ -181,7 +181,7 @@
                 </a>
             </li>
             <li class="nav-item">
-            <a class="{{ Route::currentRouteName()=='clients_list' ? 'open' : '' }}" href="{{route('clients_list')}}">
+                <a class="{{ Route::currentRouteName()=='clients_list' ? 'open' : '' }}" href="{{route('clients_list')}}">
                     <span class="item-name">Clients List</span>
                 </a>
             </li>
@@ -232,7 +232,7 @@
         @endif
         @if (Auth::user()->access_level == 'Facility')
         <ul class="childNav" data-parent="appointments">
-        <li class="nav-item">
+            <li class="nav-item">
                 <a href="{{route('appointment_charts')}}">
                     <span class="item-name">Appointment Dashboard</span>
                 </a>
@@ -604,13 +604,13 @@
                             <span class="item-name">Today's Appointment</span>
                         </a>
                     </li>
-                    @if (Auth::user()->access_level == 'Facility')
+
                     <li>
                         <a href="{{route('report-hei-appointment-dairy')}}">
                             <span class="item-name">HEI's Appointment</span>
                         </a>
                     </li>
-                    @endif
+
                     @if (Auth::user()->access_level == 'Partner' || Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Donor')
                     <li>
                         <a href="{{route('tracing-cost')}}">

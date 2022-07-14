@@ -103,7 +103,7 @@ Route::group(['middleware' => 'auth'], function () {
   Route::post('/clients/assign/tracer', ['uses' => 'App\Http\Controllers\TracerController@assign_client', 'as' => 'assign-tracer']);
 
   // DCM routes
-  Route::get('/Reports/dsd', ['uses' => 'App\Http\Controllers\DcmReportController@dcm_report', 'as' => 'Reports-dsd']);
+  Route::get('/Reports/dsd', ['uses' => 'App\Http\Controllers\ReportController@dsd_clients', 'as' => 'Reports-dsd']);
 
   // Facilities routes
   Route::get('/Reports/active/facilities', ['uses' => 'App\Http\Controllers\DashboardController@active_facilities', 'as' => 'Reports-active-facilities']);
