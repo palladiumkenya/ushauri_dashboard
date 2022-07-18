@@ -1,6 +1,6 @@
 <div class="main-header">
     <div class="logo">
-    <img class="pl-3" src="{{ asset('assets/images/ushauriNew_log.jpeg') }}" alt="ushauri">
+        <img class="pl-3" src="{{ asset('assets/images/ushauriNew_log.jpeg') }}" alt="ushauri">
     </div>
 
     <div class="menu-toggle">
@@ -49,8 +49,7 @@
         <div class="dropdown">
             <div class="user col align-self-end">
 
-                <img src="{{asset('assets/images/login/profile.png')}}" id="userDropdown" alt="" data-toggle="dropdown"
-                    aria-haspopup="true" aria-expanded="false">
+                <img src="{{asset('assets/images/login/profile.png')}}" id="userDropdown" alt="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 
                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userDropdown">
                     <div class="dropdown-header">

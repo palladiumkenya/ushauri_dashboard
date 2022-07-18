@@ -18,11 +18,11 @@
                 <div class="row">
                     <div class="col-md-12">
                         <div class="p-4">
-                            <div class="auth-logo text-center mb-4">
-                                <img src="{{ asset('/assets/images/ushauriNew_log.jpeg') }}" style="margin-left: 50px;" width="51%" height="60%">
+                            <div class="center">
+                                <img src="{{ asset('/assets/images/Ushauri_big.png') }}" style="margin-left: 230px;" height="40">
 
-                                <h4>Login</h4>
                             </div>
+                            <div class="text-center">  <h4>Login</h4> </div>
 
                             <form method="POST" id="login_form" action="{{ route('login') }}">
                                 @csrf
@@ -69,9 +69,9 @@
                                 </div>
                                 @endif
                                 <div class=" center">
-                                    <img class="pl-3" src="{{ asset('assets/images/MOH_New.png') }}" alt="ushauri" height="40" style="margin-left: 20px;">
-                                    <img class="pl-3" src="{{ asset('assets/images/login/CDC-LOGO.jpg') }}" alt="ushauri" height="40" style="margin-left: 95px;">
-                                    <img class="pl-3" src="{{ asset('assets/images/login/logo_3.png') }}" alt="ushauri" width="31%" style="margin-left: 95px;">
+                                    <img class="pl-3" src="{{ asset('assets/images/login/moh.png') }}" alt="ushauri" height="60" style="margin-left: 20px;">
+                                    <img class="pl-3" src="{{ asset('assets/images/login/CDC.png') }}" alt="ushauri" height="60" style="margin-left: 95px;">
+                                    <img class="pl-3" src="{{ asset('assets/images/login/KeHMIS.png') }}" alt="ushauri" height="60" style="margin-left: 80px;">
                             </div>
                             <div>
                                 <p>
