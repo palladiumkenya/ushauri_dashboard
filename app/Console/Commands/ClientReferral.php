@@ -14,6 +14,7 @@ use App\Models\Ward;
 use App\Models\Content;
 use App\Models\ClientOutgoing;
 use DB;
+use Carbon\Carbon;
 
 use function PHPUnit\Framework\isEmpty;
 
@@ -48,6 +49,7 @@ class ClientReferral extends Command
      *
      * @return int
      */
+
     public function send_message($source, $destination, $msg)
     {
         $this->httpresponse = Http::withoutVerifying()
@@ -66,7 +68,7 @@ class ClientReferral extends Command
     public function handle()
     {
         $client = Client::join('tbl_master_facility', 'tbl_client.mfl_code', '=', 'tbl_master_facility.code')
-            ->join('tbl_ward', 'tbl_master_facility.Ward_id', '=', 'tbl_ward.id')
+            ->leftJoin('tbl_ward', 'tbl_master_facility.Ward_id', '=', 'tbl_ward.id')
             ->join('tbl_appointment', 'tbl_client.id', '=', 'tbl_appointment.client_id')
             ->select(
                 'tbl_client.clinic_number',
@@ -77,7 +79,9 @@ class ClientReferral extends Command
                 'tbl_client.language_id',
                 'tbl_master_facility.name as facility',
                 'tbl_ward.name as location',
-                DB::raw('(CASE WHEN tbl_appointment.appntmnt_date > Now() THEN tbl_appointment.appntmnt_date ELSE 0 END) as appointment_date')
+                DB::raw('(CASE WHEN tbl_appointment.appntmnt_date > CURDATE() THEN tbl_appointment.appntmnt_date
+                WHEN tbl_client.language_id = "1" THEN "huna siku ya cliniki"
+                ELSE "no appointment" END) as appointment_date')
             )
             ->where('tbl_client.client_type', '=', 'Transfer')
             ->whereNotNull('tbl_client.phone_no')
@@ -97,49 +101,59 @@ class ClientReferral extends Command
             $language = $value->language_id;
             $appointment_date = $value->appointment_date;
 
-            if (!empty($phone_no)) {
+            $check_existence = ClientOutgoing::select('*')->where('message_type_id', '=', '2')
+                ->where('clnt_usr_id', '=', $client_id)
+                ->whereDate('created_at', '=', Carbon::Now())
+                ->limit(1)->count();
 
-                if ($language !== '1' || $language !== '2') {
-                    $get_message = Content::select('*')->where('identifier', '=', '20')->where('language_id', '=', '2')->get();
-                } else {
-                    $get_message = Content::select('*')->where('identifier', '=', '20')->where('language_id', '=', $language)->get();
-                }
-
-                foreach ($get_message as $value) {
-                    $message = $value->content;
-                    $content_id = $value->id;
-                    $source = '40149';
-
-                    $new_message = str_replace("XXX", $client_name, $message);
-                    $facility_name = str_replace('FFF', $facility, $new_message);
-                    $location_name = str_replace('LLL', $location, $facility_name);
-                    $final_message = str_replace('YYY', $appointment_date, $location_name);
-
-                    $save_outgoing = new ClientOutgoing;
-
-                    $save_outgoing->destination = $phone_no;
-                    $save_outgoing->msg = $final_message;
-                    $save_outgoing->source = '40149';
-                    $save_outgoing->responded = 'No';
-                    $save_outgoing->status = 'Not Sent';
-                    $save_outgoing->message_type_id = '2';
-                    $save_outgoing->clnt_usr_id = $client_id;
-                    $save_outgoing->recepient_type = 'Client';
-                    $save_outgoing->content_id = $content_id;
-                    // $save_outgoing->created_at = date("Y-m-d H:i:s");
-                    $save_outgoing->created_by = '1';
-
-                    if ($save_outgoing->save()) {
-                        // $sender = new SenderController;
-                        $sender = $this->send_message($source, $phone_no, $final_message);
-
-                        echo json_encode($sender);
-                    } else {
-                        echo 'Could not send the message';
-                    }
-                }
+            if ($check_existence > 0) {
+                echo 'Message already sent to the client';
             } else {
-                echo 'Can not send to an empty phone number';
+                if (!empty($phone_no)) {
+
+                    if (!empty($language)) {
+
+                        $get_message = Content::select('*')->where('identifier', '=', '20')->where('language_id', '=', $language)->get();
+                    } else {
+                        $get_message = Content::select('*')->where('identifier', '=', '20')->where('language_id', '=', '2')->get();
+                    }
+
+                    foreach ($get_message as $value) {
+                        $message = $value->content;
+                        $content_id = $value->id;
+                        $source = '40149';
+
+                        $new_message = str_replace("XXX", $client_name, $message);
+                        $facility_name = str_replace('FFF', $facility, $new_message);
+                        $location_name = str_replace('LLL', $location, $facility_name);
+                        $final_message = str_replace('YYY', $appointment_date, $location_name);
+
+                        $save_outgoing = new ClientOutgoing;
+
+                        $save_outgoing->destination = $phone_no;
+                        $save_outgoing->msg = $final_message;
+                        $save_outgoing->source = '40149';
+                        $save_outgoing->responded = 'No';
+                        $save_outgoing->status = 'Not Sent';
+                        $save_outgoing->message_type_id = '2';
+                        $save_outgoing->clnt_usr_id = $client_id;
+                        $save_outgoing->recepient_type = 'Client';
+                        $save_outgoing->content_id = $content_id;
+                        // $save_outgoing->created_at = date("Y-m-d H:i:s");
+                        $save_outgoing->created_by = '1';
+
+                        if ($save_outgoing->save()) {
+                            // $sender = new SenderController;
+                            $sender = $this->send_message($source, $phone_no, $final_message);
+
+                            echo json_encode($sender);
+                        } else {
+                            echo 'Could not send the message';
+                        }
+                    }
+                } else {
+                    echo 'Can not send to an empty phone number';
+                }
             }
         }
 
