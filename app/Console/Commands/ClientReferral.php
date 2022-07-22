@@ -114,7 +114,7 @@ class ClientReferral extends Command
             } else {
                 if (!empty($phone_no)) {
 
-                    if ($language !== 2 && $language !== 1) {
+                    if ($language !== 2 || $language !== 1) {
                         $get_message = Content::select('*')->where('identifier', '=', '20')->where('language_id', '=', '2')->get();
                     } else {
                         $get_message = Content::select('*')->where('identifier', '=', '20')->where('language_id', '=', $language)->get();
