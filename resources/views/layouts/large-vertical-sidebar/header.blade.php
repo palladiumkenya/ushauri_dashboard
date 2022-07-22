@@ -1,6 +1,6 @@
 <div class="main-header">
     <div class="logo">
-        <img class="pl-3" src="{{ asset('assets/images/ushauriNew_log.jpeg') }}" alt="ushauri">
+        <img  src="{{ asset('assets/images/Ushauri_big.png') }}" alt="ushauri">
     </div>
 
     <div class="menu-toggle">

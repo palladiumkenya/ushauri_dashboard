@@ -47,6 +47,12 @@ Route::get('/schedule/ltfu', ['uses' => 'App\Http\Controllers\ScheduleSMSControl
 //send sms notifications
 Route::get('/sms/sender', ['uses' => 'App\Http\Controllers\ScheduleSMSController@sender', 'as' => 'sms-sender']);
 
+// Today's appointment
+Route::get('/pull/todays/appointment', ['uses' => 'App\Http\Controllers\MigrationController@pull_todays_appointments', 'as' => 'pull-todays-appointment']);
+
+// Past appointment
+Route::get('/pull/past/appointment', ['uses' => 'App\Http\Controllers\MigrationController@pull_past_appointment_new', 'as' => 'pull-past-appointment']);
+
 
 Auth::routes();
 
