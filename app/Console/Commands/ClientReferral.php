@@ -52,9 +52,12 @@ class ClientReferral extends Command
 
     public function send_message($source, $destination, $msg)
     {
+        $key = env('SMS_SERVICE_KEY', '');
+        $host = env('SMS_SERVICE_HOST', '');
+
         $this->httpresponse = Http::withoutVerifying()
-            ->withHeaders(['api-token' => '2aYBQWzHwvp6l0JsCHgxVt8s91A'])
-            ->post('https://prod.kenyahmis.org:8003/api/sender', [
+            ->withHeaders(['api-token' => "$key"])
+            ->post("$host", [
                 'destination' => $destination,
                 'msg' => $msg,
                 'sender_id' => $destination,
