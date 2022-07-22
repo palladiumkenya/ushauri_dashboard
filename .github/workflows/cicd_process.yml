@@ -16,9 +16,13 @@ jobs:
         key: ${{ secrets.CICD_SECRET }}
         port: ${{ secrets.PORT }}
         script: |
+          cd /apps/github-workflows/mhealth-apps/
+          sudo rm -rf ushauri_dashboard
+          sudo mkdir ushauri_dashboard
+          sudo chown -R cicd2:cicd2 ushauri_dashboard
           git config --global --add safe.directory /apps/github-workflows/mhealth-apps/ushauri_dashboard/      
-          cd /apps/github-workflows/mhealth-apps/ushauri_dashboard/
-          git pull origin main
+          cd ushauri_dashboard
+          git clone -b main https://github.com/palladiumkenya/ushauri_dashboard.git .
           git status
           composer install --ignore-platform-reqs
           cp /apps/configs/ushauri-dashboard/.env /apps/github-workflows/mhealth-apps/ushauri_dashboard/
@@ -30,3 +34,6 @@ jobs:
           docker-compose rm -f
           docker-compose --env-file .env up -d --build site
           docker-compose exec -T php php artisan key:generate
+          docker-compose exec -T php php artisan config:cache
+          docker-compose exec -T php php artisan view:cache
+          docker-compose exec -T php chmod -R 777 storage/
