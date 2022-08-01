@@ -19,6 +19,11 @@
             <div class="panel-heading">
                 <i class="icon-table">{{count($hei_appointment)}} HEIs Appointment List</i>
             </div>
+            <div class="col-md-12" style="margin-top:10px; ">
+                    @if (Auth::user()->access_level == 'Partner' || Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Donor')
+                    {{ $hei_appointment->onEachSide(5)->links() }}
+                    @endif
+                </div>
             <div class="card-body">
                 <div class="table-responsive">
                     <table id="hei_scheduled_table" class="display table table-striped table-bordered" style="width:50%">

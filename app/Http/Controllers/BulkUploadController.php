@@ -96,7 +96,7 @@ class BulkUploadController extends Controller
                 $text_time = 7;
                 $wellness = "No";
                 $motivational = "No";
-                $smsenable = "Yes";
+                $smsenable = "No";
                 $language = 2;
 
 
@@ -258,7 +258,7 @@ class BulkUploadController extends Controller
         $data = array();
 
         if (($handle = fopen($filename, 'r')) !== false) {
-            while (($row = fgetcsv($handle, 12000, $delimiter)) !== false) {
+            while (($row = fgetcsv($handle, 13000, $delimiter)) !== false) {
                 if (!$header) {
                     // print_r("header not empty");
                     $header = $row;

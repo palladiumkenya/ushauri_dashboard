@@ -1,9 +1,11 @@
 <?php
+
 namespace App\Http\Controllers;
 
 date_default_timezone_set('Africa/Nairobi');
 ini_set('max_execution_time', 0);
 ini_set('memory_limit', '1024M');
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use App\Jobs\SendSMS;
@@ -14,6 +16,7 @@ use App\Models\Gender;
 use App\Models\Facility;
 use App\Models\PartnerFacility;
 use Carbon\Carbon;
+use Session;
 use Auth;
 
 
@@ -35,9 +38,9 @@ class BroadcastController extends Controller
             ->where('partner_id', Auth::user()->partner_id)
             ->get();
 
-        $groups = Group::all();
+        $groups = Group::all()->where('status', '=', 'Active');
 
-        $genders = Gender::all();
+        $genders = Gender::all()->where('status', '=', 'Active');
 
         $data = array(
             'facilities' => $facilities,
@@ -60,17 +63,13 @@ class BroadcastController extends Controller
         if (Auth::user()->access_level == 'Facility') {
 
             return view('broadcast.facility_broadcast')->with($u_data);
-
-        } else if(Auth::user()->access_level == 'Partner') {
+        } else if (Auth::user()->access_level == 'Partner') {
 
             return view('broadcast.partner_broadcast')->with($p_data);
-
-        } else if(Auth::user()->access_level == 'Admin') {
+        } else if (Auth::user()->access_level == 'Admin') {
 
             return view('broadcast.broadcast')->with($data);
-
         }
-
     }
 
     public function sendSMS(Request $request)
@@ -84,16 +83,16 @@ class BroadcastController extends Controller
                 'message' => 'required'
             ]);
 
-            $facility = Facility::where('code', Auth::user()->facility_id)->get();
+            $facility = Facility::where('code', Auth::user()->facility_id)->pluck('code')->first();
 
-            foreach($request['groups'] as $group_id) {
+            foreach ($request['groups'] as $group_id) {
 
                 $group = Group::find($group_id);
 
                 if (is_null($group))
                     continue;
 
-                foreach($request['genders'] as $gender_id) {
+                foreach ($request['genders'] as $gender_id) {
 
                     $gender = Gender::find($gender_id);
 
@@ -115,12 +114,12 @@ class BroadcastController extends Controller
                         // $sender->send($dest, $msg);
 
                     }
-
                 }
-
             }
+            Session::flash('statuscode', 'success');
+            return back()->with('status', 'Message Successfully Sent.');
 
-            return back();
+            // return back();
 
         } else if (Auth::user()->access_level == 'Partner') {
 
@@ -132,14 +131,14 @@ class BroadcastController extends Controller
             ]);
 
 
-            foreach($request['groups'] as $group_id) {
+            foreach ($request['groups'] as $group_id) {
 
                 $group = Group::find($group_id);
 
                 if (is_null($group))
                     continue;
 
-                foreach($request['genders'] as $gender_id) {
+                foreach ($request['genders'] as $gender_id) {
 
                     $gender = Gender::find($gender_id);
 
@@ -155,16 +154,15 @@ class BroadcastController extends Controller
                         $msg = $request->message;
 
                         SendSMS::dispatch($dest, $msg);
-
                     }
-
                 }
-
             }
+            Session::flash('statuscode', 'success');
+            return back()->with('status', 'Message Successfully Sent.');
 
-            return back();
+            // return back();
 
-        } else if(Auth::user()->access_level == 'Admin') {
+        } else if (Auth::user()->access_level == 'Admin') {
 
             $request->validate([
                 'groups' => 'required',
@@ -172,14 +170,14 @@ class BroadcastController extends Controller
                 'message' => 'required'
             ]);
 
-            foreach($request['groups'] as $group_id) {
+            foreach ($request['groups'] as $group_id) {
 
                 $group = Group::find($group_id);
 
                 if (is_null($group))
                     continue;
 
-                foreach($request['genders'] as $gender_id) {
+                foreach ($request['genders'] as $gender_id) {
 
                     $gender = Gender::find($gender_id);
 
@@ -194,22 +192,17 @@ class BroadcastController extends Controller
 
                         $msg = $request->message;
 
-                        if(Str::length($dest) >= 10) {
+                        if (Str::length($dest) >= 10) {
 
                             SendSMS::dispatch($dest, $msg);
-
                         }
-
                     }
-
                 }
-
             }
-
-            return back();
+            Session::flash('statuscode', 'success');
+            return back()->with('status', 'Message Successfully Sent.');
+            //return back();
 
         }
-
     }
-
 }

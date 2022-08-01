@@ -8,6 +8,7 @@ use App\Models\Group;
 use App\Models\Clinic;
 use App\Models\Language;
 use App\Models\Condition;
+use App\Models\County;
 use App\Models\Gender;
 use App\Models\Marital;
 use Session;
@@ -22,30 +23,31 @@ class ClientController extends Controller
         $treatment = Condition::all();
         $grouping = Group::all();
         $clinics = Clinic::all();
+        $county = County::where('status', '=', 'Active')->pluck('name', 'id');
         $language = Language::all()->where('status', '=', 'Active');
-        return view('clients.new_client', compact('gender', 'marital', 'clinics', 'treatment', 'language', 'grouping'));
+        return view('clients.new_client', compact('gender', 'marital', 'clinics', 'treatment', 'language', 'grouping', 'county'));
     }
     public function add_client(Request $request)
     {
         try
         {
-            $request->validate([
-                'clinic_number' => 'required|numeric|digits:10',
-                'f_name' => 'required',
-                'l_name' => 'required',
-                'dob' => 'required',
-                'gender' => 'required',
-                'marital' => 'required',
-                'client_status' => 'required',
-                'enrollment_date' => 'required',
-                'art_date' => 'required',
-                'language_id' => 'required',
-                'smsenable' => 'required',
-                'motivational_enable' => 'required',
-                'txt_time' => 'required',
-                'status' => 'required',
-                'group_id' => 'required',
-            ]);
+            // $request->validate([
+            //     'clinic_number' => 'required|numeric|digits:10',
+            //     'f_name' => 'required',
+            //     'l_name' => 'required',
+            //     'dob' => 'required',
+            //     'gender' => 'required',
+            //     'marital' => 'required',
+            //     'client_status' => 'required',
+            //     'enrollment_date' => 'required',
+            //     'art_date' => 'required',
+            //     'language_id' => 'required',
+            //     'smsenable' => 'required',
+            //     'motivational_enable' => 'required',
+            //     'txt_time' => 'required',
+            //     'status' => 'required',
+            //     'group_id' => 'required',
+            // ]);
         $new_client = new Client;
 
        // $validate_client = Client::where('clinic_number', $request->clinic_number)
@@ -67,6 +69,14 @@ class ClientController extends Controller
         $new_client->status = $request->status;
         $new_client->group_id = $request->group;
         $new_client->clinic_id = $request->clinic;
+        $new_client->client_type = "New";
+        $new_client->mfl_code = Auth::user()->facility_id;
+        $new_client->facility_id = Auth::user()->facility_id;
+        $new_client->locator_county = $request->county;
+        $new_client->locator_sub_county = $request->subcounty;
+        $new_client->locator_ward = $request->ward;
+        $new_client->locator_location = $request->location;
+        $new_client->locator_village = $request->village;
 
         $validate_ccc = Client::where('clinic_number', $request->clinic_number)
         ->first();

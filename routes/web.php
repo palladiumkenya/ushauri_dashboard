@@ -30,6 +30,7 @@ Route::get('/', function () {
   return view('auth/login');
 });
 
+
 //SMS Scheduler routes
 //schedule appointment notifications
 Route::get('/schedule/notified', ['uses' => 'App\Http\Controllers\ScheduleSMSController@notifiedScheduler', 'as' => 'notified-sms']);
@@ -45,6 +46,13 @@ Route::get('/schedule/ltfu', ['uses' => 'App\Http\Controllers\ScheduleSMSControl
 
 //send sms notifications
 Route::get('/sms/sender', ['uses' => 'App\Http\Controllers\ScheduleSMSController@sender', 'as' => 'sms-sender']);
+
+// Today's appointment
+Route::get('/pull/todays/appointment', ['uses' => 'App\Http\Controllers\MigrationController@pull_todays_appointments', 'as' => 'pull-todays-appointment']);
+
+// Past appointment
+Route::get('/pull/past/appointment', ['uses' => 'App\Http\Controllers\MigrationController@pull_past_appointment_new', 'as' => 'pull-past-appointment']);
+
 
 Auth::routes();
 
@@ -79,6 +87,7 @@ Route::group(['middleware' => 'auth'], function () {
   Route::get('/get_dashboard_counties/{id}', ['uses' => 'App\Http\Controllers\DashboardController@get_counties', 'as' => 'get_counties']);
   Route::get('/get_dashboard_sub_counties/{id}', ['uses' => 'App\Http\Controllers\DashboardController@get_dashboard_sub_counties', 'as' => 'get_dashboard_sub_counties']);
   Route::get('/get_dashboard_facilities/{id}', ['uses' => 'App\Http\Controllers\DashboardController@get_dashboard_facilities', 'as' => 'get_dashboard_facilities']);
+  Route::get('/get_wards/{id}', ['uses' => 'App\Http\Controllers\DashboardController@get_wards', 'as' => 'get_wards']);
   //Route::get('get_client_data', ['uses' => 'App\Http\Controllers\DashboardController@get_client_data', 'as' => 'get_client_data']);
   Route::get('/Reports/facility_home', ['uses' => 'App\Http\Controllers\DashboardController@facility_dashboard', 'as' => 'Reports-facility_home']);
   Route::get('/Reports/clients/distribution', ['uses' => 'App\Http\Controllers\DashboardController@client_distribution_graphs', 'as' => 'Reports-clients-distribution']);
@@ -100,7 +109,7 @@ Route::group(['middleware' => 'auth'], function () {
   Route::post('/clients/assign/tracer', ['uses' => 'App\Http\Controllers\TracerController@assign_client', 'as' => 'assign-tracer']);
 
   // DCM routes
-  Route::get('/Reports/dsd', ['uses' => 'App\Http\Controllers\DcmReportController@dcm_report', 'as' => 'Reports-dsd']);
+  Route::get('/Reports/dsd', ['uses' => 'App\Http\Controllers\ReportController@dsd_clients', 'as' => 'Reports-dsd']);
 
   // Facilities routes
   Route::get('/Reports/active/facilities', ['uses' => 'App\Http\Controllers\DashboardController@active_facilities', 'as' => 'Reports-active-facilities']);

@@ -319,6 +319,7 @@ class UserController extends Controller
                     'month6_report' => $request->month6_report,
                     'yearly_report' => $request->yearly_report,
                     'updated_by' => Auth::user()->id,
+                    'status' => $request->status,
                 ]);
             if ($user) {
                 Session::flash('statuscode', 'success');

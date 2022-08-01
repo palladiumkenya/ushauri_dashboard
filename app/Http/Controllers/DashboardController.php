@@ -14,6 +14,7 @@ use App\Models\Appointments;
 use App\Models\TodayAppointment;
 use App\Models\Message;
 use App\Models\County;
+use App\Models\Ward;
 use App\Models\SubCounty;
 use App\Models\MainDashboardBar;
 use App\Models\ClientRegistration;
@@ -187,7 +188,7 @@ class DashboardController extends Controller
                 ->where('partner_id', Auth::user()->partner_id)
                 ->sum('avg_clients');
 
-                // dd($all_target_clients);
+            // dd($all_target_clients);
             $all_consented_clients = Client::where('smsenable', '=', 'Yes')
                 ->where('partner_id', Auth::user()->partner_id)
                 ->count();
@@ -264,7 +265,7 @@ class DashboardController extends Controller
 
 
         $all_clients_number = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-        ->whereNotNull('tbl_client.clinic_number');
+            ->whereNotNull('tbl_client.clinic_number');
 
         // $pec_client_sum = Client::whereNotNull('id')->count();
         // $pec_client = Client::where('status', '=', 'Active')->count();
@@ -272,18 +273,18 @@ class DashboardController extends Controller
 
         $all_target_clients = PartnerFacility::select('avg_clients')->where('is_approved', '=', 'Yes');
         $all_consented_clients = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-        ->where('tbl_client.smsenable', '=', 'Yes');
+            ->where('tbl_client.smsenable', '=', 'Yes');
         $all_future_appointments = FutureApp::join('tbl_partner_facility', 'tbl_future_appointments_query.mfl_code', '=', 'tbl_partner_facility.mfl_code');
         $number_of_facilities = PartnerFacility::select('mfl_code')->where('is_approved', '=', 'Yes');
         $registered_clients_count = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-        ->whereNotNull('tbl_client.clinic_number');
+            ->whereNotNull('tbl_client.clinic_number');
         $consented_clients_count = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-        ->where('tbl_client.smsenable', '=', 'Yes');
+            ->where('tbl_client.smsenable', '=', 'Yes');
 
 
         if (!empty($selected_partners)) {
             $all_clients_number = $all_clients_number->where('tbl_partner_facility.partner_id', $selected_partners);
-           // $pec_client_count = $pec_client_count->where('tbl_partner_facility.partner_id', $selected_partners);
+            // $pec_client_count = $pec_client_count->where('tbl_partner_facility.partner_id', $selected_partners);
             $all_target_clients = $all_target_clients->where('partner_id', $selected_partners);
             $all_consented_clients = $all_consented_clients->where('tbl_partner_facility.partner_id', $selected_partners);
             $number_of_facilities = $number_of_facilities->where('partner_id', $selected_partners);
@@ -293,7 +294,7 @@ class DashboardController extends Controller
         }
         if (!empty($selected_counties)) {
             $all_clients_number = $all_clients_number->where('tbl_partner_facility.county_id', $selected_counties);
-           // $pec_client_count = $pec_client_count->where('tbl_partner_facility.county_id', $selected_counties);
+            // $pec_client_count = $pec_client_count->where('tbl_partner_facility.county_id', $selected_counties);
             $all_target_clients = $all_target_clients->where('county_id', $selected_counties);
             $all_consented_clients = $all_consented_clients->where('tbl_partner_facility.county_id', $selected_counties);
             $number_of_facilities = $number_of_facilities->where('county_id', $selected_counties);
@@ -303,7 +304,7 @@ class DashboardController extends Controller
         }
         if (!empty($selected_subcounties)) {
             $all_clients_number = $all_clients_number->where('tbl_partner_facility.sub_county_id', $selected_subcounties);
-           // $pec_client_count = $pec_client_count->where('tbl_partner_facility.sub_county_id', $selected_subcounties);
+            // $pec_client_count = $pec_client_count->where('tbl_partner_facility.sub_county_id', $selected_subcounties);
             $all_target_clients = $all_target_clients->where('sub_county_id', $selected_subcounties);
             $all_consented_clients = $all_consented_clients->where('tbl_partner_facility.sub_county_id', $selected_subcounties);
             $number_of_facilities = $number_of_facilities->where('sub_county_id', $selected_subcounties);
@@ -313,7 +314,7 @@ class DashboardController extends Controller
         }
         if (!empty($selected_facilites)) {
             $all_clients_number = $all_clients_number->where('tbl_partner_facility.mfl_code', $selected_facilites);
-          //  $pec_client_count = $pec_client_count->where('tbl_partner_facility.mfl_code', $selected_facilites);
+            //  $pec_client_count = $pec_client_count->where('tbl_partner_facility.mfl_code', $selected_facilites);
             $all_target_clients = $all_target_clients->where('mfl_code', $selected_facilites);
             $all_consented_clients = $all_consented_clients->where('tbl_partner_facility.mfl_code', $selected_facilites);
             $number_of_facilities = $number_of_facilities->where('mfl_code', $selected_facilites);
@@ -412,6 +413,16 @@ class DashboardController extends Controller
         }
 
         return json_encode($facilities);
+    }
+    public function get_wards($id)
+    {
+        $wards = Ward::join('tbl_master_facility', 'tbl_master_facility.Ward_id', '=', 'tbl_ward.id')
+        ->join('tbl_partner_facility', 'tbl_partner_facility.mfl_code', '=', 'tbl_master_facility.code')
+        ->where('tbl_partner_facility.sub_county_id', $id)
+        ->orderBy('tbl_ward.name', 'ASC')
+        ->pluck('tbl_ward.name', 'tbl_ward.id');
+
+        return json_encode($wards);
     }
 
 
