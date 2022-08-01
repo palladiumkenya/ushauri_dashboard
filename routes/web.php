@@ -148,6 +148,7 @@ Route::group(['middleware' => 'auth'], function () {
   Route::get('report/refill_calendar', ['uses' => 'App\Http\Controllers\CalendarController@refill_calendar', 'as' => 'refill_calendar']);
   Route::get('report/refill_apps', ['uses' => 'App\Http\Controllers\CalendarController@refill_apps', 'as' => 'refill_apps']);
   Route::get('report/vl_cd_calendar', ['uses' => 'App\Http\Controllers\CalendarController@vl_cd_calendar', 'as' => 'vl_cd_calendar']);
+  Route::get('report/current-appointments/{slug}/{id}', ['uses' => 'App\Http\Controllers\CalendarController@current_appointments', 'as' => 'current_appointments']);
 
   // wellness routes
   Route::get('report/ok_clients', ['uses' => 'App\Http\Controllers\WellnessController@get_ok_clients', 'as' => 'report-ok_clients']);
