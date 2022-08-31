@@ -248,4 +248,5 @@ Route::group(['middleware' => 'auth'], function () {
 
  // Route::get('/home/uptake', ['uses' => 'App\Http\Controllers\UptakeController@index', 'as' => 'uptake']);
   Route::get('/home/uptake', ['uses' => 'App\Http\Controllers\UptakeController@registered', 'as' => 'registered']);
+  Route::get('/filter_uptake', ['uses' => 'App\Http\Controllers\UptakeController@filter_uptake', 'as' => 'filter_uptake']);
 });

@@ -22,9 +22,9 @@
 
                     <select class="form-control select2" id="partners" name="partner">
                         <option value="">Partner</option>
-
-                        <option value=""></option>
-
+                        @foreach ($all_partners as $partner => $value)
+                        <option value="{{ $partner }}"> {{ $value }}</option>
+                        @endforeach
                         <option></option>
                     </select>
                 </div>
@@ -182,8 +182,8 @@
                         <div class="content">
                             <p class="text-muted mt-2 mb-0">TX Curr </p>
 
-                            <p id="facilities_ever_enrolled" class="text-primary text-20 line-height-1 mb-1">{{ json_decode($txcur[0]->tx_cur) }}</p>
-                            <p id="facilities_ever_enrolled" class="text-primary text-12 line-height-1 mb-1">Source KHIS </p>
+                            <p id="txcurr" class="text-primary text-20 line-height-1 mb-1">{{ number_format(json_decode($txcur[0]->tx_cur)) }}</p>
+                            <p  class="text-primary text-12 line-height-1 mb-1">Source KHIS </p>
                         </div>
                     </div>
                 </div>
@@ -194,7 +194,7 @@
                         <div class="content">
                             <p class="text-muted mt-2 mb-0">Registered In Ushauri </p>
 
-                            <p id="active_facilities" class="text-primary text-20 line-height-1 mb-1">{{ json_decode($registered[0]->registeredClients) }}</p>
+                            <p id="registered_ushauri" class="text-primary text-20 line-height-1 mb-1">{{ number_format(json_decode($registered[0]->registeredClients)) }}</p>
                         </div>
                     </div>
                 </div>
@@ -205,7 +205,7 @@
                         <div class="content">
                             <p class="text-muted mt-2 mb-0">Consented For SMS</p>
 
-                            <p id="client_ever_enrolled" class="text-primary text-20 line-height-1 mb-2">{{ json_decode($consented[0]->consented) }}</p>
+                            <p id="consented_sms" class="text-primary text-20 line-height-1 mb-2">{{ number_format(json_decode($consented[0]->consented)) }}</p>
                         </div>
                     </div>
                 </div>
@@ -281,7 +281,7 @@
                         <div class="content">
                             <p class="text-muted mt-2 mb-0">Scheduled Appointments </p>
 
-                            <p id="active_facilities" class="text-primary text-20 line-height-1 mb-1">{{json_decode($scheduledappointment[0]->appointments)}}</p>
+                            <p id="scheduled_appointments" class="text-primary text-20 line-height-1 mb-1">{{ number_format(json_decode($scheduledappointment[0]->appointments)) }}</p>
                         </div>
                     </div>
                 </div>
@@ -292,7 +292,7 @@
                         <div class="content">
                             <p class="text-muted mt-2 mb-0">Received SMS</p>
 
-                            <p id="client_ever_enrolled" class="text-primary text-20 line-height-1 mb-2"></p>
+                            <p id="received_sms" class="text-primary text-20 line-height-1 mb-2"></p>
                         </div>
                     </div>
                 </div>
@@ -303,7 +303,7 @@
                         <div class="content">
                             <p class="text-muted mt-2 mb-0"> Honoured Appointments</p>
                             <a class="has-arrow" href="{{route('client_dashboard')}}">
-                                <p id="client" class="text-primary text-20 line-height-1 mb-2">{{json_decode($honoredappointment[0]->honored)}}</p>
+                                <p id="honored_appointments" class="text-primary text-20 line-height-1 mb-2">{{number_format(json_decode($honoredappointment[0]->honored))}}</p>
                             </a>
 
                         </div>
@@ -870,6 +870,135 @@
             })
         }],
 
+    });
+
+    $(document).ready(function() {
+        $('select[name="partner"]').on('change', function() {
+            var partnerID = $(this).val();
+            if (partnerID) {
+                $.ajax({
+                    url: '/get_dashboard_counties/' + partnerID,
+                    type: "GET",
+                    dataType: "json",
+                    success: function(data) {
+
+
+                        $('select[name="county"]').empty();
+                        $('select[name="county"]').append('<option value="">Please Select County</option>');
+                        $.each(data, function(key, value) {
+
+                            $('select[name="county"]').append('<option value="' + key + '">' + value + '</option>');
+                        });
+
+
+                    }
+                });
+            } else {
+                $('select[name="county"]').empty();
+            }
+        });
+    });
+
+    $(document).ready(function() {
+        $('select[name="county"]').on('change', function() {
+            var countyID = $(this).val();
+            if (countyID) {
+                $.ajax({
+                    url: '/get_dashboard_sub_counties/' + countyID,
+                    type: "GET",
+                    dataType: "json",
+                    success: function(data) {
+
+
+                        $('select[name="subcounty"]').empty();
+                        $('select[name="subcounty"]').append('<option value="">Please Select Sub County</option>');
+                        $.each(data, function(key, value) {
+                            $('select[name="subcounty"]').append('<option value="' + key + '">' + value + '</option>');
+                        });
+
+
+                    }
+                });
+            } else {
+                $('select[name="subcounty"]').empty();
+            }
+        });
+    });
+
+    $(document).ready(function() {
+        $('select[name="subcounty"]').on('change', function() {
+            var subcountyID = $(this).val();
+            if (subcountyID) {
+                $.ajax({
+                    url: '/get_dashboard_facilities/' + subcountyID,
+                    type: "GET",
+                    dataType: "json",
+                    success: function(data) {
+
+
+                        $('select[name="facility"]').empty();
+                        $('select[name="facility"]').append('<option value="">Please select Facility</option>');
+                        $.each(data, function(key, value) {
+                            $('select[name="facility"]').append('<option value="' + key + '">' + value + '</option>');
+                        });
+
+
+                    }
+                });
+            } else {
+                $('select[name="facility"]').empty();
+            }
+        });
+    });
+
+    $('#dataFilter').on('submit', function(e) {
+        e.preventDefault();
+        let partners = $('#partners').val();
+        let counties = $('#counties').val();
+        let subcounties = $('#subcounties').val();
+        let facilities = $('#facilities').val();
+        let from = $('#from').val();
+        let to = $('#to').val();
+
+        Swal.fire({
+                title: "Please wait, Loading Charts!",
+                showConfirmButton: false,
+                allowOutsideClick: false
+            });
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+
+        $.ajax({
+            type: 'GET',
+            data: {
+                "partners": partners,
+                "counties": counties,
+                "subcounties": subcounties,
+                "facilities": facilities,
+                "from": from,
+                "to": to,
+            },
+            url: "{{ route('filter_uptake') }}",
+            success: function(data) {
+
+                $("#txcurr").html(data.txcur);
+                $("#registered_ushauri").html(data.registered);
+                $("#consented_sms").html(data.consented);
+                $("#scheduled_appointments").html(data.scheduledappointment);
+                $("#honored_appointments").html(data.honoredappointment);
+                // Clients_male = parseInt(data.clients_male)
+
+                // clientGender.series[0].setData([Clients_male, Clients_female, Unknown_gender]);
+                // clientAge.series[0].setData([Client_to_nine, Client_to_fourteen, Client_to_nineteen, Client_to_twentyfour, Client_to_twentyfive_above, Client_unknown_age]);
+
+                Swal.close();
+
+
+            }
+        });
     });
 </script>
 

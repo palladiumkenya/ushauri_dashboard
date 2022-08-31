@@ -7,6 +7,7 @@ use DB;
 use Auth;
 use App\Models\User;
 use App\Models\Facility;
+use App\Models\Partner;
 
 class UptakeController extends Controller
 {
@@ -21,6 +22,7 @@ class UptakeController extends Controller
 
 
         if (Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Donor') {
+            $all_partners = Partner::where('status', '=', 'Active')->orderBy('name', 'ASC')->pluck('name', 'id');
             $consented = DB::select('CALL sp_rpt_consentedclients(?,?,?,?,?,?)', array("%", "%", "%", '1900-01-01', '2900-01-01', "%"));
             $registered = DB::select('CALL sp_rpt_registeredclients(?,?,?,?,?,?)', array("%", "%", "%", '1900-01-01', '2900-01-01', "%"));
             $txcur = DB::select('CALL sp_rpt_txcur(?,?,?,?)', array("%", "%", "%", "%"));
@@ -50,6 +52,7 @@ class UptakeController extends Controller
         }
         if (Auth::user()->access_level == 'Partner') {
             $partner = Auth::user()->partner_id;
+            $all_partners = Partner::where('status', '=', 'Active')->where('id', Auth::user()->partner_id)->pluck('name', 'id');
 
             $consented = DB::select('CALL sp_rpt_consentedclients(?,?,?,?,?,?)', array("%", "%", "%", '1900-01-01', '2900-01-01',  $partner));
             $registered = DB::select('CALL sp_rpt_registeredclients(?,?,?,?,?,?)', array("%", "%", "%", '1900-01-01', '2900-01-01',  $partner));
@@ -78,9 +81,94 @@ class UptakeController extends Controller
             'honoredappointment',
             'honoredappointmentagesex',
             'honoredappointmentfacilities',
-            'consentedfacilities'
+            'consentedfacilities',
+            'all_partners'
         ));
 
         dd($honoredappointmentfacilities);
+    }
+
+    public function filter_uptake(Request $request) {
+
+        $data = [];
+        $selected_partners = $request->partners;
+        $selected_counties = $request->counties;
+        $selected_subcounties = $request->subcounties;
+        $selected_facilites = $request->facilities;
+        $selected_from = $request->from;
+        $selected_to = $request->to;
+
+        if (!empty($selected_partners)) {
+            $consented = DB::select('CALL sp_rpt_consentedclients(?,?,?,?,?,?)', array("%", "%", "%", '1900-01-01', '2900-01-01', $selected_partners));
+            $registered = DB::select('CALL sp_rpt_registeredclients(?,?,?,?,?,?)', array("%", "%", "%", '1900-01-01', '2900-01-01', $selected_partners));
+            $txcur = DB::select('CALL sp_rpt_txcur(?,?,?,?)', array("%", "%", "%", $selected_partners));
+
+            $consentedagesex = DB::select('CALL sp_rpt_consentedbyagesex(?,?,?,?,?,?)', array("%", "%", "%", '1900-01-01', '2900-01-01', $selected_partners));
+            $scheduledappointment = DB::select('CALL sp_rpt_scheduled_appointments(?,?,?,?,?,?)', array("%", "%", "%", '1900-01-01', '2900-01-01', $selected_partners));
+            $honoredappointment = DB::select('CALL sp_rpt_honored_appointments(?,?,?,?,?,?)', array("%", "%", "%", '1900-01-01', '2900-01-01', $selected_partners));
+            $honoredappointmentagesex = DB::select('CALL sp_rpt_honored_appointmentsbyagesex(?,?,?,?,?,?)', array("%", "%", "%", '1900-01-01', '2900-01-01', $selected_partners));
+            $honoredappointmentfacilities = DB::select('CALL sp_rpt_honoredclients_facilities(?,?,?,?,?,?)', array("%", "%", "%", '1900-01-01', '2900-01-01', $selected_partners));
+            $consentedfacilities = DB::select('CALL sp_rpt_consentedclients_facilities(?,?,?,?,?,?)', array("%", "%", "%", '1900-01-01', '2900-01-01', $selected_partners));
+        }
+        if (!empty($selected_counties)) {
+            $consented = DB::select('CALL sp_rpt_consentedclients(?,?,?,?,?,?)', array($selected_counties, "%", "%", '1900-01-01', '2900-01-01', "%"));
+            $registered = DB::select('CALL sp_rpt_registeredclients(?,?,?,?,?,?)', array($selected_counties, "%", "%", '1900-01-01', '2900-01-01', "%"));
+            $txcur = DB::select('CALL sp_rpt_txcur(?,?,?,?)', array($selected_counties, "%", "%", "%"));
+
+            $consentedagesex = DB::select('CALL sp_rpt_consentedbyagesex(?,?,?,?,?,?)', array($selected_counties, "%", "%", '1900-01-01', '2900-01-01', "%"));
+            $scheduledappointment = DB::select('CALL sp_rpt_scheduled_appointments(?,?,?,?,?,?)', array($selected_counties, "%", "%", '1900-01-01', '2900-01-01', "%"));
+            $honoredappointment = DB::select('CALL sp_rpt_honored_appointments(?,?,?,?,?,?)', array($selected_counties, "%", "%", '1900-01-01', '2900-01-01', "%"));
+            $honoredappointmentagesex = DB::select('CALL sp_rpt_honored_appointmentsbyagesex(?,?,?,?,?,?)', array($selected_counties, "%", "%", '1900-01-01', '2900-01-01', "%"));
+            $honoredappointmentfacilities = DB::select('CALL sp_rpt_honoredclients_facilities(?,?,?,?,?,?)', array($selected_counties, "%", "%", '1900-01-01', '2900-01-01', "%"));
+            $consentedfacilities = DB::select('CALL sp_rpt_consentedclients_facilities(?,?,?,?,?,?)', array($selected_counties, "%", "%", '1900-01-01', '2900-01-01', "%"));
+        }
+        if (!empty($selected_subcounties)) {
+            $consented = DB::select('CALL sp_rpt_consentedclients(?,?,?,?,?,?)', array("%", $selected_subcounties, "%", '1900-01-01', '2900-01-01', "%"));
+            $registered = DB::select('CALL sp_rpt_registeredclients(?,?,?,?,?,?)', array("%", $selected_subcounties, "%", '1900-01-01', '2900-01-01', "%"));
+            $txcur = DB::select('CALL sp_rpt_txcur(?,?,?,?)', array("%", $selected_subcounties, "%", $selected_subcounties));
+
+            $consentedagesex = DB::select('CALL sp_rpt_consentedbyagesex(?,?,?,?,?,?)', array("%", $selected_subcounties, "%", '1900-01-01', '2900-01-01', "%"));
+            $scheduledappointment = DB::select('CALL sp_rpt_scheduled_appointments(?,?,?,?,?,?)', array("%", $selected_subcounties, "%", '1900-01-01', '2900-01-01', "%"));
+            $honoredappointment = DB::select('CALL sp_rpt_honored_appointments(?,?,?,?,?,?)', array("%", $selected_subcounties, "%", '1900-01-01', '2900-01-01', "%"));
+            $honoredappointmentagesex = DB::select('CALL sp_rpt_honored_appointmentsbyagesex(?,?,?,?,?,?)', array("%", $selected_subcounties, "%", '1900-01-01', '2900-01-01', "%"));
+            $honoredappointmentfacilities = DB::select('CALL sp_rpt_honoredclients_facilities(?,?,?,?,?,?)', array("%", $selected_subcounties, "%", '1900-01-01', '2900-01-01', "%"));
+            $consentedfacilities = DB::select('CALL sp_rpt_consentedclients_facilities(?,?,?,?,?,?)', array("%", $selected_subcounties, "%", '1900-01-01', '2900-01-01', "%"));
+        }
+        if (!empty($selected_facilites)) {
+            $consented = DB::select('CALL sp_rpt_consentedclients(?,?,?,?,?,?)', array("%", "%", $selected_facilites, '1900-01-01', '2900-01-01', "%"));
+            $registered = DB::select('CALL sp_rpt_registeredclients(?,?,?,?,?,?)', array("%", "%", $selected_facilites, '1900-01-01', '2900-01-01', "%"));
+            $txcur = DB::select('CALL sp_rpt_txcur(?,?,?,?)', array("%", "%", $selected_facilites, "%"));
+
+            $consentedagesex = DB::select('CALL sp_rpt_consentedbyagesex(?,?,?,?,?,?)', array("%", "%", $selected_facilites, '1900-01-01', '2900-01-01', "%"));
+            $scheduledappointment = DB::select('CALL sp_rpt_scheduled_appointments(?,?,?,?,?,?)', array("%", "%", $selected_facilites, '1900-01-01', '2900-01-01', "%"));
+            $honoredappointment = DB::select('CALL sp_rpt_honored_appointments(?,?,?,?,?,?)', array("%", "%", $selected_facilites, '1900-01-01', '2900-01-01', "%"));
+            $honoredappointmentagesex = DB::select('CALL sp_rpt_honored_appointmentsbyagesex(?,?,?,?,?,?)', array("%", "%", $selected_facilites, '1900-01-01', '2900-01-01', "%"));
+            $honoredappointmentfacilities = DB::select('CALL sp_rpt_honoredclients_facilities(?,?,?,?,?,?)', array("%", "%", $selected_facilites, '1900-01-01', '2900-01-01', "%"));
+            $consentedfacilities = DB::select('CALL sp_rpt_consentedclients_facilities(?,?,?,?,?,?)', array("%", "%", $selected_facilites, '1900-01-01', '2900-01-01', "%"));
+        }
+        if (!empty($selected_from || $selected_to)) {
+            $consented = DB::select('CALL sp_rpt_consentedclients(?,?,?,?,?,?)', array("%", "%", "%", $selected_from, $selected_to, "%"));
+            $registered = DB::select('CALL sp_rpt_registeredclients(?,?,?,?,?,?)', array("%", "%", "%", $selected_from, $selected_to, "%"));
+            $txcur = DB::select('CALL sp_rpt_txcur(?,?,?,?)', array("%", "%", "%", "%"));
+
+            $consentedagesex = DB::select('CALL sp_rpt_consentedbyagesex(?,?,?,?,?,?)', array("%", "%", "%", $selected_from, $selected_to, "%"));
+            $scheduledappointment = DB::select('CALL sp_rpt_scheduled_appointments(?,?,?,?,?,?)', array("%", "%", "%", $selected_from, $selected_to, "%"));
+            $honoredappointment = DB::select('CALL sp_rpt_honored_appointments(?,?,?,?,?,?)', array("%", "%", "%", $selected_from, $selected_to, "%"));
+            $honoredappointmentagesex = DB::select('CALL sp_rpt_honored_appointmentsbyagesex(?,?,?,?,?,?)', array("%", "%", "%", $selected_from, $selected_to, "%"));
+            $honoredappointmentfacilities = DB::select('CALL sp_rpt_honoredclients_facilities(?,?,?,?,?,?)', array("%", "%", "%", $selected_from, $selected_to, "%"));
+            $consentedfacilities = DB::select('CALL sp_rpt_consentedclients_facilities(?,?,?,?,?,?)', array("%", "%", "%", $selected_from, $selected_to, "%"));
+        }
+
+        $data["consented"]    = json_decode($consented[0]->consented);
+        $data["registered"]    = json_decode($registered[0]->registeredClients);
+        $data["txcur"]    = json_decode($txcur[0]->tx_cur);
+        $data["consentedagesex"]    = $consentedagesex;
+        $data["scheduledappointment"]    = json_decode($scheduledappointment[0]->appointments);
+        $data["honoredappointment"]    = json_decode($honoredappointment[0]->honored);
+        $data["honoredappointmentagesex"]    = $honoredappointmentagesex;
+        $data["honoredappointmentfacilities"]    = $honoredappointmentfacilities;
+        $data["consentedfacilities"]    = $consentedfacilities;
+
+        return $data;
     }
 }
