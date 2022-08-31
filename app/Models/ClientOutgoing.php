@@ -14,6 +14,6 @@ class ClientOutgoing extends Model
     public $incrementing = false;
 
     protected $fillable = [
-        'destination','msg','responded','status','message_type_id','source','clnt_usr_id','recepient_type','content_id','created_by'
+        'destination','msg','responded','status','message_type_id','source','clnt_usr_id','appointment_id','no_of_days','recepient_type','content_id','created_by'
     ];
 }
