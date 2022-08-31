@@ -245,4 +245,7 @@ Route::group(['middleware' => 'auth'], function () {
   Route::get('/active/facilities/list', ['uses' => 'App\Http\Controllers\NewReportController@active_facility', 'as' => 'active_facilities_list']);
   Route::get('/indicators/definition', ['uses' => 'App\Http\Controllers\NewReportController@indicators', 'as' => 'indicators']);
   Route::get('/client/messages', ['uses' => 'App\Http\Controllers\NewReportController@client_message', 'as' => 'client_message']);
+
+ // Route::get('/home/uptake', ['uses' => 'App\Http\Controllers\UptakeController@index', 'as' => 'uptake']);
+  Route::get('/home/uptake', ['uses' => 'App\Http\Controllers\UptakeController@registered', 'as' => 'registered']);
 });

@@ -1,0 +1,882 @@
+@extends('layouts.master')
+@section('page-css')
+
+@endsection
+
+@section('main-content')
+<!-- <div class="breadcrumb">
+                <ul>
+                    <li><a href="">Appointment Dashboard</a></li>
+                    <li></li>
+                </ul>
+            </div> -->
+@if (Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Partner' || Auth::user()->access_level == 'Donor')
+
+<div class="col">
+
+    <form role="form" method="get" action="#" id="dataFilter">
+        {{ csrf_field() }}
+        <div class="row">
+            <div class="col-lg-3">
+                <div class="form-group">
+
+                    <select class="form-control select2" id="partners" name="partner">
+                        <option value="">Partner</option>
+
+                        <option value=""></option>
+
+                        <option></option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-lg-3">
+                <div class="form-group">
+
+                    <select class="form-control county  input-rounded input-sm select2" id="counties" name="county">
+                        <option value="">County:</option>
+                        <option value=""></option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-lg-3">
+                <div class="form-group">
+
+                    <span class="filter_sub_county_wait" style="display: none;">Loading , Please Wait ...</span>
+                    <select class="form-control subcounty input-rounded input-sm select2" id="subcounties" name="subcounty">
+                        <option value=""> Sub County : </option>
+                        <option value=""></option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-lg-3">
+                <div class="form-group">
+                    <span class="filter_facility_wait" style="display: none;">.</span>
+
+                    <select class="form-control filter_facility input-rounded input-sm select2" id="facilities" name="facility">
+                        <option value="">Facility : </option>
+                        <option value=""></option>
+                    </select>
+                </div>
+            </div>
+
+            <div class='col'>
+                <div class="form-group">
+                    <div class="input-group">
+                        <div class="col-md-2">
+                            <label for="firstName1">From</label>
+                        </div>
+
+                        <div class="col-md-10">
+
+                            <input type="date" id="from" class="form-control" placeholder="From" name="from" max="{{date("Y-m-d")}}">
+                        </div>
+                        <div class="input-group-append">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="form-group">
+                    <div class="input-group">
+                        <div class="col-md-2">
+                            <label for="firstName1">To</label>
+                        </div>
+                        <div class="col-md-10">
+
+                            <input type="date" id="to" class="form-control" placeholder="To" name="to" max="{{date("Y-m-d")}}">
+                        </div>
+                        <div class="input-group-append">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="form-group">
+                    <div class="col-md-4">
+
+                    </div>
+                    <span class="filter_facility_wait" style="display: none;"></span>
+                    <button class="btn btn-default filter btn-round  btn-small btn-primary  " type="submit" name="filter" id="filter"> <i class="fa fa-filter"></i>
+                        Filter</button>
+                </div>
+            </div>
+        </div>
+
+    </form>
+
+</div>
+@endif
+@if (Auth::user()->access_level == 'Facility')
+<div class="col">
+
+    <form role="form" method="get" action="#" id="dataFilter">
+        {{ csrf_field() }}
+        <div class="row">
+
+            <div class='col-lg-4'>
+                <div class="form-group">
+                    <div class="input-group">
+                    <div class="col-md-2">
+                            <label for="firstName1">From</label>
+                        </div>
+                        <div class="col-md-10">
+
+                            <input type="date" id="from" class="form-control" placeholder="From" name="from" max="{{date("Y-m-d")}}">
+                        </div>
+                        <div class="input-group-append">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="form-group">
+                    <div class="input-group">
+                    <div class="col-md-2">
+                            <label for="firstName1">To</label>
+                        </div>
+                        <div class="col-md-10">
+
+                            <input type="date" id="to" class="form-control" placeholder="To" name="to" max="{{date("Y-m-d")}}">
+                        </div>
+                        <div class="input-group-append">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="form-group">
+
+                    <span class="filter_facility_wait" style="display: none;"></span>
+                    <button class="btn btn-default filter btn-round  btn-small btn-primary  " type="submit" name="filter" id="filter"> <i class="fa fa-filter"></i>
+                        Filter</button>
+                </div>
+            </div>
+        </div>
+
+    </form>
+
+</div>
+@endif
+<nav>
+    <div class="nav nav-tabs" id="nav-tab" role="tablist">
+        <a class="nav-item nav-link active" id="nav-dashboard-tab" data-toggle="tab" href="#nav-dashboard" role="tab" aria-controls="nav-dashboard" aria-selected="true">UPTAKE</a>
+        <a class="nav-item nav-link" data-toggle="tab" href="#nav-appointment" role="tab" aria-selected="false">APPOINTMENT MANAGEMENT</a>
+    </div>
+</nav>
+<div class="tab-content" id="nav-tabContent">
+    <!-- main dashbaord starts -->
+    <div class="tab-pane fade show active" id="nav-dashboard" role="tabpanel" aria-labelledby="nav-dashboard-tab">
+
+
+        <div id="highchart"></div>
+        <div class="row">
+
+
+            <div class="col-lg-3">
+                <div class="card card-icon-bg card-icon-bg-primary o-hidden mb-4 h-75">
+                    <div class="card-body text-center">
+                        <div class="content">
+                            <p class="text-muted mt-2 mb-0">TX Curr </p>
+
+                            <p id="facilities_ever_enrolled" class="text-primary text-20 line-height-1 mb-1">{{ json_decode($txcur[0]->tx_cur) }}</p>
+                            <p id="facilities_ever_enrolled" class="text-primary text-12 line-height-1 mb-1">Source KHIS </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3">
+                <div class="card card-icon-bg card-icon-bg-primary o-hidden mb-4 h-75">
+                    <div class="card-body text-center">
+                        <div class="content">
+                            <p class="text-muted mt-2 mb-0">Registered In Ushauri </p>
+
+                            <p id="active_facilities" class="text-primary text-20 line-height-1 mb-1">{{ json_decode($registered[0]->registeredClients) }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3">
+                <div class="card card-icon-bg card-icon-bg-primary o-hidden mb-4 h-75">
+                    <div class="card-body text-center">
+                        <div class="content">
+                            <p class="text-muted mt-2 mb-0">Consented For SMS</p>
+
+                            <p id="client_ever_enrolled" class="text-primary text-20 line-height-1 mb-2">{{ json_decode($consented[0]->consented) }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 ">
+                <div class="card card-icon-bg card-icon-bg-primary o-hidden mb-4 h-75">
+                    <div class="card-body text-center">
+                        <div class="content">
+                            <p class="text-muted mt-2 mb-0"> Actively Receiving SMS</p>
+                            <a class="has-arrow" href="{{route('client_dashboard')}}">
+                                <p id="client" class="text-primary text-20 line-height-1 mb-2"></p>
+                            </a>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="row">
+            <div class="col-6">
+
+                <div class="card-body row">
+                    <div id="uptake_cascade" class="col" style="height:  400px;margin-top:20px;width: 900px"></div> <br />
+                </div>
+            </div>
+            <div class="col-6">
+
+                <div class="card-body row">
+                    <div id="consented_Age_Sex" class="col" style="height:  400px;margin-top:20px;width: 900px"></div> <br />
+                </div>
+            </div>
+            <div class="col-6">
+
+                <div class="card-body row">
+                    <div id="sms_Age_Sex" class="col" style="height:  400px;margin-top:20px;width: 900px"></div> <br />
+                </div>
+            </div>
+            <div class="col-6">
+
+                <div class="card-body row">
+                    <div id="consented_Facility" class="col" style="height:  400px;margin-top:20px;width: 900px"></div> <br />
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- appointment tab -->
+    <div class="tab-pane fade" id="nav-appointment" role="tabpanel" aria-labelledby="nav-appointment-tab">
+
+
+        <div id="highchart"></div>
+        <div class="row">
+
+
+            <div class="col-lg-3">
+                <div class="card card-icon-bg card-icon-bg-primary o-hidden mb-4 h-75">
+                    <div class="card-body text-center">
+                        <div class="content">
+                            <p class="text-muted mt-2 mb-0">Active </p>
+
+                            <p id="facilities_ever_enrolled" class="text-primary text-20 line-height-1 mb-1"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3">
+                <div class="card card-icon-bg card-icon-bg-primary o-hidden mb-4 h-75">
+                    <div class="card-body text-center">
+                        <div class="content">
+                            <p class="text-muted mt-2 mb-0">Scheduled Appointments </p>
+
+                            <p id="active_facilities" class="text-primary text-20 line-height-1 mb-1">{{json_decode($scheduledappointment[0]->appointments)}}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3">
+                <div class="card card-icon-bg card-icon-bg-primary o-hidden mb-4 h-75">
+                    <div class="card-body text-center">
+                        <div class="content">
+                            <p class="text-muted mt-2 mb-0">Received SMS</p>
+
+                            <p id="client_ever_enrolled" class="text-primary text-20 line-height-1 mb-2"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 ">
+                <div class="card card-icon-bg card-icon-bg-primary o-hidden mb-4 h-75">
+                    <div class="card-body text-center">
+                        <div class="content">
+                            <p class="text-muted mt-2 mb-0"> Honoured Appointments</p>
+                            <a class="has-arrow" href="{{route('client_dashboard')}}">
+                                <p id="client" class="text-primary text-20 line-height-1 mb-2">{{json_decode($honoredappointment[0]->honored)}}</p>
+                            </a>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="row">
+            <div class="col-6">
+
+                <div class="card-body row">
+                    <div id="appointment_uptake" class="col" style="height:  400px;margin-top:20px;width: 900px"></div> <br />
+                </div>
+            </div>
+            <div class="col-6">
+
+                <div class="card-body row">
+                    <div id="received_sms_Age_Sex" class="col" style="height:  400px;margin-top:20px;width: 900px"></div> <br />
+                </div>
+            </div>
+
+            <div class="col-6">
+
+                <div class="card-body row">
+                    <div id="honoured_Age_Sex" class="col" style="height:  400px;margin-top:20px;width: 900px"></div> <br />
+                </div>
+            </div>
+            <div class="col-6">
+
+                <div class="card-body row">
+                    <div id="honoured_Facility" class="col" style="height:  400px;margin-top:20px;width: 900px"></div> <br />
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
+<script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="https://code.highcharts.com/modules/series-label.js"></script>
+<script src="https://code.highcharts.com/modules/exporting.js"></script>
+<script src="https://code.highcharts.com/modules/export-data.js"></script>
+<script src="https://code.highcharts.com/modules/accessibility.js"></script>
+<script src="https://code.highcharts.com/themes/high-contrast-light.js"></script>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
+
+
+<script type="text/javascript">
+    var Clients_Registered = <?php echo json_decode($registered[0]->registeredClients) ?>;
+    var Clients_Consented = <?php echo json_decode($consented[0]->consented) ?>;
+    var Txcurr = <?php echo json_decode($txcur[0]->tx_cur) ?>;
+    var Facilitie_Honored = <?php echo json_encode($honoredappointmentfacilities) ?>;
+    var Facilitie_Consented = <?php echo json_encode($consentedfacilities) ?>;
+
+
+    var Clients_Consent_Age_Sex = <?php echo json_encode($consentedagesex) ?>;
+    var Consented_Age_Sex_Male_Nineteen = Clients_Consent_Age_Sex.findIndex(item => item.Gender === "M" && item.Age === '15-19');
+    var Final_Consented_Age_Sex_Male_Nineteen = Clients_Consent_Age_Sex[Consented_Age_Sex_Male_Nineteen].No //male 15-19
+    var Consented_Age_Sex_Female_Nineteen = Clients_Consent_Age_Sex.findIndex(item => item.Gender === "F" && item.Age === '15-19');
+    var Final_Consented_Age_Sex_Female_Nineteen = Clients_Consent_Age_Sex[Consented_Age_Sex_Female_Nineteen].No //female 15-19
+    var Consented_Age_Sex_Male_TwentyFour = Clients_Consent_Age_Sex.findIndex(item => item.Gender === "M" && item.Age === '20-24');
+    var Final_Consented_Age_Sex_Male_TwentyFour = Clients_Consent_Age_Sex[Consented_Age_Sex_Male_TwentyFour].No //male 20-24
+    var Consented_Age_Sex_Female_TwentyFour = Clients_Consent_Age_Sex.findIndex(item => item.Gender === "F" && item.Age === '20-24');
+    var Final_Consented_Age_Sex_Female_TwentyFour = Clients_Consent_Age_Sex[Consented_Age_Sex_Female_TwentyFour].No //female 20-24
+    var Consented_Age_Sex_Male_TwentyNine = Clients_Consent_Age_Sex.findIndex(item => item.Gender === "M" && item.Age === '25-29');
+    var Final_Consented_Age_Sex_Male_TwentyNine = Clients_Consent_Age_Sex[Consented_Age_Sex_Male_TwentyNine].No //male 25-29
+    var Consented_Age_Sex_Female_TwentyNine = Clients_Consent_Age_Sex.findIndex(item => item.Gender === "F" && item.Age === '25-29');
+    var Final_Consented_Age_Sex_Female_TwentyNine = Clients_Consent_Age_Sex[Consented_Age_Sex_Female_TwentyNine].No //female 25-29
+    var Consented_Age_Sex_Male_ThirtyFour = Clients_Consent_Age_Sex.findIndex(item => item.Gender === "M" && item.Age === '30-34');
+    var Final_Consented_Age_Sex_Male_ThirtyFour = Clients_Consent_Age_Sex[Consented_Age_Sex_Male_ThirtyFour].No //male 30-34
+    var Consented_Age_Sex_Female_ThirtyFour = Clients_Consent_Age_Sex.findIndex(item => item.Gender === "F" && item.Age === '30-34');
+    var Final_Consented_Age_Sex_Female_ThirtyFour = Clients_Consent_Age_Sex[Consented_Age_Sex_Female_ThirtyFour].No //female 30-34
+    var Consented_Age_Sex_Male_ThirtyNine = Clients_Consent_Age_Sex.findIndex(item => item.Gender === "M" && item.Age === '35-39');
+    var Final_Consented_Age_Sex_Male_ThirtyNine = Clients_Consent_Age_Sex[Consented_Age_Sex_Male_ThirtyNine].No //male 35-39
+    var Consented_Age_Sex_Female_ThirtyNine = Clients_Consent_Age_Sex.findIndex(item => item.Gender === "F" && item.Age === '35-39');
+    var Final_Consented_Age_Sex_Female_ThirtyNine = Clients_Consent_Age_Sex[Consented_Age_Sex_Female_ThirtyNine].No //female 35-39
+    var Consented_Age_Sex_Male_FourtyFour = Clients_Consent_Age_Sex.findIndex(item => item.Gender === "M" && item.Age === '40-44');
+    var Final_Consented_Age_Sex_Male_FourtyFour = Clients_Consent_Age_Sex[Consented_Age_Sex_Male_FourtyFour].No //male 40-44
+    var Consented_Age_Sex_Female_FourtyFour = Clients_Consent_Age_Sex.findIndex(item => item.Gender === "F" && item.Age === '40-44');
+    var Final_Consented_Age_Sex_Female_FourtyFour = Clients_Consent_Age_Sex[Consented_Age_Sex_Female_FourtyFour].No //female 40-44
+    var Consented_Age_Sex_Male_FourtyNine = Clients_Consent_Age_Sex.findIndex(item => item.Gender === "M" && item.Age === '45-49');
+    var Final_Consented_Age_Sex_Male_FourtyNine = Clients_Consent_Age_Sex[Consented_Age_Sex_Male_FourtyNine].No //male 45-49
+    var Consented_Age_Sex_Female_FourtyNine = Clients_Consent_Age_Sex.findIndex(item => item.Gender === "F" && item.Age === '45-49');
+    var Final_Consented_Age_Sex_Female_FourtyNine = Clients_Consent_Age_Sex[Consented_Age_Sex_Female_FourtyNine].No //female 45-49
+    var Consented_Age_Sex_Male_Fifty = Clients_Consent_Age_Sex.findIndex(item => item.Gender === "M" && item.Age === '50+');
+    var Final_Consented_Age_Sex_Male_Fifty = Clients_Consent_Age_Sex[Consented_Age_Sex_Male_Fifty].No //male 50+
+    var Consented_Age_Sex_Female_Fifty = Clients_Consent_Age_Sex.findIndex(item => item.Gender === "F" && item.Age === '50+');
+    var Final_Consented_Age_Sex_Female_Fifty = Clients_Consent_Age_Sex[Consented_Age_Sex_Female_Fifty].No //female 50+
+    var Consented_Age_Sex_Male_Uknown = Clients_Consent_Age_Sex.findIndex(item => item.Gender === "M" && item.Age === 'Unknown Age');
+    var Final_Consented_Age_Sex_Male_Uknown = Clients_Consent_Age_Sex[Consented_Age_Sex_Male_Uknown].No //male uknown
+    var Consented_Age_Sex_Female_Uknown = Clients_Consent_Age_Sex.findIndex(item => item.Gender === "F" && item.Age === 'Unknown Age');
+    var Final_Consented_Age_Sex_Female_Uknown = Clients_Consent_Age_Sex[Consented_Age_Sex_Female_Uknown].No //female uknown
+    console.log(Final_Consented_Age_Sex_Male_Nineteen);
+
+
+    var Scheduled_Appointment = <?php echo json_decode($scheduledappointment[0]->appointments) ?>;
+    var Honored_Appointment = <?php echo json_decode($honoredappointment[0]->honored) ?>;
+
+    var App_Honored_Age_Sex = <?php echo json_encode($honoredappointmentagesex) ?>;
+    var Honored_Age_Sex_Male_Nineteen = App_Honored_Age_Sex.findIndex(item => item.Gender === "M" && item.Age === '15-19');
+    var Final_Honored_Age_Sex_Male_Nineteen = App_Honored_Age_Sex[Honored_Age_Sex_Male_Nineteen].No //male 15-19
+    // var Honored_Age_Sex_Female_Nineteen = App_Honored_Age_Sex.findIndex(item => item.Gender === "F" && item.Age === '15-19');
+    // var Final_Honored_Age_Sex_Female_Nineteen = App_Honored_Age_Sex[Honored_Age_Sex_Female_Nineteen].No //female 15-19
+    var Honored_Age_Sex_Male_TwentyFour = App_Honored_Age_Sex.findIndex(item => item.Gender === "M" && item.Age === '20-24');
+    var Final_Honored_Age_Sex_Male_TwentyFour = App_Honored_Age_Sex[Honored_Age_Sex_Male_TwentyFour].No //male 20-24
+    var Honored_Age_Sex_Female_TwentyFour = App_Honored_Age_Sex.findIndex(item => item.Gender === "F" && item.Age === '20-24');
+    var Final_Honored_Age_Sex_Female_TwentyFour = App_Honored_Age_Sex[Honored_Age_Sex_Female_TwentyFour].No //female 20-24
+    var Honored_Age_Sex_Male_TwentyNine = App_Honored_Age_Sex.findIndex(item => item.Gender === "M" && item.Age === '25-29');
+    var Final_Honored_Age_Sex_Male_TwentyNine = App_Honored_Age_Sex[Honored_Age_Sex_Male_TwentyNine].No //male 25-29
+    var Honored_Age_Sex_Female_TwentyNine = App_Honored_Age_Sex.findIndex(item => item.Gender === "F" && item.Age === '25-29');
+    var Final_Honored_Age_Sex_Female_TwentyNine = App_Honored_Age_Sex[Honored_Age_Sex_Female_TwentyNine].No //female 25-29
+    var Honored_Age_Sex_Male_ThirtyFour = App_Honored_Age_Sex.findIndex(item => item.Gender === "M" && item.Age === '30-34');
+    var Final_Honored_Age_Sex_Male_ThirtyFour = App_Honored_Age_Sex[Honored_Age_Sex_Male_ThirtyFour].No //male 30-34
+    var Honored_Age_Sex_Female_ThirtyFour = App_Honored_Age_Sex.findIndex(item => item.Gender === "F" && item.Age === '30-34');
+    var Final_Honored_Age_Sex_Female_ThirtyFour = App_Honored_Age_Sex[Honored_Age_Sex_Female_ThirtyFour].No //female 30-34
+    var Honored_Age_Sex_Male_ThirtyNine = App_Honored_Age_Sex.findIndex(item => item.Gender === "M" && item.Age === '35-39');
+    var Final_Honored_Age_Sex_Male_ThirtyNine = App_Honored_Age_Sex[Honored_Age_Sex_Male_ThirtyNine].No //male 35-39
+    var Honored_Age_Sex_Female_ThirtyNine = App_Honored_Age_Sex.findIndex(item => item.Gender === "F" && item.Age === '35-39');
+    var Final_Honored_Age_Sex_Female_ThirtyNine = App_Honored_Age_Sex[Honored_Age_Sex_Female_ThirtyNine].No //female 35-39
+    var Honored_Age_Sex_Male_FourtyFour = App_Honored_Age_Sex.findIndex(item => item.Gender === "M" && item.Age === '40-44');
+    var Final_Honored_Age_Sex_Male_FourtyFour = App_Honored_Age_Sex[Honored_Age_Sex_Male_FourtyFour].No //male 40-44
+    var Honored_Age_Sex_Female_FourtyFour = App_Honored_Age_Sex.findIndex(item => item.Gender === "F" && item.Age === '40-44');
+    var Final_Honored_Age_Sex_Female_FourtyFour = App_Honored_Age_Sex[Honored_Age_Sex_Female_FourtyFour].No //female 40-44
+    var Honored_Age_Sex_Male_FourtyNine = App_Honored_Age_Sex.findIndex(item => item.Gender === "M" && item.Age === '45-49');
+    var Final_Honored_Age_Sex_Male_FourtyNine = App_Honored_Age_Sex[Honored_Age_Sex_Male_FourtyNine].No //male 45-49
+    var Honored_Age_Sex_Female_FourtyNine = App_Honored_Age_Sex.findIndex(item => item.Gender === "F" && item.Age === '45-49');
+    var Final_Honored_Age_Sex_Female_FourtyNine = App_Honored_Age_Sex[Honored_Age_Sex_Female_FourtyNine].No //female 45-49
+    var Honored_Age_Sex_Male_Fifty = App_Honored_Age_Sex.findIndex(item => item.Gender === "M" && item.Age === '50+');
+    var Final_Honored_Age_Sex_Male_Fifty = App_Honored_Age_Sex[Honored_Age_Sex_Male_Fifty].No //male 50+
+    var Honored_Age_Sex_Female_Fifty = App_Honored_Age_Sex.findIndex(item => item.Gender === "F" && item.Age === '50+');
+    var Final_Honored_Age_Sex_Female_Fifty = App_Honored_Age_Sex[Honored_Age_Sex_Female_Fifty].No //female 50+
+    // var Honored_Age_Sex_Male_Uknown = App_Honored_Age_Sex.findIndex(item => item.Gender === "M" && item.Age === 'Unknown Age');
+    // var Final_Honored_Age_Sex_Male_Uknown = App_Honored_Age_Sex[Honored_Age_Sex_Male_Uknown].No //male uknown
+    // var Honored_Age_Sex_Female_Uknown = App_Honored_Age_Sex.findIndex(item => item.Gender === "F" && item.Age === 'Unknown Age');
+    // var Final_Honored_Age_Sex_Female_Uknown = App_Honored_Age_Sex[Honored_Age_Sex_Female_Uknown].No //female uknown
+
+
+
+    var consentedAgeSex = Highcharts.chart('consented_Age_Sex', {
+        chart: {
+            type: 'column'
+        },
+        title: {
+            text: 'Consented By Age and Sex'
+        },
+
+        xAxis: {
+            categories: [
+                '15-19',
+                '20-24',
+                '25-29',
+                '30-34',
+                '35-39',
+                '40-44',
+                '45-49',
+                '50+',
+                'Uknown Age'
+            ],
+            crosshair: true
+        },
+        yAxis: {
+            title: {
+                useHTML: true,
+                text: 'Percent of Patient'
+            }
+        },
+        tooltip: {
+            headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+            pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+                '<td style="padding:0"><b>{point.y:.1f}</b></td></tr>',
+            footerFormat: '</table>',
+            shared: true,
+            useHTML: true
+        },
+        plotOptions: {
+            column: {
+                pointPadding: 0.2,
+                borderWidth: 0
+            }
+        },
+        series: [{
+            name: 'Male',
+            data: [Final_Consented_Age_Sex_Male_Nineteen, Final_Consented_Age_Sex_Male_TwentyFour, Final_Consented_Age_Sex_Male_TwentyNine, Final_Consented_Age_Sex_Male_ThirtyFour, Final_Consented_Age_Sex_Male_ThirtyNine, Final_Consented_Age_Sex_Male_FourtyFour, Final_Consented_Age_Sex_Male_FourtyNine,
+                Final_Consented_Age_Sex_Male_Fifty, Final_Consented_Age_Sex_Male_Uknown
+            ]
+
+        }, {
+            name: 'Female',
+            data: [Final_Consented_Age_Sex_Female_Nineteen, Final_Consented_Age_Sex_Female_TwentyFour, Final_Consented_Age_Sex_Female_TwentyNine, Final_Consented_Age_Sex_Female_ThirtyFour, Final_Consented_Age_Sex_Female_ThirtyNine, Final_Consented_Age_Sex_Female_FourtyFour, Final_Consented_Age_Sex_Female_FourtyNine,
+                Final_Consented_Age_Sex_Female_Fifty, Final_Consented_Age_Sex_Female_Uknown
+            ]
+
+        }]
+    });
+
+    var uptakeCascade = Highcharts.chart('uptake_cascade', {
+        chart: {
+            type: 'column'
+        },
+        title: {
+            text: 'Uptake Cascade'
+        },
+        xAxis: {
+            categories: ['TX CURR', 'REGISTERED IN USHAURI', 'CONSENTED FOR SMS', 'ACTIVELY RECEIVING SMS']
+        },
+        yAxis: {
+            min: 0,
+            title: {
+                text: 'Percent of Patient'
+            },
+            stackLabels: {
+                enabled: true,
+                style: {
+                    fontWeight: 'bold',
+                    color: ( // theme
+                        Highcharts.defaultOptions.title.style &&
+                        Highcharts.defaultOptions.title.style.color
+                    ) || 'gray'
+                }
+            }
+        },
+        tooltip: {
+            formatter: function() {
+                return '<b>' + this.x + '</b><br/>' +
+                    this.series.name + ': ' + this.y;
+            }
+        },
+        plotOptions: {
+            column: {
+                stacking: 'normal',
+            }
+        },
+        series: [{
+            name: 'Uptake',
+            data: [Txcurr, Clients_Registered, Clients_Consented, 0]
+        }],
+
+    });
+    var smsAgeSex = Highcharts.chart('sms_Age_Sex', {
+        chart: {
+            type: 'column'
+        },
+        title: {
+            text: 'Actively Receiving SMS By Age and Sex'
+        },
+
+        xAxis: {
+            categories: [
+                '15-19',
+                '20-24',
+                '25-29',
+                '30-34',
+                '35-39',
+                '40-44',
+                '45-49',
+                '50+',
+                'Uknown Age'
+            ],
+            crosshair: true
+        },
+        yAxis: {
+            title: {
+                useHTML: true,
+                text: 'Percent of Patient'
+            }
+        },
+        tooltip: {
+            headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+            pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+                '<td style="padding:0"><b>{point.y:.1f}</b></td></tr>',
+            footerFormat: '</table>',
+            shared: true,
+            useHTML: true
+        },
+        plotOptions: {
+            column: {
+                pointPadding: 0.2,
+                borderWidth: 0
+            }
+        },
+        series: [{
+            name: 'Male',
+            data: [13000, 23000, 56000, 29000, 15000, 12000, 8000,
+                11000, 60
+            ]
+
+        }, {
+            name: 'Female',
+            data: [19000, 27000, 78000, 34000, 25000, 18000, 9500,
+                8000, 40
+            ]
+
+        }]
+    });
+
+    var consentedFacility = Highcharts.chart('consented_Facility', {
+        chart: {
+            type: 'column'
+        },
+        title: {
+            text: 'Consented By Facility'
+        },
+        xAxis: {
+            categories: Facilitie_Consented.map(function(x) {
+                return x.fac_name;
+            })
+        },
+        yAxis: {
+            min: 0,
+            title: {
+                text: 'Percent of Patient'
+            },
+            stackLabels: {
+                enabled: true,
+                style: {
+                    fontWeight: 'bold',
+                    color: ( // theme
+                        Highcharts.defaultOptions.title.style &&
+                        Highcharts.defaultOptions.title.style.color
+                    ) || 'gray'
+                }
+            }
+        },
+        tooltip: {
+            formatter: function() {
+                return '<b>' + this.x + '</b><br/>' +
+                    this.series.name + ': ' + this.y;
+            }
+        },
+        plotOptions: {
+            column: {
+                stacking: 'normal',
+            }
+        },
+        series: [{
+            name: 'Facility',
+            data: Facilitie_Consented.map(function(x) {
+                return {
+                    name: x.fac_name,
+                    y: parseInt(x.No, 10)
+                }
+            })
+        }],
+
+    });
+
+    // appointment
+
+    var ReceivedSmsAgeSex = Highcharts.chart('received_sms_Age_Sex', {
+        chart: {
+            type: 'column'
+        },
+        title: {
+            text: 'Received SMS By Age and Sex'
+        },
+
+        xAxis: {
+            categories: [
+                '15-19',
+                '20-24',
+                '25-29',
+                '30-34',
+                '35-39',
+                '40-44',
+                '45-49',
+                '50+',
+                'Uknown Age'
+            ],
+            crosshair: true
+        },
+        yAxis: {
+            title: {
+                useHTML: true,
+                text: 'Percent of Patient'
+            }
+        },
+        tooltip: {
+            headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+            pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+                '<td style="padding:0"><b>{point.y:.1f}</b></td></tr>',
+            footerFormat: '</table>',
+            shared: true,
+            useHTML: true
+        },
+        plotOptions: {
+            column: {
+                pointPadding: 0.2,
+                borderWidth: 0
+            }
+        },
+        series: [{
+            name: 'Male',
+            data: [13000, 23000, 56000, 29000, 15000, 12000, 8000,
+                11000, 60
+            ]
+
+        }, {
+            name: 'Female',
+            data: [19000, 27000, 78000, 34000, 25000, 18000, 9500,
+                8000, 40
+            ]
+
+        }]
+    });
+
+    var appointmentuptakeCascade = Highcharts.chart('appointment_uptake', {
+        chart: {
+            type: 'column'
+        },
+        title: {
+            text: 'Uptake Cascade'
+        },
+        xAxis: {
+            categories: ['ACTIVE', 'SCHEDULED APPOINTMENTS', 'RECEIVED SMS', 'HONOURED APPOINTMENTS']
+        },
+        yAxis: {
+            min: 0,
+            title: {
+                text: 'Percent of Patient'
+            },
+            stackLabels: {
+                enabled: true,
+                style: {
+                    fontWeight: 'bold',
+                    color: ( // theme
+                        Highcharts.defaultOptions.title.style &&
+                        Highcharts.defaultOptions.title.style.color
+                    ) || 'gray'
+                }
+            }
+        },
+        tooltip: {
+            formatter: function() {
+                return '<b>' + this.x + '</b><br/>' +
+                    this.series.name + ': ' + this.y;
+            }
+        },
+        plotOptions: {
+            column: {
+                stacking: 'normal',
+            }
+        },
+        series: [{
+            name: 'Uptake',
+            data: [0, Scheduled_Appointment, 0, Honored_Appointment]
+        }],
+
+    });
+    var honouredAgeSex = Highcharts.chart('honoured_Age_Sex', {
+        chart: {
+            type: 'column'
+        },
+        title: {
+            text: 'Honoured Appointments By Age and Sex'
+        },
+
+        xAxis: {
+            categories: [
+                '15-19',
+                '20-24',
+                '25-29',
+                '30-34',
+                '35-39',
+                '40-44',
+                '45-49',
+                '50+',
+                'Uknown Age'
+            ],
+            crosshair: true
+        },
+        yAxis: {
+            title: {
+                useHTML: true,
+                text: 'Percent of Patient'
+            }
+        },
+        tooltip: {
+            headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+            pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+                '<td style="padding:0"><b>{point.y:.1f}</b></td></tr>',
+            footerFormat: '</table>',
+            shared: true,
+            useHTML: true
+        },
+        plotOptions: {
+            column: {
+                pointPadding: 0.2,
+                borderWidth: 0
+            }
+        },
+        series: [{
+            name: 'Male',
+            data: [Final_Honored_Age_Sex_Male_Nineteen, Final_Honored_Age_Sex_Male_TwentyFour, Final_Honored_Age_Sex_Male_TwentyNine, Final_Honored_Age_Sex_Male_ThirtyFour, Final_Honored_Age_Sex_Male_ThirtyNine, Final_Honored_Age_Sex_Male_FourtyFour, Final_Honored_Age_Sex_Male_FourtyNine,
+                Final_Honored_Age_Sex_Male_Fifty, 0
+            ]
+
+        }, {
+            name: 'Female',
+            data: [0, Final_Honored_Age_Sex_Female_TwentyFour, Final_Honored_Age_Sex_Female_TwentyNine, Final_Honored_Age_Sex_Female_ThirtyFour, Final_Honored_Age_Sex_Female_ThirtyNine, Final_Honored_Age_Sex_Female_FourtyFour, Final_Honored_Age_Sex_Female_FourtyNine,
+                Final_Honored_Age_Sex_Female_Fifty, 0
+            ]
+
+        }]
+    });
+
+    var honouredFacility = Highcharts.chart('honoured_Facility', {
+        chart: {
+            type: 'column'
+        },
+        title: {
+            text: 'Honoured Appointments By Facility'
+        },
+        xAxis: {
+            categories: Facilitie_Honored.map(function(x) {
+                return x.fac_name;
+            })
+        },
+        yAxis: {
+            min: 0,
+            title: {
+                text: 'Percent of Patient'
+            },
+            stackLabels: {
+                enabled: true,
+                style: {
+                    fontWeight: 'bold',
+                    color: ( // theme
+                        Highcharts.defaultOptions.title.style &&
+                        Highcharts.defaultOptions.title.style.color
+                    ) || 'gray'
+                }
+            }
+        },
+        tooltip: {
+            formatter: function() {
+                return '<b>' + this.x + '</b><br/>' +
+                    this.series.name + ': ' + this.y;
+            }
+        },
+        plotOptions: {
+            column: {
+                stacking: 'normal',
+            }
+        },
+        series: [{
+            name: 'Facility',
+            data: Facilitie_Honored.map(function(x) {
+                return {
+                    name: x.fac_name,
+                    y: parseInt(x.No, 10)
+                }
+            })
+        }],
+
+    });
+</script>
+
+
+
+
+
+<!-- end of col -->
+
+@endsection
