@@ -18,7 +18,7 @@ class UptakeController extends Controller
 
     public function registered()
     {
-         $data = [];
+        $data = [];
 
 
         if (Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Donor') {
@@ -36,6 +36,7 @@ class UptakeController extends Controller
         }
         if (Auth::user()->access_level == 'Facility') {
             $facility = Auth::user()->facility_id;
+            $all_partners = Partner::where('status', '=', 'Active')->orderBy('name', 'ASC')->pluck('name', 'id');
 
             $consented = DB::select('CALL sp_rpt_consentedclients(?,?,?,?,?,?)', array("%", "%", $facility, '1900-01-01', '2900-01-01', "%"));
             $registered = DB::select('CALL sp_rpt_registeredclients(?,?,?,?,?,?)', array("%", "%", $facility, '1900-01-01', '2900-01-01', "%"));
@@ -88,7 +89,8 @@ class UptakeController extends Controller
         dd($honoredappointmentfacilities);
     }
 
-    public function filter_uptake(Request $request) {
+    public function filter_uptake(Request $request)
+    {
 
         $data = [];
         $selected_partners = $request->partners;
