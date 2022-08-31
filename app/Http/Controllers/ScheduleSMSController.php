@@ -116,6 +116,8 @@ class ScheduleSMSController extends Controller
                                 'message_type_id' => $message_type_id,
                                 'source' => $source,
                                 'clnt_usr_id' => $client_id,
+                                'appointment_id' => $appointment_id,
+                                'no_of_days' => $no_of_days,
                                 'recepient_type' => 'Client',
                                 'content_id' => $content_id,
                                 'created_at' => $today,
@@ -269,6 +271,8 @@ class ScheduleSMSController extends Controller
                                 'message_type_id' => $message_type_id,
                                 'source' => $source,
                                 'clnt_usr_id' => $client_id,
+                                'appointment_id' => $appointment_id,
+                                'no_of_days' => 0,
                                 'recepient_type' => 'Client',
                                 'content_id' => $content_id,
                                 'created_at' => $today,
@@ -523,6 +527,8 @@ class ScheduleSMSController extends Controller
             $sms->message_type_id = $record['message_type_id'];
             $sms->source = $record['source'];
             $sms->clnt_usr_id = $record['clnt_usr_id'];
+            $sms->appointment_id = $record['appointment_id'];
+            $sms->no_of_days = $record['no_of_days'];
             $sms->recepient_type = $record['recepient_type'];
             $sms->content_id = $record['content_id'];
             $sms->created_by = $record['created_by'];
