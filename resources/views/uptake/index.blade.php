@@ -17,7 +17,7 @@
     <form role="form" method="get" action="#" id="dataFilter">
         {{ csrf_field() }}
         <div class="row">
-            <div class="col-lg-3">
+            <div class="col-sm-2 col-md-2 col-lg-2">
                 <div class="form-group">
 
                     <select class="form-control select2" id="partners" name="partner">
@@ -29,7 +29,7 @@
                     </select>
                 </div>
             </div>
-            <div class="col-lg-3">
+            <div class="col-sm-2 col-md-2 col-lg-2">
                 <div class="form-group">
 
                     <select class="form-control county  input-rounded input-sm select2" id="counties" name="county">
@@ -38,7 +38,7 @@
                     </select>
                 </div>
             </div>
-            <div class="col-lg-3">
+            <div class="col-sm-2 col-md-2 col-lg-2">
                 <div class="form-group">
 
                     <span class="filter_sub_county_wait" style="display: none;">Loading , Please Wait ...</span>
@@ -48,7 +48,7 @@
                     </select>
                 </div>
             </div>
-            <div class="col-lg-3">
+            <div class="col-sm-2 col-md-2 col-lg-2">
                 <div class="form-group">
                     <span class="filter_facility_wait" style="display: none;">.</span>
 
@@ -59,36 +59,36 @@
                 </div>
             </div>
 
-            <div class='col'>
+            <div class='col-sm-2 col-md-2 col-lg-2'>
                 <div class="form-group">
                     <div class="input-group">
-                        <div class="col-md-2">
+                        <!-- <div class="col-md-2">
                             <label for="firstName1">From</label>
-                        </div>
+                        </div> -->
 
-                        <div class="col-md-10">
+                        <!-- <div class="col-md-6"> -->
 
-                            <input type="date" id="from" class="form-control" placeholder="From" name="from" max="{{date("Y-m-d")}}">
-                        </div>
-                        <div class="input-group-append">
+                        <input type="date" id="from" class="form-control" placeholder="From" name="from" max="{{date("Y-m-d")}}">
+                        <!-- </div> -->
+                        <!-- <div class="input-group-append">
 
-                        </div>
+                        </div> -->
                     </div>
                 </div>
             </div>
-            <div class="col">
+            <div class="col-sm-2 col-md-2 col-lg-2">
                 <div class="form-group">
                     <div class="input-group">
-                        <div class="col-md-2">
+                        <!-- <div class="col-md-2">
                             <label for="firstName1">To</label>
-                        </div>
-                        <div class="col-md-10">
+                        </div> -->
+                        <!-- <div class="col-md-6"> -->
 
-                            <input type="date" id="to" class="form-control" placeholder="To" name="to" max="{{date("Y-m-d")}}">
-                        </div>
-                        <div class="input-group-append">
+                        <input type="date" id="to" class="form-control" placeholder="To" name="to" max="{{date("Y-m-d")}}">
+                        <!-- </div> -->
+                        <!-- <div class="input-group-append">
 
-                        </div>
+                        </div> -->
                     </div>
                 </div>
             </div>
@@ -179,12 +179,12 @@
 
             <div class="col-lg-3">
                 <div class="card card-icon-bg card-icon-bg-primary o-hidden mb-4 h-75">
-                    <div class="card-body text-center">
+                    <div class="card-body">
                         <div class="content">
-                            <p class="text-muted mt-2 mb-0">TX Curr </p>
+                            <p class="text-center text-muted mt-2 mb-0">TX Curr </p>
 
-                            <p id="txcurr" class="text-primary text-20 line-height-1 mb-1">{{ number_format(json_decode($txcur[0]->tx_cur)) }}</p>
-                            <p class="text-primary text-12 line-height-1 mb-1">Source KHIS </p>
+                            <p id="txcurr" class="text-center text-primary text-20 line-height-1 mb-1">{{ number_format(json_decode($txcur[0]->tx_cur)) }}</p>
+                            <p class="text-center text-primary text-12 line-height-1 mb-1">Source KHIS </p>
                         </div>
                     </div>
                 </div>
@@ -193,7 +193,7 @@
                 <div class="card card-icon-bg card-icon-bg-primary o-hidden mb-4 h-75">
                     <div class="card-body text-center">
                         <div class="content">
-                            <p class="text-muted mt-2 mb-0">Registered In Ushauri </p>
+                            <p class="text-muted mt-2 mb-0">Registered</p>
 
                             <p id="registered_ushauri" class="text-primary text-20 line-height-1 mb-1">{{ number_format(json_decode($registered[0]->registeredClients)) }}</p>
                         </div>
@@ -204,7 +204,7 @@
                 <div class="card card-icon-bg card-icon-bg-primary o-hidden mb-4 h-75">
                     <div class="card-body text-center">
                         <div class="content">
-                            <p class="text-muted mt-2 mb-0">Consented For SMS</p>
+                            <p class="text-muted mt-2 mb-0">Consented</p>
 
                             <p id="consented_sms" class="text-primary text-20 line-height-1 mb-2">{{ number_format(json_decode($consented[0]->consented)) }}</p>
                         </div>
@@ -215,9 +215,9 @@
                 <div class="card card-icon-bg card-icon-bg-primary o-hidden mb-4 h-75">
                     <div class="card-body text-center">
                         <div class="content">
-                            <p class="text-muted mt-2 mb-0"> Actively Receiving SMS</p>
-                            <a class="has-arrow" href="{{route('client_dashboard')}}">
-                                <p id="client" class="text-primary text-20 line-height-1 mb-2"></p>
+                            <p class="text-muted mt-2 mb-0">SMS Sent</p>
+                            <a class="has-arrow">
+                                <p id="client" class="text-primary text-20 line-height-1 mb-2">{{ number_format(json_decode($messages_sent[0]->sentmesseges)) }}</p>
                             </a>
 
                         </div>
@@ -271,7 +271,7 @@
                         <div class="content">
                             <p class="text-muted mt-2 mb-0">Active </p>
 
-                            <p id="facilities_ever_enrolled" class="text-primary text-20 line-height-1 mb-1"></p>
+                            <p id="facilities_ever_enrolled" class="text-primary text-20 line-height-1 mb-1"> {{ number_format(json_decode($registered[0]->registeredClients)) }}</p>
                         </div>
                     </div>
                 </div>
@@ -293,7 +293,7 @@
                         <div class="content">
                             <p class="text-muted mt-2 mb-0">Received SMS</p>
 
-                            <p id="received_sms" class="text-primary text-20 line-height-1 mb-2"></p>
+                            <p id="received_sms" class="text-primary text-20 line-height-1 mb-2">{{ number_format(json_decode($messages_sent[0]->sentmesseges)) }}</p>
                         </div>
                     </div>
                 </div>
@@ -357,53 +357,53 @@
             </div>
 
             <div class="col-md-12 mb-4">
-    <div class="card text-left">
+                <div class="card text-left">
 
-        <div class="card-body">
-            <h4 class="card-title mb-3"></h4>
-            <div class="table-responsive">
-                <table id="multicolumn_ordering_table" class="display table table-striped table-bordered" style="width:100%">
-                    <thead>
-                        <tr>
-                            <th>No.</th>
-                            <th>PARTNER</th>
-                            <th>FACILITY</th>
-                            <th>MFL CODE</th>
-                            <th>REGISTERED CLIENTS</th>
-                            <th>CONSENTED CLIENTS</th>
-                            <th>APPOINTMENTS</th>
-                            <th>HONORED</th>
-                            <th>MESSAGES</th>
+                    <div class="card-body">
+                        <h4 class="card-title mb-3"></h4>
+                        <div class="table-responsive">
+                            <table id="multicolumn_ordering_table" class="display table table-striped table-bordered" style="width:100%">
+                                <thead>
+                                    <tr>
+                                        <th>No.</th>
+                                        <th>Partner</th>
+                                        <th>Facility</th>
+                                        <th>Mfl Code</th>
+                                        <th>Registered Clients</th>
+                                        <th>Consented Clients</th>
+                                        <th>Appointments</th>
+                                        <th>Honored Appointments</th>
+                                        <th>Messages Sent</th>
 
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @if (count($ushauristatistics) > 0)
-                        @foreach($ushauristatistics as $data)
-                        <tr>
-                            <td> {{ $loop->iteration }}</td>
-                            <td> {{$data->partner_name}}</td>
-                            <td> {{$data->facility_name}}</td>
-                            <td> {{$data->mfl_code}}</td>
-                            <td> {{$data->registered_clients}}</td>
-                            <td> {{$data->consented}}</td>
-                            <td> {{$data->appointments}}</td>
-                            <td> {{$data->honored}}</td>
-                            <td> {{$data->messeges}}</td>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (count($ushauristatistics) > 0)
+                                    @foreach($ushauristatistics as $data)
+                                    <tr>
+                                        <td> {{ $loop->iteration }}</td>
+                                        <td> {{$data->partner_name}}</td>
+                                        <td> {{$data->facility_name}}</td>
+                                        <td> {{$data->mfl_code}}</td>
+                                        <td> {{$data->registered_clients}}</td>
+                                        <td> {{$data->consented}}</td>
+                                        <td> {{$data->appointments}}</td>
+                                        <td> {{$data->honored}}</td>
+                                        <td> {{$data->messeges}}</td>
 
 
-                        </tr>
-                        @endforeach
-                        @endif
-                    </tbody>
+                                    </tr>
+                                    @endforeach
+                                    @endif
+                                </tbody>
 
-                </table>
+                            </table>
 
+                        </div>
+
+                    </div>
+                </div>
             </div>
-
-        </div>
-    </div>
-</div>
 
         </div>
 
@@ -430,52 +430,50 @@
 
 
     <script type="text/javascript">
-
         // multi column ordering
-   $('#multicolumn_ordering_table').DataTable({
-        columnDefs: [{
-            targets: [0],
-            orderData: [0, 1]
-        }, {
-            targets: [1],
-            orderData: [1, 0]
-        }, {
-            targets: [4],
-            orderData: [4, 0]
-        }],
-        "paging": true,
-        "responsive":true,
-        "ordering": true,
-        "info": true,
-        dom: 'Bfrtip',
-        buttons: [
-            {
-            extend: 'copy',
-            title: 'USHAURI STATISTIC',
-            filename: 'Ushauri data'
-            },
-            {
-            extend: 'csv',
-            title: 'USHAURI STATISTIC',
-            filename: 'Ushauri data'
-            },
-            {
-            extend: 'excel',
-            title: 'USHAURI STATISTIC',
-            filename: 'Ushauri data'
-            },
-            {
-            extend: 'pdf',
-            title: 'USHAURI STATISTIC',
-            filename: 'Ushauri data'
-            },
-            {
-            extend: 'print',
-            title: 'USHAURI STATISTIC',
-            filename: 'Ushauri data'
-            }
-        ]
-    });
+        $('#multicolumn_ordering_table').DataTable({
+            columnDefs: [{
+                targets: [0],
+                orderData: [0, 1]
+            }, {
+                targets: [1],
+                orderData: [1, 0]
+            }, {
+                targets: [4],
+                orderData: [4, 0]
+            }],
+            "paging": true,
+            "responsive": true,
+            "ordering": true,
+            "info": true,
+            dom: 'Bfrtip',
+            buttons: [{
+                    extend: 'copy',
+                    title: 'USHAURI STATISTIC',
+                    filename: 'Ushauri data'
+                },
+                {
+                    extend: 'csv',
+                    title: 'USHAURI STATISTIC',
+                    filename: 'Ushauri data'
+                },
+                {
+                    extend: 'excel',
+                    title: 'USHAURI STATISTIC',
+                    filename: 'Ushauri data'
+                },
+                {
+                    extend: 'pdf',
+                    title: 'USHAURI STATISTIC',
+                    filename: 'Ushauri data'
+                },
+                {
+                    extend: 'print',
+                    title: 'USHAURI STATISTIC',
+                    filename: 'Ushauri data'
+                }
+            ]
+        });
 
         var Ushauri_Statistics = <?php echo json_encode($ushauristatistics) ?>;
 
@@ -488,9 +486,10 @@
         var Clients_Registered = <?php echo json_decode($registered[0]->registeredClients) ?>;
         var Clients_Consented = <?php echo json_decode($consented[0]->consented) ?>;
         var Txcurr = <?php echo json_decode($txcur[0]->tx_cur) ?>;
+        var Sms_Sent = <?php echo json_decode($messages_sent[0]->sentmesseges) ?>;
         var Facilitie_Honored = <?php echo json_encode($honoredappointmentfacilities) ?>;
         var Facilitie_Consented = <?php echo json_encode($consentedfacilities) ?>;
-      //  console.log(Facilitie_Consented);
+        console.log(Txcurr);
 
         var Clients_Consent_Age_Sex = <?php echo json_encode($consentedagesex) ?>;
         var Consented_Age_Sex_Male_Nineteen = Clients_Consent_Age_Sex.findIndex(item => item.Gender === "M" && item.Age === '15-19');
@@ -529,7 +528,7 @@
         var Final_Consented_Age_Sex_Male_Uknown = Clients_Consent_Age_Sex[Consented_Age_Sex_Male_Uknown].No //male uknown
         // var Consented_Age_Sex_Female_Uknown = Clients_Consent_Age_Sex.findIndex(item => item.Gender === "F" && item.Age === 'Unknown Age');
         // var Final_Consented_Age_Sex_Female_Uknown = Clients_Consent_Age_Sex[Consented_Age_Sex_Female_Uknown].No //female uknown
-      //  console.log(Final_Consented_Age_Sex_Male_Nineteen);
+        //  console.log(Final_Consented_Age_Sex_Male_Nineteen);
 
 
         var Scheduled_Appointment = <?php echo json_decode($scheduledappointment[0]->appointments) ?>;
@@ -881,7 +880,7 @@
             },
             series: [{
                 name: 'Uptake',
-                data: [0, Scheduled_Appointment, 0, Honored_Appointment]
+                data: [Clients_Registered, Scheduled_Appointment, Sms_Sent, Honored_Appointment]
             }],
 
         });
@@ -1316,9 +1315,14 @@
                     $("#consented_sms").html(data.consented);
                     $("#scheduled_appointments").html(data.scheduledappointment);
                     $("#honored_appointments").html(data.honoredappointment);
-                    // Clients_male = parseInt(data.clients_male)
+                    Txcurr = parseInt(data.txcur)
+                    Registered_Clients = parseInt(data.registered)
+                    Consented_Clients = parseInt(data.consented)
+                    Scheduled_App = parseInt(data.scheduledappointment)
+                    Honored_App = parseInt(data.honoredappointment)
 
-                    // clientGender.series[0].setData([Clients_male, Clients_female, Unknown_gender]);
+                    uptakeCascade.series[0].setData([Txcurr, Registered_Clients, Consented_Clients, 0]);
+                    appointmentuptakeCascade.series[0].setData([, Scheduled_App, , 0, Honored_App]);
                     // clientAge.series[0].setData([Client_to_nine, Client_to_fourteen, Client_to_nineteen, Client_to_twentyfour, Client_to_twentyfive_above, Client_unknown_age]);
                     // statisticChart.series[1].setData([data.]);
                     // statisticChart.series[2].setData([Consented_chart]);

@@ -35,6 +35,7 @@ class UptakeController extends Controller
             $consentedfacilities = DB::select('CALL sp_rpt_consentedclients_facilities(?,?,?,?,?,?)', array("%", "%", "%", '1900-01-01', '2900-01-01', "%"));
 
             $ushauristatistics = DB::select('CALL sp_rpt_quick_stats(?,?,?,?,?,?)', array("%", "%", "%", '1900-01-01', '2900-01-01', "%"));
+            $messages_sent = DB::select('CALL sp_rpt_messeges(?,?,?,?,?,?)', array("%", "%", "%", '1900-01-01', '2900-01-01', "%"));
         }
         if (Auth::user()->access_level == 'Facility') {
             $facility = Auth::user()->facility_id;
@@ -52,6 +53,7 @@ class UptakeController extends Controller
             $consentedfacilities = DB::select('CALL sp_rpt_consentedclients_facilities(?,?,?,?,?,?)', array("%", "%", $facility, '1900-01-01', '2900-01-01', "%"));
 
             $ushauristatistics = DB::select('CALL sp_rpt_quick_stats(?,?,?,?,?,?)', array("%", "%", $facility, '1900-01-01', '2900-01-01', "%"));
+            $messages_sent = DB::select('CALL sp_rpt_messeges(?,?,?,?,?,?)', array("%", "%", $facility, '1900-01-01', '2900-01-01', "%"));
 
             $data["consentedTest"]        = json_encode($consentedagesex);
         }
@@ -61,7 +63,7 @@ class UptakeController extends Controller
 
             $consented = DB::select('CALL sp_rpt_consentedclients(?,?,?,?,?,?)', array("%", "%", "%", '1900-01-01', '2900-01-01',  $partner));
             $registered = DB::select('CALL sp_rpt_registeredclients(?,?,?,?,?,?)', array("%", "%", "%", '1900-01-01', '2900-01-01',  $partner));
-            $txcur = DB::select('CALL sp_rpt_txcur(?,?,?,?)', array("%", "%", "%", "%"));
+            $txcur = DB::select('CALL sp_rpt_txcur(?,?,?,?)', array("%", "%", "%", $partner));
 
             $consentedagesex = DB::select('CALL sp_rpt_consentedbyagesex(?,?,?,?,?,?)', array("%", "%", "%", '1900-01-01', '2900-01-01',  $partner));
             $scheduledappointment = DB::select('CALL sp_rpt_scheduled_appointments(?,?,?,?,?,?)', array("%", "%", "%", '1900-01-01', '2900-01-01',  $partner));
@@ -71,6 +73,7 @@ class UptakeController extends Controller
             $consentedfacilities = DB::select('CALL sp_rpt_consentedclients_facilities(?,?,?,?,?,?)', array("%", "%", "%", '1900-01-01', '2900-01-01', $partner));
 
             $ushauristatistics = DB::select('CALL sp_rpt_quick_stats(?,?,?,?,?,?)', array("%", "%", "%", '1900-01-01', '2900-01-01', $partner));
+            $messages_sent = DB::select('CALL sp_rpt_messeges(?,?,?,?,?,?)', array("%", "%", "%", '1900-01-01', '2900-01-01', $partner));
         }
 
 
@@ -90,7 +93,8 @@ class UptakeController extends Controller
             'honoredappointmentfacilities',
             'consentedfacilities',
             'all_partners',
-            'ushauristatistics'
+            'ushauristatistics',
+            'messages_sent'
         ));
 
         dd($ushauristatistics);
@@ -121,6 +125,7 @@ class UptakeController extends Controller
             $consentedfacilities = DB::select('CALL sp_rpt_consentedclients_facilities(?,?,?,?,?,?)', array("%", "%", "%", '1900-01-01', '2900-01-01', "%"));
 
             $ushauristatistics = DB::select('CALL sp_rpt_quick_stats(?,?,?,?,?,?)', array("%", "%", "%", '1900-01-01', '2900-01-01', "%"));
+            $messages_sent = DB::select('CALL sp_rpt_messeges(?,?,?,?,?,?)', array("%", "%", "%", '1900-01-01', '2900-01-01', "%"));
         }
         if (Auth::user()->access_level == 'Facility') {
             $facility = Auth::user()->facility_id;
@@ -138,6 +143,7 @@ class UptakeController extends Controller
             $consentedfacilities = DB::select('CALL sp_rpt_consentedclients_facilities(?,?,?,?,?,?)', array("%", "%", $facility, '1900-01-01', '2900-01-01', "%"));
 
             $ushauristatistics = DB::select('CALL sp_rpt_quick_stats(?,?,?,?,?,?)', array("%", "%", $facility, '1900-01-01', '2900-01-01', "%"));
+            $messages_sent = DB::select('CALL sp_rpt_messeges(?,?,?,?,?,?)', array("%", "%", $facility, '1900-01-01', '2900-01-01', "%"));
 
             $data["consentedTest"]        = json_encode($consentedagesex);
         }
@@ -157,6 +163,7 @@ class UptakeController extends Controller
             $consentedfacilities = DB::select('CALL sp_rpt_consentedclients_facilities(?,?,?,?,?,?)', array("%", "%", "%", '1900-01-01', '2900-01-01', $partner));
 
             $ushauristatistics = DB::select('CALL sp_rpt_quick_stats(?,?,?,?,?,?)', array("%", "%", "%", '1900-01-01', '2900-01-01', $partner));
+            $messages_sent = DB::select('CALL sp_rpt_messeges(?,?,?,?,?,?)', array("%", "%", "%", '1900-01-01', '2900-01-01', $partner));
         }
 
         if (!empty($selected_partners)) {
@@ -170,6 +177,7 @@ class UptakeController extends Controller
             $honoredappointmentagesex = DB::select('CALL sp_rpt_honored_appointmentsbyagesex(?,?,?,?,?,?)', array("%", "%", "%", '1900-01-01', '2900-01-01', $selected_partners));
             $honoredappointmentfacilities = DB::select('CALL sp_rpt_honoredclients_facilities(?,?,?,?,?,?)', array("%", "%", "%", '1900-01-01', '2900-01-01', $selected_partners));
             $consentedfacilities = DB::select('CALL sp_rpt_consentedclients_facilities(?,?,?,?,?,?)', array("%", "%", "%", '1900-01-01', '2900-01-01', $selected_partners));
+            $messages_sent = DB::select('CALL sp_rpt_messeges(?,?,?,?,?,?)', array("%", "%", "%", '1900-01-01', '2900-01-01', $selected_partners));
         }
         if (!empty($selected_counties)) {
             $consented = DB::select('CALL sp_rpt_consentedclients(?,?,?,?,?,?)', array($selected_counties, "%", "%", '1900-01-01', '2900-01-01', "%"));
@@ -182,11 +190,12 @@ class UptakeController extends Controller
             $honoredappointmentagesex = DB::select('CALL sp_rpt_honored_appointmentsbyagesex(?,?,?,?,?,?)', array($selected_counties, "%", "%", '1900-01-01', '2900-01-01', "%"));
             $honoredappointmentfacilities = DB::select('CALL sp_rpt_honoredclients_facilities(?,?,?,?,?,?)', array($selected_counties, "%", "%", '1900-01-01', '2900-01-01', "%"));
             $consentedfacilities = DB::select('CALL sp_rpt_consentedclients_facilities(?,?,?,?,?,?)', array($selected_counties, "%", "%", '1900-01-01', '2900-01-01', "%"));
+            $messages_sent = DB::select('CALL sp_rpt_messeges(?,?,?,?,?,?)', array($selected_counties, "%", "%", '1900-01-01', '2900-01-01', "%"));
         }
         if (!empty($selected_subcounties)) {
             $consented = DB::select('CALL sp_rpt_consentedclients(?,?,?,?,?,?)', array("%", $selected_subcounties, "%", '1900-01-01', '2900-01-01', "%"));
             $registered = DB::select('CALL sp_rpt_registeredclients(?,?,?,?,?,?)', array("%", $selected_subcounties, "%", '1900-01-01', '2900-01-01', "%"));
-            $txcur = DB::select('CALL sp_rpt_txcur(?,?,?,?)', array("%", $selected_subcounties, "%", $selected_subcounties));
+            $txcur = DB::select('CALL sp_rpt_txcur(?,?,?,?)', array("%", $selected_subcounties, "%", "%"));
 
             $consentedagesex = DB::select('CALL sp_rpt_consentedbyagesex(?,?,?,?,?,?)', array("%", $selected_subcounties, "%", '1900-01-01', '2900-01-01', "%"));
             $scheduledappointment = DB::select('CALL sp_rpt_scheduled_appointments(?,?,?,?,?,?)', array("%", $selected_subcounties, "%", '1900-01-01', '2900-01-01', "%"));
@@ -194,6 +203,8 @@ class UptakeController extends Controller
             $honoredappointmentagesex = DB::select('CALL sp_rpt_honored_appointmentsbyagesex(?,?,?,?,?,?)', array("%", $selected_subcounties, "%", '1900-01-01', '2900-01-01', "%"));
             $honoredappointmentfacilities = DB::select('CALL sp_rpt_honoredclients_facilities(?,?,?,?,?,?)', array("%", $selected_subcounties, "%", '1900-01-01', '2900-01-01', "%"));
             $consentedfacilities = DB::select('CALL sp_rpt_consentedclients_facilities(?,?,?,?,?,?)', array("%", $selected_subcounties, "%", '1900-01-01', '2900-01-01', "%"));
+            $messages_sent = DB::select('CALL sp_rpt_messeges(?,?,?,?,?,?)', array("%",  $selected_subcounties, "%", '1900-01-01', '2900-01-01', "%"));
+
         }
         if (!empty($selected_facilites)) {
             $consented = DB::select('CALL sp_rpt_consentedclients(?,?,?,?,?,?)', array("%", "%", $selected_facilites, '1900-01-01', '2900-01-01', "%"));
@@ -206,6 +217,7 @@ class UptakeController extends Controller
             $honoredappointmentagesex = DB::select('CALL sp_rpt_honored_appointmentsbyagesex(?,?,?,?,?,?)', array("%", "%", $selected_facilites, '1900-01-01', '2900-01-01', "%"));
             $honoredappointmentfacilities = DB::select('CALL sp_rpt_honoredclients_facilities(?,?,?,?,?,?)', array("%", "%", $selected_facilites, '1900-01-01', '2900-01-01', "%"));
             $consentedfacilities = DB::select('CALL sp_rpt_consentedclients_facilities(?,?,?,?,?,?)', array("%", "%", $selected_facilites, '1900-01-01', '2900-01-01', "%"));
+            $messages_sent = DB::select('CALL sp_rpt_messeges(?,?,?,?,?,?)', array("%", "%", $selected_facilites, '1900-01-01', '2900-01-01', "%"));
         }
         if (!empty($selected_from || $selected_to)) {
             $consented = DB::select('CALL sp_rpt_consentedclients(?,?,?,?,?,?)', array("%", "%", "%", $selected_from, $selected_to, "%"));
@@ -219,6 +231,7 @@ class UptakeController extends Controller
             $honoredappointmentfacilities = DB::select('CALL sp_rpt_honoredclients_facilities(?,?,?,?,?,?)', array("%", "%", "%", $selected_from, $selected_to, "%"));
             $consentedfacilities = DB::select('CALL sp_rpt_consentedclients_facilities(?,?,?,?,?,?)', array("%", "%", "%", $selected_from, $selected_to, "%"));
             $ushauristatistics = DB::select('CALL sp_rpt_quick_stats(?,?,?,?,?,?)', array("%", "%", "%", $selected_from, $selected_to, "%"));
+            $messages_sent = DB::select('CALL sp_rpt_messeges(?,?,?,?,?,?)', array("%", "%", "%", $selected_from, $selected_to, "%"));
         }
 
         $data["consented"]    = json_decode($consented[0]->consented);
@@ -231,6 +244,7 @@ class UptakeController extends Controller
         $data["honoredappointmentfacilities"]    = $honoredappointmentfacilities;
         $data["consentedfacilities"]    = $consentedfacilities;
         $data["ushauristatistics"]    = $ushauristatistics;
+        $data["messages_sent"]    = json_decode($messages_sent[0]->sentmesseges);
 
         return $data;
     }
