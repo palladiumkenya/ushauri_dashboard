@@ -52,6 +52,7 @@ Route::get('/pull/todays/appointment', ['uses' => 'App\Http\Controllers\Migratio
 
 // Past appointment
 Route::get('/pull/past/appointment', ['uses' => 'App\Http\Controllers\MigrationController@pull_past_appointment_new', 'as' => 'pull-past-appointment']);
+Route::get('/sync_tracing_outcome', ['uses' => 'App\Http\Controllers\MigrationController@sync_tracing_outcome', 'as' => 'sync_tracing_outcome']);
 
 
 Auth::routes();
@@ -201,6 +202,8 @@ Route::group(['middleware' => 'auth'], function () {
   Route::get('/report/consented', ['uses' => 'App\Http\Controllers\ReportController@consented_report', 'as' => 'report-consented']);
   Route::get('/report/tracing/cost', ['uses' => 'App\Http\Controllers\TracerController@tracing_cost', 'as' => 'tracing-cost']);
   Route::get('/report/TracingOutcome', ['uses' => 'App\Http\Controllers\ReportController@tracing_outcome', 'as' => 'tracing-outcome-report']);
+  Route::get('/report/tracing_outcome_filter', ['uses' => 'App\Http\Controllers\ReportController@tracing_outcome_filter', 'as' => 'tracing_outcome_filter']);
+
   Route::get('/report/MessageExtract', ['uses' => 'App\Http\Controllers\ReportController@messages_extract_report', 'as' => 'message-extract-report']);
   Route::get('/report/Users_report', ['uses' => 'App\Http\Controllers\ReportController@access_report', 'as' => 'access-report']);
   Route::get('/report/Client/Summary', ['uses' => 'App\Http\Controllers\ReportController@client_report', 'as' => 'client-summary-report']);
@@ -246,7 +249,7 @@ Route::group(['middleware' => 'auth'], function () {
   Route::get('/indicators/definition', ['uses' => 'App\Http\Controllers\NewReportController@indicators', 'as' => 'indicators']);
   Route::get('/client/messages', ['uses' => 'App\Http\Controllers\NewReportController@client_message', 'as' => 'client_message']);
 
- // Route::get('/home/uptake', ['uses' => 'App\Http\Controllers\UptakeController@index', 'as' => 'uptake']);
+  // Route::get('/home/uptake', ['uses' => 'App\Http\Controllers\UptakeController@index', 'as' => 'uptake']);
   Route::get('/home/uptake', ['uses' => 'App\Http\Controllers\UptakeController@registered', 'as' => 'registered']);
   Route::get('/filter_uptake', ['uses' => 'App\Http\Controllers\UptakeController@filter_uptake', 'as' => 'filter_uptake']);
 });

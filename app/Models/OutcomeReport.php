@@ -9,7 +9,7 @@ class OutcomeReport extends Model
 {
     use HasFactory;
 
-    public $table = 'outcome_report';
+    public $table = 'tbl_outcome_report_raw';
     public $timestamps = false;
     public $incrementing = false;
 

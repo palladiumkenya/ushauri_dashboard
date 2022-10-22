@@ -173,71 +173,62 @@ class ReportController extends Controller
 
     public function tracing_outcome()
     {
-        $all_partners = Partner::where('status', '=', 'Active')
-            ->pluck('name', 'id');
+        if (Auth::user()->access_level == 'Partner') {
+            $all_partners = Partner::where('status', '=', 'Active')->where('id', Auth::user()->partner_id)->pluck('name', 'id');
+        }
+        if (Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Donor' || Auth::user()->access_level == 'Facility') {
+            $all_partners = Partner::where('status', '=', 'Active')->orderBy('name', 'ASC')->pluck('name', 'id');
+        }
+        return view('reports.outcomeform', compact('all_partners'));
+    }
+
+    public function tracing_outcome_filter(Request $request)
+    {
+        // $selected_partners = $request->partners;
+        // $selected_counties = $request->counties;
+        // $selected_subcounties = $request->subcounties;
+        // $selected_facilites = $request->facilities;
+        $selected_from = $request->date_from;
+        $selected_to = $request->date_to;
+        //$outcome_report = OutcomeReport::select('*')->get();
         if (Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Donor') {
 
-            $outcome_report = OutcomeReport::select(
-                'UPN',
-                'Age',
-                'Facility',
-                'Gender',
-                'Sub_County',
-                'File_Number',
-                'Appointment_Date',
-                'Date_Came',
-                'Tracer',
-                'Days_Defaulted',
-                'Tracing_Date',
-                'Outcome',
-                'Final_Outcome',
-                'Other_Outcome'
-            )
-                ->paginate(1000);
+            $outcome_report = OutcomeReport::select('*')->get();
+            $all_partners = Partner::where('status', '=', 'Active')->orderBy('name', 'ASC')->pluck('name', 'id');
+        }
+        if (Auth::user()->access_level == 'Partner') {
+
+            $outcome_report = OutcomeReport::select('*')->where('partner_id', Auth::user()->partner_id)->get();
+            $all_partners = Partner::where('status', '=', 'Active')->where('id', Auth::user()->partner_id)->pluck('name', 'id');
         }
         if (Auth::user()->access_level == 'Facility') {
-            $outcome_report = OutcomeReport::select(
-                'UPN',
-                'Age',
-                'Facility',
-                'Gender',
-                'Sub_County',
-                'File_Number',
-                'Appointment_Date',
-                'Date_Came',
-                'Tracer',
-                'Days_Defaulted',
-                'Tracing_Date',
-                'Outcome',
-                'Final_Outcome',
-                'Other_Outcome'
-            )
-                ->where('MFL', Auth::user()->facility_id)
-                ->paginate(1000);
+
+            $outcome_report = OutcomeReport::select('*')->where('mfl_code', Auth::user()->facility_id)->get();
+            $all_partners = Partner::where('status', '=', 'Active')->orderBy('name', 'ASC')->pluck('name', 'id');
+        }
+        if (!empty($request->date_from)) {
+            $outcome_report =  $outcome_report->where('Appointment_Date', '>=', date($request->date_from));
+        }
+        if (!empty($request->date_to)) {
+            $outcome_report = $outcome_report->where('Appointment_Date', '<=', date($request->date_to));
+        }
+        if (!empty($request->partners)) {
+            $outcome_report = $outcome_report->where('partner_id', '=', $request->partners);
+        }
+        if (!empty($request->counties)) {
+            $outcome_report = $outcome_report->where('county_id', $request->counties);
+        }
+        if (!empty($request->subcounties)) {
+            $outcome_report = $outcome_report->where('sub_county_id', $request->subcounties);
+        }
+        if (!empty($request->facilities)) {
+            $outcome_report = $outcome_report->where('MFL', $request->facilities);
         }
 
-        if (Auth::user()->access_level == 'Partner') {
-            $outcome_report = OutcomeReport::select(
-                'UPN',
-                'Age',
-                'Facility',
-                'Gender',
-                'Sub_County',
-                'File_Number',
-                'Appointment_Date',
-                'Date_Came',
-                'Tracer',
-                'Days_Defaulted',
-                'Tracing_Date',
-                'Outcome',
-                'Final_Outcome',
-                'Other_Outcome'
-            )
-                ->where('partner_id', Auth::user()->partner_id)
-                ->paginate(1000);
-        }
+        // $outcome_report = $outcome_report->orderBy('created_at', 'DESC');
 
-        return view('reports.outcome', compact('outcome_report', 'all_partners'));
+        // dd($outcome_report);
+        return view('reports.outcome', compact('outcome_report', 'all_partners', 'selected_from', 'selected_to'));
     }
 
     public function messages_extract_report()

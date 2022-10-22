@@ -677,11 +677,11 @@
                     <span class="item-name">Summary Report</span>
                 </a>
             </li> -->
-            <!-- <li class="nav-item">
+            <li class="nav-item">
                 <a href="{{route('tracing-outcome-report')}}">
                     <span class="item-name">Tracing OutCome</span>
                 </a>
-            </li> -->
+            </li>
 
         </ul>
         <ul class="childNav" data-parent="indicators">
