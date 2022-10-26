@@ -191,6 +191,11 @@
                     <span class="item-name">Client Extract</span>
                 </a>
             </li>
+            <li class="nav-item">
+                <a class="{{ Route::currentRouteName()=='upload-clients-form' ? 'open' : '' }}" href={{route('upload-clients-form')}}>
+                    <span class="item-name">Upload Clients</span>
+                </a>
+            </li>
             @endif
             @if (Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Partner' || Auth::user()->access_level == 'Donor' || Auth::user()->access_level == 'County' || Auth::user()->access_level == 'Sub County')
 

@@ -84,7 +84,7 @@ class BulkUploadController extends Controller
                 $phone_number = trim($receivedArr[$i]['Phone_Number']);
                 $facility_id = trim($receivedArr[$i]['MFL']);
                 $mfl_code = trim($receivedArr[$i]['MFL']);
-                if (Auth::user()->access_level == 'Partner') {
+                if (Auth::user()->access_level == 'Partner' || Auth::user()->access_level == 'Facility') {
                     $partner_id = Auth::user()->partner_id;
                 }else{
                     $partner_id = trim($receivedArr[$i]['PartnerID']);
