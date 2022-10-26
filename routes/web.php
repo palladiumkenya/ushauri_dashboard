@@ -108,6 +108,10 @@ Route::group(['middleware' => 'auth'], function () {
   Route::get('/add/consent', ['uses' => 'App\Http\Controllers\ConsentController@addconsentform', 'as' => 'add-consent']);
   Route::get('/clients/booked', ['uses' => 'App\Http\Controllers\TracerController@booked_clients_tracing', 'as' => 'clients-booked']);
   Route::post('/clients/assign/tracer', ['uses' => 'App\Http\Controllers\TracerController@assign_client', 'as' => 'assign-tracer']);
+  Route::get('/check/client', ['uses' => 'App\Http\Controllers\ClientController@check_client_form', 'as' => 'check_client']);
+  Route::post('/edit/client', ['uses' => 'App\Http\Controllers\NewReportController@edit_client', 'as' => 'edit_client']);
+ // Route::get('/edit/client_search', ['uses' => 'App\Http\Controllers\ClientController@client_search', 'as' => 'client_search']);
+  //Route::get('/check_client', ['uses' => 'App\Http\Controllers\ClientController@check_client', 'as' => 'check_client']);
 
   // DCM routes
   Route::get('/Reports/dsd', ['uses' => 'App\Http\Controllers\ReportController@dsd_clients', 'as' => 'Reports-dsd']);

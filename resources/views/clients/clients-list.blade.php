@@ -6,11 +6,11 @@
 
 @section('main-content')
 <div class="breadcrumb">
-                <ul>
-                    <li><a href="">All Clients</a></li>
-                    <li></li>
-                </ul>
-            </div>
+    <ul>
+        <li><a href="">All Clients</a></li>
+        <li></li>
+    </ul>
+</div>
 
 <div class="col-md-12 mb-4">
     <div class="card text-left">
@@ -58,6 +58,7 @@
                                 <td> {{$result->enrollment_date}}</td>
                                 <td> {{$result->art_date}}</td>
                                 <td> {{$result->created_at}}</td>
+
                             </tr>
                             @endforeach
                             @endif
@@ -70,6 +71,7 @@
         </div>
     </div>
 </div>
+
 <!-- end of col -->
 
 @endsection
@@ -95,31 +97,30 @@
         "ordering": true,
         "info": true,
         dom: 'Bfrtip',
-        buttons: [
-            {
-            extend: 'copy',
-            title: 'Clients List',
-            filename: 'Clients List'
+        buttons: [{
+                extend: 'copy',
+                title: 'Clients List',
+                filename: 'Clients List'
             },
             {
-            extend: 'csv',
-            title: 'Clients List',
-            filename: 'Clients List'
+                extend: 'csv',
+                title: 'Clients List',
+                filename: 'Clients List'
             },
             {
-            extend: 'excel',
-            title: 'Clients List',
-            filename: 'Clients List'
+                extend: 'excel',
+                title: 'Clients List',
+                filename: 'Clients List'
             },
             {
-            extend: 'pdf',
-            title: 'Clients List',
-            filename: 'Clients List'
+                extend: 'pdf',
+                title: 'Clients List',
+                filename: 'Clients List'
             },
             {
-            extend: 'print',
-            title: 'Clients List',
-            filename: 'Clients List'
+                extend: 'print',
+                title: 'Clients List',
+                filename: 'Clients List'
             }
         ]
     });

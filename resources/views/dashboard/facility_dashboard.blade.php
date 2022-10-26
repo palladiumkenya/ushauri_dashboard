@@ -20,6 +20,11 @@
         <div style="margin-bottom:10px; ">
             <a type="button" href="{{route('new_client')}}" class="btn btn-primary btn-md pull-right">Add Client</a>
         </div>
+        <div class="col-lg-1 style="margin-bottom:10px; ">
+        </div>
+        <div style="margin-bottom:10px; ">
+            <a type="button" href="{{route('check_client')}}"class="btn btn-primary btn-md pull-right">Edit Client</a>
+        </div>
 
     </div>
 

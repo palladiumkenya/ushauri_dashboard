@@ -44,6 +44,7 @@ class AppointmentController extends Controller
                     'expln_app' => "EDITED",
 
                 ]);
+                
             if ($appointment) {
                 Session::flash('statuscode', 'success');
                 return redirect('report/future/appointments')->with('status', 'Appointment was updated successfully!');
