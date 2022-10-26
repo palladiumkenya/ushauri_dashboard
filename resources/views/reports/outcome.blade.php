@@ -305,8 +305,9 @@
                 filename: 'Outcome Report'
             },
             {
-                extend: 'pdf',
+                extend: 'pdfHtml5',
                 title: 'Outcome Report',
+                orientation: 'landscape',
                 filename: 'Outcome Report'
             },
             {
