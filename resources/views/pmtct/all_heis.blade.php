@@ -47,12 +47,12 @@
                             <td> {{$result->m_name}}</td>
                             <td> {{$result->l_name}}</td>
                             <td> {{$result->gender}}</td>
-                            <td> {{$result->clinic_number}}</td>
+                            <td> {{ substr($result->clinic_number, 0, strpos($result->clinic_number, "-")) }}</td>
                             <td> {{$result->dob}}</td>
                             @if($result->status == 'Disabled')
                             <td> Discharged </td>
                             @else
-                            <td> {{$result->status}}</td>
+                            <td>{{$result->status}}</td>
                             @endif
                         </tr>
                         @endforeach

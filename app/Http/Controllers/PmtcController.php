@@ -192,8 +192,10 @@ class PmtcController extends Controller
 
     public function get_all_hei()
     {
+
+
         if (Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Donor') {
-            $all_hei = Pmtct::join('tbl_client', 'tbl_client.id', '=', 'tbl_pmtct.client_id')
+            $all_hei = Pmtct::join('tbl_client', 'tbl_client.hei_no', '=', 'tbl_pmtct.hei_no')
                 ->join('tbl_gender', 'tbl_pmtct.hei_gender', '=', 'tbl_gender.id')
                 ->select(
                     'tbl_client.clinic_number',
@@ -209,7 +211,7 @@ class PmtcController extends Controller
         }
 
         if (Auth::user()->access_level == 'Facility') {
-            $all_hei = Pmtct::join('tbl_client', 'tbl_client.id', '=', 'tbl_pmtct.client_id')
+            $all_hei = Pmtct::join('tbl_client', 'tbl_client.hei_no', '=', 'tbl_pmtct.hei_no')
                 ->join('tbl_gender', 'tbl_pmtct.hei_gender', '=', 'tbl_gender.id')
                 ->select(
                     'tbl_client.clinic_number',
@@ -222,11 +224,12 @@ class PmtcController extends Controller
                     'tbl_client.status'
                 )
                 ->where('tbl_client.mfl_code', Auth::user()->facility_id)
-                ->whereNotNull('tbl_pmtct.hei_no')->paginate(1000);
+                ->whereNotNull('tbl_pmtct.hei_no')
+                ->paginate(10000);
         }
 
         if (Auth::user()->access_level == 'Partner') {
-            $all_hei = Pmtct::join('tbl_client', 'tbl_client.id', '=', 'tbl_pmtct.client_id')
+            $all_hei = Pmtct::join('tbl_client', 'tbl_client.hei_no', '=', 'tbl_pmtct.hei_no')
                 ->join('tbl_gender', 'tbl_pmtct.hei_gender', '=', 'tbl_gender.id')
                 ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
                 ->select(
@@ -240,7 +243,7 @@ class PmtcController extends Controller
                     'tbl_client.status'
                 )
                 ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
-                ->whereNotNull('tbl_pmtct.hei_no')->paginate(1000);
+                ->whereNotNull('tbl_pmtct.hei_no')->paginate(10000);
         }
 
         return view('pmtct/all_heis', compact('all_hei'));
