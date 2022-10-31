@@ -193,25 +193,34 @@ class ReportController extends Controller
         //$outcome_report = OutcomeReport::select('*')->get();
         if (Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Donor') {
 
-            $outcome_report = OutcomeReport::select('*')->get();
+            $outcome_report = OutcomeReport::select('*')
+                ->where('Appointment_Date', '>=', date($request->date_from))
+                ->where('Appointment_Date', '<=', date($request->date_to))
+                ->get();
             $all_partners = Partner::where('status', '=', 'Active')->orderBy('name', 'ASC')->pluck('name', 'id');
         }
         if (Auth::user()->access_level == 'Partner') {
 
-            $outcome_report = OutcomeReport::select('*')->where('partner_id', Auth::user()->partner_id)->get();
+            $outcome_report = OutcomeReport::select('*')->where('partner_id', Auth::user()->partner_id)
+                ->where('Appointment_Date', '>=', date($request->date_from))
+                ->where('Appointment_Date', '<=', date($request->date_to))
+                ->get();
             $all_partners = Partner::where('status', '=', 'Active')->where('id', Auth::user()->partner_id)->pluck('name', 'id');
         }
         if (Auth::user()->access_level == 'Facility') {
 
-            $outcome_report = OutcomeReport::select('*')->where('mfl_code', Auth::user()->facility_id)->get();
+            $outcome_report = OutcomeReport::select('*')->where('mfl_code', Auth::user()->facility_id)
+            ->where('Appointment_Date', '>=', date($request->date_from))
+            ->where('Appointment_Date', '<=', date($request->date_to))
+            ->get();
             $all_partners = Partner::where('status', '=', 'Active')->orderBy('name', 'ASC')->pluck('name', 'id');
         }
-        if (!empty($request->date_from)) {
-            $outcome_report =  $outcome_report->where('Appointment_Date', '>=', date($request->date_from));
-        }
-        if (!empty($request->date_to)) {
-            $outcome_report = $outcome_report->where('Appointment_Date', '<=', date($request->date_to));
-        }
+        // if (!empty($request->date_from)) {
+        //     $outcome_report =  $outcome_report->where('Appointment_Date', '>=', date($request->date_from));
+        // }
+        // if (!empty($request->date_to)) {
+        //     $outcome_report = $outcome_report->where('Appointment_Date', '<=', date($request->date_to));
+        // }
         if (!empty($request->partners)) {
             $outcome_report = $outcome_report->where('partner_id', '=', $request->partners);
         }

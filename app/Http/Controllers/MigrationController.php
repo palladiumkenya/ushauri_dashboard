@@ -37,7 +37,7 @@ class MigrationController extends Controller
         // $latest_ids = DB::table('partner_outcome_report')->select('*')->get();
         // DB::table('tbl_outcome_report_raw')->insert($latest_ids);
 
-        $basket_data = DB::table('partner_outcome_report')->get();
+        $basket_data = DB::table('partner_outcome_report')->distinct('Outcome_ID')->get();
         foreach ($basket_data as $records) {
             DB::table('tbl_outcome_report_raw')->insert(get_object_vars($records));
         }

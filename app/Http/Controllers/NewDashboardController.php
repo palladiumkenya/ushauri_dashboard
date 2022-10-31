@@ -956,7 +956,13 @@ class NewDashboardController extends Controller
                 ->count('tbl_appointment.id');
             $appointment_honoured = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
                 ->select('tbl_appointment.id')
-                ->where('tbl_appointment.date_attended', '=', DB::raw('tbl_appointment.appntmnt_date'))
+                ->where('tbl_appointment.appointment_kept', '=', 'Yes')
+                // ->where('tbl_appointment.date_attended', '=', DB::raw('tbl_appointment.appntmnt_date'))
+                ->where('tbl_client.mfl_code', Auth::user()->facility_id)
+                ->count('tbl_appointment.id');
+            $all_future_apps = Appointments::join('tbl_client', 'tbl_client.id', '=', 'tbl_appointment.client_id')
+                ->select('tbl_appointment.id')
+                ->where('tbl_appointment.appntmnt_date', '>', Now())
                 ->where('tbl_client.mfl_code', Auth::user()->facility_id)
                 ->count('tbl_appointment.id');
 
@@ -1153,6 +1159,12 @@ class NewDashboardController extends Controller
                 ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
                 ->select('tbl_appointment.id')
                 ->where('tbl_appointment.date_attended', '=', DB::raw('tbl_appointment.appntmnt_date'))
+                ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
+                ->count('tbl_appointment.id');
+            $all_future_apps = Appointments::join('tbl_client', 'tbl_client.id', '=', 'tbl_appointment.client_id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select('tbl_appointment.id', 'tbl_appointment.client_id', 'tbl_client.clinic_number')
+                ->where('tbl_appointment.appntmnt_date', '>', Now())
                 ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
                 ->count('tbl_appointment.id');
 
@@ -1359,6 +1371,11 @@ class NewDashboardController extends Controller
             $appointment_not_honoured = Appointments::select('id')
                 ->whereIn('app_status', ['Defaulted', 'LTFU', 'Missed'])
                 ->count('id');
+            $all_future_apps = Appointments::join('tbl_client', 'tbl_client.id', '=', 'tbl_appointment.client_id')
+                ->join('tbl_appointment_types', 'tbl_appointment_types.id', '=', 'tbl_appointment.app_type_1')
+                ->select('tbl_appointment.id', 'tbl_appointment.client_id', 'tbl_client.clinic_number', 'tbl_appointment.appntmnt_date', 'tbl_appointment_types.name as app_type')
+                ->where('tbl_appointment.appntmnt_date', '>', Now())
+                ->count('tbl_appointment.id');
 
             // appointment honored by gender
             $appointment_honoured_male = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
@@ -1507,6 +1524,7 @@ class NewDashboardController extends Controller
             'indicator',
             'appointment',
             'appointment_honoured',
+            'all_future_apps',
             'appointment_not_honoured',
             'appointment_honoured_male',
             'appointment_honoured_female',

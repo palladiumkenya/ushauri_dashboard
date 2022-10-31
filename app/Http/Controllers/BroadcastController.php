@@ -14,6 +14,7 @@ use App\Models\Client;
 use App\Models\Group;
 use App\Models\Gender;
 use App\Models\Facility;
+use App\Models\Time;
 use App\Models\PartnerFacility;
 use Carbon\Carbon;
 use Session;
@@ -41,23 +42,27 @@ class BroadcastController extends Controller
         $groups = Group::all()->where('status', '=', 'Active');
 
         $genders = Gender::all()->where('status', '=', 'Active');
+        $time = Time::all();
 
         $data = array(
             'facilities' => $facilities,
             'groups' => $groups,
-            'genders' => $genders
+            'genders' => $genders,
+            'time' => $time
         );
 
         $p_data = array(
             'facilities' => $p_facilities,
             'groups' => $groups,
-            'genders' => $genders
+            'genders' => $genders,
+            'time' => $time
         );
 
         $u_data = array(
             'facilities' => $u_facilities,
             'groups' => $groups,
-            'genders' => $genders
+            'genders' => $genders,
+            'time' => $time
         );
 
         if (Auth::user()->access_level == 'Facility') {
@@ -162,7 +167,7 @@ class BroadcastController extends Controller
 
             // return back();
 
-        } else if (Auth::user()->access_level == 'Admin') {
+        } else if (Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Donor') {
 
             $request->validate([
                 'groups' => 'required',

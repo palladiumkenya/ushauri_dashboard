@@ -191,7 +191,7 @@
     <div class="tab-pane fade show active" id="nav-appointment" role="tabpanel" aria-labelledby="nav-appointment-tab">
 
         <div class="row">
-            <div class="col-lg-4 ">
+            <div class="col-lg-3 ">
                 <div class="card card-icon-bg card-icon-bg-primary o-hidden mb-4 h-75">
                     <div class="card-body text-center">
                         <div class="content">
@@ -203,7 +203,7 @@
                 </div>
             </div>
 
-            <div class="col-lg-4">
+            <div class="col-lg-3">
                 <div class="card card-icon-bg card-icon-bg-primary o-hidden mb-4 h-75">
                     <div class="card-body text-center">
                         <div class="content">
@@ -215,7 +215,7 @@
                 </div>
             </div>
 
-            <div class="col-lg-4">
+            <div class="col-lg-3">
                 <div class="card card-icon-bg card-icon-bg-primary o-hidden mb-4 h-75">
                     <div class="card-body text-center">
                         <div class="content">
@@ -226,7 +226,17 @@
                     </div>
                 </div>
             </div>
+            <div class="col-lg-3">
+                <div class="card card-icon-bg card-icon-bg-primary o-hidden mb-4 h-75">
+                    <div class="card-body text-center">
+                        <div class="content">
+                            <p class="text-muted mt-2 mb-0">Future Appointments</p>
 
+                            <p id="appointment_not_honoured" class="text-primary text-20 line-height-1 mb-2">{{number_format($all_future_apps)}}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
         </div>
         <div class="row">

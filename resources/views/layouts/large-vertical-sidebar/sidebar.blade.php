@@ -414,11 +414,11 @@
             </li>
             @endif
             @if (Auth::user()->access_level == 'Facility')
-            <li class="nav-item">
+            <!-- <li class="nav-item">
                 <a class="" href="{{route('clients-booked')}}">
                     <span class="item-name">Clients Tracing</span>
                 </a>
-            </li>
+            </li> -->
             <li class="nav-item">
                 <a class="" href="{{route('broadcast')}}">
                     <span class="item-name">Broadcast</span>

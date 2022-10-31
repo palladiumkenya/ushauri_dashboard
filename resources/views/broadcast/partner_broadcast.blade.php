@@ -7,60 +7,87 @@
 @extends('layouts.master')
 
 @section('main-content')
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="card mb-4">
-                        <div class="card-body">
-                            <div class="card-title mb-3 text-center">New Broadcast To Partner Clients</div>
-                            <form role="form" method="post"action="{{route('send-broadcast')}}">
-                                {{ csrf_field() }}
-                                <div class="row">
+<div class="row">
+    <div class="col-md-12">
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="card-title mb-3 text-center">New Broadcast To Partner Clients</div>
+                <form role="form" method="post" action="{{route('send-broadcast')}}">
+                    {{ csrf_field() }}
+                    <div class="row">
 
-                                    <div class="col-md-12 form-group mb-3">
-                                        <label>Select Facility</label>
-                                        <select class="selectpicker form-control" data-width="100%" id="mfl_code" name="mfl_code" multiple data-actions-box="true">
-                                            @if (count($facilities) > 0)
-                                                @foreach($facilities as $facility)
-                                                <option value="{{$facility->code }}">{{ ucwords($facility->name) }}</option>
-                                                    @endforeach
-                                            @endif
-                                        </select>
-                                    </div>
-
-                                    <div class="col-md-12 form-group mb-3">
-                                        <label>Select Group</label>
-                                        <select class="selectpicker form-control" data-width="100%" id="groups" name="groups" multiple data-actions-box="true">
-                                            @if (count($groups) > 0)
-                                                @foreach($groups as $group)
-                                                <option value="{{$group->id }}">{{ ucwords($group->name) }}</option>
-                                                    @endforeach
-                                            @endif
-                                        </select>
-                                    </div>
-
-                                    <div class="col-md-12 form-group mb-3">
-                                        <label>Select Gender</label>
-                                        <select class="selectpicker form-control" data-width="100%" id="genders" name="genders" multiple data-actions-box="true">
-                                            @if (count($genders) > 0)
-                                                @foreach($genders as $gender)
-                                                <option value="{{$gender->id }}">{{ ucwords($gender->name) }}</option>
-                                                    @endforeach
-                                            @endif
-                                        </select>
-                                    </div>
-
-                                    <div class="col-md-12 form-group mb-3">
-                                        <label for="message">Message</label>
-                                        <textarea class="form-control" rows="3" id="message" name="message" placeholder="message"> </textarea>
-                                    </div>
-
-
-                                </div>
-                                <button type="submit" class="btn btn-block btn-primary">Submit</button>
-                            </form>
+                        <div class="col-md-6 form-group mb-3">
+                            <label>Select Facility</label>
+                            <select class="selectpicker form-control" data-width="100%" id="mfl_code" name="mfl_code" multiple data-actions-box="true">
+                                @if (count($facilities) > 0)
+                                @foreach($facilities as $facility)
+                                <option value="{{$facility->code }}">{{ ucwords($facility->name) }}</option>
+                                @endforeach
+                                @endif
+                            </select>
                         </div>
+
+                        <div class="col-md-6 form-group mb-3">
+                            <label>Select Group</label>
+                            <select class="selectpicker form-control" data-width="100%" id="groups" name="groups" multiple data-actions-box="true">
+                                @if (count($groups) > 0)
+                                @foreach($groups as $group)
+                                <option value="{{$group->id }}">{{ ucwords($group->name) }}</option>
+                                @endforeach
+                                @endif
+                            </select>
+                        </div>
+
+                        <div class="col-md-6 form-group mb-3">
+                            <label>Select Gender</label>
+                            <select class="selectpicker form-control" data-width="100%" id="genders" name="genders" multiple data-actions-box="true">
+                                @if (count($genders) > 0)
+                                @foreach($genders as $gender)
+                                <option value="{{$gender->id }}">{{ ucwords($gender->name) }}</option>
+                                @endforeach
+                                @endif
+                            </select>
+                        </div>
+                        <div class='col-sm-6'>
+                            <div class="form-group">
+                                <div class="input-group">
+                                    <div class="col-md-4">
+                                        <label for="firstName1">Broadcast Date</label>
+                                    </div>
+                                    <div class="col-md-10">
+                                        <input type="date" required="" id="broadcast_date" class="form-control" data-width="100%" placeholder="YYYY-mm-dd" name="broadcast_date" min="{{date("Y-m-d")}}">
+                                    </div>
+                                    <div class="input-group-append">
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 form-group mb-3">
+                            <label for="txt_time">Broadcast Time</label>
+                            <select class="form-control dynamic" data-dependant="rolename" data-width="100%" id="txt_time" name="txt_time">
+                                <option value="">Please select </option>
+
+                                @if (count($time) > 0)
+                                @foreach($time as $times)
+                                <option value="{{$times->id }}">{{ ucwords($times->name) }}</option>
+                                @endforeach
+                                @endif
+                            </select>
+                        </div>
+
+                        <div class="col-md-12 form-group mb-3">
+                            <label for="message">Message</label>
+                            <textarea class="form-control" rows="3" id="message" name="message" placeholder="message"> </textarea>
+                        </div>
+
+
                     </div>
-                </div>
+                    <button type="submit" class="btn btn-block btn-primary">Submit</button>
+                </form>
             </div>
+        </div>
+    </div>
+</div>
 
 @endsection

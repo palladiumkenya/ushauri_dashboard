@@ -9,7 +9,7 @@
 <div class="separator-breadcrumb border-top"></div>
 <div class="col-md-6 form-group mb-3">
     <label>Upload From</label>
-    <select id="form-control section">
+    <select class="form-control status" data-width="100%" id="section">
         <option value="">Please select upload type</option>
         <option value="kenyaemr">KenyaEMR Dataset</option>
         <option value="template">Ushauri Template</option>
