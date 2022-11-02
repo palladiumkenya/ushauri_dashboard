@@ -956,13 +956,12 @@ class NewDashboardController extends Controller
                 ->count('tbl_appointment.id');
             $appointment_honoured = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
                 ->select('tbl_appointment.id')
-                ->where('tbl_appointment.appointment_kept', '=', 'Yes')
-                // ->where('tbl_appointment.date_attended', '=', DB::raw('tbl_appointment.appntmnt_date'))
+                ->where('tbl_appointment.date_attended', '<=', DB::raw('tbl_appointment.appntmnt_date'))
                 ->where('tbl_client.mfl_code', Auth::user()->facility_id)
                 ->count('tbl_appointment.id');
             $all_future_apps = Appointments::join('tbl_client', 'tbl_client.id', '=', 'tbl_appointment.client_id')
                 ->select('tbl_appointment.id')
-                ->where('tbl_appointment.appntmnt_date', '>', Now())
+                ->where('tbl_appointment.appntmnt_date', '=', date('Y-m-d'))
                 ->where('tbl_client.mfl_code', Auth::user()->facility_id)
                 ->count('tbl_appointment.id');
 
