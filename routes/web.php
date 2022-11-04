@@ -226,8 +226,12 @@ Route::group(['middleware' => 'auth'], function () {
   Route::post('/delete/donor', ['uses' => 'App\Http\Controllers\DonorController@deletedonor', 'as' => 'deletedonor']);
 
   //Broadcast routes
+  Route::get('/broadcast/page', ['uses' => 'App\Http\Controllers\BroadcastController@broadcast_page', 'as' => 'broadcast-page']);
   Route::get('/broadcast', ['uses' => 'App\Http\Controllers\BroadcastController@broadcast_form', 'as' => 'broadcast']);
   Route::post('/send-broadcast', ['uses' => 'App\Http\Controllers\BroadcastController@sendSMS', 'as' => 'send-broadcast']);
+
+  Route::get('/broadcast/user', ['uses' => 'App\Http\Controllers\BroadcastController@broadcast_user', 'as' => 'broadcast-user']);
+  Route::post('/send-broadcast-user', ['uses' => 'App\Http\Controllers\BroadcastController@sendSMS_user', 'as' => 'send-broadcast-user']);
 
   // SMS Report routes
   //Route::get('/sms/analytics', ['uses' => 'App\Http\Controllers\SMSReportController@index', 'as' => 'sms-analytics']);

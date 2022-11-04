@@ -408,7 +408,7 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a class="" href="{{route('broadcast')}}">
+                <a class="" href="{{route('broadcast-page')}}">
                     <span class="item-name">Broadcast</span>
                 </a>
             </li>
@@ -420,7 +420,7 @@
                 </a>
             </li> -->
             <li class="nav-item">
-                <a class="" href="{{route('broadcast')}}">
+                <a class="" href="{{route('broadcast-page')}}">
                     <span class="item-name">Broadcast</span>
                 </a>
             </li>
@@ -432,7 +432,7 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a class="" href="{{route('broadcast')}}">
+                <a class="" href="{{route('broadcast-page')}}">
                     <span class="item-name">Broadcast</span>
                 </a>
             </li>
@@ -454,7 +454,7 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a class="" href="{{route('broadcast')}}">
+                <a class="" href="{{route('broadcast-page')}}">
                     <span class="item-name">Broadcast</span>
                 </a>
             </li>
