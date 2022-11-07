@@ -85,7 +85,7 @@ class BroadcastController extends Controller
 
     public function broadcast_user()
     {
-        $facilities = Facility::all();
+        $facilities = Facility::join('tbl_users', 'tbl_users.facility_id', '=', 'tbl_master_facility.code')->select('tbl_master_facility.code', 'tbl_master_facility.name')->groupBy('tbl_master_facility.name')->get();
 
         $p_facilities = Facility::join('tbl_partner_facility', 'tbl_partner_facility.mfl_code', '=', 'tbl_master_facility.code')
             ->select(
