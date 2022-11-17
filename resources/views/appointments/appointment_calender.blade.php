@@ -2,6 +2,7 @@
 @section('page-css')
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.5.0/fullcalendar.min.css" />
+
 @endsection
 
 @section('main-content')
@@ -15,7 +16,7 @@
 <div class="col-md-12 mb-4">
     <div class="row">
 
-
+    <!-- <button class="printBtn hidden-print">Print</button> -->
 
         <div id='calendar'></div>
 
@@ -36,7 +37,10 @@
 
 
 
+
 <script type="text/javascript">
+
+
 
 var cal = jQuery.noConflict();
 
@@ -96,6 +100,21 @@ cal(document).ready(function () {
                 },
                 {
                     url: '{{ route('vl_cd_calendar') }}',
+                    color: '#FFFF00',
+                    textColor: 'black'
+                },
+                {
+                    url: '{{ route('honored_calendar') }}',
+                    color: '#3374FF',
+                    textColor: 'black'
+                },
+                {
+                    url: '{{ route('pcr_calendar') }}',
+                    color: '#33FFE5',
+                    textColor: 'black'
+                },
+                {
+                    url: '{{ route('unscheduled_calendar') }}',
                     color: '#FFFF00',
                     textColor: 'black'
                 }
