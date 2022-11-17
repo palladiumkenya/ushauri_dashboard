@@ -15,13 +15,12 @@
 
 <div class="col-md-12 mb-4">
     <div class="row">
-
-    <!-- <button class="printBtn hidden-print">Print</button> -->
-
+    <div style="margin-bottom:10px; ">
+    <button id="print" class="btn btn-primary btn-md pull-right">Export To PDF</button>
+    </div>
+    <div class="col-lg-1 style=" margin-bottom:10px; ">
+        </div>
         <div id='calendar'></div>
-
-
-
     </div>
 </div>
 <!-- end of col -->
@@ -34,21 +33,31 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.5.0/fullcalendar.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
 
 
 
 
 <script type="text/javascript">
 
-
-
+window.onload = function(){
+    document.getElementById("print").addEventListener("click", ()=>{
+        const calendar = this.document.getElementById("calendar");
+        var opt = {
+           margin:       0.4,
+           filename:     'Appointment_Calendar.pdf',
+           image:        { type: 'jpeg', quality: 0.98 },
+           html2canvas:  { scale: 2 },
+          jsPDF:        { unit: 'in', format: 'letter', orientation: 'landscape' }
+         };
+        html2pdf().from(calendar).set(opt).save();
+    })
+}
 var cal = jQuery.noConflict();
 
 
 cal(document).ready(function () {
-
-
-
 
 
     function draw_calendar() {
