@@ -348,9 +348,15 @@ class NewReportController extends Controller
 
         return view('new_reports.indicators', compact('indicators'));
     }
-
-    public function client_message()
+    public function message_form()
     {
+        return view('new_reports.message_form');
+    }
+
+    public function client_message(Request $request)
+    {
+        $selected_from = $request->date_from;
+        $selected_to = $request->date_to;
         if (Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Donor') {
             $client_messages = Appointments::join('tbl_client', 'tbl_appointment.client_id', 'tbl_client.id')
                 ->join('tbl_clnt_outgoing', 'tbl_client.id', 'tbl_clnt_outgoing.clnt_usr_id')
@@ -384,9 +390,9 @@ class NewReportController extends Controller
                     'tbl_sub_county.name as subcounty'
                 )
                 ->where('tbl_client.status', '=', 'Active')
-                ->where('tbl_clnt_outgoing.created_at', '>=', '2022-02-01')
-                ->where('tbl_appointment.appntmnt_date', '>=', '2022-1-20')
-                ->paginate(1000);
+                ->where('tbl_clnt_outgoing.created_at', '>=', date($request->date_from))
+                ->where('tbl_clnt_outgoing.created_at', '<=', date($request->date_to))
+                ->get();
         }
         if (Auth::user()->access_level == 'Partner') {
             $client_messages = Appointments::join('tbl_client', 'tbl_appointment.client_id', 'tbl_client.id')
@@ -421,10 +427,10 @@ class NewReportController extends Controller
                     'tbl_sub_county.name as subcounty'
                 )
                 ->where('tbl_client.status', '=', 'Active')
-                ->where('tbl_clnt_outgoing.created_at', '>=', '2022-02-01')
-                ->where('tbl_appointment.appntmnt_date', '>=', '2022-1-20')
+                ->where('tbl_clnt_outgoing.created_at', '>=', date($request->date_from))
+                ->where('tbl_clnt_outgoing.created_at', '<=', date($request->date_to))
                 ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
-                ->paginate(1000);
+                ->get();
         }
         if (Auth::user()->access_level == 'Facility') {
             $client_messages = Appointments::join('tbl_client', 'tbl_appointment.client_id', 'tbl_client.id')
@@ -459,13 +465,13 @@ class NewReportController extends Controller
                     'tbl_sub_county.name as subcounty'
                 )
                 ->where('tbl_client.status', '=', 'Active')
-                ->where('tbl_clnt_outgoing.created_at', '>=', '2022-02-01')
-                ->where('tbl_appointment.appntmnt_date', '>=', '2022-1-20')
+                ->where('tbl_clnt_outgoing.created_at', '>=', date($request->date_from))
+                ->where('tbl_clnt_outgoing.created_at', '<=', date($request->date_to))
                 ->where('tbl_partner_facility.mfl_code', Auth::user()->facility_id)
-                ->paginate(1000);
+                ->get();
         }
 
 
-        return view('new_reports.client_messages', compact('client_messages'));
+        return view('new_reports.client_messages', compact('client_messages', 'selected_from', 'selected_to'));
     }
 }

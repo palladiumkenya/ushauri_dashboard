@@ -633,7 +633,7 @@
                 </a>
                 <ul class="submenu">
                     <li>
-                        <a href="{{route('client_message')}}">
+                        <a href="{{route('message_form')}}">
                             <span class="item-name">Client Messages</span>
                         </a>
                     </li>
