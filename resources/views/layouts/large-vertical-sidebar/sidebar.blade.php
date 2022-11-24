@@ -572,7 +572,7 @@
                         </a>
                     </li>
                     <li>
-                        <a href="{{route('report-all_heis')}}">
+                        <a href="{{route('report-pmtct_clients')}}">
                             <span class="item-name">PMTCT Clients</span>
                         </a>
                     </li>
