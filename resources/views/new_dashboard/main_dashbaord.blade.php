@@ -10,7 +10,7 @@
                     <li></li>
                 </ul>
             </div> -->
-@if (Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Partner' || Auth::user()->access_level == 'Donor')
+@if (Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Partner' || Auth::user()->access_level == 'Donor' || Auth::user()->access_level == 'County' || Auth::user()->access_level == 'Sub County')
 
 
 <div class="col">
@@ -83,7 +83,7 @@
                             <input type="date" id="from" class="form-control" placeholder="From" name="from" max="{{date("Y-m-d")}}">
                         </div>
                         <div class="input-group-append">
-                          
+
                         </div>
                     </div>
                 </div>
@@ -99,7 +99,7 @@
                             <input type="date" id="to" class="form-control" placeholder="To" name="to" max="{{date("Y-m-d")}}">
                         </div>
                         <div class="input-group-append">
-                         
+
                         </div>
                     </div>
                 </div>
@@ -152,7 +152,7 @@
                             <input type="date" id="from" class="form-control" placeholder="From" name="from" max="{{date("Y-m-d")}}">
                         </div>
                         <div class="input-group-append">
-                            
+
                         </div>
                     </div>
                 </div>
@@ -168,7 +168,7 @@
                             <input type="date" id="to" class="form-control" placeholder="To" name="to" max="{{date("Y-m-d")}}">
                         </div>
                         <div class="input-group-append">
-                         
+
                         </div>
                     </div>
                 </div>
@@ -473,7 +473,7 @@
             },
             url: "{{ route('filter_dashboard_charts') }}",
             success: function(data) {
-             
+
                 $("#client").html(data.client);
                 $("#client_ever_enrolled").html(data.client_ever_enrolled);
                 $("#facilities_ever_enrolled").html(data.facilities_ever_enrolled);

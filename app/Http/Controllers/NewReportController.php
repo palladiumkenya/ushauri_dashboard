@@ -324,6 +324,34 @@ class NewReportController extends Controller
                 ->groupBy('tbl_partner_facility.mfl_code')
                 ->get();
         }
+        if (Auth::user()->access_level == 'Sub County') {
+            $active_facilities = PartnerFacility::join('tbl_client', 'tbl_partner_facility.mfl_code', '=', 'tbl_client.mfl_code')
+                ->join('tbl_master_facility', 'tbl_partner_facility.mfl_code', '=', 'tbl_master_facility.code')
+                ->join('tbl_appointment', 'tbl_client.id', '=', 'tbl_appointment.client_id')
+                ->join('tbl_partner', 'tbl_partner_facility.partner_id', '=', 'tbl_partner.id')
+                ->join('tbl_county', 'tbl_partner_facility.county_id', '=', 'tbl_county.id')
+                ->join('tbl_sub_county', 'tbl_partner_facility.sub_county_id', '=', 'tbl_sub_county.id')
+                ->select('tbl_master_facility.code', 'tbl_master_facility.name as facility', 'tbl_partner.name as partner', 'tbl_county.name as county', 'tbl_sub_county.name as subcounty')
+                ->where('tbl_appointment.created_at', '>=', Carbon::now()->subMonths(6))
+                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id)
+                ->orderBy('tbl_appointment.created_at', 'DESC')
+                ->groupBy('tbl_partner_facility.mfl_code')
+                ->get();
+        }
+        if (Auth::user()->access_level == 'County') {
+            $active_facilities = PartnerFacility::join('tbl_client', 'tbl_partner_facility.mfl_code', '=', 'tbl_client.mfl_code')
+                ->join('tbl_master_facility', 'tbl_partner_facility.mfl_code', '=', 'tbl_master_facility.code')
+                ->join('tbl_appointment', 'tbl_client.id', '=', 'tbl_appointment.client_id')
+                ->join('tbl_partner', 'tbl_partner_facility.partner_id', '=', 'tbl_partner.id')
+                ->join('tbl_county', 'tbl_partner_facility.county_id', '=', 'tbl_county.id')
+                ->join('tbl_sub_county', 'tbl_partner_facility.sub_county_id', '=', 'tbl_sub_county.id')
+                ->select('tbl_master_facility.code', 'tbl_master_facility.name as facility', 'tbl_partner.name as partner', 'tbl_county.name as county', 'tbl_sub_county.name as subcounty')
+                ->where('tbl_appointment.created_at', '>=', Carbon::now()->subMonths(6))
+                ->where('tbl_partner_facility.county_id', Auth::user()->county_id)
+                ->orderBy('tbl_appointment.created_at', 'DESC')
+                ->groupBy('tbl_partner_facility.mfl_code')
+                ->get();
+        }
         if (Auth::user()->access_level == 'Facility') {
             $active_facilities = PartnerFacility::join('tbl_client', 'tbl_partner_facility.mfl_code', '=', 'tbl_client.mfl_code')
                 ->join('tbl_master_facility', 'tbl_partner_facility.mfl_code', '=', 'tbl_master_facility.code')

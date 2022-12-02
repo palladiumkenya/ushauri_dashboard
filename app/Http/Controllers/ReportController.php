@@ -176,6 +176,12 @@ class ReportController extends Controller
         if (Auth::user()->access_level == 'Partner') {
             $all_partners = Partner::where('status', '=', 'Active')->where('id', Auth::user()->partner_id)->pluck('name', 'id');
         }
+        if (Auth::user()->access_level == 'Sub County') {
+            $all_partners = Partner::join('tbl_partner_facility', 'tbl_partner_facility.partner_id', '=', 'tbl_partner.id')->where('tbl_partner.status', '=', 'Active')->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id)->pluck('tbl_partner.name', 'tbl_partner.id');
+        }
+        if (Auth::user()->access_level == 'County') {
+            $all_partners = Partner::join('tbl_partner_facility', 'tbl_partner_facility.partner_id', '=', 'tbl_partner.id')->where('tbl_partner.status', '=', 'Active')->where('tbl_partner_facility.county_id', Auth::user()->county_id)->pluck('tbl_partner.name', 'tbl_partner.id');
+        }
         if (Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Donor' || Auth::user()->access_level == 'Facility') {
             $all_partners = Partner::where('status', '=', 'Active')->orderBy('name', 'ASC')->pluck('name', 'id');
         }
@@ -202,6 +208,14 @@ class ReportController extends Controller
         if (Auth::user()->access_level == 'Partner') {
 
             $outcome_report = OutcomeReport::select('*')->where('partner_id', Auth::user()->partner_id)
+                ->where('Appointment_Date', '>=', date($request->date_from))
+                ->where('Appointment_Date', '<=', date($request->date_to))
+                ->get();
+            $all_partners = Partner::where('status', '=', 'Active')->where('id', Auth::user()->partner_id)->pluck('name', 'id');
+        }
+        if (Auth::user()->access_level == 'Sub County') {
+
+            $outcome_report = OutcomeReport::select('*')->where('sub_county_id', Auth::user()->subcounty_id)
                 ->where('Appointment_Date', '>=', date($request->date_from))
                 ->where('Appointment_Date', '<=', date($request->date_to))
                 ->get();
