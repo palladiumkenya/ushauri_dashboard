@@ -4854,6 +4854,212 @@ class NewDashboardController extends Controller
                 ->whereNull('tbl_client.hei_no')
                 ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id);
         }
+        if (Auth::user()->access_level == 'Sub County') {
+
+            $client = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->where('tbl_client.status', '=', 'Active')
+                ->whereNull('tbl_client.hei_no')
+                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id);
+            $client_ever_enrolled = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->whereNull('tbl_client.hei_no')
+                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id);
+            $active_facilities = PartnerFacility::join('tbl_client', 'tbl_partner_facility.mfl_code', '=', 'tbl_client.mfl_code')
+                ->join('tbl_appointment', 'tbl_client.id', '=', 'tbl_appointment.client_id')
+                ->select('tbl_partner_facility.mfl_code')
+                ->where('tbl_appointment.created_at', '>=', Carbon::now()->subMonths(6))
+                ->orderBy('tbl_appointment.created_at', 'DESC')
+                ->groupBy('tbl_partner_facility.mfl_code')
+                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id);
+            $facilities_ever_enrolled =  PartnerFacility::select('tbl_partner_facility.mfl_code')->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id);
+            // active clients by gender
+            $clients_male = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select('tbl_client.id')
+                ->where([['tbl_client.gender', '=', '2'], ['tbl_client.status', '=', 'Active'],])
+                ->whereNull('tbl_client.hei_no')
+                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id);
+
+            $clients_female = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->where([['tbl_client.gender', '=', '1'], ['tbl_client.status', '=', 'Active'],])
+                ->whereNull('tbl_client.hei_no')
+                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id);
+
+            $unknown_gender = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->where([['tbl_client.gender', '!=', '1'], ['tbl_client.gender', '!=', '2'], ['tbl_client.status', '=', 'Active'],])
+                ->whereNull('tbl_client.hei_no')
+                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id);
+
+
+            $client_to_nine = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) > 0) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 9)) then `tbl_client`.`dob` end)) AS count"))
+                ->where('tbl_client.status', '=', 'Active')
+                ->whereNull('tbl_client.hei_no')
+                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id);
+
+
+            $client_to_fourteen = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 10) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 14)) then `tbl_client`.`dob` end)) AS count"))
+                ->where('tbl_client.status', '=', 'Active')
+                ->whereNull('tbl_client.hei_no')
+                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id);
+
+
+            $client_to_nineteen = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 15) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 19)) then `tbl_client`.`dob` end)) AS count"))
+                ->where('tbl_client.status', '=', 'Active')
+                ->whereNull('tbl_client.hei_no')
+                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id);
+
+            $client_to_twentyfour = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 20) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 24)) then `tbl_client`.`dob` end)) AS count"))
+                ->where('tbl_client.status', '=', 'Active')
+                ->whereNull('tbl_client.hei_no')
+                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id);
+
+            $client_to_twentyfive_above = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 25)) then `tbl_client`.`dob` end)) AS count"))
+                ->where('tbl_client.status', '=', 'Active')
+                ->whereNull('tbl_client.hei_no')
+                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id);
+
+
+            $client_unknown_age = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->where(\DB::raw("CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"), '=', '')
+                ->orWhereNull(\DB::raw("CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"))
+                ->where('tbl_client.status', '=', 'Active')
+                ->whereNull('tbl_client.hei_no')
+                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id);
+        }
+        if (Auth::user()->access_level == 'County') {
+
+            $client = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->where('tbl_client.status', '=', 'Active')
+                ->whereNull('tbl_client.hei_no')
+                ->where('tbl_partner_facility.county_id', Auth::user()->county_id);
+            $client_ever_enrolled = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->whereNull('tbl_client.hei_no')
+                ->where('tbl_partner_facility.county_id', Auth::user()->county_id);
+            $active_facilities = PartnerFacility::join('tbl_client', 'tbl_partner_facility.mfl_code', '=', 'tbl_client.mfl_code')
+                ->join('tbl_appointment', 'tbl_client.id', '=', 'tbl_appointment.client_id')
+                ->select('tbl_partner_facility.mfl_code')
+                ->where('tbl_appointment.created_at', '>=', Carbon::now()->subMonths(6))
+                ->orderBy('tbl_appointment.created_at', 'DESC')
+                ->groupBy('tbl_partner_facility.mfl_code')
+                ->where('tbl_partner_facility.county_id', Auth::user()->county_id);
+            $facilities_ever_enrolled =  PartnerFacility::select('tbl_partner_facility.mfl_code')->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id);
+            // active clients by gender
+            $clients_male = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select('tbl_client.id')
+                ->where([['tbl_client.gender', '=', '2'], ['tbl_client.status', '=', 'Active'],])
+                ->whereNull('tbl_client.hei_no')
+                ->where('tbl_partner_facility.county_id', Auth::user()->county_id);
+
+            $clients_female = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->where([['tbl_client.gender', '=', '1'], ['tbl_client.status', '=', 'Active'],])
+                ->whereNull('tbl_client.hei_no')
+                ->where('tbl_partner_facility.county_id', Auth::user()->county_id);
+
+            $unknown_gender = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->where([['tbl_client.gender', '!=', '1'], ['tbl_client.gender', '!=', '2'], ['tbl_client.status', '=', 'Active'],])
+                ->whereNull('tbl_client.hei_no')
+                ->where('tbl_partner_facility.county_id', Auth::user()->county_id);
+
+
+            $client_to_nine = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) > 0) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 9)) then `tbl_client`.`dob` end)) AS count"))
+                ->where('tbl_client.status', '=', 'Active')
+                ->whereNull('tbl_client.hei_no')
+                ->where('tbl_partner_facility.county_id', Auth::user()->county_id);
+
+
+            $client_to_fourteen = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 10) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 14)) then `tbl_client`.`dob` end)) AS count"))
+                ->where('tbl_client.status', '=', 'Active')
+                ->whereNull('tbl_client.hei_no')
+                ->where('tbl_partner_facility.county_id', Auth::user()->county_id);
+
+
+            $client_to_nineteen = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 15) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 19)) then `tbl_client`.`dob` end)) AS count"))
+                ->where('tbl_client.status', '=', 'Active')
+                ->whereNull('tbl_client.hei_no')
+                ->where('tbl_partner_facility.county_id', Auth::user()->county_id);
+
+            $client_to_twentyfour = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 20) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 24)) then `tbl_client`.`dob` end)) AS count"))
+                ->where('tbl_client.status', '=', 'Active')
+                ->whereNull('tbl_client.hei_no')
+                ->where('tbl_partner_facility.county_id', Auth::user()->county_id);
+
+            $client_to_twentyfive_above = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 25)) then `tbl_client`.`dob` end)) AS count"))
+                ->where('tbl_client.status', '=', 'Active')
+                ->whereNull('tbl_client.hei_no')
+                ->where('tbl_partner_facility.county_id', Auth::user()->county_id);
+
+
+            $client_unknown_age = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->where(\DB::raw("CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"), '=', '')
+                ->orWhereNull(\DB::raw("CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"))
+                ->where('tbl_client.status', '=', 'Active')
+                ->whereNull('tbl_client.hei_no')
+                ->where('tbl_partner_facility.county_id', Auth::user()->county_id);
+        }
 
         if (Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Donor') {
 
@@ -5503,6 +5709,428 @@ class NewDashboardController extends Controller
                 date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"))
                 ->where('tbl_client.smsenable', '!=', 'Yes')
                 ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id);
+        }
+        if (Auth::user()->access_level == 'Sub County') {
+            $client = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->where('tbl_client.status', '=', 'Active')
+                ->whereNull('tbl_client.hei_no')
+                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id);
+            $client_consented = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select('tbl_client.id')
+                ->where('tbl_client.status', '=', 'Active')
+                ->whereNull('tbl_client.hei_no')
+                ->where('tbl_client.smsenable', '=', 'Yes')
+                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id);
+
+            $client_nonconsented = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select('tbl_client.id')
+                ->where('tbl_client.status', '=', 'Active')
+                ->whereNull('tbl_client.hei_no')
+                ->where('tbl_client.smsenable', '!=', 'Yes')
+                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id);
+
+            // consented clients by gender
+
+            $client_consented_male = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->where('tbl_client.smsenable', '=', 'Yes')
+                ->where('tbl_client.status', '=', 'Active')
+                ->whereNull('tbl_client.hei_no')
+                ->where('tbl_client.gender', '=', '2')
+                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id);
+
+            $client_consented_female = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->where('tbl_client.smsenable', '=', 'Yes')
+                ->where('tbl_client.status', '=', 'Active')
+                ->whereNull('tbl_client.hei_no')
+                ->where('tbl_client.gender', '=', '1')
+                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id);
+
+            $client_consented_uknown_gender = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->where('tbl_client.smsenable', '=', 'Yes')
+                ->where('tbl_client.status', '=', 'Active')
+                ->whereNull('tbl_client.hei_no')
+                ->where('tbl_client.gender', '!=', '1')
+                ->where('tbl_client.gender', '!=', '2')
+                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id);
+
+            // non consented clients by gender
+            $client_nonconsented_male = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->where('tbl_client.smsenable', '!=', 'Yes')
+                ->where('tbl_client.status', '=', 'Active')
+                ->whereNull('tbl_client.hei_no')
+                ->where('tbl_client.gender', '=', '2')
+                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id);
+
+
+            $client_nonconsented_female =  Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->where('tbl_client.smsenable', '!=', 'Yes')
+                ->where('tbl_client.status', '=', 'Active')
+                ->whereNull('tbl_client.hei_no')
+                ->where('tbl_client.gender', '=', '1')
+                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id);
+
+            $client_nonconsented_uknown_gender = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->where('tbl_client.smsenable', '!=', 'Yes')
+                ->where('tbl_client.gender', '!=', '1')
+                ->where('tbl_client.gender', '!=', '2')
+                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id);
+
+            // consented clients by age distribution
+            $client_consented_to_nine = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) > 0) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 9)) then `tbl_client`.`dob` end)) AS count"))
+                ->where('tbl_client.smsenable', '=', 'Yes')
+                ->where('tbl_client.status', '=', 'Active')
+                ->whereNull('tbl_client.hei_no')
+                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id);
+
+            $client_consented_to_fourteen = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 10) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 14)) then `tbl_client`.`dob` end)) AS count"))
+                ->where('tbl_client.smsenable', '=', 'Yes')
+                ->where('tbl_client.status', '=', 'Active')
+                ->whereNull('tbl_client.hei_no')
+                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id);
+
+            $client_consented_to_nineteen = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 15) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 19)) then `tbl_client`.`dob` end)) AS count"))
+                ->where('tbl_client.smsenable', '=', 'Yes')
+                ->where('tbl_client.status', '=', 'Active')
+                ->whereNull('tbl_client.hei_no')
+                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id);
+
+            $client_consented_to_twentyfour = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 20) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 24)) then `tbl_client`.`dob` end)) AS count"))
+                ->where('tbl_client.smsenable', '=', 'Yes')
+                ->where('tbl_client.status', '=', 'Active')
+                ->whereNull('tbl_client.hei_no')
+                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id);
+
+            $client_consented_to_twentyfive_above = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 25)) then `tbl_client`.`dob` end)) AS count"))
+                ->where('tbl_client.smsenable', '=', 'Yes')
+                ->where('tbl_client.status', '=', 'Active')
+                ->whereNull('tbl_client.hei_no')
+                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id);
+
+            $client_consented_uknown_age = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select('tbl_client.smsenable')
+                ->where(\DB::raw("CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"), '=', '')
+                ->orWhereNull(\DB::raw("CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"))
+                ->where('tbl_client.status', '=', 'Active')
+                ->whereNull('tbl_client.hei_no')
+                ->where('tbl_client.smsenable', '=', 'Yes')
+                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id);
+
+            // non consented clients by age distribution
+            $client_nonconsented_to_nine = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) > 0) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 9)) then `tbl_client`.`dob` end)) AS count"))
+                ->where('tbl_client.smsenable', '!=', 'Yes')
+                ->where('tbl_client.status', '=', 'Active')
+                ->whereNull('tbl_client.hei_no')
+                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id);
+
+            $client_nonconsented_to_fourteen = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 10) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 14)) then `tbl_client`.`dob` end)) AS count"))
+                ->where('tbl_client.smsenable', '!=', 'Yes')
+                ->where('tbl_client.status', '=', 'Active')
+                ->whereNull('tbl_client.hei_no')
+                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id);
+
+            $client_nonconsented_to_nineteen = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 15) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 19)) then `tbl_client`.`dob` end)) AS count"))
+                ->where('tbl_client.smsenable', '!=', 'Yes')
+                ->where('tbl_client.status', '=', 'Active')
+                ->whereNull('tbl_client.hei_no')
+                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id);
+
+            $client_nonconsented_to_twentyfour = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 20) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 24)) then `tbl_client`.`dob` end)) AS count"))
+                ->where('tbl_client.smsenable', '!=', 'Yes')
+                ->where('tbl_client.status', '=', 'Active')
+                ->whereNull('tbl_client.hei_no')
+                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id);
+
+            $client_nonconsented_to_twentyfive_above = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 25)) then `tbl_client`.`dob` end)) AS count"))
+                ->where('tbl_client.smsenable', '!=', 'Yes')
+                ->where('tbl_client.status', '=', 'Active')
+                ->whereNull('tbl_client.hei_no')
+                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id);
+
+            $client_nonconsented_uknown_age = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select('tbl_client.smsenable')
+                ->where('tbl_client.status', '=', 'Active')
+                ->whereNull('tbl_client.hei_no')
+                ->where(\DB::raw("CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"), '=', '')
+                ->orWhereNull(\DB::raw("CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"))
+                ->where('tbl_client.smsenable', '!=', 'Yes')
+                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id);
+        }
+        if (Auth::user()->access_level == 'County') {
+            $client = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->where('tbl_client.status', '=', 'Active')
+                ->whereNull('tbl_client.hei_no')
+                ->where('tbl_partner_facility.county_id', Auth::user()->county_id);
+            $client_consented = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select('tbl_client.id')
+                ->where('tbl_client.status', '=', 'Active')
+                ->whereNull('tbl_client.hei_no')
+                ->where('tbl_client.smsenable', '=', 'Yes')
+                ->where('tbl_partner_facility.county_id', Auth::user()->county_id);
+
+            $client_nonconsented = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select('tbl_client.id')
+                ->where('tbl_client.status', '=', 'Active')
+                ->whereNull('tbl_client.hei_no')
+                ->where('tbl_client.smsenable', '!=', 'Yes')
+                ->where('tbl_partner_facility.county_id', Auth::user()->county_id);
+
+            // consented clients by gender
+
+            $client_consented_male = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->where('tbl_client.smsenable', '=', 'Yes')
+                ->where('tbl_client.status', '=', 'Active')
+                ->whereNull('tbl_client.hei_no')
+                ->where('tbl_client.gender', '=', '2')
+                ->where('tbl_partner_facility.county_id', Auth::user()->county_id);
+
+            $client_consented_female = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->where('tbl_client.smsenable', '=', 'Yes')
+                ->where('tbl_client.status', '=', 'Active')
+                ->whereNull('tbl_client.hei_no')
+                ->where('tbl_client.gender', '=', '1')
+                ->where('tbl_partner_facility.county_id', Auth::user()->county_id);
+
+            $client_consented_uknown_gender = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->where('tbl_client.smsenable', '=', 'Yes')
+                ->where('tbl_client.status', '=', 'Active')
+                ->whereNull('tbl_client.hei_no')
+                ->where('tbl_client.gender', '!=', '1')
+                ->where('tbl_client.gender', '!=', '2')
+                ->where('tbl_partner_facility.county_id', Auth::user()->county_id);
+
+            // non consented clients by gender
+            $client_nonconsented_male = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->where('tbl_client.smsenable', '!=', 'Yes')
+                ->where('tbl_client.status', '=', 'Active')
+                ->whereNull('tbl_client.hei_no')
+                ->where('tbl_client.gender', '=', '2')
+                ->where('tbl_partner_facility.county_id', Auth::user()->county_id);
+
+
+            $client_nonconsented_female =  Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->where('tbl_client.smsenable', '!=', 'Yes')
+                ->where('tbl_client.status', '=', 'Active')
+                ->whereNull('tbl_client.hei_no')
+                ->where('tbl_client.gender', '=', '1')
+                ->where('tbl_partner_facility.county_id', Auth::user()->county_id);
+
+            $client_nonconsented_uknown_gender = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->where('tbl_client.smsenable', '!=', 'Yes')
+                ->where('tbl_client.gender', '!=', '1')
+                ->where('tbl_client.gender', '!=', '2')
+                ->where('tbl_partner_facility.county_id', Auth::user()->county_id);
+
+            // consented clients by age distribution
+            $client_consented_to_nine = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) > 0) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 9)) then `tbl_client`.`dob` end)) AS count"))
+                ->where('tbl_client.smsenable', '=', 'Yes')
+                ->where('tbl_client.status', '=', 'Active')
+                ->whereNull('tbl_client.hei_no')
+                ->where('tbl_partner_facility.county_id', Auth::user()->county_id);
+
+            $client_consented_to_fourteen = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 10) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 14)) then `tbl_client`.`dob` end)) AS count"))
+                ->where('tbl_client.smsenable', '=', 'Yes')
+                ->where('tbl_client.status', '=', 'Active')
+                ->whereNull('tbl_client.hei_no')
+                ->where('tbl_partner_facility.county_id', Auth::user()->county_id);
+
+            $client_consented_to_nineteen = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 15) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 19)) then `tbl_client`.`dob` end)) AS count"))
+                ->where('tbl_client.smsenable', '=', 'Yes')
+                ->where('tbl_client.status', '=', 'Active')
+                ->whereNull('tbl_client.hei_no')
+                ->where('tbl_partner_facility.county_id', Auth::user()->county_id);
+
+            $client_consented_to_twentyfour = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 20) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 24)) then `tbl_client`.`dob` end)) AS count"))
+                ->where('tbl_client.smsenable', '=', 'Yes')
+                ->where('tbl_client.status', '=', 'Active')
+                ->whereNull('tbl_client.hei_no')
+                ->where('tbl_partner_facility.county_id', Auth::user()->county_id);
+
+            $client_consented_to_twentyfive_above = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 25)) then `tbl_client`.`dob` end)) AS count"))
+                ->where('tbl_client.smsenable', '=', 'Yes')
+                ->where('tbl_client.status', '=', 'Active')
+                ->whereNull('tbl_client.hei_no')
+                ->where('tbl_partner_facility.county_id', Auth::user()->county_id);
+
+            $client_consented_uknown_age = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select('tbl_client.smsenable')
+                ->where(\DB::raw("CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"), '=', '')
+                ->orWhereNull(\DB::raw("CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"))
+                ->where('tbl_client.status', '=', 'Active')
+                ->whereNull('tbl_client.hei_no')
+                ->where('tbl_client.smsenable', '=', 'Yes')
+                ->where('tbl_partner_facility.county_id', Auth::user()->county_id);
+
+            // non consented clients by age distribution
+            $client_nonconsented_to_nine = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) > 0) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 9)) then `tbl_client`.`dob` end)) AS count"))
+                ->where('tbl_client.smsenable', '!=', 'Yes')
+                ->where('tbl_client.status', '=', 'Active')
+                ->whereNull('tbl_client.hei_no')
+                ->where('tbl_partner_facility.county_id', Auth::user()->county_id);
+
+            $client_nonconsented_to_fourteen = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 10) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 14)) then `tbl_client`.`dob` end)) AS count"))
+                ->where('tbl_client.smsenable', '!=', 'Yes')
+                ->where('tbl_client.status', '=', 'Active')
+                ->whereNull('tbl_client.hei_no')
+                ->where('tbl_partner_facility.county_id', Auth::user()->county_id);
+
+            $client_nonconsented_to_nineteen = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 15) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 19)) then `tbl_client`.`dob` end)) AS count"))
+                ->where('tbl_client.smsenable', '!=', 'Yes')
+                ->where('tbl_client.status', '=', 'Active')
+                ->whereNull('tbl_client.hei_no')
+                ->where('tbl_partner_facility.county_id', Auth::user()->county_id);
+
+            $client_nonconsented_to_twentyfour = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 20) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 24)) then `tbl_client`.`dob` end)) AS count"))
+                ->where('tbl_client.smsenable', '!=', 'Yes')
+                ->where('tbl_client.status', '=', 'Active')
+                ->whereNull('tbl_client.hei_no')
+                ->where('tbl_partner_facility.county_id', Auth::user()->county_id);
+
+            $client_nonconsented_to_twentyfive_above = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 25)) then `tbl_client`.`dob` end)) AS count"))
+                ->where('tbl_client.smsenable', '!=', 'Yes')
+                ->where('tbl_client.status', '=', 'Active')
+                ->whereNull('tbl_client.hei_no')
+                ->where('tbl_partner_facility.county_id', Auth::user()->county_id);
+
+            $client_nonconsented_uknown_age = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select('tbl_client.smsenable')
+                ->where('tbl_client.status', '=', 'Active')
+                ->whereNull('tbl_client.hei_no')
+                ->where(\DB::raw("CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"), '=', '')
+                ->orWhereNull(\DB::raw("CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"))
+                ->where('tbl_client.smsenable', '!=', 'Yes')
+                ->where('tbl_partner_facility.county_id', Auth::user()->county_id);
         }
         if (Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Donor') {
 
@@ -6263,6 +6891,376 @@ class NewDashboardController extends Controller
                 date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"))
                 ->whereIn('app_status', ['Defaulted', 'LTFU', 'Missed'])
                 ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id);
+        }
+        if (Auth::user()->access_level == 'Sub County') {
+            $appointment = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select('tbl_appointment.id')
+                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id);
+            $appointment_honoured = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select('tbl_appointment.id')
+                ->where('tbl_appointment.date_attended', '=', DB::raw('tbl_appointment.appntmnt_date'))
+                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id);
+            $appointment_not_honoured = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select('tbl_appointment.id')
+                ->whereIn('tbl_appointment.app_status', ['Defaulted', 'LTFU', 'Missed'])
+                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id);
+            // appointment honored by gender
+            $appointment_honoured_male = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select('tbl_appointment.id')
+                ->where('tbl_appointment.date_attended', '=', DB::raw('tbl_appointment.appntmnt_date'))
+                ->where('tbl_client.gender', '=', '2')
+                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id);
+            $appointment_honoured_female = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->where('tbl_appointment.date_attended', '=', DB::raw('tbl_appointment.appntmnt_date'))
+                ->where('tbl_client.gender', '=', '1')
+                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id);
+            $appointment_honoured_uknown_gender = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->where('tbl_appointment.date_attended', '=', DB::raw('tbl_appointment.appntmnt_date'))
+                ->where('tbl_client.gender', '!=', '1')
+                ->where('tbl_client.gender', '!=', '2')
+                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id);
+            // appointment honored by age
+            $appointment_honored_to_nine = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) > 0) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 9)) then `tbl_client`.`id` end)) AS count"))
+                ->where('tbl_appointment.date_attended', '=', DB::raw('tbl_appointment.appntmnt_date'))
+                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id);
+
+            $appointment_honored_to_fourteen = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 10) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 14)) then `tbl_client`.`id` end)) AS count"))
+                ->where('tbl_appointment.date_attended', '=', DB::raw('tbl_appointment.appntmnt_date'))
+                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id);
+
+            $appointment_honored_to_nineteen = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 15) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 19)) then `tbl_client`.`id` end)) AS count"))
+                ->where('tbl_appointment.date_attended', '=', DB::raw('tbl_appointment.appntmnt_date'))
+                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id);
+
+            $appointment_honored_to_twentyfour = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 20) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 24)) then `tbl_client`.`id` end)) AS count"))
+                ->where('tbl_appointment.date_attended', '=', DB::raw('tbl_appointment.appntmnt_date'))
+                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id);
+
+            $appointment_honored_to_twentyfive_above = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 25)) then `tbl_client`.`id` end)) AS count"))
+                ->where('tbl_appointment.date_attended', '=', DB::raw('tbl_appointment.appntmnt_date'))
+                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id);
+            $appointment_honored_to_uknown_age = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select('tbl_client.dob')
+                ->where('tbl_appointment.date_attended', '=', DB::raw('tbl_appointment.appntmnt_date'))
+                ->where(\DB::raw("CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"), '=', '')
+                ->orWhereNull(\DB::raw("CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"))
+                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id);
+
+            // appointment not honored by gender
+            $appointment_not_honoured_male = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->where('tbl_client.gender', '=', '2')
+                ->whereIn('app_status', ['Defaulted', 'LTFU', 'Missed'])
+                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id);
+
+            $appointment_not_honoured_female = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->where('tbl_client.gender', '=', '1')
+                ->whereIn('app_status', ['Defaulted', 'LTFU', 'Missed'])
+                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id);
+
+            $appointment_not_honoured_uknown_gender = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->where('tbl_client.gender', '!=', '1')
+                ->where('tbl_client.gender', '!=', '2')
+                ->whereIn('app_status', ['Defaulted', 'LTFU', 'Missed'])
+                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id);
+            // appointment not honored by age
+            $appointment_not_honored_to_nine = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) > 0) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 9)) then `tbl_client`.`id` end)) AS count"))
+                ->whereIn('app_status', ['Defaulted', 'LTFU', 'Missed'])
+                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id);
+
+            $appointment_not_honored_to_fourteen = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 10) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 14)) then `tbl_client`.`id` end)) AS count"))
+                ->whereIn('app_status', ['Defaulted', 'LTFU', 'Missed'])
+                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id);
+
+            $appointment_not_honored_to_nineteen = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 15) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 19)) then `tbl_client`.`id` end)) AS count"))
+                ->whereIn('app_status', ['Defaulted', 'LTFU', 'Missed'])
+                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id);
+
+            $appointment_not_honored_to_twentyfour = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 20) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 24)) then `tbl_client`.`id` end)) AS count"))
+                ->whereIn('app_status', ['Defaulted', 'LTFU', 'Missed'])
+                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id);
+
+            $appointment_not_honored_to_twentyfive_above = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 25)) then `tbl_client`.`id` end)) AS count"))
+                ->whereIn('app_status', ['Defaulted', 'LTFU', 'Missed'])
+                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id);
+
+            $appointment_not_honored_to_uknown_age = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select('tbl_client.dob')
+                ->where(\DB::raw("CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"), '=', '')
+                ->orWhereNull(\DB::raw("CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"))
+                ->whereIn('app_status', ['Defaulted', 'LTFU', 'Missed'])
+                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id);
+        }
+        if (Auth::user()->access_level == 'County') {
+            $appointment = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select('tbl_appointment.id')
+                ->where('tbl_partner_facility.county_id', Auth::user()->county_id);
+            $appointment_honoured = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select('tbl_appointment.id')
+                ->where('tbl_appointment.date_attended', '=', DB::raw('tbl_appointment.appntmnt_date'))
+                ->where('tbl_partner_facility.county_id', Auth::user()->county_id);
+            $appointment_not_honoured = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select('tbl_appointment.id')
+                ->whereIn('tbl_appointment.app_status', ['Defaulted', 'LTFU', 'Missed'])
+                ->where('tbl_partner_facility.county_id', Auth::user()->county_id);
+            // appointment honored by gender
+            $appointment_honoured_male = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select('tbl_appointment.id')
+                ->where('tbl_appointment.date_attended', '=', DB::raw('tbl_appointment.appntmnt_date'))
+                ->where('tbl_client.gender', '=', '2')
+                ->where('tbl_partner_facility.county_id', Auth::user()->county_id);
+            $appointment_honoured_female = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->where('tbl_appointment.date_attended', '=', DB::raw('tbl_appointment.appntmnt_date'))
+                ->where('tbl_client.gender', '=', '1')
+                ->where('tbl_partner_facility.county_id', Auth::user()->county_id);
+            $appointment_honoured_uknown_gender = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->where('tbl_appointment.date_attended', '=', DB::raw('tbl_appointment.appntmnt_date'))
+                ->where('tbl_client.gender', '!=', '1')
+                ->where('tbl_client.gender', '!=', '2')
+                ->where('tbl_partner_facility.county_id', Auth::user()->county_id);
+            // appointment honored by age
+            $appointment_honored_to_nine = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) > 0) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 9)) then `tbl_client`.`id` end)) AS count"))
+                ->where('tbl_appointment.date_attended', '=', DB::raw('tbl_appointment.appntmnt_date'))
+                ->where('tbl_partner_facility.county_id', Auth::user()->county_id);
+
+            $appointment_honored_to_fourteen = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 10) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 14)) then `tbl_client`.`id` end)) AS count"))
+                ->where('tbl_appointment.date_attended', '=', DB::raw('tbl_appointment.appntmnt_date'))
+                ->where('tbl_partner_facility.county_id', Auth::user()->county_id);
+
+            $appointment_honored_to_nineteen = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 15) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 19)) then `tbl_client`.`id` end)) AS count"))
+                ->where('tbl_appointment.date_attended', '=', DB::raw('tbl_appointment.appntmnt_date'))
+                ->where('tbl_partner_facility.county_id', Auth::user()->county_id);
+
+            $appointment_honored_to_twentyfour = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 20) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 24)) then `tbl_client`.`id` end)) AS count"))
+                ->where('tbl_appointment.date_attended', '=', DB::raw('tbl_appointment.appntmnt_date'))
+                ->where('tbl_partner_facility.county_id', Auth::user()->county_id);
+
+            $appointment_honored_to_twentyfive_above = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 25)) then `tbl_client`.`id` end)) AS count"))
+                ->where('tbl_appointment.date_attended', '=', DB::raw('tbl_appointment.appntmnt_date'))
+                ->where('tbl_partner_facility.county_id', Auth::user()->county_id);
+            $appointment_honored_to_uknown_age = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select('tbl_client.dob')
+                ->where('tbl_appointment.date_attended', '=', DB::raw('tbl_appointment.appntmnt_date'))
+                ->where(\DB::raw("CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"), '=', '')
+                ->orWhereNull(\DB::raw("CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"))
+                ->where('tbl_partner_facility.county_id', Auth::user()->county_id);
+
+            // appointment not honored by gender
+            $appointment_not_honoured_male = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->where('tbl_client.gender', '=', '2')
+                ->whereIn('app_status', ['Defaulted', 'LTFU', 'Missed'])
+                ->where('tbl_partner_facility.county_id', Auth::user()->county_id);
+
+            $appointment_not_honoured_female = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->where('tbl_client.gender', '=', '1')
+                ->whereIn('app_status', ['Defaulted', 'LTFU', 'Missed'])
+                ->where('tbl_partner_facility.county_id', Auth::user()->county_id);
+
+            $appointment_not_honoured_uknown_gender = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->where('tbl_client.gender', '!=', '1')
+                ->where('tbl_client.gender', '!=', '2')
+                ->whereIn('app_status', ['Defaulted', 'LTFU', 'Missed'])
+                ->where('tbl_partner_facility.county_id', Auth::user()->county_id);
+            // appointment not honored by age
+            $appointment_not_honored_to_nine = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) > 0) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 9)) then `tbl_client`.`id` end)) AS count"))
+                ->whereIn('app_status', ['Defaulted', 'LTFU', 'Missed'])
+                ->where('tbl_partner_facility.county_id', Auth::user()->county_id);
+
+            $appointment_not_honored_to_fourteen = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 10) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 14)) then `tbl_client`.`id` end)) AS count"))
+                ->whereIn('app_status', ['Defaulted', 'LTFU', 'Missed'])
+                ->where('tbl_partner_facility.county_id', Auth::user()->county_id);
+
+            $appointment_not_honored_to_nineteen = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 15) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 19)) then `tbl_client`.`id` end)) AS count"))
+                ->whereIn('app_status', ['Defaulted', 'LTFU', 'Missed'])
+                ->where('tbl_partner_facility.county_id', Auth::user()->county_id);
+
+            $appointment_not_honored_to_twentyfour = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 20) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 24)) then `tbl_client`.`id` end)) AS count"))
+                ->whereIn('app_status', ['Defaulted', 'LTFU', 'Missed'])
+                ->where('tbl_partner_facility.county_id', Auth::user()->county_id);
+
+            $appointment_not_honored_to_twentyfive_above = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 25)) then `tbl_client`.`id` end)) AS count"))
+                ->whereIn('app_status', ['Defaulted', 'LTFU', 'Missed'])
+                ->where('tbl_partner_facility.county_id', Auth::user()->county_id);
+
+            $appointment_not_honored_to_uknown_age = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select('tbl_client.dob')
+                ->where(\DB::raw("CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"), '=', '')
+                ->orWhereNull(\DB::raw("CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"))
+                ->whereIn('app_status', ['Defaulted', 'LTFU', 'Missed'])
+                ->where('tbl_partner_facility.county_id', Auth::user()->county_id);
         }
         if (Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Donor') {
             $appointment = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
@@ -7183,6 +8181,564 @@ class NewDashboardController extends Controller
                 date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"))
                 ->where('tbl_appointment.app_status', '=', 'LTFU')
                 ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id);
+        }
+        if (Auth::user()->access_level == 'Sub County') {
+            $appointment_not_honoured = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select(\DB::raw("COUNT(id) as count"))
+                ->whereIn('app_status', ['Defaulted', 'LTFU', 'Missed'])
+                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id);
+            // missed appointments
+
+            $appointment_missed = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->where('app_status', '=', 'Missed')
+                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id);
+
+            $appointment_defaulted = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->where('app_status', '=', 'Defaulted')
+                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id);
+
+            $appointment_lftu = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->where('app_status', '=', 'LTFU')
+                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id);
+            // missed appointment by gender
+            $appointment_missed_female = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->where('tbl_appointment.app_status', '=', 'Missed')
+                ->where('tbl_client.gender', '=', '1')
+                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id);
+
+            $appointment_missed_male = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->where('tbl_appointment.app_status', '=', 'Missed')
+                ->where('tbl_client.gender', '=', '2')
+                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id);
+
+            $appointment_missed_uknown_gender = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->where('tbl_appointment.app_status', '=', 'Missed')
+                ->where('tbl_client.gender', '!=', '1')
+                ->where('tbl_client.gender', '!=', '2')
+                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id);
+            // missed appointment by age
+            $appointment_missed_to_nine = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) > 0) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 9)) then `tbl_client`.`id` end)) AS count"))
+                ->where('tbl_appointment.app_status', '=', 'Missed')
+                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id);
+
+            $appointment_missed_to_fourteen = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 10) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 14)) then `tbl_client`.`id` end)) AS count"))
+                ->where('tbl_appointment.app_status', '=', 'Missed')
+                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id);
+
+            $appointment_missed_to_nineteen = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 15) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 19)) then `tbl_client`.`id` end)) AS count"))
+                ->where('tbl_appointment.app_status', '=', 'Missed')
+                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id);
+
+            $appointment_missed_to_twentyfour = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 20) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 24)) then `tbl_client`.`id` end)) AS count"))
+                ->where('tbl_appointment.app_status', '=', 'Missed')
+                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id);
+
+            $appointment_missed_to_twentyfive_above = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 25)) then `tbl_client`.`id` end)) AS count"))
+                ->where('tbl_appointment.app_status', '=', 'Missed')
+                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id);
+
+            $appointment_missed_to_uknown_age = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->where(\DB::raw("CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"), '=', '')
+                ->orWhereNull(\DB::raw("CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"))
+                ->where('tbl_appointment.app_status', '=', 'Missed')
+                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id);
+
+            // defaulted appointment by gender
+            $appointment_defaulted_female = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->where('tbl_appointment.app_status', '=', 'Defaulted')
+                ->where('tbl_client.gender', '=', '1')
+                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id);
+
+            $appointment_defaulted_male = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->where('tbl_appointment.app_status', '=', 'Defaulted')
+                ->where('tbl_client.gender', '=', '2')
+                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id);
+
+            $appointment_defaulted_uknown_gender = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->where('tbl_appointment.app_status', '=', 'Defaulted')
+                ->where('tbl_client.gender', '!=', '1')
+                ->where('tbl_client.gender', '!=', '2')
+                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id);
+
+            // defaulted appointment by age
+            $appointment_defaulted_to_nine = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) > 0) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 9)) then `tbl_client`.`id` end)) AS count"))
+                ->where('tbl_appointment.app_status', '=', 'Defaulted')
+                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id);
+
+            $appointment_defaulted_to_fourteen = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 10) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 14)) then `tbl_client`.`id` end)) AS count"))
+                ->where('tbl_appointment.app_status', '=', 'Defaulted')
+                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id);
+
+            $appointment_defaulted_to_nineteen = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 15) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 19)) then `tbl_client`.`id` end)) AS count"))
+                ->where('tbl_appointment.app_status', '=', 'Defaulted')
+                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id);
+
+            $appointment_defaulted_to_twentyfour = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 20) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 24)) then `tbl_client`.`id` end)) AS count"))
+                ->where('tbl_appointment.app_status', '=', 'Defaulted')
+                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id);
+
+            $appointment_defaulted_to_twentyfive_above = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 25)) then `tbl_client`.`id` end)) AS count"))
+                ->where('tbl_appointment.app_status', '=', 'Defaulted')
+                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id);
+
+            $appointment_defaulted_to_uknown_age = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->where(\DB::raw("CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"), '=', '')
+                ->orWhereNull(\DB::raw("CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"))
+                ->where('tbl_appointment.app_status', '=', 'Defaulted')
+                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id);
+
+            // ltfu appointment by gender
+            $appointment_ltfu_female = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->where('tbl_appointment.app_status', '=', 'LTFU')
+                ->where('tbl_client.gender', '=', '1')
+                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id);
+
+            $appointment_ltfu_male = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->where('tbl_appointment.app_status', '=', 'LTFU')
+                ->where('tbl_client.gender', '=', '2')
+                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id);
+
+            $appointment_ltfu_uknown_gender = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->where('tbl_appointment.app_status', '=', 'LTFU')
+                ->where('tbl_client.gender', '!=', '1')
+                ->where('tbl_client.gender', '!=', '2')
+                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id);
+
+            // ltfu appointment by age
+            $appointment_ltfu_to_nine = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) > 0) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 9)) then `tbl_client`.`id` end)) AS count"))
+                ->where('tbl_appointment.app_status', '=', 'LTFU')
+                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id);
+
+            $appointment_ltfu_to_fourteen = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 10) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 14)) then `tbl_client`.`id` end)) AS count"))
+                ->where('tbl_appointment.app_status', '=', 'LTFU')
+                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id);
+
+            $appointment_ltfu_to_nineteen = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 15) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 19)) then `tbl_client`.`id` end)) AS count"))
+                ->where('tbl_appointment.app_status', '=', 'LTFU')
+                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id);
+
+            $appointment_ltfu_to_twentyfour = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 20) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 24)) then `tbl_client`.`id` end)) AS count"))
+                ->where('tbl_appointment.app_status', '=', 'LTFU')
+                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id);
+
+            $appointment_ltfu_to_twentyfive_above = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 25)) then `tbl_client`.`id` end)) AS count"))
+                ->where('tbl_appointment.app_status', '=', 'LTFU')
+                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id);
+
+            $appointment_ltfu_to_uknown_age = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->where(\DB::raw("CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"), '=', '')
+                ->orWhereNull(\DB::raw("CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"))
+                ->where('tbl_appointment.app_status', '=', 'LTFU')
+                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id);
+        }
+        if (Auth::user()->access_level == 'County') {
+            $appointment_not_honoured = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select(\DB::raw("COUNT(id) as count"))
+                ->whereIn('app_status', ['Defaulted', 'LTFU', 'Missed'])
+                ->where('tbl_partner_facility.county_id', Auth::user()->county_id);
+            // missed appointments
+
+            $appointment_missed = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->where('app_status', '=', 'Missed')
+                ->where('tbl_partner_facility.county_id', Auth::user()->county_id);
+
+            $appointment_defaulted = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->where('app_status', '=', 'Defaulted')
+                ->where('tbl_partner_facility.county_id', Auth::user()->county_id);
+
+            $appointment_lftu = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->where('app_status', '=', 'LTFU')
+                ->where('tbl_partner_facility.county_id', Auth::user()->county_id);
+            // missed appointment by gender
+            $appointment_missed_female = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->where('tbl_appointment.app_status', '=', 'Missed')
+                ->where('tbl_client.gender', '=', '1')
+                ->where('tbl_partner_facility.county_id', Auth::user()->county_id);
+
+            $appointment_missed_male = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->where('tbl_appointment.app_status', '=', 'Missed')
+                ->where('tbl_client.gender', '=', '2')
+                ->where('tbl_partner_facility.county_id', Auth::user()->county_id);
+
+            $appointment_missed_uknown_gender = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->where('tbl_appointment.app_status', '=', 'Missed')
+                ->where('tbl_client.gender', '!=', '1')
+                ->where('tbl_client.gender', '!=', '2')
+                ->where('tbl_partner_facility.county_id', Auth::user()->county_id);
+            // missed appointment by age
+            $appointment_missed_to_nine = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) > 0) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 9)) then `tbl_client`.`id` end)) AS count"))
+                ->where('tbl_appointment.app_status', '=', 'Missed')
+                ->where('tbl_partner_facility.county_id', Auth::user()->county_id);
+
+            $appointment_missed_to_fourteen = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 10) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 14)) then `tbl_client`.`id` end)) AS count"))
+                ->where('tbl_appointment.app_status', '=', 'Missed')
+                ->where('tbl_partner_facility.county_id', Auth::user()->county_id);
+
+            $appointment_missed_to_nineteen = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 15) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 19)) then `tbl_client`.`id` end)) AS count"))
+                ->where('tbl_appointment.app_status', '=', 'Missed')
+                ->where('tbl_partner_facility.county_id', Auth::user()->county_id);
+
+            $appointment_missed_to_twentyfour = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 20) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 24)) then `tbl_client`.`id` end)) AS count"))
+                ->where('tbl_appointment.app_status', '=', 'Missed')
+                ->where('tbl_partner_facility.county_id', Auth::user()->county_id);
+
+            $appointment_missed_to_twentyfive_above = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 25)) then `tbl_client`.`id` end)) AS count"))
+                ->where('tbl_appointment.app_status', '=', 'Missed')
+                ->where('tbl_partner_facility.county_id', Auth::user()->county_id);
+
+            $appointment_missed_to_uknown_age = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->where(\DB::raw("CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"), '=', '')
+                ->orWhereNull(\DB::raw("CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"))
+                ->where('tbl_appointment.app_status', '=', 'Missed')
+                ->where('tbl_partner_facility.county_id', Auth::user()->county_id);
+
+            // defaulted appointment by gender
+            $appointment_defaulted_female = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->where('tbl_appointment.app_status', '=', 'Defaulted')
+                ->where('tbl_client.gender', '=', '1')
+                ->where('tbl_partner_facility.county_id', Auth::user()->county_id);
+
+            $appointment_defaulted_male = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->where('tbl_appointment.app_status', '=', 'Defaulted')
+                ->where('tbl_client.gender', '=', '2')
+                ->where('tbl_partner_facility.county_id', Auth::user()->county_id);
+
+            $appointment_defaulted_uknown_gender = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->where('tbl_appointment.app_status', '=', 'Defaulted')
+                ->where('tbl_client.gender', '!=', '1')
+                ->where('tbl_client.gender', '!=', '2')
+                ->where('tbl_partner_facility.county_id', Auth::user()->county_id);
+
+            // defaulted appointment by age
+            $appointment_defaulted_to_nine = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) > 0) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 9)) then `tbl_client`.`id` end)) AS count"))
+                ->where('tbl_appointment.app_status', '=', 'Defaulted')
+                ->where('tbl_partner_facility.county_id', Auth::user()->county_id);
+
+            $appointment_defaulted_to_fourteen = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 10) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 14)) then `tbl_client`.`id` end)) AS count"))
+                ->where('tbl_appointment.app_status', '=', 'Defaulted')
+                ->where('tbl_partner_facility.county_id', Auth::user()->county_id);
+
+            $appointment_defaulted_to_nineteen = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 15) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 19)) then `tbl_client`.`id` end)) AS count"))
+                ->where('tbl_appointment.app_status', '=', 'Defaulted')
+                ->where('tbl_partner_facility.county_id', Auth::user()->county_id);
+
+            $appointment_defaulted_to_twentyfour = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 20) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 24)) then `tbl_client`.`id` end)) AS count"))
+                ->where('tbl_appointment.app_status', '=', 'Defaulted')
+                ->where('tbl_partner_facility.county_id', Auth::user()->county_id);
+
+            $appointment_defaulted_to_twentyfive_above = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 25)) then `tbl_client`.`id` end)) AS count"))
+                ->where('tbl_appointment.app_status', '=', 'Defaulted')
+                ->where('tbl_partner_facility.county_id', Auth::user()->county_id);
+
+            $appointment_defaulted_to_uknown_age = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->where(\DB::raw("CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"), '=', '')
+                ->orWhereNull(\DB::raw("CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"))
+                ->where('tbl_appointment.app_status', '=', 'Defaulted')
+                ->where('tbl_partner_facility.county_id', Auth::user()->county_id);
+
+            // ltfu appointment by gender
+            $appointment_ltfu_female = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->where('tbl_appointment.app_status', '=', 'LTFU')
+                ->where('tbl_client.gender', '=', '1')
+                ->where('tbl_partner_facility.county_id', Auth::user()->county_id);
+
+            $appointment_ltfu_male = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->where('tbl_appointment.app_status', '=', 'LTFU')
+                ->where('tbl_client.gender', '=', '2')
+                ->where('tbl_partner_facility.county_id', Auth::user()->county_id);
+
+            $appointment_ltfu_uknown_gender = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->where('tbl_appointment.app_status', '=', 'LTFU')
+                ->where('tbl_client.gender', '!=', '1')
+                ->where('tbl_client.gender', '!=', '2')
+                ->where('tbl_partner_facility.county_id', Auth::user()->county_id);
+
+            // ltfu appointment by age
+            $appointment_ltfu_to_nine = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) > 0) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 9)) then `tbl_client`.`id` end)) AS count"))
+                ->where('tbl_appointment.app_status', '=', 'LTFU')
+                ->where('tbl_partner_facility.county_id', Auth::user()->county_id);
+
+            $appointment_ltfu_to_fourteen = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 10) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 14)) then `tbl_client`.`id` end)) AS count"))
+                ->where('tbl_appointment.app_status', '=', 'LTFU')
+                ->where('tbl_partner_facility.county_id', Auth::user()->county_id);
+
+            $appointment_ltfu_to_nineteen = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 15) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 19)) then `tbl_client`.`id` end)) AS count"))
+                ->where('tbl_appointment.app_status', '=', 'LTFU')
+                ->where('tbl_partner_facility.county_id', Auth::user()->county_id);
+
+            $appointment_ltfu_to_twentyfour = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 20) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 24)) then `tbl_client`.`id` end)) AS count"))
+                ->where('tbl_appointment.app_status', '=', 'LTFU')
+                ->where('tbl_partner_facility.county_id', Auth::user()->county_id);
+
+            $appointment_ltfu_to_twentyfive_above = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 25)) then `tbl_client`.`id` end)) AS count"))
+                ->where('tbl_appointment.app_status', '=', 'LTFU')
+                ->where('tbl_partner_facility.county_id', Auth::user()->county_id);
+
+            $appointment_ltfu_to_uknown_age = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
+                ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->where(\DB::raw("CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"), '=', '')
+                ->orWhereNull(\DB::raw("CASE
+                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"))
+                ->where('tbl_appointment.app_status', '=', 'LTFU')
+                ->where('tbl_partner_facility.county_id', Auth::user()->county_id);
         }
         if (Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Donor') {
             $appointment_not_honoured = Appointments::join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
