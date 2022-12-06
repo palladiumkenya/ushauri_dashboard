@@ -28,6 +28,7 @@
                                     <th>Phone No</th>
                                     <th>Appointment Date</th>
                                     <th>Appointment Type</th>
+                                    <th>Appointment Status</th>
                                     <th>Clinic</th>
                                     <th>Action</th>
                                 </tr>
@@ -44,6 +45,7 @@
                                                 <td>  {{$row->phone_no}}</td>
                                                 <td>  {{$row->appntmnt_date}}</td>
                                                 <td>  {{$row->appointment_types}}</td>
+                                                <td>  {{$row->app_status}}</td>
                                                 <td>  {{$row->clinic}}</td>
                                                 <td>
                                                     <input type="hidden" id="client_id" name="client_id" value="<?php echo $row->client_id; ?>" />
@@ -59,5 +61,57 @@
     </div>
 </div>
                 <!-- end of col -->
+
+@endsection
+@section('page-js')
+
+ <script src="{{asset('assets/js/vendor/datatables.min.js')}}"></script>
+ <script type="text/javascript">
+   // multi column ordering
+   $('#appointments_list').DataTable({
+        columnDefs: [{
+            targets: [0],
+            orderData: [0, 1]
+        }, {
+            targets: [1],
+            orderData: [1, 0]
+        }, {
+            targets: [4],
+            orderData: [4, 0]
+        }],
+        "paging": true,
+        "responsive":true,
+        "ordering": true,
+        "info": true,
+        dom: 'Bfrtip',
+        buttons: [
+            {
+            extend: 'copy',
+            title: 'Appointment List',
+            filename: 'Appointment List'
+            },
+            {
+            extend: 'csv',
+            title: 'Appointment List',
+            filename: 'Appointment List'
+            },
+            {
+            extend: 'excel',
+            title: 'Appointment List',
+            filename: 'Appointment List'
+            },
+            {
+            extend: 'pdf',
+            title: 'Appointment List',
+            filename: 'Appointment List'
+            },
+            {
+            extend: 'print',
+            title: 'Appointment List',
+            filename: 'Appointment List'
+            }
+        ]
+    });</script>
+
 
 @endsection

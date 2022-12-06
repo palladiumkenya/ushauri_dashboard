@@ -30,7 +30,6 @@
 @section('page-js')
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.5.0/fullcalendar.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -71,7 +70,9 @@ cal(document).ready(function () {
                 right: 'month,agendaWeek,agendaDay'
             },
             editable: true,
-            windowResize: true,
+            windowResize: function(view) {
+            //    alert('The calendar has adjusted to a window resize');
+              },
             eventSources: [
                 {
                     url: '{{ route('app_count_calendar') }}',
@@ -115,6 +116,11 @@ cal(document).ready(function () {
                 {
                     url: '{{ route('honored_calendar') }}',
                     color: '#3374FF',
+                    textColor: 'black'
+                },
+                {
+                    url: '{{ route('not_honored_calendar') }}',
+                    color: '#FF7D33',
                     textColor: 'black'
                 },
                 {
