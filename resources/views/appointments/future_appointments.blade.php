@@ -26,6 +26,7 @@
                                             <tr>
                                                 <th>No.</th>
                                                 <th>Clinic Number</th>
+                                                <th>UPI Number</th>
                                                 <th>Serial No</th>
                                                 <th>First Name</th>
                                                 <th>Middle Name</th>
@@ -42,6 +43,7 @@
                                                     <tr>
                                                         <td> {{ $loop->iteration }}</td>
                                                         <td>  {{$result->clinic_number}}</td>
+                                                        <td>  {{$result->upi_no}}</td>
                                                         <td>  {{$result->file_no}}</td>
                                                         <td>  {{$result->f_name}}</td>
                                                         <td>  {{$result->m_name}}</td>

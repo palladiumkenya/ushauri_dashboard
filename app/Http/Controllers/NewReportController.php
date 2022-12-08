@@ -78,7 +78,8 @@ class NewReportController extends Controller
                     'tbl_client.locator_sub_county',
                     'tbl_client.locator_ward',
                     'tbl_client.locator_village',
-                    'tbl_client.locator_location'
+                    'tbl_client.locator_location',
+                    'tbl_client.upi_no'
                 )
                 ->where('tbl_client.status', '=', 'Active')
                 ->whereNull('tbl_client.hei_no')
@@ -135,7 +136,8 @@ class NewReportController extends Controller
                     'tbl_client.locator_sub_county',
                     'tbl_client.locator_ward',
                     'tbl_client.locator_village',
-                    'tbl_client.locator_location'
+                    'tbl_client.locator_location',
+                    'tbl_client.upi_no'
                 )
                 ->where('tbl_client.status', '=', 'Active')
                 ->whereNull('tbl_client.hei_no')
@@ -192,7 +194,8 @@ class NewReportController extends Controller
                     'tbl_client.locator_sub_county',
                     'tbl_client.locator_ward',
                     'tbl_client.locator_village',
-                    'tbl_client.locator_location'
+                    'tbl_client.locator_location',
+                    'tbl_client.upi_no'
                 )
                 ->where('tbl_client.status', '=', 'Active')
                 ->whereNull('tbl_client.hei_no')

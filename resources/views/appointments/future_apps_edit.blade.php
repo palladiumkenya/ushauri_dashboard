@@ -25,6 +25,7 @@
                         <tr>
                             <th>No.</th>
                             <th>Clinic Number</th>
+                            <th>UPI Number</th>
                             <th>Appointment Date</th>
                             <th>Appointment Type</th>
                             <th>Action</th>
@@ -37,6 +38,7 @@
                         <tr>
                             <td> {{ $loop->iteration }}</td>
                             <td> {{$appointment->clinic_number}}</td>
+                            <td> {{$appointment->upi_no}}</td>
                             <td> {{$appointment->appntmnt_date}}</td>
                             <td> {{$appointment->app_type}}</td>
 

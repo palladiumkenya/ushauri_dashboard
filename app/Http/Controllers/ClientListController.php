@@ -74,7 +74,8 @@ class ClientListController extends Controller
                     'tbl_gender.name as gender',
                     'tbl_groups.name as group_name',
                     'tbl_language.name as language',
-                    'tbl_marital_status.marital'
+                    'tbl_marital_status.marital',
+                    'tbl_client.upi_no'
                 )
                 // ->where('tbl_client.clinic_number', 'LIKE', "%{$upn_search}%")
                 ->where('tbl_client.mfl_code', Auth::user()->facility_id)
@@ -214,7 +215,8 @@ class ClientListController extends Controller
                     'tbl_gender.name as gender',
                     'tbl_groups.name as group_name',
                     'tbl_language.name as language',
-                    'tbl_marital_status.marital'
+                    'tbl_marital_status.marital',
+                    'tbl_client.upi_no'
                 )
                 ->where('tbl_client.clinic_number', 'LIKE', '%' . $upn_search . '%')
                 ->whereNull('tbl_client.hei_no')
@@ -655,7 +657,8 @@ class ClientListController extends Controller
                     'client_report.mfl_code',
                     'client_report.facility_name',
                     'client_report.consented',
-                    'tbl_client.wellness_enable'
+                    'tbl_client.wellness_enable',
+                    'tbl_client.upi_no'
                 )
                 ->where('client_report.mfl_code', Auth::user()->facility_id)
                 ->get();
@@ -680,7 +683,8 @@ class ClientListController extends Controller
                     'client_report.mfl_code',
                     'client_report.facility_name',
                     'client_report.consented',
-                    'tbl_client.wellness_enable'
+                    'tbl_client.wellness_enable',
+                    'tbl_client.upi_no'
                 )
                 ->where('client_report.partner_id', Auth::user()->partner_id)
                 ->get();
@@ -706,7 +710,8 @@ class ClientListController extends Controller
                     'client_report.mfl_code',
                     'client_report.facility_name',
                     'client_report.consented',
-                    'tbl_client.wellness_enable'
+                    'tbl_client.wellness_enable',
+                    'tbl_client.upi_no'
                 )
                 ->get();
             $client_extract;
@@ -731,7 +736,8 @@ class ClientListController extends Controller
                     'client_report.mfl_code',
                     'client_report.facility_name',
                     'client_report.consented',
-                    'tbl_client.wellness_enable'
+                    'tbl_client.wellness_enable',
+                    'tbl_client.upi_no'
                 )
                 ->get();
         }
@@ -762,7 +768,8 @@ class ClientListController extends Controller
                     'client_report.mfl_code',
                     'client_report.facility_name',
                     'client_report.consented',
-                    'tbl_client.wellness_enable'
+                    'tbl_client.wellness_enable',
+                    'tbl_client.upi_no'
                 )
                 ->where('client_report.mfl_code', Auth::user()->facility_id)
                 ->whereDate('client_report.created_at', '>=', date($request->from))
@@ -789,7 +796,8 @@ class ClientListController extends Controller
                     'client_report.mfl_code',
                     'client_report.facility_name',
                     'client_report.consented',
-                    'tbl_client.wellness_enable'
+                    'tbl_client.wellness_enable',
+                    'tbl_client.upi_no'
                 )
                 ->whereDate('client_report.created_at', '>=', date($request->from))
                 ->whereDate('client_report.created_at', '<=', date($request->to))
@@ -816,7 +824,8 @@ class ClientListController extends Controller
                     'client_report.mfl_code',
                     'client_report.facility_name',
                     'client_report.consented',
-                    'tbl_client.wellness_enable'
+                    'tbl_client.wellness_enable',
+                    'tbl_client.upi_no'
                 )
                 ->whereDate('client_report.created_at', '>=', date($request->from))
                 ->whereDate('client_report.created_at', '<=', date($request->to))
@@ -842,7 +851,8 @@ class ClientListController extends Controller
                     'client_report.mfl_code',
                     'client_report.facility_name',
                     'client_report.consented',
-                    'tbl_client.wellness_enable'
+                    'tbl_client.wellness_enable',
+                    'tbl_client.upi_no'
                 )
                 ->whereDate('client_report.created_at', '>=', date($request->from))
                 ->whereDate('client_report.created_at', '<=', date($request->to))

@@ -70,6 +70,7 @@
                                             <tr>
                                                 <th>No.</th>
                                                 <th>Clinic Number</th>
+                                                <th>UPI Number</th>
                                                 <th>Gender</th>
                                                 <th>Group</th>
                                                 <th>Marital Status</th>
@@ -97,6 +98,7 @@
                                                     <tr>
                                                         <td> {{ $loop->iteration }}</td>
                                                         <td>  {{$clients->clinic_number}}</td>
+                                                        <td>  {{$clients->upi_no}}</td>
                                                         <td>  {{$clients->gender}}</td>
                                                         <td>  {{$clients->group_name}}</td>
                                                         <td>  {{$clients->marital}}</td>
