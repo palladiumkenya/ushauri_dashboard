@@ -113,26 +113,26 @@ cal(document).ready(function () {
                     color: '#FFFF00',
                     textColor: 'black'
                 },
-                {
-                    url: '{{ route('honored_calendar') }}',
-                    color: '#3374FF',
-                    textColor: 'black'
-                },
-                {
-                    url: '{{ route('not_honored_calendar') }}',
-                    color: '#FF7D33',
-                    textColor: 'black'
-                },
+                // {
+                //     url: '{{ route('honored_calendar') }}',
+                //     color: '#3374FF',
+                //     textColor: 'black'
+                // },
+                // {
+                //     url: '{{ route('not_honored_calendar') }}',
+                //     color: '#FF7D33',
+                //     textColor: 'black'
+                // },
                 {
                     url: '{{ route('pcr_calendar') }}',
                     color: '#33FFE5',
                     textColor: 'black'
-                },
-                {
-                    url: '{{ route('unscheduled_calendar') }}',
-                    color: '#FFFF00',
-                    textColor: 'black'
                 }
+                // {
+                //     url: '{{ route('unscheduled_calendar') }}',
+                //     color: '#FFFF00',
+                //     textColor: 'black'
+                // }
 
             ]
         });

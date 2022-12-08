@@ -1321,7 +1321,7 @@
                     Scheduled_App = parseInt(data.scheduledappointment)
                     Honored_App = parseInt(data.honoredappointment)
 
-                    $('#table').DataTable().ajax.reload();
+                    // $('#table').DataTable().ajax.reload();
 
                     uptakeCascade.series[0].setData([Txcurr, Registered_Clients, Consented_Clients, 0]);
                     appointmentuptakeCascade.series[0].setData([, Scheduled_App, , 0, Honored_App]);
