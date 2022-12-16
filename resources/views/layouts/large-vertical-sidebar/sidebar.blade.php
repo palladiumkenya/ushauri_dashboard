@@ -110,6 +110,9 @@
                 <a class="{{ Route::currentRouteName()=='Reports-facility_home' ? 'open' : '' }}" href="{{route('Reports-facility_home')}}">
                     <span class=" text-muted">Appointment Register</span>
                 </a>
+                <a class="{{ Route::currentRouteName()=='upi_dashboard' ? 'open' : '' }}" href="{{route('upi_dashboard')}}">
+                    <span class=" text-muted">Client Verification</span>
+                </a>
             </li>
             @endif
             @if (Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Partner' || Auth::user()->access_level == 'Donor' || Auth::user()->access_level == 'County' || Auth::user()->access_level == 'Sub County')

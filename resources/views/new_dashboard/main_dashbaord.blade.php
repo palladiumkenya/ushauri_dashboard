@@ -200,7 +200,7 @@
 
         <div id="highchart"></div>
         <div class="row">
-            @if (Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Partner' || Auth::user()->access_level == 'Donor')
+            @if (Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Partner' || Auth::user()->access_level == 'Donor' || Auth::user()->access_level == 'County' || Auth::user()->access_level == 'Sub County')
 
             <div class="col-lg-3">
                 <div class="card card-icon-bg card-icon-bg-primary o-hidden mb-4 h-75">

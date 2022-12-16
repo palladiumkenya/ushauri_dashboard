@@ -35,7 +35,7 @@
                     <div class="card card-icon-bg card-icon-bg-primary o-hidden mb-4 h-75" style="background-color:#369FFF">
                         <div class="card-body" >
                             <div class="content">
-                                <p class="line-height-1 mb-2">{{ number_format(json_decode($verification_count[0]->total)) }}</p>
+                                <p class="line-height-1 mb-2">{{ number_format(json_decode($verification_count_total[0]->total)) }}</p>
                                 <p>Registered</p>
                                 <p style="padding:5px"></p>
                             </div>
@@ -47,21 +47,21 @@
                     <div class="card card-icon-bg card-icon-bg-primary o-hidden mb-4 h-75" style="background-color:#8AC53E">
                         <div class="card-body">
                             <div class="content" id="maindiv">
-                                <p class="line-height-1 mb-2">{{ number_format(json_decode($verification_count[0]->verified)) }}</p>
+                                <p class="line-height-1 mb-2">{{ number_format(json_decode($verification_count_total[0]->verified)) }}</p>
                                 <p>Verified</p>
-                                <p style="border-radius:50%; border:solid black 1px;padding:5px">{{ number_format(json_decode($verification_count[0]->verified)) }}%</p>
+                                <p style="border-radius:50%; border:solid black 1px;padding:5px">{{ json_decode($verification_count_total[0]->percenct_verified) }}%</p>
                             </div>
                             <i class="fa fa-check-circle"></i>
                         </div>
                     </div>
                 </div>
                 <div class="col-lg-4">
-                    <div class="card card-icon-bg card-icon-bg-primary o-hidden mb-4 h-75" style="background-color:#006838">
+                    <div class="card card-icon-bg card-icon-bg-primary o-hidden mb-4 h-75" style="background-color:#7D47B3">
                         <div class="card-body">
                             <div class="content" id="maindiv">
-                                <p class="line-height-1 mb-2">{{ number_format(json_decode($verification_count[0]->not_verified)) }}</p>
+                                <p class="line-height-1 mb-2">{{ number_format(json_decode($verification_count_total[0]->not_verified)) }}</p>
                                 <p style ="white-space: nowrap ;">Not Verified</p>
-                                <p style="border-radius:50%; border:solid black 1px;padding:5px">{{ number_format(json_decode($verification_count[0]->verified)) }}%</p>
+                                <p style="border-radius:50%; border:solid black 1px;padding:5px">{{ json_decode($verification_count_total[0]->percenct_not_verified) }}%</p>
                             </div>
                             <i class="fa fa-exclamation-circle"></i>
                         </div>
@@ -94,11 +94,14 @@
                         <div id="verification_gender" class="col" style="height:  400px;margin-top:20px;width: 900px"></div> <br />
                     </div>
                 </div>
+
                 <div class="col-6">
                     <div class="card-body row">
                         <div id="verification_facility" class="col" style="height:  400px;margin-top:20px;width: 900px"></div> <br />
                     </div>
                 </div>
+
+
             </div>
         </div>
 
@@ -141,7 +144,7 @@
 
                         </div>
                         @endif
-                        @if (Auth::user()->access_level == 'Partner')
+                        @if (Auth::user()->access_level == 'Partner' || Auth::user()->access_level == 'County' || Auth::user()->access_level == 'Sub County')
                         <div class="card-body">
                             <h4 class="card-title mb-3">Verification Status by Facility</h4>
                             <div class="table-responsive">
@@ -320,8 +323,9 @@
     var Clients_Verification_Age = <?php echo json_encode($verification_age) ?>;
     var Clients_Verification_Gender = <?php echo json_encode($verification_gender) ?>;
     var Verification_Facility = <?php echo json_encode($verification_count) ?>;
+    var Verified_Vs_Not_Verified = <?php echo json_encode($verification_count_total) ?>;
 
-    console.log(Verification_Facility);
+    console.log(Verified_Vs_Not_Verified);
 
     // verified age
     var Verified_To_Nine = Clients_Verification_Age.findIndex(item => item.Age === '0-9');
@@ -382,7 +386,7 @@
 
     console.log(Final_Not_Verified_To_Fourteen);
 
-    // verified vs not verified
+    // verified vs not verified gender
     var Verified_Male = Clients_Verification_Gender.findIndex(item => item.Gender === 'M');
     var Final_Verified_Male = (Clients_Verification_Gender[Verified_Male].percenct_verified * 1) //male verified
     var Verified_Female = Clients_Verification_Gender.findIndex(item => item.Gender === 'F');
@@ -392,6 +396,9 @@
     var Not_Verified_Female = Clients_Verification_Gender.findIndex(item => item.Gender === 'F');
     var Final_Not_Verified_Female = (Clients_Verification_Gender[Not_Verified_Female].percenct_not_verified * 1) //female not verified
 
+    // verified vs not verified summary
+    var Verified = (Verified_Vs_Not_Verified[0].percenct_verified * 1) //verified
+    var Not_Verified = (Verified_Vs_Not_Verified[0].percenct_not_verified * 1) //not verified
 
 
     var VerificationAge = Highcharts.chart('verification_age', {
@@ -456,6 +463,8 @@
 
         }]
     });
+
+    
     var VerificationFacility = Highcharts.chart('verification_facility', {
         chart: {
             type: 'column'
@@ -598,11 +607,11 @@
                 data: [{
                     name: 'Verified',
                     color: '#01058A',
-                    y: Final_Verified_To_Nine,
+                    y: Verified,
                     z: 92
                 }, {
                     name: 'Not Verified',
-                    y: Final_Not_Verified_To_Nine,
+                    y: Not_Verified,
                     color: '#97080F',
                     z: 235
                 }]
