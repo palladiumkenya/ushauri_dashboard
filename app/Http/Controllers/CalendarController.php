@@ -21,10 +21,10 @@ class CalendarController extends Controller
     {
 
         if (Auth::user()->access_level == 'Facility') {
-            $name = 'Total Apps:';
+            $name = 'Total:';
             $app_calendar_data = Appointments::join('tbl_appointment_types', 'tbl_appointment_types.id', '=', 'tbl_appointment.app_type_1')
                 ->join('tbl_client', 'tbl_client.id', '=', 'tbl_appointment.client_id')
-                ->select('tbl_client.clinic_number', 'tbl_client.file_no', 'tbl_client.phone_no', 'tbl_appointment.app_status', 'tbl_appointment_types.name as app_type', DB::raw("CONCAT(`tbl_client`.`f_name`, ' ', `tbl_client`.`m_name`, ' ', `tbl_client`.`l_name`) as client_name"), 'tbl_appointment.appntmnt_date as start', DB::raw("CONCAT('$this->url_path','/id_all/', tbl_appointment.id) as url"), DB::raw("CONCAT('Total Apps: ', ' ', COUNT(tbl_appointment_types.id)) as title"), 'tbl_appointment.appntmnt_date as end')
+                ->select('tbl_client.clinic_number', 'tbl_client.file_no', 'tbl_client.phone_no', 'tbl_appointment.app_status', 'tbl_appointment_types.name as app_type', DB::raw("CONCAT(`tbl_client`.`f_name`, ' ', `tbl_client`.`m_name`, ' ', `tbl_client`.`l_name`) as client_name"), 'tbl_appointment.appntmnt_date as start', DB::raw("CONCAT('$this->url_path','/id_all/', tbl_appointment.id) as url"), DB::raw("CONCAT('Total: ', ' ', COUNT(tbl_appointment_types.id)) as title"), 'tbl_appointment.appntmnt_date as end')
                 ->groupBy('tbl_appointment.appntmnt_date')
                 ->where('tbl_client.mfl_code', Auth::user()->facility_id)
                 ->get();
@@ -39,7 +39,7 @@ class CalendarController extends Controller
             $app_calendar_data = Appointments::join('tbl_appointment_types', 'tbl_appointment_types.id', '=', 'tbl_appointment.app_type_1')
                 ->join('tbl_client', 'tbl_client.id', '=', 'tbl_appointment.client_id')
                 ->join('tbl_clinic', 'tbl_clinic.id', '=', 'tbl_client.clinic_id')
-                ->select('tbl_client.clinic_number', 'tbl_clinic.name as clinic', 'tbl_client.file_no', 'tbl_appointment.app_status', 'tbl_client.phone_no', 'tbl_appointment_types.name as app_type', DB::raw("CONCAT(`tbl_client`.`f_name`, ' ', `tbl_client`.`m_name`, ' ', `tbl_client`.`l_name`) as client_name"), 'tbl_appointment.appntmnt_date as start', DB::raw("CONCAT('$this->url_path','/id/', tbl_appointment.id) as url"), DB::raw("CONCAT('Re-fill: ', ' ', COUNT(tbl_appointment_types.id)) as title"), 'tbl_appointment.appntmnt_date as end')
+                ->select('tbl_client.clinic_number', 'tbl_clinic.name as clinic', 'tbl_client.file_no', 'tbl_appointment.app_status', 'tbl_client.phone_no', 'tbl_appointment_types.name as app_type', DB::raw("CONCAT(`tbl_client`.`f_name`, ' ', `tbl_client`.`m_name`, ' ', `tbl_client`.`l_name`) as client_name"), 'tbl_appointment.appntmnt_date as start', DB::raw("CONCAT('$this->url_path','/id/', tbl_appointment.id) as url"), DB::raw("CONCAT('Refill: ', ' ', COUNT(tbl_appointment_types.id)) as title"), 'tbl_appointment.appntmnt_date as end')
                 ->groupBy('tbl_appointment.appntmnt_date')
                 ->where('tbl_appointment_types.name', '=', 'Re-fill')
                 ->where('tbl_client.mfl_code', Auth::user()->facility_id)
@@ -55,7 +55,7 @@ class CalendarController extends Controller
             $app_calendar_data = Appointments::join('tbl_appointment_types', 'tbl_appointment_types.id', '=', 'tbl_appointment.app_type_1')
                 ->join('tbl_client', 'tbl_client.id', '=', 'tbl_appointment.client_id')
                 ->join('tbl_clinic', 'tbl_clinic.id', '=', 'tbl_client.clinic_id')
-                ->select('tbl_client.clinic_number', 'tbl_clinic.name as clinic', 'tbl_client.file_no', 'tbl_appointment.app_status', 'tbl_client.phone_no', 'tbl_appointment_types.name as app_type', DB::raw("CONCAT(`tbl_client`.`f_name`, ' ', `tbl_client`.`m_name`, ' ', `tbl_client`.`l_name`) as client_name"), 'tbl_appointment.appntmnt_date as start', DB::raw("CONCAT('$this->url_path','/id/', tbl_appointment.id) as url"), DB::raw("CONCAT('Re-fill: ', ' ', COUNT(tbl_appointment_types.id)) as title"), 'tbl_appointment.appntmnt_date as end')
+                ->select('tbl_client.clinic_number', 'tbl_clinic.name as clinic', 'tbl_client.file_no', 'tbl_appointment.app_status', 'tbl_client.phone_no', 'tbl_appointment_types.name as app_type', DB::raw("CONCAT(`tbl_client`.`f_name`, ' ', `tbl_client`.`m_name`, ' ', `tbl_client`.`l_name`) as client_name"), 'tbl_appointment.appntmnt_date as start', DB::raw("CONCAT('$this->url_path','/id/', tbl_appointment.id) as url"), DB::raw("CONCAT('Refill: ', ' ', COUNT(tbl_appointment_types.id)) as title"), 'tbl_appointment.appntmnt_date as end')
                 ->groupBy('tbl_appointment.appntmnt_date')
                 ->where('tbl_appointment_types.name', '=', 'Re-fill')
                 ->where('tbl_client.mfl_code', Auth::user()->facility_id)
