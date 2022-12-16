@@ -32,7 +32,7 @@
         <div class="col-md-12" >
             <div class="row">
                 <div class="col-lg-4">
-                    <div class="card card-icon-bg card-icon-bg-primary o-hidden mb-4 h-75" style="background-color:#369FFF">
+                    <div class="card card-icon-bg card-icon-bg-primary o-hidden mb-4 h-75" style="background-color:#369FFF; border-radius: 1em / 1em;">
                         <div class="card-body" >
                             <div class="content">
                                 <p class="line-height-1 mb-2">{{ number_format(json_decode($verification_count_total[0]->total)) }}</p>
@@ -44,24 +44,28 @@
                     </div>
                 </div>
                 <div class="col-lg-4">
-                    <div class="card card-icon-bg card-icon-bg-primary o-hidden mb-4 h-75" style="background-color:#8AC53E">
+                    <div class="card card-icon-bg card-icon-bg-primary o-hidden mb-4 h-75" style="background-color:#8AC53E; border-radius: 1em / 1em;">
                         <div class="card-body">
                             <div class="content" id="maindiv">
                                 <p class="line-height-1 mb-2">{{ number_format(json_decode($verification_count_total[0]->verified)) }}</p>
                                 <p>Verified</p>
-                                <p style="border-radius:50%; border:solid black 1px;padding:5px">{{ json_decode($verification_count_total[0]->percenct_verified) }}%</p>
+                                <div style="width: 3em; height: 3em; text-align: center; border-radius:50%; border:solid #fff 1px; box-shadow: 0 0 0 2px; padding:2px; margin-bottom: 10px;"><h2 style="font-size: 10px; margin-top: 15px;">{{ json_decode($verification_count_total[0]->percenct_verified) }}%</h2></div>
+
+
                             </div>
                             <i class="fa fa-check-circle"></i>
                         </div>
                     </div>
                 </div>
                 <div class="col-lg-4">
-                    <div class="card card-icon-bg card-icon-bg-primary o-hidden mb-4 h-75" style="background-color:#7D47B3">
+                    <div class="card card-icon-bg card-icon-bg-primary o-hidden mb-4 h-75" style="background-color:#663399; border-radius: 1em / 1em;">
                         <div class="card-body">
                             <div class="content" id="maindiv">
                                 <p class="line-height-1 mb-2">{{ number_format(json_decode($verification_count_total[0]->not_verified)) }}</p>
                                 <p style ="white-space: nowrap ;">Not Verified</p>
-                                <p style="border-radius:50%; border:solid black 1px;padding:5px">{{ json_decode($verification_count_total[0]->percenct_not_verified) }}%</p>
+
+                                <div style="width: 3em; height: 3em; text-align: center; border-radius:50%; border:solid #fff 1px; box-shadow: 0 0 0 2px; padding:2px; margin-bottom: 10px;"><h2 style="font-size: 10px; margin-top: 15px;">{{ json_decode($verification_count_total[0]->percenct_not_verified) }}%</h2></div>
+
                             </div>
                             <i class="fa fa-exclamation-circle"></i>
                         </div>
@@ -121,7 +125,7 @@
                                             <th>Clinic Number</th>
                                             <th>Client Name</th>
                                             <th>Verification Status</th>
-                                            <th>Action</th>
+                                            <th>Phone Number</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -132,7 +136,7 @@
                                             <td> {{$result->clinic_number}}</td>
                                             <td> {{$result->client_name}}</td>
                                             <td> {{$result->verification_status}}</td>
-                                            <td></td>
+                                            <td>{{$result->mobile_no}}</td>
                                         </tr>
                                         @endforeach
                                         @endif
@@ -532,7 +536,6 @@
         tooltip: {
             formatter: function() {
                 return '<b>' + this.x + '</b><br/>' +
-                    this.series.name + ': ' + this.y +
                     this.series.name + ': ' + this.y;
             }
         },
