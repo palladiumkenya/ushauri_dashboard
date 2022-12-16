@@ -120,6 +120,9 @@
                 <a class="{{ Route::currentRouteName()=='dashboard' ? 'open' : '' }}" href="{{route('dashboard')}}">
                     <span class=" text-muted">Summary</span>
                 </a>
+                <a class="{{ Route::currentRouteName()=='upi_dashboard' ? 'open' : '' }}" href="{{route('upi_dashboard')}}">
+                    <span class=" text-muted">Client Verification</span>
+                </a>
             </li>
             @endif
 
