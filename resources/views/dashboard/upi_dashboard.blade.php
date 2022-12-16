@@ -462,6 +462,7 @@
             crosshair: true
         },
         yAxis: {
+            max: 100,
             title: {
                 useHTML: true,
                 text: 'Percentage'
@@ -513,6 +514,7 @@
         },
         yAxis: {
             min: 0,
+            max: 100,
             title: {
                 text: 'Percentage'
             },
@@ -530,6 +532,7 @@
         tooltip: {
             formatter: function() {
                 return '<b>' + this.x + '</b><br/>' +
+                    this.series.name + ': ' + this.y +
                     this.series.name + ': ' + this.y;
             }
         },
@@ -545,7 +548,7 @@
             data: Verification_Facility.map(function(x) {
                 return {
                     name: x.name,
-                    y: parseInt(x.verified, 10)
+                    y: parseInt(x.percenct_verified, 10)
                 }
             })
 
@@ -555,7 +558,7 @@
             data: Verification_Facility.map(function(x) {
                 return {
                     name: x.name,
-                    y: parseInt(x.not_verified, 10)
+                    y: parseInt(x.percenct_not_verified, 10)
                 }
             })
 
@@ -579,6 +582,7 @@
             crosshair: true
         },
         yAxis: {
+            max: 100,
             title: {
                 useHTML: true,
                 text: 'Percentage'
