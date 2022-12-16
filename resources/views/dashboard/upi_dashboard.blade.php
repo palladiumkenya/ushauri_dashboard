@@ -185,7 +185,7 @@
                         <div class="card-body">
                             <h4 class="card-title mb-3">Verification Status by Partner</h4>
                             <div class="table-responsive">
-                                <table id="multicolumn_ordering_table" class="display table table-striped table-bordered" style="width:100%">
+                                <table id="verification_table_national" class="display table table-striped table-bordered" style="width:100%">
                                     <thead>
                                         <tr>
                                             <th>No</th>
@@ -316,6 +316,40 @@
                 },
                 title: 'Facility List',
                 filename: 'Facility List'
+            }, 'excel', 'pdf', 'print'
+        ]
+    });
+    $('#verification_table_national').DataTable({
+        columnDefs: [{
+            targets: [0],
+            orderData: [0, 1]
+        }, {
+            targets: [1],
+            orderData: [1, 0]
+        }, {
+            targets: [4],
+            orderData: [4, 0]
+        }],
+        "paging": true,
+        "responsive": true,
+        "ordering": true,
+        "info": true,
+        dom: 'Bfrtip',
+        buttons: [{
+                extend: 'copy',
+                title: 'Partner List',
+                filename: 'Partner List'
+            },
+            {
+                extend: 'csv',
+                exportOptions: {
+                    columns: ':visible',
+                    modifier: {
+                        page: 'all'
+                    }
+                },
+                title: 'Partner List',
+                filename: 'Partner List'
             }, 'excel', 'pdf', 'print'
         ]
     });
@@ -464,7 +498,7 @@
         }]
     });
 
-    
+
     var VerificationFacility = Highcharts.chart('verification_facility', {
         chart: {
             type: 'column'
