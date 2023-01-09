@@ -5,7 +5,7 @@
 <style rel="stylesheet" type="text/css">
 .tab-content {
   font-family: Manrope;
-  font-size: 16px;
+  font-size: 18px;
   color:#FFFFFF;
 }
 
@@ -23,7 +23,7 @@
 
 <nav>
     <div class="nav nav-tabs" id="nav-tab" role="tablist">
-        <a class="nav-item nav-link active" id="nav-dashboard-tab" data-toggle="tab" href="#nav-dashboard" role="tab" aria-controls="nav-dashboard" aria-selected="true">Verification Dashboard</a>
+        <a class="nav-item nav-link active" id="nav-dashboard-tab" data-toggle="tab" href="#nav-dashboard" role="tab" aria-controls="nav-dashboard" aria-selected="true">Client Verification Dashboard</a>
     </div>
 </nav>
 <div class="tab-content" id="nav-tabContent">

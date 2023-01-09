@@ -20,15 +20,8 @@ use Carbon\Carbon;
 
 class FinalDashboardController extends Controller
 {
-    public function dashboard()
+    public function appointment()
     {
-        // $dob = Client::select(\DB::raw(" year(curdate()) - year(`tbl_client`.`dob`) as age"))
-        //     ->where('status', '=', 'Active')
-        //         ->whereNull('hei_no')
-        //     ->pluck('age');
-
-           // dd($dob);
-        $tonine = AgeDashboard::select('ToNinenonconsented')->sum('ToNinenonconsented');
-        dd(json_encode($tonine));
+        return view('dashboard.appointment');
     }
 }
