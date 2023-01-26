@@ -111,7 +111,7 @@
                     <div class="TX_Curr card o-hidden mb-4 h-75">
                         <div class="card-body">
                             <div class="content">
-                                <span>700,000</span>
+                                <span>{{ number_format(json_decode($all_tx_curr[0]->tx_cur)) }}</span>
                                 <p>TX_Curr</p>
 
                             </div>
@@ -123,7 +123,7 @@
                     <div class="Consented card o-hidden mb-4 h-75">
                         <div class="card-body">
                             <div class="content" id="maindiv">
-                                <span>400,000</span>
+                                <span>{{ number_format(json_decode($consented_clients[0]->consented)) }}</span>
                                 <p>Clients Consented</p>
 
                             </div>
@@ -135,7 +135,7 @@
                     <div class="Booked card o-hidden mb-4 h-75">
                         <div class="card-body">
                             <div class="content" id="maindiv">
-                                <span>600,000</span>
+                                <span>{{ number_format(json_decode($all_appoinments[0]->total_app)) }}</span>
                                 <p>Booked Appointments</p>
 
                             </div>
@@ -147,7 +147,7 @@
                     <div class="Messages card o-hidden mb-4 h-75">
                         <div class="card-body">
                             <div class="content">
-                                <span>280,000</span>
+                                <span>{{ number_format(json_decode($all_appoinments[0]->messages)) }}</span>
                                 <p>Received Messages</p>
 
                             </div>
@@ -165,7 +165,7 @@
                     <div class="Kept card o-hidden mb-4 h-75">
                         <div class="card-body">
                             <div class="content">
-                                <span class="">200,000</span>
+                                <span class="">{{ number_format(json_decode($all_appoinments[0]->kept_app)) }}</span>
                                 <p class="pt-0">Appointments Kept</p>
 
                             </div>
@@ -177,7 +177,7 @@
                     <div class="Not_Kept card o-hidden mb-4 h-75">
                         <div class="card-body">
                             <div class="content">
-                                <span class="">10,000</span>
+                                <span class="">{{ number_format(json_decode($all_appoinments[0]->not_kept_app)) }}</span>
                                 <p class="pt-0">Appointments Not Kept</p>
                                 <span></span>
                             </div>
@@ -189,7 +189,7 @@
                     <div class="Future card  o-hidden mb-4 h-75">
                         <div class="card-body">
                             <div class="content" id="maindiv">
-                                <span>230,000</span>
+                                <span>{{ number_format(json_decode($all_appoinments[0]->future)) }}</span>
                                 <p>Future Appointments</p>
 
                             </div>
@@ -229,7 +229,7 @@
                 <div class="col-6">
 
                     <div class="card-body row">
-                        <div id="appointment_age" class="col" style="height:  400px;margin-top:20px;width: 900px"></div> <br />
+                        <div id="appointment_age" class="col" style="height:  400px;margin-top:20px;width: 900px;"></div> <br />
                     </div>
                 </div>
             </div>
@@ -246,6 +246,7 @@
 
             </div>
         </div>
+        @if (Auth::user()->access_level == 'Admin')
         <div class="col-md-12">
             <div class="row">
 
@@ -270,6 +271,8 @@
 
             </div>
         </div>
+
+        @endif
 
         <div class="col-md-12">
             <div class="row">
@@ -499,6 +502,7 @@
 <link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet" />
 <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
 <script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="https://code.highcharts.com/css/highcharts.css"></script>
 <script src="https://code.highcharts.com/modules/variable-pie.js"></script>
 <script src="https://code.highcharts.com/modules/series-label.js"></script>
 <script src="https://code.highcharts.com/modules/exporting.js"></script>
@@ -514,6 +518,85 @@
 
 
 <script type="text/javascript">
+
+
+    var All_Appointments = <?php echo json_decode($all_appoinments[0]->kept_app) ?>;
+
+    console.log(All_Appointments);
+
+    // kept vs not kept gender
+    // var Appointment_Kept_Male = Appointment_Gender.findIndex(item => item.Gender === 'M');
+    // var Final_Appointment_Kept_Male = (Appointment_Gender[Appointment_Kept_Male].Percent_Kept * 1) //male kept
+    // var Appointment_Not_Kept_Male = Appointment_Gender.findIndex(item => item.Gender === 'M');
+    // var Final_Appointment_Not_Kept_Male = (Appointment_Gender[Appointment_Not_Kept_Male].Percent_Not_Kept * 1) //male not kept
+    // var Appointment_Kept_Female = Appointment_Gender.findIndex(item => item.Gender === 'F');
+    // var Final_Appointment_Kept_Female = (Appointment_Gender[Appointment_Kept_Female].Percent_Kept * 1) //male kept
+    // var Appointment_Not_Kept_Female = Appointment_Gender.findIndex(item => item.Gender === 'F');
+    // var Final_Appointment_Not_Kept_Female = (Appointment_Gender[Appointment_Not_Kept_Female].Percent_Not_Kept * 1) //male not kept
+
+    // kept age
+    // var App_Kept_To_Nine = Appointment_Age.findIndex(item => item.Age === '0-9');
+    // var Final_App_Kept_To_Nine = (Appointment_Age[App_Kept_To_Nine].percent_Kept) //nine kept
+    // console.log(Final_App_Kept_To_Nine);
+
+    // var App_Kept_To_Fourteen = Appointment_Age.findIndex(item => item.Age === '10-14');
+    // var Final_App_Kept_To_Fourteen = (Appointment_Age[App_Kept_To_Fourteen].percent_Kept) //fourteen kept
+    // var App_Kept_To_Nineteen = Appointment_Age.findIndex(item => item.Age === '15-19');
+    // var Final_App_Kept_To_Nineteen = (Appointment_Age[App_Kept_To_Nineteen].percent_Kept) //nineteen kept
+    // var App_Kept_To_TwentyFour = Appointment_Age.findIndex(item => item.Age === '20-24');
+    // var Final_App_Kept_To_TwentyFour = (Appointment_Age[App_Kept_To_TwentyFour].percent_Kept) //TwentyFour kept
+    // var App_Kept_To_TwentyNine = Appointment_Age.findIndex(item => item.Age === '25-29');
+    // var Final_App_Kept_To_TwentyNine = (Appointment_Age[App_Kept_To_TwentyNine].percent_Kept) //TwentyNine kept
+    // var App_Kept_To_ThirtyFour = Appointment_Age.findIndex(item => item.Age === '30-34');
+    // var Final_App_Kept_To_ThirtyFour = (Appointment_Age[App_Kept_To_ThirtyFour].percent_Kept) //ThirtyFour kept
+    // var App_Kept_To_ThirtyNine = Appointment_Age.findIndex(item => item.Age === '35-39');
+    // var Final_App_Kept_To_ThirtyNine = (Appointment_Age[App_Kept_To_ThirtyNine].percent_Kept) //ThirtyNine kept
+    // var App_Kept_To_FortyFour = Appointment_Age.findIndex(item => item.Age === '40-44');
+    // var Final_App_Kept_To_FortyFour = (Appointment_Age[App_Kept_To_FortyFour].percent_Kept) //FortyFour kept
+    // var App_Kept_To_FortyNine = Appointment_Age.findIndex(item => item.Age === '45-49');
+    // var Final_App_Kept_To_FortyNine = (Appointment_Age[App_Kept_To_FortyNine].percent_Kept) //FortyNine kept
+    // var App_Kept_To_FiftyFour = Appointment_Age.findIndex(item => item.Age === '50-54');
+    // var Final_App_Kept_To_FiftyFour = (Appointment_Age[App_Kept_To_FiftyFour].percent_Kept) //FiftyFour kept
+    // var App_Kept_To_FiftyNine = Appointment_Age.findIndex(item => item.Age === '55-59');
+    // var Final_App_Kept_To_FiftyNine = (Appointment_Age[App_Kept_To_FiftyNine].percent_Kept) //FiftyNine kept
+    // var App_Kept_To_SixtyFour = Appointment_Age.findIndex(item => item.Age === '60-64');
+    // var Final_App_Kept_To_SixtyFour = (Appointment_Age[App_Kept_To_SixtyFour].percent_Kept) //SixtyFour kept
+    // var App_Kept_To_SixtyFivePlus = Appointment_Age.findIndex(item => item.Age === '65+');
+    // var Final_App_Kept_To_SixtyFivePlus = (Appointment_Age[App_Kept_To_SixtyFivePlus].percent_Kept) //SixtyFivePlus kept
+
+    // // not kept age
+    // var App_Not_Kept_To_Nine = Appointment_Age.findIndex(item => item.Age === '0-9');
+    // var Final_App_Not_Kept_To_Nine = (Appointment_Age[App_Not_Kept_To_Nine].percent_not_kept) //nine not kept
+    // var App_Not_Kept_To_Fourteen = Appointment_Age.findIndex(item => item.Age === '10-14');
+    // var Final_Not_App_Kept_To_Fourteen = (Appointment_Age[App_Not_Kept_To_Fourteen].percent_not_kept) //fourteen not kept
+    // var App_Not_Kept_To_Nineteen = Appointment_Age.findIndex(item => item.Age === '15-19');
+    // var Final_Not_App_Kept_To_Nineteen = (Appointment_Age[App_Not_Kept_To_Nineteen].percent_not_kept) //nineteen not kept
+    // var App_Not_Kept_To_TwentyFour = Appointment_Age.findIndex(item => item.Age === '20-24');
+    // var Final_Not_App_Kept_To_TwentyFour = (Appointment_Age[App_Not_Kept_To_TwentyFour].percent_not_kept) //TwentyFour not kept
+    // var App_Not_Kept_To_TwentyNine = Appointment_Age.findIndex(item => item.Age === '25-29');
+    // var Final_Not_App_Kept_To_TwentyNine = (Appointment_Age[App_Not_Kept_To_TwentyNine].percent_not_kept) //TwentyNine not kept
+    // var App_Not_Kept_To_ThirtyFour = Appointment_Age.findIndex(item => item.Age === '30-34');
+    // var Final_Not_App_Kept_To_ThirtyFour = (Appointment_Age[App_Not_Kept_To_ThirtyFour].percent_not_kept) //ThirtyFour not kept
+    // var App_Not_Kept_To_ThirtyNine = Appointment_Age.findIndex(item => item.Age === '35-39');
+    // var Final_Not_App_Kept_To_ThirtyNine = (Appointment_Age[App_Not_Kept_To_ThirtyNine].percent_not_kept) //ThirtyNine not kept
+    // var App_Not_Kept_To_FortyFour = Appointment_Age.findIndex(item => item.Age === '40-44');
+    // var Final_Not_App_Kept_To_FortyFour = (Appointment_Age[App_Not_Kept_To_FortyFour].percent_not_kept) //FortyFour not kept
+    // var App_Not_Kept_To_FortyNine = Appointment_Age.findIndex(item => item.Age === '45-49');
+    // var Final_Not_App_Kept_To_FortyNine = (Appointment_Age[App_Not_Kept_To_FortyNine].percent_not_kept) //FortyNine not kept
+    // var App_Not_Kept_To_FiftyFour = Appointment_Age.findIndex(item => item.Age === '50-54');
+    // var Final_Not_App_Kept_To_FiftyFour = (Appointment_Age[App_Not_Kept_To_FiftyFour].percent_not_kept) //FiftyFour not kept
+    // var App_Not_Kept_To_FiftyNine = Appointment_Age.findIndex(item => item.Age === '55-59');
+    // var Final_Not_App_Kept_To_FiftyNine = (Appointment_Age[App_Not_Kept_To_FiftyNine].percent_not_kept) //FiftyNine not kept
+    // var App_Not_Kept_To_SixtyFour = Appointment_Age.findIndex(item => item.Age === '60-64');
+    // var Final_Not_App_Kept_To_SixtyFour = (Appointment_Age[App_Not_Kept_To_SixtyFour].percent_not_kept) //SixtyFour not kept
+    // var App_Not_Kept_To_SixtyFivePlus = Appointment_Age.findIndex(item => item.Age === '65+');
+    // var Final_Not_App_Kept_To_SixtyFivePlus = (Appointment_Age[App_Not_Kept_To_SixtyFivePlus].percent_not_kept) //SixtyFivePlus not kept
+
+    // kept marital
+    // var Appointment_Kept_Male = Appointment_Marital.findIndex(item => item.Gender === 'M');
+    // var Final_Appointment_Kept_Male = (Appointment_Marital[Appointment_Kept_Male].Percent_Kept * 1) //male kept
+
+
     $('#verification_table_client').DataTable({
         columnDefs: [{
             targets: [0],
@@ -551,28 +634,17 @@
 
     var AppointmentAge = Highcharts.chart('appointment_age', {
         chart: {
-            type: 'column'
+            type: 'column',
         },
         title: {
             text: 'Appointment Distribution by Age'
         },
+        style: {
+            fontFamily: 'Manrope'
+        },
 
         xAxis: {
-            categories: [
-                '0-9',
-                '10-14',
-                '15-19',
-                '20-24',
-                '25-29',
-                '30-34',
-                '35-39',
-                '40-44',
-                '45-49',
-                '50-54',
-                '55-59',
-                '60-64',
-                '65+'
-            ],
+
             crosshair: true
         },
         yAxis: {
@@ -621,10 +693,7 @@
         },
 
         xAxis: {
-            categories: [
-                'Female',
-                'Male'
-            ],
+
             crosshair: true
         },
         yAxis: {
@@ -669,7 +738,8 @@
             text: 'Appointment Distribution by Marital Status'
         },
         xAxis: {
-            categories: []
+
+
         },
         yAxis: {
             min: 0,
@@ -703,12 +773,12 @@
         series: [{
             name: 'Kept',
             color: '#01058A',
-            data: []
+            data:[]
 
         }, {
             name: 'Not Kept',
             color: '#97080F',
-            data: []
+            data:[]
 
         }],
 
@@ -722,7 +792,8 @@
             text: 'Appointment Distribution by County'
         },
         xAxis: {
-            categories: []
+
+
         },
         yAxis: {
             min: 0,
@@ -756,7 +827,7 @@
         series: [{
             name: 'Kept',
             color: '#01058A',
-            data: []
+            data:[]
 
         }, {
             name: 'Not Kept',
@@ -775,7 +846,7 @@
             text: 'Appointment Distribution by Partner'
         },
         xAxis: {
-            categories: []
+
         },
         yAxis: {
             min: 0,
