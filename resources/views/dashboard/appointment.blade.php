@@ -246,7 +246,9 @@
 
             </div>
         </div>
-        @if (Auth::user()->access_level == 'Admin')
+        <input id="authenticated" type="hidden" value="{{ auth()->user()->access_level }}">
+        @if (Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Donor')
+
         <div class="col-md-12">
             <div class="row">
 
@@ -282,24 +284,36 @@
                         @if (Auth::user()->access_level == 'Facility')
                         <div class="card-body">
                             <h4 class="card-title mb-3"></h4>
+
                             <div class="table-responsive">
-                                <table id="verification_table_client" class="display table table-striped table-bordered" style="width:100%">
+                                <table id="table_client" class="display table table-striped table-bordered" style="width:100%">
                                     <thead>
                                         <tr>
                                             <th>NUPI No</th>
                                             <th>Clinic No</th>
-                                            <th>Client Name</th>
                                             <th>DOB</th>
-                                            <th>Phone No</th>
                                             <th>SMS Consent</th>
                                             <th>Status</th>
-                                            <th>Phone No</th>
                                             <th>Appointment Kept</th>
                                             <th>Appointment Not Kept</th>
                                         </tr>
                                     </thead>
                                     <tbody>
+                                        @if (count($client_list) > 0)
+                                        @foreach($client_list as $result)
+                                        <tr>
 
+                                            <td> {{$result->upi_no}}</td>
+                                            <td> {{$result->ccc_number}}</td>
+                                            <td> {{$result->dob}}</td>
+                                            <td> {{$result->consented}}</td>
+                                            <td> {{$result->client_status}}</td>
+                                            <td> {{$result->kept_app}}</td>
+                                            <td> {{$result->not_kept_app}}</td>
+
+                                        </tr>
+                                        @endforeach
+                                        @endif
                                     </tbody>
 
                                 </table>
@@ -327,7 +341,7 @@
                     <div class="TX_Curr card o-hidden mb-4 h-75">
                         <div class="card-body">
                             <div class="content">
-                                <span>250,000</span>
+                                <span>{{ number_format(json_decode($client_missed[0]->not_kept_app)) }}</span>
                                 <p>Clients With Missed Appointment</p>
                             </div>
 
@@ -349,7 +363,7 @@
                     <div class="Booked card o-hidden mb-4 h-75">
                         <div class="card-body">
                             <div class="content" id="maindiv">
-                                <span>100,000</span>
+                                <span>{{ number_format(json_decode($client_missed[0]->messages)) }}</span>
                                 <p>Clients Who Received SMS</p>
 
                             </div>
@@ -366,7 +380,7 @@
                     <div class="Kept card o-hidden mb-4 h-75">
                         <div class="card-body">
                             <div class="content">
-                                <span>30,000</span>
+                                <span>{{ number_format(json_decode($client_missed[0]->called)) }}</span>
                                 <p>Clients Called</p>
 
                             </div>
@@ -378,7 +392,7 @@
                     <div class="Not_Kept card o-hidden mb-4 h-75">
                         <div class="card-body">
                             <div class="content" id="maindiv">
-                                <span>20,000</span>
+                                <span>{{ number_format(json_decode($client_missed[0]->physically_traced)) }}</span>
                                 <p>Clients Physically Traced</p>
                             </div>
 
@@ -389,7 +403,7 @@
                     <div class="Future card o-hidden mb-4 h-75">
                         <div class="card-body">
                             <div class="content" id="maindiv">
-                                <span>25,000</span>
+                                <span>{{ number_format(json_decode($client_missed[0]->final_outcome)) }}</span>
                                 <p>Clients Who RTC</p>
 
                             </div>
@@ -446,6 +460,32 @@
 
             </div>
         </div>
+        @if (Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Donor')
+        <div class="col-md-12">
+            <div class="row">
+
+                <div class="col-12">
+                    <div class="card-body row">
+                        <div id="missed_county" class="col" style="height:  400px;margin-top:20px;width: 900px"></div> <br />
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+        <div class="col-md-12">
+            <div class="row">
+
+                <div class="col-12">
+                    <div class="card-body row">
+                        <div id="missed_partner" class="col" style="height:  400px;margin-top:20px;width: 900px"></div> <br />
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+        @endif
 
         <div class="col-md-12">
             <div class="row">
@@ -518,11 +558,79 @@
 
 
 <script type="text/javascript">
+    $('#table_client').DataTable({
+        columnDefs: [{
+            targets: [0],
+            orderData: [0, 1]
+        }, {
+            targets: [1],
+            orderData: [1, 0]
+        }, {
+            targets: [4],
+            orderData: [4, 0]
+        }],
+        "paging": true,
+        "responsive": true,
+        "ordering": true,
+        "info": true,
+        dom: 'Bfrtip',
+        buttons: [{
+                extend: 'copy',
+                title: 'Clients List',
+                filename: 'Clients List'
+            },
+            {
+                extend: 'csv',
+                title: 'Clients List',
+                filename: 'Clients List'
+            },
+            {
+                extend: 'excel',
+                title: 'Clients List',
+                filename: 'Clients List'
+            },
+            {
+                extend: 'pdf',
+                title: 'Clients List',
+                filename: 'Adults List'
+            },
+            {
+                extend: 'print',
+                title: 'Clients List',
+                filename: 'Clients List'
+            }
+        ]
+    });
+
+    let authenticated = $('#authenticated').val();
+    console.log(authenticated);
+    var All_Appointments = <?php echo json_encode($client_missed) ?>;
+    var App_Gender = <?php echo json_encode($appointment_gender) ?>;
+    var App_Age = <?php echo json_encode($appointment_age) ?>;
+    var App_Marital = <?php echo json_encode($appointment_marital) ?>;
+    var App_County = <?php echo json_encode($appointment_county) ?>;
+    var App_Partner = <?php echo json_encode($appointment_partner) ?>;
+    var Missed_County = <?php echo json_encode($missed_county) ?>;
+    var Missed_Partner = <?php echo json_encode($missed_partner) ?>;
+    var Missed_Age = <?php echo json_encode($missed_age) ?>;
+    var Missed_Gender = <?php echo json_encode($missed_gender) ?>;
+    var Missed_Marital = <?php echo json_encode($missed_marital) ?>;
 
 
-    var All_Appointments = <?php echo json_decode($all_appoinments[0]->kept_app) ?>;
 
-    console.log(All_Appointments);
+
+    var Test = <?php echo json_decode($client_missed[0]->not_kept_app) ?>;
+
+    // var appointment_gender = App_Gender.map(function(x) {
+    //     return (x.not_kept_app + x.kept_app);
+    // });
+
+    // var dataSum = 0;
+    // for (var i = 0; i < App_Gender.length; i++) {
+    //     final = dataSum.push(App_Gender[i]);
+    // }
+    // console.log(appointment_gender);
+    // console.log(App_Gender);
 
     // kept vs not kept gender
     // var Appointment_Kept_Male = Appointment_Gender.findIndex(item => item.Gender === 'M');
@@ -644,11 +752,13 @@
         },
 
         xAxis: {
-
+            categories: App_Age.map(function(x) {
+                return x.age_group;
+            }),
             crosshair: true
         },
         yAxis: {
-            max: 100,
+            // max: 100,
             title: {
                 useHTML: true,
                 text: 'Percentage'
@@ -670,12 +780,22 @@
         },
         series: [{
             name: 'Kept',
-            data: [],
+            data: App_Age.map(function(x) {
+                return {
+                    name: x.name,
+                    y: parseInt(x.not_kept_app, 10)
+                }
+            }),
             color: '#01058A'
 
         }, {
             name: 'Not Kept',
-            data: [],
+            data: App_Age.map(function(x) {
+                return {
+                    name: x.name,
+                    y: parseInt(x.not_kept_app, 10)
+                }
+            }),
             color: '#97080F'
 
         }]
@@ -693,14 +813,24 @@
         },
 
         xAxis: {
-
+            categories: App_Gender.map(function(x) {
+                return x.gender;
+            }),
             crosshair: true
         },
         yAxis: {
-            max: 100,
+            // max: 100,
             title: {
                 useHTML: true,
                 text: 'Percentage'
+            }
+        },
+        labels: {
+            formatter: function() {
+                var pcnt = (this.value / appointment_gender) * 100;
+
+                return Highcharts.numberFormat(pcnt, 0, ',') + '%';
+                console.log(pcnt);
             }
         },
         tooltip: {
@@ -720,12 +850,21 @@
         series: [{
             name: 'Kept',
             color: '#01058A',
-            data: []
-
+            data: App_Gender.map(function(x) {
+                return {
+                    name: x.name,
+                    y: parseInt(x.kept_app, 10)
+                }
+            })
         }, {
             name: 'Not Kept',
             color: '#97080F',
-            data: []
+            data: App_Gender.map(function(x) {
+                return {
+                    name: x.name,
+                    y: parseInt(x.not_kept_app, 10)
+                }
+            })
 
         }]
     });
@@ -738,15 +877,18 @@
             text: 'Appointment Distribution by Marital Status'
         },
         xAxis: {
-
+            categories: App_Marital.map(function(x) {
+                return x.marital;
+            }),
 
         },
         yAxis: {
             min: 0,
-            max: 100,
+            // max: 100,
             title: {
                 text: 'Percentage'
             },
+
             stackLabels: {
                 enabled: true,
                 style: {
@@ -773,12 +915,22 @@
         series: [{
             name: 'Kept',
             color: '#01058A',
-            data:[]
+            data: App_Marital.map(function(x) {
+                return {
+                    name: x.name,
+                    y: parseInt(x.kept_app, 10)
+                }
+            })
 
         }, {
             name: 'Not Kept',
             color: '#97080F',
-            data:[]
+            data: App_Marital.map(function(x) {
+                return {
+                    name: x.name,
+                    y: parseInt(x.not_kept_app, 10)
+                }
+            })
 
         }],
 
@@ -792,12 +944,14 @@
             text: 'Appointment Distribution by County'
         },
         xAxis: {
-
+            categories: App_County.map(function(x) {
+                return x.county;
+            }),
 
         },
         yAxis: {
             min: 0,
-            max: 100,
+            // max: 100,
             title: {
                 text: 'Percentage'
             },
@@ -827,12 +981,22 @@
         series: [{
             name: 'Kept',
             color: '#01058A',
-            data:[]
+            data: App_County.map(function(x) {
+                return {
+                    name: x.name,
+                    y: parseInt(x.kept_app, 10)
+                }
+            })
 
         }, {
             name: 'Not Kept',
             color: '#97080F',
-            data: []
+            data: App_County.map(function(x) {
+                return {
+                    name: x.name,
+                    y: parseInt(x.not_kept_app, 10)
+                }
+            })
 
         }],
 
@@ -846,11 +1010,13 @@
             text: 'Appointment Distribution by Partner'
         },
         xAxis: {
-
+            categories: App_Partner.map(function(x) {
+                return x.partner;
+            }),
         },
         yAxis: {
             min: 0,
-            max: 100,
+            // max: 100,
             title: {
                 text: 'Percentage'
             },
@@ -880,125 +1046,147 @@
         series: [{
             name: 'Kept',
             color: '#01058A',
-            data: []
+            data: App_Partner.map(function(x) {
+                return {
+                    name: x.name,
+                    y: parseInt(x.kept_app, 10)
+                }
+            })
 
         }, {
             name: 'Not Kept',
             color: '#97080F',
-            data: []
+            data: App_Partner.map(function(x) {
+                return {
+                    name: x.name,
+                    y: parseInt(x.not_kept_app, 10)
+                }
+            })
 
         }],
 
     });
 
+
     var MissedGender = Highcharts.chart('missed_gender', {
         chart: {
             type: 'column'
         },
-        style: {
-            fontFamily: 'Manrope'
-        },
         title: {
-            text: 'Missed Appointment Distribution by Gender'
+            text: 'Missed Appointment Distribution by Gender',
         },
-
         xAxis: {
-            categories: [
-                'Female',
-                'Male'
-            ],
+            categories: Missed_Gender.map(function(x) {
+                return x.gender;
+            }),
             crosshair: true
         },
         yAxis: {
-            max: 100,
+            min: 0,
             title: {
-                useHTML: true,
-                text: 'Percentage'
+                text: 'Percentage '
+            },
+            stackLabels: {
+                enabled: true,
+                style: {
+                    fontWeight: 'bold',
+                    textOutline: 'none'
+                }
             }
         },
+
         tooltip: {
-            headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
-            pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
-                '<td style="padding:0"><b>{point.y:.1f}</b></td></tr>',
-            footerFormat: '</table>',
-            shared: true,
-            useHTML: true
+            // headerFormat: '<b>{point.x}</b><br/>',
+            pointFormat: '{series.name}: {point.y}<br/>Total: {point.stackTotal}'
         },
         plotOptions: {
             column: {
-                pointPadding: 0.2,
-                borderWidth: 0
+                stacking: 'normal',
+                dataLabels: {
+                    enabled: false
+                }
             }
         },
         series: [{
             name: 'Missed',
             color: '#01058A',
-            data: []
+            data: Missed_Gender.map(function(x) {
+                return {
+                    name: x.name,
+                    y: parseInt(x.not_kept_app, 10)
+                }
+            })
 
         }, {
             name: 'Returned to care',
             color: '#97080F',
-            data: []
+            data: Missed_Gender.map(function(x) {
+                return {
+                    name: x.name,
+                    y: parseInt(x.final_outcome, 10)
+                }
+            })
 
         }]
     });
-
     var MissedAge = Highcharts.chart('missed_age', {
         chart: {
             type: 'column'
         },
         title: {
-            text: 'Missed Appointment Distribution by Age'
+            text: 'Missed Appointment Distribution by Age',
         },
-
         xAxis: {
-            categories: [
-                '0-9',
-                '10-14',
-                '15-19',
-                '20-24',
-                '25-29',
-                '30-34',
-                '35-39',
-                '40-44',
-                '45-49',
-                '50-54',
-                '55-59',
-                '60-64',
-                '65+'
-            ],
+            categories: Missed_Age.map(function(x) {
+                return x.age_group;
+            }),
             crosshair: true
         },
         yAxis: {
-            max: 100,
+            min: 0,
             title: {
-                useHTML: true,
-                text: 'Percentage'
+                text: 'Percentage '
+            },
+            stackLabels: {
+                enabled: true,
+                style: {
+                    fontWeight: 'bold',
+                    textOutline: 'none'
+                }
             }
         },
+
         tooltip: {
-            headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
-            pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
-                '<td style="padding:0"><b>{point.y:.1f}</b></td></tr>',
-            footerFormat: '</table>',
-            shared: true,
-            useHTML: true
+            // headerFormat: '<b>{point.x}</b><br/>',
+            pointFormat: '{series.name}: {point.y}<br/>Total: {point.stackTotal}'
         },
         plotOptions: {
             column: {
-                pointPadding: 0.2,
-                borderWidth: 0
+                stacking: 'normal',
+                dataLabels: {
+                    enabled: false
+                }
             }
         },
         series: [{
             name: 'Missed',
-            data: [],
-            color: '#01058A'
+            color: '#01058A',
+            data: Missed_Age.map(function(x) {
+                return {
+                    name: x.name,
+                    y: parseInt(x.not_kept_app, 10)
+                }
+            })
 
         }, {
             name: 'Returned to care',
-            data: [],
-            color: '#97080F'
+            color: '#97080F',
+            data: Missed_Age.map(function(x) {
+                return {
+                    name: x.name,
+                    y: parseInt(x.final_outcome, 10)
+                }
+            })
 
         }]
     });
@@ -1008,52 +1196,183 @@
             type: 'column'
         },
         title: {
-            text: 'Missed Client Distribution by Marital Status'
+            text: 'Missed Client Distribution by Marital Status',
         },
         xAxis: {
-            categories: []
+            categories: Missed_Marital.map(function(x) {
+                return x.marital;
+            }),
+            crosshair: true
         },
         yAxis: {
             min: 0,
-            max: 100,
             title: {
-                text: 'Percentage'
+                text: 'Percentage '
             },
             stackLabels: {
                 enabled: true,
                 style: {
                     fontWeight: 'bold',
-                    color: ( // theme
-                        Highcharts.defaultOptions.title.style &&
-                        Highcharts.defaultOptions.title.style.color
-                    ) || 'gray'
+                    textOutline: 'none'
                 }
             }
         },
+
         tooltip: {
-            formatter: function() {
-                return '<b>' + this.x + '</b><br/>' +
-                    this.series.name + ': ' + this.y;
-            }
+            // headerFormat: '<b>{point.x}</b><br/>',
+            pointFormat: '{series.name}: {point.y}<br/>Total: {point.stackTotal}'
         },
         plotOptions: {
             column: {
-                pointPadding: 0.2,
-                borderWidth: 0
+                stacking: 'normal',
+                dataLabels: {
+                    enabled: false
+                }
             }
         },
         series: [{
             name: 'Missed',
             color: '#01058A',
-            data: []
+            data: Missed_Marital.map(function(x) {
+                return {
+                    name: x.name,
+                    y: parseInt(x.not_kept_app, 10)
+                }
+            })
 
         }, {
             name: 'Returned to care',
             color: '#97080F',
-            data: []
+            data: Missed_Marital.map(function(x) {
+                return {
+                    name: x.name,
+                    y: parseInt(x.final_outcome, 10)
+                }
+            })
 
-        }],
+        }]
+    });
+    var MissedCounty = Highcharts.chart('missed_county', {
+        chart: {
+            type: 'column'
+        },
+        title: {
+            text: 'Missed Client Distribution by County',
+        },
+        xAxis: {
+            categories: Missed_County.map(function(x) {
+                return x.county;
+            }),
+            crosshair: true
+        },
+        yAxis: {
+            min: 0,
+            title: {
+                text: 'Percentage '
+            },
+            stackLabels: {
+                enabled: true,
+                style: {
+                    fontWeight: 'bold',
+                    textOutline: 'none'
+                }
+            }
+        },
 
+        tooltip: {
+            // headerFormat: '<b>{point.x}</b><br/>',
+            pointFormat: '{series.name}: {point.y}<br/>Total: {point.stackTotal}'
+        },
+        plotOptions: {
+            column: {
+                stacking: 'normal',
+                dataLabels: {
+                    enabled: false
+                }
+            }
+        },
+        series: [{
+            name: 'Missed',
+            color: '#01058A',
+            data: Missed_County.map(function(x) {
+                return {
+                    name: x.name,
+                    y: parseInt(x.not_kept_app, 10)
+                }
+            })
+
+        }, {
+            name: 'Returned to care',
+            color: '#97080F',
+            data: Missed_County.map(function(x) {
+                return {
+                    name: x.name,
+                    y: parseInt(x.final_outcome, 10)
+                }
+            })
+
+        }]
+    });
+    var MissedPartner = Highcharts.chart('missed_partner', {
+        chart: {
+            type: 'column'
+        },
+        title: {
+            text: 'Missed Client Distribution by Partner',
+        },
+        xAxis: {
+            categories: Missed_Partner.map(function(x) {
+                return x.partner;
+            }),
+            crosshair: true
+        },
+        yAxis: {
+            min: 0,
+            title: {
+                text: 'Percentage '
+            },
+            stackLabels: {
+                enabled: true,
+                style: {
+                    fontWeight: 'bold',
+                    textOutline: 'none'
+                }
+            }
+        },
+
+        tooltip: {
+            // headerFormat: '<b>{point.x}</b><br/>',
+            pointFormat: '{series.name}: {point.y}<br/>Total: {point.stackTotal}'
+        },
+        plotOptions: {
+            column: {
+                stacking: 'normal',
+                dataLabels: {
+                    enabled: false
+                }
+            }
+        },
+        series: [{
+            name: 'Missed',
+            color: '#01058A',
+            data: Missed_Partner.map(function(x) {
+                return {
+                    name: x.name,
+                    y: parseInt(x.not_kept_app, 10)
+                }
+            })
+
+        }, {
+            name: 'Returned to care',
+            color: '#97080F',
+            data: Missed_Partner.map(function(x) {
+                return {
+                    name: x.name,
+                    y: parseInt(x.final_outcome, 10)
+                }
+            })
+
+        }]
     });
 </script>
 
