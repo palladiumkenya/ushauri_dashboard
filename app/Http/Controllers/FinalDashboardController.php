@@ -32,11 +32,17 @@ class FinalDashboardController extends Controller
                 DB::raw('SUM(app_kept) AS kept_app '),
                 DB::raw('SUM(app_not_kept) AS not_kept_app '),
                 DB::raw('SUM(future) AS future '),
-                DB::raw('SUM(received_sms) AS messages ')
+                DB::raw('SUM(received_sms) AS messages '),
+                DB::raw('AVG(percent_kept) AS percent_kept '),
+                DB::raw('AVG(percent_not_kept) AS percent_not_kept '),
+                DB::raw('AVG(percent_future) AS percent_future ')
             )
                 ->where('mfl_code', Auth::user()->facility_id)
                 ->get();
-            $consented_clients = ETLClient::select(DB::raw('SUM(CASE WHEN consented = "Yes" THEN 1 ELSE 0 END) AS consented '))
+            $consented_clients = ETLClient::select(
+                DB::raw('SUM(CASE WHEN consented = "Yes" THEN 1 ELSE 0 END) AS consented '),
+                DB::raw('AVG(percent_consented) AS percent_consented ')
+            )
                 ->where('mfl_code', Auth::user()->facility_id)
                 ->get();
             $all_tx_curr = Txcurr::select(DB::raw('SUM(tbl_tx_cur.tx_cur) as tx_cur'))
@@ -46,7 +52,9 @@ class FinalDashboardController extends Controller
             $appointment_gender = ETLAppointment::select(
                 'gender',
                 DB::raw('SUM(app_kept) AS kept_app '),
-                DB::raw('SUM(app_not_kept) AS not_kept_app ')
+                DB::raw('SUM(app_not_kept) AS not_kept_app '),
+                DB::raw('AVG(percent_kept) AS percent_kept '),
+                DB::raw('AVG(percent_not_kept) AS percent_not_kept ')
             )
                 ->where('mfl_code', Auth::user()->facility_id)
                 ->groupBy('gender')
@@ -54,7 +62,9 @@ class FinalDashboardController extends Controller
             $appointment_age = ETLAppointment::select(
                 'age_group',
                 DB::raw('SUM(app_kept) AS kept_app '),
-                DB::raw('SUM(app_not_kept) AS not_kept_app ')
+                DB::raw('SUM(app_not_kept) AS not_kept_app '),
+                DB::raw('AVG(percent_kept) AS percent_kept '),
+                DB::raw('AVG(percent_not_kept) AS percent_not_kept ')
             )
                 ->where('mfl_code', Auth::user()->facility_id)
                 ->groupBy('age_group')
@@ -62,7 +72,9 @@ class FinalDashboardController extends Controller
             $appointment_marital = ETLAppointment::select(
                 'marital',
                 DB::raw('SUM(app_kept) AS kept_app '),
-                DB::raw('SUM(app_not_kept) AS not_kept_app ')
+                DB::raw('SUM(app_not_kept) AS not_kept_app '),
+                DB::raw('AVG(percent_kept) AS percent_kept '),
+                DB::raw('AVG(percent_not_kept) AS percent_not_kept ')
             )
                 ->where('mfl_code', Auth::user()->facility_id)
                 ->groupBy('marital')
@@ -83,7 +95,9 @@ class FinalDashboardController extends Controller
             $appointment_county = ETLAppointment::select(
                 'county',
                 DB::raw('SUM(app_kept) AS kept_app '),
-                DB::raw('SUM(app_not_kept) AS not_kept_app ')
+                DB::raw('SUM(app_not_kept) AS not_kept_app '),
+                DB::raw('AVG(percent_kept) AS percent_kept '),
+                DB::raw('AVG(percent_not_kept) AS percent_not_kept ')
             )
                 ->where('mfl_code', Auth::user()->facility_id)
                 ->groupBy('county')
@@ -91,7 +105,9 @@ class FinalDashboardController extends Controller
             $appointment_partner = ETLAppointment::select(
                 'partner',
                 DB::raw('SUM(app_kept) AS kept_app '),
-                DB::raw('SUM(app_not_kept) AS not_kept_app ')
+                DB::raw('SUM(app_not_kept) AS not_kept_app '),
+                DB::raw('AVG(percent_kept) AS percent_kept '),
+                DB::raw('AVG(percent_not_kept) AS percent_not_kept ')
             )
                 ->where('mfl_code', Auth::user()->facility_id)
                 ->groupBy('partner')
@@ -99,7 +115,9 @@ class FinalDashboardController extends Controller
             $appointment_facility = DB::table('etl_appointment_detail')->select(
                 'facility',
                 DB::raw('SUM(app_kept) AS kept_app '),
-                DB::raw('SUM(app_not_kept) AS not_kept_app ')
+                DB::raw('SUM(app_not_kept) AS not_kept_app '),
+                DB::raw('AVG(percent_kept) AS percent_kept '),
+                DB::raw('AVG(percent_not_kept) AS percent_not_kept ')
             )
                 ->where('mfl_code', Auth::user()->facility_id)
                 ->groupBy('facility')
@@ -108,9 +126,21 @@ class FinalDashboardController extends Controller
             $client_missed = DB::table('etl_appointment_detail')->select(
                 DB::raw('SUM(app_not_kept) AS not_kept_app '),
                 DB::raw('SUM(received_sms) AS messages '),
+                DB::raw('SUM(CASE WHEN received_sms = 1 AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_messages '),
+                DB::raw('SUM(CASE WHEN received_sms = 1 AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_messages '),
+                DB::raw('SUM(CASE WHEN received_sms = 1 AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_messages '),
                 DB::raw('SUM(called) AS called '),
+                DB::raw('SUM(CASE WHEN called = 1 AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_called '),
+                DB::raw('SUM(CASE WHEN called = 1 AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_called '),
+                DB::raw('SUM(CASE WHEN called = 1 AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_called '),
                 DB::raw('SUM(physically_traced) AS physically_traced '),
-                DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" THEN 1 ELSE 0 END) AS final_outcome')
+                DB::raw('SUM(CASE WHEN physically_traced = 1 AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_traced '),
+                DB::raw('SUM(CASE WHEN physically_traced = 1 AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_traced '),
+                DB::raw('SUM(CASE WHEN physically_traced = 1 AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_traced '),
+                DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" THEN 1 ELSE 0 END) AS final_outcome'),
+                DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_outcome '),
+                DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_outcome '),
+                DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_outcome ')
             )
                 ->where('mfl_code', Auth::user()->facility_id)
                 ->get();
@@ -118,7 +148,9 @@ class FinalDashboardController extends Controller
             $missed_age = DB::table('etl_appointment_detail')->select(
                 'age_group',
                 DB::raw('SUM(app_not_kept) AS not_kept_app '),
-                DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" THEN 1 ELSE 0 END) AS final_outcome')
+                DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" THEN 1 ELSE 0 END) AS final_outcome'),
+                DB::raw('AVG(percent_rtc) AS percent_rtc '),
+                DB::raw('AVG(percent_not_kept) AS percent_not_kept ')
             )
                 ->where('mfl_code', Auth::user()->facility_id)
                 ->groupBy('age_group')
@@ -126,7 +158,9 @@ class FinalDashboardController extends Controller
             $missed_gender = DB::table('etl_appointment_detail')->select(
                 'gender',
                 DB::raw('SUM(app_not_kept) AS not_kept_app '),
-                DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" THEN 1 ELSE 0 END) AS final_outcome')
+                DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" THEN 1 ELSE 0 END) AS final_outcome'),
+                DB::raw('AVG(percent_rtc) AS percent_rtc '),
+                DB::raw('AVG(percent_not_kept) AS percent_not_kept ')
             )
                 ->where('mfl_code', Auth::user()->facility_id)
                 ->groupBy('gender')
@@ -134,7 +168,9 @@ class FinalDashboardController extends Controller
             $missed_marital = DB::table('etl_appointment_detail')->select(
                 'marital',
                 DB::raw('SUM(app_not_kept) AS not_kept_app '),
-                DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" THEN 1 ELSE 0 END) AS final_outcome')
+                DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" THEN 1 ELSE 0 END) AS final_outcome'),
+                DB::raw('AVG(percent_rtc) AS percent_rtc '),
+                DB::raw('AVG(percent_not_kept) AS percent_not_kept ')
             )
                 ->where('mfl_code', Auth::user()->facility_id)
                 ->groupBy('marital')
@@ -155,6 +191,31 @@ class FinalDashboardController extends Controller
                 ->where('mfl_code', Auth::user()->facility_id)
                 ->groupBy('partner')
                 ->get();
+            $client_app_list = DB::table('etl_client_detail')->select(
+                'etl_client_detail.upi_no',
+                'etl_client_detail.ccc_number',
+                'etl_client_detail.dob',
+                'etl_client_detail.consented',
+                'etl_client_detail.client_status',
+                'etl_appointment_detail.days_defaulted',
+                'etl_appointment_detail.final_outcome'
+            )
+                ->join('etl_appointment_detail', 'etl_client_detail.client_id', '=', 'etl_appointment_detail.client_id')
+                ->where('etl_client_detail.mfl_code', Auth::user()->facility_id)
+                ->whereNotNull('etl_appointment_detail.final_outcome')
+                ->groupBy('etl_appointment_detail.client_id')
+                ->get();
+            $app_period = DB::table('etl_appointment_detail')->select(
+                DB::raw('DATE_FORMAT(appointment_date, "%Y-%M") AS new_date'),
+                DB::raw('AVG(percent_rtc) AS percent_rtc '),
+                DB::raw('AVG(percent_not_kept) AS percent_not_kept ')
+            )->whereNotNull('appointment_date')
+                ->where('mfl_code', Auth::user()->facility_id)
+                ->where('appointment_date', '<=', date("Y-M-D"))
+                ->where(DB::raw('DATE_FORMAT(appointment_date, "%Y-%M")'), '>=', "2017-January")
+                ->orderBy('new_date', 'ASC')
+                ->groupBy('new_date')
+                ->get();
         }
         if (Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Donor') {
 
@@ -163,7 +224,10 @@ class FinalDashboardController extends Controller
                 DB::raw('SUM(app_kept) AS kept_app '),
                 DB::raw('SUM(app_not_kept) AS not_kept_app '),
                 DB::raw('SUM(future) AS future '),
-                DB::raw('SUM(received_sms) AS messages ')
+                DB::raw('SUM(received_sms) AS messages '),
+                DB::raw('AVG(percent_kept) AS percent_kept '),
+                DB::raw('AVG(percent_not_kept) AS percent_not_kept '),
+                DB::raw('AVG(percent_future) AS percent_future ')
             )
                 ->get();
             $consented_clients = ETLClient::select(DB::raw('SUM(CASE WHEN consented = "Yes" THEN 1 ELSE 0 END) AS consented '))->get();
@@ -173,42 +237,53 @@ class FinalDashboardController extends Controller
             $appointment_gender = ETLAppointment::select(
                 'gender',
                 DB::raw('SUM(app_kept) AS kept_app '),
-                DB::raw('SUM(app_not_kept) AS not_kept_app ')
+                DB::raw('SUM(app_not_kept) AS not_kept_app '),
+                DB::raw('AVG(percent_kept) AS percent_kept '),
+                DB::raw('AVG(percent_not_kept) AS percent_not_kept ')
             )
                 ->groupBy('gender')
                 ->get();
             $appointment_age = ETLAppointment::select(
                 'age_group',
                 DB::raw('SUM(app_kept) AS kept_app '),
-                DB::raw('SUM(app_not_kept) AS not_kept_app ')
+                DB::raw('SUM(app_not_kept) AS not_kept_app '),
+                DB::raw('AVG(percent_kept) AS percent_kept '),
+                DB::raw('AVG(percent_not_kept) AS percent_not_kept ')
             )
                 ->groupBy('age_group')
                 ->get();
             $appointment_marital = ETLAppointment::select(
                 'marital',
                 DB::raw('SUM(app_kept) AS kept_app '),
-                DB::raw('SUM(app_not_kept) AS not_kept_app ')
+                DB::raw('SUM(app_not_kept) AS not_kept_app '),
+                DB::raw('AVG(percent_kept) AS percent_kept '),
+                DB::raw('AVG(percent_not_kept) AS percent_not_kept ')
             )
                 ->groupBy('marital')
                 ->get();
             $appointment_county = ETLAppointment::select(
                 'county',
                 DB::raw('SUM(app_kept) AS kept_app '),
-                DB::raw('SUM(app_not_kept) AS not_kept_app ')
+                DB::raw('SUM(app_not_kept) AS not_kept_app '),
+                DB::raw('AVG(percent_kept) AS percent_kept '),
+                DB::raw('AVG(percent_not_kept) AS percent_not_kept ')
             )
                 ->groupBy('county')
                 ->get();
             $appointment_partner = ETLAppointment::select(
                 'partner',
                 DB::raw('SUM(app_kept) AS kept_app '),
-                DB::raw('SUM(app_not_kept) AS not_kept_app ')
+                DB::raw('SUM(app_not_kept) AS not_kept_app '),
+                DB::raw('AVG(percent_kept) AS percent_kept '),
+                DB::raw('AVG(percent_not_kept) AS percent_not_kept ')
             )
                 ->groupBy('partner')
                 ->get();
             $appointment_facility = DB::table('etl_appointment_detail')->select(
                 'facility',
                 DB::raw('SUM(app_kept) AS kept_app '),
-                DB::raw('SUM(app_not_kept) AS not_kept_app ')
+                DB::raw('SUM(app_not_kept) AS not_kept_app '),
+
             )
                 ->groupBy('facility')
                 ->get();
@@ -221,46 +296,82 @@ class FinalDashboardController extends Controller
             $client_missed = DB::table('etl_appointment_detail')->select(
                 DB::raw('SUM(app_not_kept) AS not_kept_app '),
                 DB::raw('SUM(received_sms) AS messages '),
+                DB::raw('SUM(CASE WHEN received_sms = 1 AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_messages '),
+                DB::raw('SUM(CASE WHEN received_sms = 1 AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_messages '),
+                DB::raw('SUM(CASE WHEN received_sms = 1 AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_messages '),
                 DB::raw('SUM(called) AS called '),
+                DB::raw('SUM(CASE WHEN called = 1 AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_called '),
+                DB::raw('SUM(CASE WHEN called = 1 AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_called '),
+                DB::raw('SUM(CASE WHEN called = 1 AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_called '),
                 DB::raw('SUM(physically_traced) AS physically_traced '),
-                DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" THEN 1 ELSE 0 END) AS final_outcome')
+                DB::raw('SUM(CASE WHEN physically_traced = 1 AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_traced '),
+                DB::raw('SUM(CASE WHEN physically_traced = 1 AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_traced '),
+                DB::raw('SUM(CASE WHEN physically_traced = 1 AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_traced '),
+                DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" THEN 1 ELSE 0 END) AS final_outcome'),
+                DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_outcome '),
+                DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_outcome '),
+                DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_outcome ')
             )
                 ->get();
 
             $missed_age = DB::table('etl_appointment_detail')->select(
                 'age_group',
                 DB::raw('SUM(app_not_kept) AS not_kept_app '),
-                DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" THEN 1 ELSE 0 END) AS final_outcome')
+                DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" THEN 1 ELSE 0 END) AS final_outcome'),
+                DB::raw('AVG(percent_rtc) AS percent_rtc '),
+                DB::raw('AVG(percent_not_kept) AS percent_not_kept ')
             )
                 ->groupBy('age_group')
                 ->get();
             $missed_gender = DB::table('etl_appointment_detail')->select(
                 'gender',
                 DB::raw('SUM(app_not_kept) AS not_kept_app '),
-                DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" THEN 1 ELSE 0 END) AS final_outcome')
+                DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" THEN 1 ELSE 0 END) AS final_outcome'),
+                DB::raw('AVG(percent_rtc) AS percent_rtc '),
+                DB::raw('AVG(percent_not_kept) AS percent_not_kept ')
             )
                 ->groupBy('gender')
                 ->get();
             $missed_marital = DB::table('etl_appointment_detail')->select(
                 'marital',
                 DB::raw('SUM(app_not_kept) AS not_kept_app '),
-                DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" THEN 1 ELSE 0 END) AS final_outcome')
+                DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" THEN 1 ELSE 0 END) AS final_outcome'),
+                DB::raw('AVG(percent_rtc) AS percent_rtc '),
+                DB::raw('AVG(percent_not_kept) AS percent_not_kept ')
             )
                 ->groupBy('marital')
                 ->get();
             $missed_county = DB::table('etl_appointment_detail')->select(
                 'county',
                 DB::raw('SUM(app_not_kept) AS not_kept_app '),
-                DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" THEN 1 ELSE 0 END) AS final_outcome')
+                DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" THEN 1 ELSE 0 END) AS final_outcome'),
+                DB::raw('AVG(percent_rtc) AS percent_rtc '),
+                DB::raw('AVG(percent_not_kept) AS percent_not_kept ')
             )
                 ->groupBy('county')
                 ->get();
             $missed_partner = DB::table('etl_appointment_detail')->select(
                 'partner',
                 DB::raw('SUM(app_not_kept) AS not_kept_app '),
-                DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" THEN 1 ELSE 0 END) AS final_outcome')
+                DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" THEN 1 ELSE 0 END) AS final_outcome'),
+                DB::raw('AVG(percent_rtc) AS percent_rtc '),
+                DB::raw('AVG(percent_not_kept) AS percent_not_kept ')
             )
                 ->groupBy('partner')
+                ->get();
+            $client_app_list = DB::table('etl_client_detail')->select(
+                DB::raw('COUNT(ccc_number) AS ccc_number ')
+            )
+                ->get();
+            $app_period = DB::table('etl_appointment_detail')->select(
+                DB::raw('DATE_FORMAT(appointment_date, "%Y-%M") AS new_date'),
+                DB::raw('AVG(percent_rtc) AS percent_rtc '),
+                DB::raw('AVG(percent_not_kept) AS percent_not_kept ')
+            )->whereNotNull('appointment_date')
+                ->where('appointment_date', '<=', date("Y-M-D"))
+                ->where(DB::raw('DATE_FORMAT(appointment_date, "%Y-%M")'), '>=', "2017-January")
+                ->orderBy('new_date', 'ASC')
+                ->groupBy('new_date')
                 ->get();
         }
         if (Auth::user()->access_level == 'Partner') {
@@ -270,7 +381,10 @@ class FinalDashboardController extends Controller
                 DB::raw('SUM(app_kept) AS kept_app '),
                 DB::raw('SUM(app_not_kept) AS not_kept_app '),
                 DB::raw('SUM(future) AS future '),
-                DB::raw('SUM(received_sms) AS messages ')
+                DB::raw('SUM(received_sms) AS messages '),
+                DB::raw('AVG(percent_kept) AS percent_kept '),
+                DB::raw('AVG(percent_not_kept) AS percent_not_kept '),
+                DB::raw('AVG(percent_future) AS percent_future ')
             )
                 ->where('partner_id', Auth::user()->partner_id)
                 ->get();
@@ -284,7 +398,9 @@ class FinalDashboardController extends Controller
             $appointment_gender = ETLAppointment::select(
                 'gender',
                 DB::raw('SUM(app_kept) AS kept_app '),
-                DB::raw('SUM(app_not_kept) AS not_kept_app ')
+                DB::raw('SUM(app_not_kept) AS not_kept_app '),
+                DB::raw('AVG(percent_kept) AS percent_kept '),
+                DB::raw('AVG(percent_not_kept) AS percent_not_kept ')
             )
                 ->where('partner_id', Auth::user()->partner_id)
                 ->groupBy('gender')
@@ -292,7 +408,9 @@ class FinalDashboardController extends Controller
             $appointment_age = ETLAppointment::select(
                 'age_group',
                 DB::raw('SUM(app_kept) AS kept_app '),
-                DB::raw('SUM(app_not_kept) AS not_kept_app ')
+                DB::raw('SUM(app_not_kept) AS not_kept_app '),
+                DB::raw('AVG(percent_kept) AS percent_kept '),
+                DB::raw('AVG(percent_not_kept) AS percent_not_kept ')
             )
                 ->where('partner_id', Auth::user()->partner_id)
                 ->groupBy('age_group')
@@ -300,7 +418,9 @@ class FinalDashboardController extends Controller
             $appointment_marital = ETLAppointment::select(
                 'marital',
                 DB::raw('SUM(app_kept) AS kept_app '),
-                DB::raw('SUM(app_not_kept) AS not_kept_app ')
+                DB::raw('SUM(app_not_kept) AS not_kept_app '),
+                DB::raw('AVG(percent_kept) AS percent_kept '),
+                DB::raw('AVG(percent_not_kept) AS percent_not_kept ')
             )
                 ->where('partner_id', Auth::user()->partner_id)
                 ->groupBy('marital')
@@ -308,7 +428,8 @@ class FinalDashboardController extends Controller
             $appointment_county = ETLAppointment::select(
                 'county',
                 DB::raw('SUM(app_kept) AS kept_app '),
-                DB::raw('SUM(app_not_kept) AS not_kept_app ')
+                DB::raw('SUM(app_not_kept) AS not_kept_app '),
+
             )
                 ->where('partner_id', Auth::user()->partner_id)
                 ->groupBy('county')
@@ -324,7 +445,9 @@ class FinalDashboardController extends Controller
             $appointment_facility = DB::table('etl_appointment_detail')->select(
                 'facility',
                 DB::raw('SUM(app_kept) AS kept_app '),
-                DB::raw('SUM(app_not_kept) AS not_kept_app ')
+                DB::raw('SUM(app_not_kept) AS not_kept_app '),
+                DB::raw('AVG(percent_kept) AS percent_kept '),
+                DB::raw('AVG(percent_not_kept) AS percent_not_kept ')
             )
                 ->where('partner_id', Auth::user()->partner_id)
                 ->groupBy('facility')
@@ -339,9 +462,21 @@ class FinalDashboardController extends Controller
             $client_missed = DB::table('etl_appointment_detail')->select(
                 DB::raw('SUM(app_not_kept) AS not_kept_app '),
                 DB::raw('SUM(received_sms) AS messages '),
+                DB::raw('SUM(CASE WHEN received_sms = 1 AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_messages '),
+                DB::raw('SUM(CASE WHEN received_sms = 1 AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_messages '),
+                DB::raw('SUM(CASE WHEN received_sms = 1 AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_messages '),
                 DB::raw('SUM(called) AS called '),
+                DB::raw('SUM(CASE WHEN called = 1 AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_called '),
+                DB::raw('SUM(CASE WHEN called = 1 AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_called '),
+                DB::raw('SUM(CASE WHEN called = 1 AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_called '),
                 DB::raw('SUM(physically_traced) AS physically_traced '),
-                DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" THEN 1 ELSE 0 END) AS final_outcome')
+                DB::raw('SUM(CASE WHEN physically_traced = 1 AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_traced '),
+                DB::raw('SUM(CASE WHEN physically_traced = 1 AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_traced '),
+                DB::raw('SUM(CASE WHEN physically_traced = 1 AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_traced '),
+                DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" THEN 1 ELSE 0 END) AS final_outcome'),
+                DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_outcome '),
+                DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_outcome '),
+                DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_outcome ')
             )
                 ->where('partner_id', Auth::user()->partner_id)
                 ->get();
@@ -349,7 +484,9 @@ class FinalDashboardController extends Controller
             $missed_age = DB::table('etl_appointment_detail')->select(
                 'age_group',
                 DB::raw('SUM(app_not_kept) AS not_kept_app '),
-                DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" THEN 1 ELSE 0 END) AS final_outcome')
+                DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" THEN 1 ELSE 0 END) AS final_outcome'),
+                DB::raw('AVG(percent_rtc) AS percent_rtc '),
+                DB::raw('AVG(percent_not_kept) AS percent_not_kept ')
             )
                 ->where('partner_id', Auth::user()->partner_id)
                 ->groupBy('age_group')
@@ -357,7 +494,9 @@ class FinalDashboardController extends Controller
             $missed_gender = DB::table('etl_appointment_detail')->select(
                 'gender',
                 DB::raw('SUM(app_not_kept) AS not_kept_app '),
-                DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" THEN 1 ELSE 0 END) AS final_outcome')
+                DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" THEN 1 ELSE 0 END) AS final_outcome'),
+                DB::raw('AVG(percent_rtc) AS percent_rtc '),
+                DB::raw('AVG(percent_not_kept) AS percent_not_kept ')
             )
                 ->where('partner_id', Auth::user()->partner_id)
                 ->groupBy('gender')
@@ -365,7 +504,9 @@ class FinalDashboardController extends Controller
             $missed_marital = DB::table('etl_appointment_detail')->select(
                 'marital',
                 DB::raw('SUM(app_not_kept) AS not_kept_app '),
-                DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" THEN 1 ELSE 0 END) AS final_outcome')
+                DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" THEN 1 ELSE 0 END) AS final_outcome'),
+                DB::raw('AVG(percent_rtc) AS percent_rtc '),
+                DB::raw('AVG(percent_not_kept) AS percent_not_kept ')
             )
                 ->where('partner_id', Auth::user()->partner_id)
                 ->groupBy('marital')
@@ -386,6 +527,21 @@ class FinalDashboardController extends Controller
                 ->where('partner_id', Auth::user()->partner_id)
                 ->groupBy('partner')
                 ->get();
+            $client_app_list = DB::table('etl_client_detail')->select(
+                DB::raw('COUNT(ccc_number) AS ccc_number ')
+            )
+                ->get();
+            $app_period = DB::table('etl_appointment_detail')->select(
+                DB::raw('DATE_FORMAT(appointment_date, "%Y-%M") AS new_date'),
+                DB::raw('AVG(percent_rtc) AS percent_rtc '),
+                DB::raw('AVG(percent_not_kept) AS percent_not_kept ')
+            )->whereNotNull('appointment_date')
+                ->where('partner_id', Auth::user()->partner_id)
+                ->where('appointment_date', '<=', date("Y-M-D"))
+                ->where(DB::raw('DATE_FORMAT(appointment_date, "%Y-%M")'), '>=', "2017-January")
+                ->orderBy('new_date', 'ASC')
+                ->groupBy('new_date')
+                ->get();
         }
         if (Auth::user()->access_level == 'Sub County') {
 
@@ -394,7 +550,10 @@ class FinalDashboardController extends Controller
                 DB::raw('SUM(app_kept) AS kept_app '),
                 DB::raw('SUM(app_not_kept) AS not_kept_app '),
                 DB::raw('SUM(future) AS future '),
-                DB::raw('SUM(received_sms) AS messages ')
+                DB::raw('SUM(received_sms) AS messages '),
+                DB::raw('AVG(percent_kept) AS percent_kept '),
+                DB::raw('AVG(percent_not_kept) AS percent_not_kept '),
+                DB::raw('AVG(percent_future) AS percent_future ')
             )
                 ->where('subcounty_id', Auth::user()->subcounty_id)
                 ->get();
@@ -408,7 +567,9 @@ class FinalDashboardController extends Controller
             $appointment_gender = ETLAppointment::select(
                 'gender',
                 DB::raw('SUM(app_kept) AS kept_app '),
-                DB::raw('SUM(app_not_kept) AS not_kept_app ')
+                DB::raw('SUM(app_not_kept) AS not_kept_app '),
+                DB::raw('AVG(percent_kept) AS percent_kept '),
+                DB::raw('AVG(percent_not_kept) AS percent_not_kept ')
             )
                 ->where('subcounty_id', Auth::user()->subcounty_id)
                 ->groupBy('gender')
@@ -416,7 +577,9 @@ class FinalDashboardController extends Controller
             $appointment_age = ETLAppointment::select(
                 'age_group',
                 DB::raw('SUM(app_kept) AS kept_app '),
-                DB::raw('SUM(app_not_kept) AS not_kept_app ')
+                DB::raw('SUM(app_not_kept) AS not_kept_app '),
+                DB::raw('AVG(percent_kept) AS percent_kept '),
+                DB::raw('AVG(percent_not_kept) AS percent_not_kept ')
             )
                 ->where('subcounty_id', Auth::user()->subcounty_id)
                 ->groupBy('age_group')
@@ -424,7 +587,9 @@ class FinalDashboardController extends Controller
             $appointment_marital = ETLAppointment::select(
                 'marital',
                 DB::raw('SUM(app_kept) AS kept_app '),
-                DB::raw('SUM(app_not_kept) AS not_kept_app ')
+                DB::raw('SUM(app_not_kept) AS not_kept_app '),
+                DB::raw('AVG(percent_kept) AS percent_kept '),
+                DB::raw('AVG(percent_not_kept) AS percent_not_kept ')
             )
                 ->where('subcounty_id', Auth::user()->subcounty_id)
                 ->groupBy('marital')
@@ -440,7 +605,9 @@ class FinalDashboardController extends Controller
             $appointment_partner = ETLAppointment::select(
                 'partner',
                 DB::raw('SUM(app_kept) AS kept_app '),
-                DB::raw('SUM(app_not_kept) AS not_kept_app ')
+                DB::raw('SUM(app_not_kept) AS not_kept_app '),
+                DB::raw('AVG(percent_kept) AS percent_kept '),
+                DB::raw('AVG(percent_not_kept) AS percent_not_kept ')
             )
                 ->where('subcounty_id', Auth::user()->subcounty_id)
                 ->groupBy('partner')
@@ -448,7 +615,9 @@ class FinalDashboardController extends Controller
             $appointment_facility = DB::table('etl_appointment_detail')->select(
                 'facility',
                 DB::raw('SUM(app_kept) AS kept_app '),
-                DB::raw('SUM(app_not_kept) AS not_kept_app ')
+                DB::raw('SUM(app_not_kept) AS not_kept_app '),
+                DB::raw('AVG(percent_kept) AS percent_kept '),
+                DB::raw('AVG(percent_not_kept) AS percent_not_kept ')
             )
                 ->where('subcounty_id', Auth::user()->subcounty_id)
                 ->groupBy('facility')
@@ -463,9 +632,21 @@ class FinalDashboardController extends Controller
             $client_missed = DB::table('etl_appointment_detail')->select(
                 DB::raw('SUM(app_not_kept) AS not_kept_app '),
                 DB::raw('SUM(received_sms) AS messages '),
+                DB::raw('SUM(CASE WHEN received_sms = 1 AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_messages '),
+                DB::raw('SUM(CASE WHEN received_sms = 1 AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_messages '),
+                DB::raw('SUM(CASE WHEN received_sms = 1 AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_messages '),
                 DB::raw('SUM(called) AS called '),
+                DB::raw('SUM(CASE WHEN called = 1 AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_called '),
+                DB::raw('SUM(CASE WHEN called = 1 AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_called '),
+                DB::raw('SUM(CASE WHEN called = 1 AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_called '),
                 DB::raw('SUM(physically_traced) AS physically_traced '),
-                DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" THEN 1 ELSE 0 END) AS final_outcome')
+                DB::raw('SUM(CASE WHEN physically_traced = 1 AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_traced '),
+                DB::raw('SUM(CASE WHEN physically_traced = 1 AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_traced '),
+                DB::raw('SUM(CASE WHEN physically_traced = 1 AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_traced '),
+                DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" THEN 1 ELSE 0 END) AS final_outcome'),
+                DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_outcome '),
+                DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_outcome '),
+                DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_outcome ')
             )
                 ->where('subcounty_id', Auth::user()->subcounty_id)
                 ->get();
@@ -473,7 +654,9 @@ class FinalDashboardController extends Controller
             $missed_age = DB::table('etl_appointment_detail')->select(
                 'age_group',
                 DB::raw('SUM(app_not_kept) AS not_kept_app '),
-                DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" THEN 1 ELSE 0 END) AS final_outcome')
+                DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" THEN 1 ELSE 0 END) AS final_outcome'),
+                DB::raw('AVG(percent_rtc) AS percent_rtc '),
+                DB::raw('AVG(percent_not_kept) AS percent_not_kept ')
             )
                 ->where('subcounty_id', Auth::user()->subcounty_id)
                 ->groupBy('age_group')
@@ -481,7 +664,9 @@ class FinalDashboardController extends Controller
             $missed_gender = DB::table('etl_appointment_detail')->select(
                 'gender',
                 DB::raw('SUM(app_not_kept) AS not_kept_app '),
-                DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" THEN 1 ELSE 0 END) AS final_outcome')
+                DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" THEN 1 ELSE 0 END) AS final_outcome'),
+                DB::raw('AVG(percent_rtc) AS percent_rtc '),
+                DB::raw('AVG(percent_not_kept) AS percent_not_kept ')
             )
                 ->where('subcounty_id', Auth::user()->subcounty_id)
                 ->groupBy('gender')
@@ -489,7 +674,9 @@ class FinalDashboardController extends Controller
             $missed_marital = DB::table('etl_appointment_detail')->select(
                 'marital',
                 DB::raw('SUM(app_not_kept) AS not_kept_app '),
-                DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" THEN 1 ELSE 0 END) AS final_outcome')
+                DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" THEN 1 ELSE 0 END) AS final_outcome'),
+                DB::raw('AVG(percent_rtc) AS percent_rtc '),
+                DB::raw('AVG(percent_not_kept) AS percent_not_kept ')
             )
                 ->where('subcounty_id', Auth::user()->subcounty_id)
                 ->groupBy('marital')
@@ -505,10 +692,27 @@ class FinalDashboardController extends Controller
             $missed_partner = DB::table('etl_appointment_detail')->select(
                 'partner',
                 DB::raw('SUM(app_not_kept) AS not_kept_app '),
-                DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" THEN 1 ELSE 0 END) AS final_outcome')
+                DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" THEN 1 ELSE 0 END) AS final_outcome'),
+                DB::raw('AVG(percent_rtc) AS percent_rtc '),
+                DB::raw('AVG(percent_not_kept) AS percent_not_kept ')
             )
                 ->where('subcounty_id', Auth::user()->subcounty_id)
                 ->groupBy('partner')
+                ->get();
+            $client_app_list = DB::table('etl_client_detail')->select(
+                DB::raw('COUNT(ccc_number) AS ccc_number ')
+            )
+                ->get();
+            $app_period = DB::table('etl_appointment_detail')->select(
+                DB::raw('DATE_FORMAT(appointment_date, "%Y-%M") AS new_date'),
+                DB::raw('AVG(percent_rtc) AS percent_rtc '),
+                DB::raw('AVG(percent_not_kept) AS percent_not_kept ')
+            )->whereNotNull('appointment_date')
+                ->where('subcounty_id', Auth::user()->subcounty_id)
+                ->where('appointment_date', '<=', date("Y-M-D"))
+                ->where(DB::raw('DATE_FORMAT(appointment_date, "%Y-%M")'), '>=', "2017-January")
+                ->orderBy('new_date', 'ASC')
+                ->groupBy('new_date')
                 ->get();
         }
         if (Auth::user()->access_level == 'County') {
@@ -518,7 +722,10 @@ class FinalDashboardController extends Controller
                 DB::raw('SUM(app_kept) AS kept_app '),
                 DB::raw('SUM(app_not_kept) AS not_kept_app '),
                 DB::raw('SUM(future) AS future '),
-                DB::raw('SUM(received_sms) AS messages ')
+                DB::raw('SUM(received_sms) AS messages '),
+                DB::raw('AVG(percent_kept) AS percent_kept '),
+                DB::raw('AVG(percent_not_kept) AS percent_not_kept '),
+                DB::raw('AVG(percent_future) AS percent_future ')
             )
                 ->where('county_id', Auth::user()->county_id)
                 ->get();
@@ -532,7 +739,9 @@ class FinalDashboardController extends Controller
             $appointment_gender = ETLAppointment::select(
                 'gender',
                 DB::raw('SUM(app_kept) AS kept_app '),
-                DB::raw('SUM(app_not_kept) AS not_kept_app ')
+                DB::raw('SUM(app_not_kept) AS not_kept_app '),
+                DB::raw('AVG(percent_kept) AS percent_kept '),
+                DB::raw('AVG(percent_not_kept) AS percent_not_kept ')
             )
                 ->where('county_id', Auth::user()->county_id)
                 ->groupBy('gender')
@@ -540,7 +749,9 @@ class FinalDashboardController extends Controller
             $appointment_age = ETLAppointment::select(
                 'age_group',
                 DB::raw('SUM(app_kept) AS kept_app '),
-                DB::raw('SUM(app_not_kept) AS not_kept_app ')
+                DB::raw('SUM(app_not_kept) AS not_kept_app '),
+                DB::raw('AVG(percent_kept) AS percent_kept '),
+                DB::raw('AVG(percent_not_kept) AS percent_not_kept ')
             )
                 ->where('county_id', Auth::user()->county_id)
                 ->groupBy('age_group')
@@ -548,7 +759,9 @@ class FinalDashboardController extends Controller
             $appointment_marital = ETLAppointment::select(
                 'marital',
                 DB::raw('SUM(app_kept) AS kept_app '),
-                DB::raw('SUM(app_not_kept) AS not_kept_app ')
+                DB::raw('SUM(app_not_kept) AS not_kept_app '),
+                DB::raw('AVG(percent_kept) AS percent_kept '),
+                DB::raw('AVG(percent_not_kept) AS percent_not_kept ')
             )
                 ->where('county_id', Auth::user()->county_id)
                 ->groupBy('marital')
@@ -564,7 +777,9 @@ class FinalDashboardController extends Controller
             $appointment_partner = ETLAppointment::select(
                 'partner',
                 DB::raw('SUM(app_kept) AS kept_app '),
-                DB::raw('SUM(app_not_kept) AS not_kept_app ')
+                DB::raw('SUM(app_not_kept) AS not_kept_app '),
+                DB::raw('AVG(percent_kept) AS percent_kept '),
+                DB::raw('AVG(percent_not_kept) AS percent_not_kept ')
             )
                 ->where('county_id', Auth::user()->county_id)
                 ->groupBy('partner')
@@ -572,7 +787,9 @@ class FinalDashboardController extends Controller
             $appointment_facility = DB::table('etl_appointment_detail')->select(
                 'facility',
                 DB::raw('SUM(app_kept) AS kept_app '),
-                DB::raw('SUM(app_not_kept) AS not_kept_app ')
+                DB::raw('SUM(app_not_kept) AS not_kept_app '),
+                DB::raw('AVG(percent_kept) AS percent_kept '),
+                DB::raw('AVG(percent_not_kept) AS percent_not_kept ')
             )
                 ->where('county_id', Auth::user()->county_id)
                 ->groupBy('facility')
@@ -587,9 +804,22 @@ class FinalDashboardController extends Controller
             $client_missed = DB::table('etl_appointment_detail')->select(
                 DB::raw('SUM(app_not_kept) AS not_kept_app '),
                 DB::raw('SUM(received_sms) AS messages '),
+                DB::raw('SUM(CASE WHEN received_sms = 1 AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_messages '),
+                DB::raw('SUM(CASE WHEN received_sms = 1 AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_messages '),
+                DB::raw('SUM(CASE WHEN received_sms = 1 AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_messages '),
                 DB::raw('SUM(called) AS called '),
+                DB::raw('SUM(CASE WHEN called = 1 AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_called '),
+                DB::raw('SUM(CASE WHEN called = 1 AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_called '),
+                DB::raw('SUM(CASE WHEN called = 1 AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_called '),
                 DB::raw('SUM(physically_traced) AS physically_traced '),
-                DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" THEN 1 ELSE 0 END) AS final_outcome')
+                DB::raw('SUM(CASE WHEN physically_traced = 1 AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_traced '),
+                DB::raw('SUM(CASE WHEN physically_traced = 1 AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_traced '),
+                DB::raw('SUM(CASE WHEN physically_traced = 1 AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_traced '),
+                DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" THEN 1 ELSE 0 END) AS final_outcome'),
+                DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_outcome '),
+                DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_outcome '),
+                DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_outcome ')
+
             )
                 ->where('county_id', Auth::user()->county_id)
                 ->get();
@@ -597,7 +827,9 @@ class FinalDashboardController extends Controller
             $missed_age = DB::table('etl_appointment_detail')->select(
                 'age_group',
                 DB::raw('SUM(app_not_kept) AS not_kept_app '),
-                DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" THEN 1 ELSE 0 END) AS final_outcome')
+                DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" THEN 1 ELSE 0 END) AS final_outcome'),
+                DB::raw('AVG(percent_rtc) AS percent_rtc '),
+                DB::raw('AVG(percent_not_kept) AS percent_not_kept ')
             )
                 ->where('county_id', Auth::user()->county_id)
                 ->groupBy('age_group')
@@ -605,7 +837,9 @@ class FinalDashboardController extends Controller
             $missed_gender = DB::table('etl_appointment_detail')->select(
                 'gender',
                 DB::raw('SUM(app_not_kept) AS not_kept_app '),
-                DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" THEN 1 ELSE 0 END) AS final_outcome')
+                DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" THEN 1 ELSE 0 END) AS final_outcome'),
+                DB::raw('AVG(percent_rtc) AS percent_rtc '),
+                DB::raw('AVG(percent_not_kept) AS percent_not_kept ')
             )
                 ->where('county_id', Auth::user()->county_id)
                 ->groupBy('gender')
@@ -613,7 +847,9 @@ class FinalDashboardController extends Controller
             $missed_marital = DB::table('etl_appointment_detail')->select(
                 'marital',
                 DB::raw('SUM(app_not_kept) AS not_kept_app '),
-                DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" THEN 1 ELSE 0 END) AS final_outcome')
+                DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" THEN 1 ELSE 0 END) AS final_outcome'),
+                DB::raw('AVG(percent_rtc) AS percent_rtc '),
+                DB::raw('AVG(percent_not_kept) AS percent_not_kept ')
             )
                 ->where('county_id', Auth::user()->county_id)
                 ->groupBy('marital')
@@ -629,10 +865,27 @@ class FinalDashboardController extends Controller
             $missed_partner = DB::table('etl_appointment_detail')->select(
                 'partner',
                 DB::raw('SUM(app_not_kept) AS not_kept_app '),
-                DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" THEN 1 ELSE 0 END) AS final_outcome')
+                DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" THEN 1 ELSE 0 END) AS final_outcome'),
+                DB::raw('AVG(percent_rtc) AS percent_rtc '),
+                DB::raw('AVG(percent_not_kept) AS percent_not_kept ')
             )
                 ->where('county_id', Auth::user()->county_id)
                 ->groupBy('partner')
+                ->get();
+            $client_app_list = DB::table('etl_client_detail')->select(
+                DB::raw('COUNT(ccc_number) AS ccc_number ')
+            )
+                ->get();
+            $app_period = DB::table('etl_appointment_detail')->select(
+                DB::raw('DATE_FORMAT(appointment_date, "%Y-%M") AS new_date'),
+                DB::raw('AVG(percent_rtc) AS percent_rtc '),
+                DB::raw('AVG(percent_not_kept) AS percent_not_kept ')
+            )->whereNotNull('appointment_date')
+                ->where('county_id', Auth::user()->county_id)
+                ->where('appointment_date', '<=', date("Y-M-D"))
+                ->where(DB::raw('DATE_FORMAT(appointment_date, "%Y-%M")'), '>=', "2017-January")
+                ->orderBy('new_date', 'ASC')
+                ->groupBy('new_date')
                 ->get();
         }
 
@@ -652,7 +905,9 @@ class FinalDashboardController extends Controller
             'missed_marital',
             'missed_county',
             'missed_partner',
-            'client_list'
+            'client_list',
+            'client_app_list',
+            'app_period'
         ));
     }
 }
