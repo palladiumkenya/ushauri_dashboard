@@ -30,7 +30,7 @@ jobs:
           cp /apps/configs/ushauri-dashboard/php.dockerfile /apps/github-workflows/mhealth-apps/ushauri_dashboard/
           cp -r /apps/configs/ushauri-dashboard/nginx /apps/github-workflows/mhealth-apps/ushauri_dashboard/
           docker-compose down
-          docker-compose rm -f
+          docker-compose rm -f 
           docker-compose --env-file .env up -d --build site
           # execute normal laravel commands
           docker-compose exec -T php composer install --ignore-platform-reqs --no-dev
