@@ -355,24 +355,24 @@
                     <div class="Consented card o-hidden mb-4 h-75">
                         <div class="card-body">
                             <div class="content" id="maindiv">
-                                <span>150,000</span>
+                                <span>{{ number_format(json_decode($client_missed[0]->consent)) }}</span>
                                 <p>Consented Clients Who Missed</p>
                             </div>
                             <div class="h-45" style="float:right; margin-right: 20px;">
                                 <div class="row">
                                     <div class="" style="margin-right: 20px;">
                                         <p>Missed</p>
-                                        <span>278</span>
+                                        <span>{{ number_format(json_decode($client_missed[0]->missed_consent)) }}</span>
                                     </div>
                                     <div class="" style="margin-right: 10px; border-left: 2px solid;"></div>
                                     <div class="" style="margin-right: 20px;">
                                         <p>Defaulted</p>
-                                        <span>278</span>
+                                        <span>{{ number_format(json_decode($client_missed[0]->defaulted_consent)) }}</span>
                                     </div>
                                     <div class="" style="margin-right: 10px; border-left: 2px solid;"></div>
                                     <div class="" style="margin-right: 20px;">
                                         <p>IIT</p>
-                                        <span>278</span>
+                                        <span>{{ number_format(json_decode($client_missed[0]->iit_consent)) }}</span>
                                     </div>
                                 </div>
                             </div>

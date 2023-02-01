@@ -113,6 +113,9 @@
                 <a class="{{ Route::currentRouteName()=='upi_dashboard' ? 'open' : '' }}" href="{{route('upi_dashboard')}}">
                     <span class=" text-muted">Client Verification</span>
                 </a>
+                <a class="{{ Route::currentRouteName()=='appointment-dashboard' ? 'open' : '' }}" href="{{route('appointment-dashboard')}}">
+                    <span class=" text-muted">Appointment</span>
+                </a>
             </li>
             @endif
             @if (Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Partner' || Auth::user()->access_level == 'Donor' || Auth::user()->access_level == 'County' || Auth::user()->access_level == 'Sub County')
@@ -122,6 +125,9 @@
                 </a>
                 <a class="{{ Route::currentRouteName()=='upi_dashboard' ? 'open' : '' }}" href="{{route('upi_dashboard')}}">
                     <span class=" text-muted">Client Verification</span>
+                </a>
+                <a class="{{ Route::currentRouteName()=='appointment-dashboard' ? 'open' : '' }}" href="{{route('appointment-dashboard')}}">
+                    <span class=" text-muted">Appointment</span>
                 </a>
             </li>
             @endif
