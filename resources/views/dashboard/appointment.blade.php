@@ -91,6 +91,390 @@
                     <li></li>
                 </ul>
             </div> -->
+@if (Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Donor')
+<div class="col">
+    <form role="form" method="get" action="#" id="dataFilter">
+        {{ csrf_field() }}
+        <div class="row">
+            <div class="col-lg-3">
+                <div class="form-group">
+
+                    <select class="form-control select2" id="partners" name="partner[]" multiple="multiple">
+                        <option></option>
+                        @if (count($partners) > 0)
+                        @foreach($partners as $partner)
+                        <option value="{{$partner->id }}">{{ ucwords($partner->name) }}</option>
+                        @endforeach
+                        @endif
+                        <option></option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-lg-3">
+                <div class="form-group">
+                    <select class="form-control select2" id="counties" name="county" multiple="multiple">
+                        <option value=""></option>
+                        @if (count($counties) > 0)
+                        @foreach($counties as $county)
+                        <option value="{{$county->id }}">{{ ucwords($county->name) }}</option>
+                        @endforeach
+                        @endif
+                    </select>
+                </div>
+            </div>
+            <div class="col-lg-3">
+                <div class="form-group">
+                    <select class="form-control select2" id="subcounties" name="subcounty" multiple="multiple">
+                        <option value=""></option>
+                        @if (count($sub_counties) > 0)
+                        @foreach($sub_counties as $sub_county)
+                        <option value="{{$sub_county->id }}">{{ ucwords($sub_county->name) }}</option>
+                        @endforeach
+                        @endif
+                    </select>
+                </div>
+            </div>
+            <div class="col-lg-3">
+                <div class="form-group">
+                    <select class="form-control select2" id="facilities" name="facility" multiple="multiple">
+                        <option value=""></option>
+                        @if (count($facilities) > 0)
+                        @foreach($facilities as $facility)
+                        <option value="{{$facility->code }}">{{ ucwords($facility->name) }}</option>
+                        @endforeach
+                        @endif
+                    </select>
+                </div>
+            </div>
+            <div class="col-lg-2">
+                <div class="form-group">
+                    <select class="form-control filter_facility input-rounded input-sm select2" id="site" name="site" multiple="multiple">
+                        <option value="">Module : </option>
+                        <option value="DSD">DSD</option>
+                        <option value="PMTCT">PMTCT</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-lg-2">
+                <div class="form-group">
+                    <select class="form-control input-rounded input-sm select2" id="clinic" name="clinic" multiple="multiple">
+                        <option value="">Module : </option>
+                        <option value="DSD">DSD</option>
+                        <option value="PMTCT">PMTCT</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-lg-2">
+                <div class="form-group">
+                    <select class="form-control filter_facility input-rounded input-sm select2" id="app_type" name="app_type" multiple="multiple">
+                        <option value="">Module : </option>
+                        <option value="DSD">DSD</option>
+                        <option value="PMTCT">PMTCTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class='col-lg-2'>
+                <div class="form-group">
+                    <div class="input-group">
+                        <div class="col-md-2">
+                            <label for="firstName1">From</label>
+                        </div>
+                        <div class="col-md-10">
+
+                            <input type="date" id="from" class="form-control" placeholder="From" name="from" max="{{date("Y-m-d")}}">
+                        </div>
+                        <div class="input-group-append">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-2">
+                <div class="form-group">
+                    <div class="input-group">
+                        <div class="col-md-2">
+                            <label for="firstName1">To</label>
+                        </div>
+                        <div class="col-md-10">
+
+                            <input type="date" id="to" class="form-control" placeholder="To" name="to" max="{{date("Y-m-d")}}">
+                        </div>
+                        <div class="input-group-append">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-2">
+                <div class="form-group">
+                    <span class="filter_facility_wait" style="display: none;"></span>
+                    <button class="btn btn-default filter btn-round  btn-small btn-primary  " type="submit" name="filter" id="filter"> <i class="fa fa-filter"></i>
+                        Filter</button>
+                </div>
+            </div>
+        </div>
+
+    </form>
+
+</div>
+@endif
+@if (Auth::user()->access_level == 'County')
+<div class="col">
+    <form role="form" method="get" action="#" id="dataFilter">
+        {{ csrf_field() }}
+        <div class="row">
+            <div class="col-lg-3">
+                <div class="form-group">
+                    <select class="form-control select2" id="partners" name="partner" multiple="multiple" style="max-height: 100%">
+                        <option value="">Partner</option>
+                        <option>JavaScript</option>
+                        <option>PHP</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-lg-3">
+                <div class="form-group">
+                    <select class="form-control subcounty input-rounded input-sm select2" id="subcounties" name="subcounty" multiple="multiple">
+                        <option value=""> Sub County : </option>
+                        <option value=""></option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-lg-3">
+                <div class="form-group">
+                    <select class="form-control filter_facility input-rounded input-sm select2" id="facilities" name="facility" multiple="multiple">
+                        <option value="">Facility : </option>
+                        <option value=""></option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-lg-2">
+                <div class="form-group">
+                    <select class="form-control filter_facility input-rounded input-sm select2" id="site" name="site" multiple="multiple">
+                        <option value="">Module : </option>
+                        <option value="DSD">DSD</option>
+                        <option value="PMTCT">PMTCT</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-lg-2">
+                <div class="form-group">
+                    <select class="form-control input-rounded input-sm select2" id="clinic" name="clinic" multiple="multiple">
+                        <option value="">Module : </option>
+                        <option value="DSD">DSD</option>
+                        <option value="PMTCT">PMTCT</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-lg-2">
+                <div class="form-group">
+                    <select class="form-control filter_facility input-rounded input-sm select2" id="app_type" name="app_type" multiple="multiple">
+                        <option value="">Module : </option>
+                        <option value="DSD">DSD</option>
+                        <option value="PMTCT">PMTCTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class='col-lg-2'>
+                <div class="form-group">
+                    <div class="input-group">
+                        <div class="col-md-2">
+                            <label for="firstName1">From</label>
+                        </div>
+                        <div class="col-md-10">
+
+                            <input type="date" id="from" class="form-control" placeholder="From" name="from" max="{{date("Y-m-d")}}">
+                        </div>
+                        <div class="input-group-append">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-2">
+                <div class="form-group">
+                    <div class="input-group">
+                        <div class="col-md-2">
+                            <label for="firstName1">To</label>
+                        </div>
+                        <div class="col-md-10">
+
+                            <input type="date" id="to" class="form-control" placeholder="To" name="to" max="{{date("Y-m-d")}}">
+                        </div>
+                        <div class="input-group-append">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-2">
+                <div class="form-group">
+                    <span class="filter_facility_wait" style="display: none;"></span>
+                    <button class="btn btn-default filter btn-round  btn-small btn-primary  " type="submit" name="filter" id="filter"> <i class="fa fa-filter"></i>
+                        Filter</button>
+                </div>
+            </div>
+        </div>
+
+    </form>
+
+</div>
+@endif
+@if (Auth::user()->access_level == 'Sub County')
+<div class="col">
+    <form role="form" method="get" action="#" id="dataFilter">
+        {{ csrf_field() }}
+        <div class="row">
+            <div class="col-lg-3">
+                <div class="form-group">
+                    <select class="form-control filter_facility input-rounded input-sm select2" id="facilities" name="facility" multiple="multiple">
+                        <option value="">Facility : </option>
+                        <option value=""></option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-lg-2">
+                <div class="form-group">
+                    <select class="form-control filter_facility input-rounded input-sm select2" id="site" name="site" multiple="multiple">
+                        <option value="">Module : </option>
+                        <option value="DSD">DSD</option>
+                        <option value="PMTCT">PMTCT</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-lg-2">
+                <div class="form-group">
+                    <select class="form-control input-rounded input-sm select2" id="clinic" name="clinic" multiple="multiple">
+                        <option value="">Module : </option>
+                        <option value="DSD">DSD</option>
+                        <option value="PMTCT">PMTCT</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-lg-2">
+                <div class="form-group">
+                    <select class="form-control filter_facility input-rounded input-sm select2" id="app_type" name="app_type" multiple="multiple">
+                        <option value="">Module : </option>
+                        <option value="DSD">DSD</option>
+                        <option value="PMTCT">PMTCTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class='col-lg-2'>
+                <div class="form-group">
+                    <div class="input-group">
+                        <div class="col-md-2">
+                            <label for="firstName1">From</label>
+                        </div>
+                        <div class="col-md-10">
+
+                            <input type="date" id="from" class="form-control" placeholder="From" name="from" max="{{date("Y-m-d")}}">
+                        </div>
+                        <div class="input-group-append">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-2">
+                <div class="form-group">
+                    <div class="input-group">
+                        <div class="col-md-2">
+                            <label for="firstName1">To</label>
+                        </div>
+                        <div class="col-md-10">
+
+                            <input type="date" id="to" class="form-control" placeholder="To" name="to" max="{{date("Y-m-d")}}">
+                        </div>
+                        <div class="input-group-append">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-2">
+                <div class="form-group">
+                    <span class="filter_facility_wait" style="display: none;"></span>
+                    <button class="btn btn-default filter btn-round  btn-small btn-primary  " type="submit" name="filter" id="filter"> <i class="fa fa-filter"></i>
+                        Filter</button>
+                </div>
+            </div>
+        </div>
+
+    </form>
+
+</div>
+@endif
+@if (Auth::user()->access_level == 'Facility')
+<div class="col">
+    <form role="form" method="get" action="#" id="dataFilter">
+        {{ csrf_field() }}
+        <div class="row">
+            <div class="col-lg-2">
+                <div class="form-group">
+                    <select class="form-control input-rounded input-sm select2" id="clinic" name="clinic" multiple="multiple">
+                        <option value="">Module : </option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-lg-2">
+                <div class="form-group">
+                    <select class="form-control filter_facility input-rounded input-sm select2" id="app_type" name="app_type" multiple="multiple">
+                        <option value="">Module : </option>
+                        <option value="DSD">DSD</option>
+                        <option value="PMTCT">PMTCTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class='col-lg-2'>
+                <div class="form-group">
+                    <div class="input-group">
+                        <div class="col-md-2">
+                            <label for="firstName1">From</label>
+                        </div>
+                        <div class="col-md-10">
+
+                            <input type="date" id="from" class="form-control" placeholder="From" name="from" max="{{date("Y-m-d")}}">
+                        </div>
+                        <div class="input-group-append">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-2">
+                <div class="form-group">
+                    <div class="input-group">
+                        <div class="col-md-2">
+                            <label for="firstName1">To</label>
+                        </div>
+                        <div class="col-md-10">
+
+                            <input type="date" id="to" class="form-control" placeholder="To" name="to" max="{{date("Y-m-d")}}">
+                        </div>
+                        <div class="input-group-append">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-2">
+                <div class="form-group">
+                    <span class="filter_facility_wait" style="display: none;"></span>
+                    <button class="btn btn-default filter btn-round  btn-small btn-primary  " type="submit" name="filter" id="filter"> <i class="fa fa-filter"></i>
+                        Filter</button>
+                </div>
+            </div>
+        </div>
+
+    </form>
+
+</div>
+@endif
 
 <nav>
     <div class="nav nav-tabs" id="nav-tab" role="tablist">
@@ -107,7 +491,7 @@
                     <div class="TX_Curr card o-hidden mb-4 h-75">
                         <div class="card-body">
                             <div class="content">
-                                <span>{{ number_format(json_decode($all_tx_curr[0]->tx_cur)) }}</span>
+                                <span id="tx_curr">{{ number_format(json_decode($all_tx_curr[0]->tx_cur)) }}</span>
                                 <p>TX_Curr</p>
 
                             </div>
@@ -119,10 +503,10 @@
                     <div class="Consented card o-hidden mb-4 h-75">
                         <div class="card-body">
                             <div class="content" id="maindiv">
-                                <span>{{ number_format(json_decode($consented_clients[0]->consented)) }}</span>
+                                <span id="consented">{{ number_format(json_decode($consented_clients[0]->consented)) }}</span>
                                 <p>Clients Consented</p>
                                 <div style="width: 3em; height: 3em; text-align: center; border-radius:50%; border:solid #fff 1px; box-shadow: 0 0 0 2px; padding:2px; margin-bottom: 10px;">
-                                    <h2 style="font-size: 10px; margin-top: 12px;">{{ round(json_decode($consented_clients[0]->percent_consented), 1) }}%</h2>
+                                    <h2 id="percnt_consented" style="font-size: 10px; margin-top: 12px;">{{ round(json_decode($consented_clients[0]->percent_consented), 1) }}%</h2>
                                 </div>
                             </div>
 
@@ -133,7 +517,7 @@
                     <div class="Booked card o-hidden mb-4 h-75">
                         <div class="card-body">
                             <div class="content" id="maindiv">
-                                <span>{{ number_format(json_decode($all_appoinments[0]->total_app)) }}</span>
+                                <span id="all_appointments">{{ number_format(json_decode($all_appoinments[0]->total_app)) }}</span>
                                 <p>Booked Appointments</p>
 
                             </div>
@@ -145,7 +529,7 @@
                     <div class="Messages card o-hidden mb-4 h-75">
                         <div class="card-body">
                             <div class="content">
-                                <span>{{ number_format(json_decode($all_appoinments[0]->messages)) }}</span>
+                                <span id="sms_sent">{{ number_format(json_decode($all_appoinments[0]->messages)) }}</span>
                                 <p>Received Messages</p>
 
                             </div>
@@ -163,10 +547,10 @@
                     <div class="Kept card o-hidden mb-4 h-75">
                         <div class="card-body">
                             <div class="content">
-                                <span class="">{{ number_format(json_decode($all_appoinments[0]->kept_app)) }}</span>
+                                <span id="app_kept" class="">{{ number_format(json_decode($all_appoinments[0]->kept_app)) }}</span>
                                 <p class="pt-0">Appointments Kept</p>
                                 <div style="width: 3em; height: 3em; text-align: center; border-radius:50%; border:solid #fff 1px; box-shadow: 0 0 0 2px; padding:2px; margin-bottom: 10px;">
-                                    <h2 style="font-size: 10px; margin-top: 12px;">{{ round(json_decode($all_appoinments[0]->percent_kept), 1) }}%</h2>
+                                    <h2 id="percnt_kept" style="font-size: 10px; margin-top: 12px;">{{ round(json_decode($all_appoinments[0]->percent_kept), 1) }}%</h2>
                                 </div>
                             </div>
                         </div>
@@ -176,10 +560,10 @@
                     <div class="Not_Kept card o-hidden mb-4 h-75">
                         <div class="card-body">
                             <div class="content">
-                                <span class="">{{ number_format(json_decode($all_appoinments[0]->not_kept_app)) }}</span>
+                                <span id="app_not_kept" class="">{{ number_format(json_decode($all_appoinments[0]->not_kept_app)) }}</span>
                                 <p class="pt-0">Appointments Not Kept</p>
                                 <div style="width: 3em; height: 3em; text-align: center; border-radius:50%; border:solid #fff 1px; box-shadow: 0 0 0 2px; padding:2px; margin-bottom: 10px;">
-                                    <h2 style="font-size: 10px; margin-top: 12px;">{{ round(json_decode($all_appoinments[0]->percent_not_kept),1) }}%</h2>
+                                    <h2 id="percnt_not_kept" style="font-size: 10px; margin-top: 12px;">{{ round(json_decode($all_appoinments[0]->percent_not_kept),1) }}%</h2>
                                 </div>
                             </div>
 
@@ -190,10 +574,10 @@
                     <div class="Future card  o-hidden mb-4 h-75">
                         <div class="card-body">
                             <div class="content" id="maindiv">
-                                <span>{{ number_format(json_decode($all_appoinments[0]->future)) }}</span>
+                                <span id="app_future">{{ number_format(json_decode($all_appoinments[0]->future)) }}</span>
                                 <p>Future Appointments</p>
                                 <div style="width: 3em; height: 3em; text-align: center; border-radius:50%; border:solid #fff 1px; box-shadow: 0 0 0 2px; padding:2px; margin-bottom: 10px;">
-                                    <h2 style="font-size: 10px; margin-top: 12px;">{{ round(json_decode($all_appoinments[0]->percent_future),1) }}%</h2>
+                                    <h2 id="percnt_future" style="font-size: 10px; margin-top: 12px;">{{ round(json_decode($all_appoinments[0]->percent_future),1) }}%</h2>
                                 </div>
                             </div>
 
@@ -344,7 +728,7 @@
                     <div class="TX_Curr card o-hidden mb-4 h-75">
                         <div class="card-body">
                             <div class="content">
-                                <span>{{ number_format(json_decode($client_missed[0]->not_kept_app)) }}</span>
+                                <span id="app_missed">{{ number_format(json_decode($client_missed[0]->not_kept_app)) }}</span>
                                 <p>Clients With Missed Appointment</p>
                             </div>
 
@@ -355,24 +739,24 @@
                     <div class="Consented card o-hidden mb-4 h-75">
                         <div class="card-body">
                             <div class="content" id="maindiv">
-                                <span>{{ number_format(json_decode($client_missed[0]->consent)) }}</span>
+                                <span id="consent_app">{{ number_format(json_decode($client_missed[0]->consent)) }}</span>
                                 <p>Consented Clients Who Missed</p>
                             </div>
                             <div class="h-45" style="float:right; margin-right: 20px;">
                                 <div class="row">
                                     <div class="" style="margin-right: 20px;">
                                         <p>Missed</p>
-                                        <span>{{ number_format(json_decode($client_missed[0]->missed_consent)) }}</span>
+                                        <span id="consent_missed">{{ number_format(json_decode($client_missed[0]->missed_consent)) }}</span>
                                     </div>
                                     <div class="" style="margin-right: 10px; border-left: 2px solid;"></div>
                                     <div class="" style="margin-right: 20px;">
                                         <p>Defaulted</p>
-                                        <span>{{ number_format(json_decode($client_missed[0]->defaulted_consent)) }}</span>
+                                        <span id="consent_defaulted">{{ number_format(json_decode($client_missed[0]->defaulted_consent)) }}</span>
                                     </div>
                                     <div class="" style="margin-right: 10px; border-left: 2px solid;"></div>
                                     <div class="" style="margin-right: 20px;">
                                         <p>IIT</p>
-                                        <span>{{ number_format(json_decode($client_missed[0]->iit_consent)) }}</span>
+                                        <span id="consent_iit">{{ number_format(json_decode($client_missed[0]->iit_consent)) }}</span>
                                     </div>
                                 </div>
                             </div>
@@ -385,24 +769,24 @@
                     <div class="Booked card o-hidden mb-4 h-75">
                         <div class="card-body">
                             <div class="content" id="maindiv">
-                                <span>{{ number_format(json_decode($client_missed[0]->messages)) }}</span>
+                                <span id="sms">{{ number_format(json_decode($client_missed[0]->messages)) }}</span>
                                 <p>Clients Who Received SMS</p>
                             </div>
                             <div class="h-45" style="float:right; margin-right: 20px;">
                                 <div class="row">
                                     <div class="" style="margin-right: 20px;">
                                         <p>Missed</p>
-                                        <span>{{ number_format(json_decode($client_missed[0]->missed_messages)) }}</span>
+                                        <span id="sms_missed">{{ number_format(json_decode($client_missed[0]->missed_messages)) }}</span>
                                     </div>
                                     <div class="" style="margin-right: 10px; border-left: 2px solid;"></div>
                                     <div style="margin-right: 20px;">
                                         <p>Defaulted</p>
-                                        <span>{{ number_format(json_decode($client_missed[0]->defaulted_messages)) }}</span>
+                                        <span id="sms_defaulted">{{ number_format(json_decode($client_missed[0]->defaulted_messages)) }}</span>
                                     </div>
                                     <div class="" style="margin-right: 10px; border-left: 2px solid;"></div>
                                     <div style="margin-right: 20px;">
                                         <p>IIT</p>
-                                        <span>{{ number_format(json_decode($client_missed[0]->iit_messages)) }}</span>
+                                        <span id="sms_iit">{{ number_format(json_decode($client_missed[0]->iit_messages)) }}</span>
                                     </div>
                                 </div>
                             </div>
@@ -418,7 +802,7 @@
                     <div class="Kept card o-hidden mb-4 h-75">
                         <div class="card-body">
                             <div class="content">
-                                <span>{{ number_format(json_decode($client_missed[0]->called)) }}</span>
+                                <span id="contacted">{{ number_format(json_decode($client_missed[0]->called)) }}</span>
                                 <p>Clients Called</p>
 
                             </div>
@@ -427,17 +811,17 @@
                                 <div class="row">
                                     <div class="" style="margin-right: 20px;">
                                         <p>Missed</p>
-                                        <span>{{ number_format(json_decode($client_missed[0]->missed_called)) }}</span>
+                                        <span id="contacted_missed">{{ number_format(json_decode($client_missed[0]->missed_called)) }}</span>
                                     </div>
                                     <div class="" style="margin-right: 10px; border-left: 2px solid;"></div>
                                     <div class="" style="margin-right: 20px; ">
                                         <p>Defaulted</p>
-                                        <span>{{ number_format(json_decode($client_missed[0]->defaulted_called)) }}</span>
+                                        <span id="contacted_defaulted">{{ number_format(json_decode($client_missed[0]->defaulted_called)) }}</span>
                                     </div>
                                     <div class="" style="margin-right: 10px; border-left: 2px solid;"></div>
                                     <div class="" style="margin-right: 20px;">
                                         <p>IIT</p>
-                                        <span>{{ number_format(json_decode($client_missed[0]->iit_called)) }}</span>
+                                        <span id="contacted_iit">{{ number_format(json_decode($client_missed[0]->iit_called)) }}</span>
                                     </div>
                                 </div>
                             </div>
@@ -448,24 +832,24 @@
                     <div class="Not_Kept card o-hidden mb-4 h-75">
                         <div class="card-body">
                             <div class="content" id="maindiv">
-                                <span>{{ number_format(json_decode($client_missed[0]->physically_traced)) }}</span>
+                                <span id="traced">{{ number_format(json_decode($client_missed[0]->physically_traced)) }}</span>
                                 <p>Clients Physically Traced</p>
                             </div>
                             <div class="h-45" style="float:right;">
                                 <div class="row">
                                     <div class="" style="margin-right: 20px;">
                                         <p>Missed</p>
-                                        <span class="text-center" style="margin-top: 5px;">{{ number_format(json_decode($client_missed[0]->missed_traced)) }}</span>
+                                        <span id="traced_missed" class="text-center" style="margin-top: 5px;">{{ number_format(json_decode($client_missed[0]->missed_traced)) }}</span>
                                     </div>
                                     <div class="" style="margin-right: 10px; border-left: 2px solid;"></div>
                                     <div class="" style="margin-right: 20px;">
                                         <p>Defaulted</p>
-                                        <span class="text-center" style="margin-top: 5px;">{{ number_format(json_decode($client_missed[0]->defaulted_traced)) }}</span>
+                                        <span id="traced_defaulted" class="text-center" style="margin-top: 5px;">{{ number_format(json_decode($client_missed[0]->defaulted_traced)) }}</span>
                                     </div>
                                     <div class="" style="margin-right: 10px; border-left: 2px solid;"></div>
                                     <div class="" style="margin-right: 20px;">
                                         <p>IIT</p>
-                                        <span class="text-center" style="margin-top: 5px;">{{ number_format(json_decode($client_missed[0]->iit_traced)) }}</span>
+                                        <span id="traced_iit" class="text-center" style="margin-top: 5px;">{{ number_format(json_decode($client_missed[0]->iit_traced)) }}</span>
                                     </div>
                                 </div>
                             </div>
@@ -476,7 +860,7 @@
                     <div class="Future card o-hidden mb-4 h-75">
                         <div class="card-body">
                             <div class="content" id="maindiv">
-                                <span>{{ number_format(json_decode($client_missed[0]->final_outcome)) }}</span>
+                                <span id="outcome">{{ number_format(json_decode($client_missed[0]->final_outcome)) }}</span>
                                 <p>Clients Who RTC</p>
 
                             </div>
@@ -484,17 +868,17 @@
                                 <div class="row">
                                     <div class="text-right" style="margin-right: 20px;">
                                         <p>Missed</p>
-                                        <span>{{ number_format(json_decode($client_missed[0]->missed_outcome)) }}</span>
+                                        <span id="outcome_missed">{{ number_format(json_decode($client_missed[0]->missed_outcome)) }}</span>
                                     </div>
                                     <div class="" style="margin-right: 10px; border-left: 2px solid;"></div>
                                     <div class="text-right" style="margin-right: 20px;">
                                         <p>Defaulted</p>
-                                        <span>{{ number_format(json_decode($client_missed[0]->defaulted_outcome)) }}</span>
+                                        <span id="outcome_defaulted">{{ number_format(json_decode($client_missed[0]->defaulted_outcome)) }}</span>
                                     </div>
                                     <div class="" style="margin-right: 10px; border-left: 2px solid;"></div>
                                     <div class="text-right" style="margin-right: 20px;">
                                         <p>IIT</p>
-                                        <span>{{ number_format(json_decode($client_missed[0]->iit_outcome)) }}</span>
+                                        <span id="outcome_iit">{{ number_format(json_decode($client_missed[0]->iit_outcome)) }}</span>
                                     </div>
                                 </div>
                             </div>
@@ -507,14 +891,14 @@
         <div class="col-md-12">
             <div class="row">
                 <div class="col-lg-12">
-                        <div class="card-body">
-                            <div class="content">
-                                <p class="line-height-1 mb-2"></p>
-                                <p class="Indicator">Indicator Definition</p>
-
-                            </div>
+                    <div class="card-body">
+                        <div class="content">
+                            <p class="line-height-1 mb-2"></p>
+                            <p class="Indicator">Indicator Definition</p>
 
                         </div>
+
+                    </div>
                 </div>
 
             </div>
@@ -643,9 +1027,20 @@
     </div>
 
 </div>
+<div id="dashboard_loader">
+    <img style="  position:absolute;
+        top:0;
+        left:0;
+        right:0;
+        bottom:0;
+        text-align: center;
+        margin:auto;" src="{{url('/images/loading-white.gif')}}" alt="loader" />
 
+</div>
 
+@endsection
 
+@section('page-js')
 
 
 
@@ -664,10 +1059,26 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
 
+
+
 <script src="{{asset('assets/js/vendor/datatables.min.js')}}"></script>
 
 
 <script type="text/javascript">
+    $("select").select2();
+    $("#partners").select2({
+        placeholder: "Select Partner"
+    });
+    $("#counties").select2({
+        placeholder: "Select County"
+    });
+    $("#subcounties").select2({
+        placeholder: "Select SubCounty"
+    });
+    $("#facilities").select2({
+        placeholder: "Select Facility"
+    });
+
     $('#table_client').DataTable({
         columnDefs: [{
             targets: [0],
@@ -728,8 +1139,133 @@
     var Missed_Gender = <?php echo json_encode($missed_gender) ?>;
     var Missed_Marital = <?php echo json_encode($missed_marital) ?>;
     var App_Period = <?php echo json_encode($app_period) ?>;
-    console.log(App_Period);
 
+    var Test = <?php echo json_encode($consented_clients[0]->consented) ?>;
+    console.log(Test);
+
+    $('#dataFilter').on('submit', function(e) {
+        e.preventDefault();
+        $("#dashboard_loader").show();
+        let partners = $('#partners').val();
+        let counties = $('#counties').val();
+        let subcounties = $('#subcounties').val();
+        let facilities = $('#facilities').val();
+        let from = $('#from').val();
+        let to = $('#to').val();
+
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+
+        $.ajax({
+            type: 'GET',
+            data: {
+                "partners": partners,
+                "counties": counties,
+                "subcounties": subcounties,
+                "facilities": facilities
+            },
+            url: "{{ route('filter_app_data') }}",
+            success: function(data) {
+
+                const consent = data.consented_clients;
+                const apps = data.all_appoinments;
+                const tx = data.all_tx_curr;
+                const missed = data.client_missed;
+                console.log(missed);
+
+                for (var x = 0; x < consent.length; x++) {
+                    consented = consent[x].consented;
+                    percnt_consented = Math.round(consent[x].percent_consented).toFixed(1);
+                }
+                for (var x = 0; x < apps.length; x++) {
+                    all_appointments = apps[x].total_app;
+                    app_kept = apps[x].kept_app;
+                    app_not_kept = apps[x].not_kept_app;
+                    app_future = apps[x].future;
+                    sms_sent = apps[x].messages;
+                    percnt_kept = apps[x].percent_kept;
+                    percnt_not_kept = apps[x].percent_not_kept;
+                    percnt_future = apps[x].percent_future;
+                }
+                for (var x = 0; x < tx.length; x++) {
+                    tx_curr = tx[x].tx_cur;
+                }
+                for (var x = 0; x < missed.length; x++) {
+                    app_missed = missed[x].not_kept_app;
+                    consent_app = missed[x].consent;
+                    consent_missed = missed[x].missed_consent;
+                    consent_defaulted = missed[x].defaulted_consent;
+                    consent_iit = missed[x].iit_consent;
+
+                    sms = missed[x].messages;
+                    sms_missed = missed[x].missed_messages;
+                    sms_defaulted = missed[x].defaulted_messages;
+                    sms_iit = missed[x].iit_messages;
+
+                    contacted = missed[x].called;
+                    contacted_missed = missed[x].missed_called;
+                    contacted_defaulted = missed[x].defaulted_called;
+                    contacted_iit = missed[x].iit_called;
+
+                    traced = missed[x].physically_traced;
+                    traced_missed = missed[x].missed_traced;
+                    traced_defaulted = missed[x].defaulted_traced;
+                    traced_iit = missed[x].iit_traced;
+
+                    outcome = missed[x].final_outcome;
+                    outcome_missed = missed[x].missed_outcome;
+                    outcome_defaulted = missed[x].defaulted_outcome;
+                    outcome_iit = missed[x].iit_outcome;
+                }
+                $("#tx_curr").html(tx_curr);
+                $("#consented").html(consented);
+                $("#percnt_consented").html(percnt_consented);
+                $("#all_appointments").html(all_appointments);
+                $("#app_kept").html(app_kept);
+                $("#app_not_kept").html(app_not_kept);
+                $("#app_future").html(app_future);
+                $("#sms_sent").html(sms_sent);
+                $("#percnt_kept").html(percnt_kept);
+                $("#percnt_not_kept").html(percnt_not_kept);
+                $("#percnt_future").html(percnt_future);
+
+                $("#app_missed").html(app_missed);
+                $("#consent_app").html(consent_app);
+                $("#consent_missed").html(consent_missed);
+                $("#consent_defaulted").html(consent_defaulted);
+                $("#consent_iit").html(consent_iit);
+
+                $("#sms").html(sms);
+                $("#sms_missed").html(sms_missed);
+                $("#sms_defaulted").html(sms_defaulted);
+                $("#sms_iit").html(sms_iit);
+
+                $("#contacted").html(contacted);
+                $("#contacted_missed").html(contacted_missed);
+                $("#contacted_defaulted").html(contacted_defaulted);
+                $("#contacted_iit").html(contacted_iit);
+
+                $("#traced").html(traced);
+                $("#traced_missed").html(traced_missed);
+                $("#traced_defaulted").html(traced_defaulted);
+                $("#traced_iit").html(traced_iit);
+
+                $("#outcome").html(outcome);
+                $("#outcome_missed").html(outcome_missed);
+                $("#outcome_defaulted").html(outcome_defaulted);
+                $("#outcome_iit").html(outcome_iit);
+
+                console.log(consented);
+
+                $("#dashboard_loader").hide();
+
+            }
+        });
+
+    });
 
     $('#table_missed').DataTable({
         columnDefs: [{
@@ -1216,79 +1752,79 @@
         }]
     });
     var MissedPeriod = Highcharts.chart('missed_period', {
-            chart: {
-                type: 'column'
-            },
-            legend: {
-                itemStyle: {
-                    fontFamily: 'Manrope',
-                    fontSize: '12px'
-                }
-            },
+        chart: {
+            type: 'column'
+        },
+        legend: {
+            itemStyle: {
+                fontFamily: 'Manrope',
+                fontSize: '12px'
+            }
+        },
+        title: {
+            text: 'Missed Client Distribution by Period',
+            style: {
+                fontFamily: 'Manrope',
+                fontSize: '12px'
+            }
+        },
+        xAxis: {
+            categories: App_Period.map(function(x) {
+                return x.new_date;
+            }),
+            crosshair: true
+        },
+        yAxis: {
+            min: 0,
+            max: 100,
             title: {
-                text: 'Missed Client Distribution by Period',
+                text: 'Percentage '
+            },
+            stackLabels: {
+                enabled: false,
                 style: {
-                    fontFamily: 'Manrope',
-                    fontSize: '12px'
+                    fontWeight: 'bold',
+                    textOutline: 'none'
                 }
-            },
-            xAxis: {
-                categories: App_Period.map(function(x) {
-                    return x.new_date;
-                }),
-                crosshair: true
-            },
-            yAxis: {
-                min: 0,
-                max: 100,
-                title: {
-                    text: 'Percentage '
-                },
-                stackLabels: {
-                    enabled: false,
-                    style: {
-                        fontWeight: 'bold',
-                        textOutline: 'none'
-                    }
-                }
-            },
+            }
+        },
 
-            tooltip: {
-                formatter: function() {
-                    return '<b>' + this.x + '</b><br/>' +
-                        this.series.name + ': ' + this.y;
+        tooltip: {
+            formatter: function() {
+                return '<b>' + this.x + '</b><br/>' +
+                    this.series.name + ': ' + this.y;
+            }
+        },
+        plotOptions: {
+            column: {
+                stacking: 'normal',
+                dataLabels: {
+                    enabled: false
                 }
-            },
-            plotOptions: {
-                column: {
-                    stacking: 'normal',
-                    dataLabels: {
-                        enabled: false
-                    }
+            }
+        },
+        series: [{
+            name: 'Missed',
+            color: '#01058A',
+            data: App_Period.map(function(x) {
+                return {
+                    name: x.name,
+                    y: parseInt(x.percent_not_kept, 10)
                 }
-            },
-            series: [{
-                name: 'Missed',
-                color: '#01058A',
-                data: App_Period.map(function(x) {
-                    return {
-                        name: x.name,
-                        y: parseInt(x.percent_not_kept, 10)
-                    }
-                })
+            })
 
-            }, {
-                name: 'Returned to care',
-                color: '#97080F',
-                data: App_Period.map(function(x) {
-                    return {
-                        name: x.name,
-                        y: parseInt(x.percent_rtc, 10)
-                    }
-                })
+        }, {
+            name: 'Returned to care',
+            color: '#97080F',
+            data: App_Period.map(function(x) {
+                return {
+                    name: x.name,
+                    y: parseInt(x.percent_rtc, 10)
+                }
+            })
 
-            }]
-        });
+        }]
+    });
 
     if (authenticated == 'Admin' || authenticated == 'Donor') {
         var DistributionCounty = Highcharts.chart('distribution_county', {
@@ -1743,9 +2279,7 @@
 </script>
 
 
-
+@endsection
 
 
 <!-- end of col -->
-
-@endsection

@@ -24,6 +24,11 @@ use Carbon\Carbon;
 
 class FinalDashboardController extends Controller
 {
+    public function index()
+    {
+        if (Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Donor') {
+        }
+    }
     public function appointment()
     {
         if (Auth::user()->access_level == 'Facility') {
@@ -223,6 +228,12 @@ class FinalDashboardController extends Controller
         }
         if (Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Donor') {
 
+            $partners = DB::table('tbl_partner')->select('id', 'name')->where('status', '=', 'Active')->get();
+            $counties = DB::table('tbl_county')->select('id', 'name')->get();
+            $sub_counties = DB::table('tbl_sub_county')->select('id', 'name')->get();
+            $facilities = DB::table('tbl_master_facility')->select('tbl_master_facility.code', 'tbl_master_facility.name')
+                ->join('tbl_partner_facility', 'tbl_master_facility.code', '=', 'tbl_partner_facility.mfl_code')
+                ->get();
             $all_appoinments = ETLAppointment::select(
                 DB::raw('COUNT(*) as total_app'),
                 DB::raw('SUM(app_kept) AS kept_app '),
@@ -234,7 +245,10 @@ class FinalDashboardController extends Controller
                 DB::raw('AVG(percent_future) AS percent_future ')
             )
                 ->get();
-            $consented_clients = ETLClient::select(DB::raw('SUM(CASE WHEN consented = "Yes" THEN 1 ELSE 0 END) AS consented '))->get();
+            $consented_clients = ETLClient::select(
+                DB::raw('SUM(CASE WHEN consented = "Yes" THEN 1 ELSE 0 END) AS consented '),
+                DB::raw('AVG(percent_consented) AS percent_consented ')
+            )->get();
             $all_tx_curr = Txcurr::select(DB::raw('SUM(tbl_tx_cur.tx_cur) as tx_cur'))
                 ->join('tbl_partner_facility', 'tbl_tx_cur.mfl_code', '=', 'tbl_partner_facility.mfl_code')
                 ->get();
@@ -927,7 +941,272 @@ class FinalDashboardController extends Controller
             'missed_partner',
             'client_list',
             'client_app_list',
-            'app_period'
+            'app_period',
+            'partners',
+            'counties',
+            'sub_counties',
+            'facilities'
         ));
+    }
+
+    public function filter_data(Request $request)
+    {
+        $data                = [];
+        $selected_partners = $request->partners;
+        $selected_counties = $request->counties;
+        $selected_subcounties = $request->subcounties;
+        $selected_facilites = $request->facilities;
+
+        $partners = DB::table('tbl_partner')->select('id', 'name')->where('status', '=', 'Active')->get();
+        $counties = DB::table('tbl_county')->select('id', 'name')->get();
+        $sub_counties = DB::table('tbl_sub_county')->select('id', 'name')->get();
+        $facilities = DB::table('tbl_master_facility')->select('tbl_master_facility.code', 'tbl_master_facility.name')
+            ->join('tbl_partner_facility', 'tbl_master_facility.code', '=', 'tbl_partner_facility.mfl_code')
+            ->get();
+        $all_appoinments = ETLAppointment::select(
+            DB::raw('COUNT(*) as total_app'),
+            DB::raw('SUM(app_kept) AS kept_app '),
+            DB::raw('SUM(app_not_kept) AS not_kept_app '),
+            DB::raw('SUM(future) AS future '),
+            DB::raw('SUM(received_sms) AS messages '),
+            DB::raw('AVG(percent_kept) AS percent_kept '),
+            DB::raw('AVG(percent_not_kept) AS percent_not_kept '),
+            DB::raw('AVG(percent_future) AS percent_future ')
+        );
+        $consented_clients = ETLClient::select(
+            DB::raw('SUM(CASE WHEN consented = "Yes" THEN 1 ELSE 0 END) AS consented '),
+            DB::raw('AVG(percent_consented) AS percent_consented ')
+        );
+        $all_tx_curr = Txcurr::select(DB::raw('SUM(tbl_tx_cur.tx_cur) as tx_cur'))
+            ->join('tbl_partner_facility', 'tbl_tx_cur.mfl_code', '=', 'tbl_partner_facility.mfl_code');
+        $appointment_gender = ETLAppointment::select(
+            'gender',
+            DB::raw('SUM(app_kept) AS kept_app '),
+            DB::raw('SUM(app_not_kept) AS not_kept_app '),
+            DB::raw('AVG(percent_kept) AS percent_kept '),
+            DB::raw('AVG(percent_not_kept) AS percent_not_kept ')
+        )
+            ->groupBy('gender');
+        $appointment_age = ETLAppointment::select(
+            'age_group',
+            DB::raw('SUM(app_kept) AS kept_app '),
+            DB::raw('SUM(app_not_kept) AS not_kept_app '),
+            DB::raw('AVG(percent_kept) AS percent_kept '),
+            DB::raw('AVG(percent_not_kept) AS percent_not_kept ')
+        )
+            ->groupBy('age_group');
+        $appointment_marital = ETLAppointment::select(
+            'marital',
+            DB::raw('SUM(app_kept) AS kept_app '),
+            DB::raw('SUM(app_not_kept) AS not_kept_app '),
+            DB::raw('AVG(percent_kept) AS percent_kept '),
+            DB::raw('AVG(percent_not_kept) AS percent_not_kept ')
+        )
+            ->groupBy('marital');
+        $appointment_county = ETLAppointment::select(
+            'county',
+            DB::raw('SUM(app_kept) AS kept_app '),
+            DB::raw('SUM(app_not_kept) AS not_kept_app '),
+            DB::raw('AVG(percent_kept) AS percent_kept '),
+            DB::raw('AVG(percent_not_kept) AS percent_not_kept ')
+        )
+            ->groupBy('county');
+        $appointment_partner = ETLAppointment::select(
+            'partner',
+            DB::raw('SUM(app_kept) AS kept_app '),
+            DB::raw('SUM(app_not_kept) AS not_kept_app '),
+            DB::raw('AVG(percent_kept) AS percent_kept '),
+            DB::raw('AVG(percent_not_kept) AS percent_not_kept ')
+        )
+            ->groupBy('partner');
+        $appointment_facility = DB::table('etl_appointment_detail')->select(
+            'facility',
+            DB::raw('SUM(app_kept) AS kept_app '),
+            DB::raw('SUM(app_not_kept) AS not_kept_app '),
+
+        )
+            ->groupBy('facility');
+        $client_list = DB::table('etl_client_detail')->select(
+            DB::raw('COUNT(ccc_number) AS ccc_number ')
+        );
+
+        // missed appointment
+        $client_missed = DB::table('etl_appointment_detail')->select(
+            DB::raw('SUM(app_not_kept) AS not_kept_app '),
+            DB::raw('SUM(received_sms) AS messages '),
+            DB::raw('SUM(CASE WHEN received_sms = 1 AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_messages '),
+            DB::raw('SUM(CASE WHEN received_sms = 1 AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_messages '),
+            DB::raw('SUM(CASE WHEN received_sms = 1 AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_messages '),
+            DB::raw('SUM(called) AS called '),
+            DB::raw('SUM(CASE WHEN called = 1 AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_called '),
+            DB::raw('SUM(CASE WHEN called = 1 AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_called '),
+            DB::raw('SUM(CASE WHEN called = 1 AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_called '),
+            DB::raw('SUM(physically_traced) AS physically_traced '),
+            DB::raw('SUM(CASE WHEN physically_traced = 1 AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_traced '),
+            DB::raw('SUM(CASE WHEN physically_traced = 1 AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_traced '),
+            DB::raw('SUM(CASE WHEN physically_traced = 1 AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_traced '),
+            DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" THEN 1 ELSE 0 END) AS final_outcome'),
+            DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_outcome '),
+            DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_outcome '),
+            DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_outcome '),
+            DB::raw('SUM(CASE WHEN consent = "Yes" THEN 1 ELSE 0 END) AS consent '),
+            DB::raw('SUM(CASE WHEN consent = "Yes" AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_consent '),
+            DB::raw('SUM(CASE WHEN consent = "Yes" AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_consent '),
+            DB::raw('SUM(CASE WHEN consent = "Yes" AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_consent ')
+        );
+
+        $missed_age = DB::table('etl_appointment_detail')->select(
+            'age_group',
+            DB::raw('SUM(app_not_kept) AS not_kept_app '),
+            DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" THEN 1 ELSE 0 END) AS final_outcome'),
+            DB::raw('AVG(percent_rtc) AS percent_rtc '),
+            DB::raw('AVG(percent_not_kept) AS percent_not_kept ')
+        )
+            ->groupBy('age_group');
+        $missed_gender = DB::table('etl_appointment_detail')->select(
+            'gender',
+            DB::raw('SUM(app_not_kept) AS not_kept_app '),
+            DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" THEN 1 ELSE 0 END) AS final_outcome'),
+            DB::raw('AVG(percent_rtc) AS percent_rtc '),
+            DB::raw('AVG(percent_not_kept) AS percent_not_kept ')
+        )
+            ->groupBy('gender');
+        $missed_marital = DB::table('etl_appointment_detail')->select(
+            'marital',
+            DB::raw('SUM(app_not_kept) AS not_kept_app '),
+            DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" THEN 1 ELSE 0 END) AS final_outcome'),
+            DB::raw('AVG(percent_rtc) AS percent_rtc '),
+            DB::raw('AVG(percent_not_kept) AS percent_not_kept ')
+        )
+            ->groupBy('marital');
+        $missed_county = DB::table('etl_appointment_detail')->select(
+            'county',
+            DB::raw('SUM(app_not_kept) AS not_kept_app '),
+            DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" THEN 1 ELSE 0 END) AS final_outcome'),
+            DB::raw('AVG(percent_rtc) AS percent_rtc '),
+            DB::raw('AVG(percent_not_kept) AS percent_not_kept ')
+        )
+            ->groupBy('county');
+        $missed_partner = DB::table('etl_appointment_detail')->select(
+            'partner',
+            DB::raw('SUM(app_not_kept) AS not_kept_app '),
+            DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" THEN 1 ELSE 0 END) AS final_outcome'),
+            DB::raw('AVG(percent_rtc) AS percent_rtc '),
+            DB::raw('AVG(percent_not_kept) AS percent_not_kept ')
+        )
+            ->groupBy('partner');
+        $client_app_list = DB::table('etl_client_detail')->select(
+            DB::raw('COUNT(ccc_number) AS ccc_number ')
+        );
+        $app_period = DB::table('etl_appointment_detail')->select(
+            DB::raw('DATE_FORMAT(appointment_date, "%Y-%M") AS new_date'),
+            DB::raw('AVG(percent_rtc) AS percent_rtc '),
+            DB::raw('AVG(percent_not_kept) AS percent_not_kept ')
+        )->whereNotNull('appointment_date')
+            ->where('appointment_date', '<=', date("Y-M-D"))
+            ->where(DB::raw('DATE_FORMAT(appointment_date, "%Y-%M")'), '>=', "2017-January")
+            ->orderBy('new_date', 'ASC')
+            ->groupBy('new_date');
+
+            if (!empty($selected_partners)) {
+                $all_appoinments = $all_appoinments->where('partner_id', $selected_partners);
+                $consented_clients = $consented_clients->where('partner_id', $selected_partners);
+                $all_tx_curr = $all_tx_curr->where('tbl_partner_facility.partner_id', $selected_partners);
+                $appointment_gender = $appointment_gender->where('partner_id', $selected_partners);
+                $appointment_age = $appointment_age->where('partner_id', $selected_partners);
+                $appointment_marital = $appointment_marital->where('partner_id', $selected_partners);
+                $appointment_county = $appointment_county->where('partner_id', $selected_partners);
+                $appointment_partner = $appointment_partner->where('partner_id', $selected_partners);
+                $appointment_facility = $appointment_facility->where('partner_id', $selected_partners);
+                $client_list = $client_list->where('partner_id', $selected_partners);
+                $client_missed = $client_missed->where('partner_id', $selected_partners);
+                $missed_age = $missed_age->where('partner_id', $selected_partners);
+                $missed_gender = $missed_gender->where('partner_id', $selected_partners);
+                $missed_marital = $missed_marital->where('partner_id', $selected_partners);
+                $missed_county = $missed_county->where('partner_id', $selected_partners);
+                $missed_partner = $missed_partner->where('partner_id', $selected_partners);
+                $client_app_list = $client_app_list->where('partner_id', $selected_partners);
+                $app_period = $app_period->where('partner_id', $selected_partners);
+            }
+            if (!empty($selected_counties)) {
+                $all_appoinments = $all_appoinments->where('county_id', $selected_counties);
+                $consented_clients = $consented_clients->where('county_id', $selected_counties);
+                $all_tx_curr = $all_tx_curr->where('tbl_partner_facility.county_id', $selected_counties);
+                $appointment_gender = $appointment_gender->where('county_id', $selected_counties);
+                $appointment_age = $appointment_age->where('county_id', $selected_counties);
+                $appointment_marital = $appointment_marital->where('county_id', $selected_counties);
+                $appointment_county = $appointment_county->where('county_id', $selected_counties);
+                $appointment_partner = $appointment_partner->where('county_id', $selected_counties);
+                $appointment_facility = $appointment_facility->where('county_id', $selected_counties);
+                $client_list = $client_list->where('county_id', $selected_counties);
+                $client_missed = $client_missed->where('county_id', $selected_counties);
+                $missed_age = $missed_age->where('county_id', $selected_counties);
+                $missed_gender = $missed_gender->where('county_id', $selected_counties);
+                $missed_marital = $missed_marital->where('county_id', $selected_counties);
+                $missed_county = $missed_county->where('county_id', $selected_counties);
+                $missed_partner = $missed_partner->where('county_id', $selected_counties);
+                $client_app_list = $client_app_list->where('county_id', $selected_counties);
+                $app_period = $app_period->where('county_id', $selected_counties);
+            }
+            if (!empty($selected_subcounties)) {
+                $all_appoinments = $all_appoinments->where('subcounty_id', $selected_subcounties);
+                $consented_clients = $consented_clients->where('subcounty_id', $selected_subcounties);
+                $all_tx_curr = $all_tx_curr->where('tbl_partner_facility.sub_county_id', $selected_subcounties);
+                $appointment_gender = $appointment_gender->where('subcounty_id', $selected_subcounties);
+                $appointment_age = $appointment_age->where('subcounty_id', $selected_subcounties);
+                $appointment_marital = $appointment_marital->where('subcounty_id', $selected_subcounties);
+                $appointment_county = $appointment_county->where('subcounty_id', $selected_subcounties);
+                $appointment_partner = $appointment_partner->where('subcounty_id', $selected_subcounties);
+                $appointment_facility = $appointment_facility->where('subcounty_id', $selected_subcounties);
+                $client_list = $client_list->where('subcounty_id', $selected_subcounties);
+                $client_missed = $client_missed->where('subcounty_id', $selected_subcounties);
+                $missed_age = $missed_age->where('subcounty_id', $selected_subcounties);
+                $missed_gender = $missed_gender->where('subcounty_id', $selected_subcounties);
+                $missed_marital = $missed_marital->where('subcounty_id', $selected_subcounties);
+                $missed_county = $missed_county->where('subcounty_id', $selected_subcounties);
+                $missed_partner = $missed_partner->where('subcounty_id', $selected_subcounties);
+                $client_app_list = $client_app_list->where('subcounty_id', $selected_subcounties);
+                $app_period = $app_period->where('subcounty_id', $selected_subcounties);
+            }
+            if (!empty($selected_facilites)) {
+                $all_appoinments = $all_appoinments->where('mfl_code', $selected_facilites);
+                $consented_clients = $consented_clients->where('mfl_code', $selected_facilites);
+                $all_tx_curr = $all_tx_curr->where('tbl_partner_facility.mfl_code', $selected_facilites);
+                $appointment_gender = $appointment_gender->where('mfl_code', $selected_facilites);
+                $appointment_age = $appointment_age->where('mfl_code', $selected_facilites);
+                $appointment_marital = $appointment_marital->where('mfl_code', $selected_facilites);
+                $appointment_county = $appointment_county->where('mfl_code', $selected_facilites);
+                $appointment_partner = $appointment_partner->where('mfl_code', $selected_facilites);
+                $appointment_facility = $appointment_facility->where('mfl_code', $selected_facilites);
+                $client_list = $client_list->where('mfl_code', $selected_facilites);
+                $client_missed = $client_missed->where('mfl_code', $selected_facilites);
+                $missed_age = $missed_age->where('mfl_code', $selected_facilites);
+                $missed_gender = $missed_gender->where('mfl_code', $selected_facilites);
+                $missed_marital = $missed_marital->where('mfl_code', $selected_facilites);
+                $missed_county = $missed_county->where('mfl_code', $selected_facilites);
+                $missed_partner = $missed_partner->where('mfl_code', $selected_facilites);
+                $client_app_list = $client_app_list->where('mfl_code', $selected_facilites);
+                $app_period = $app_period->where('mfl_code', $selected_facilites);
+            }
+            $data["all_appoinments"] = $all_appoinments->get();
+            $data["consented_clients"] = $consented_clients->get();
+            $data["all_tx_curr"] = $all_tx_curr->get();
+            $data["appointment_gender"] = $appointment_gender->get();
+            $data["appointment_age"] = $appointment_age->get();
+            $data["appointment_marital"] = $appointment_marital->get();
+            $data["appointment_county"] = $appointment_county->get();
+            $data["appointment_partner"] = $appointment_partner->get();
+            $data["appointment_facility"] = $appointment_facility->get();
+            $data["client_list"] = $client_list->get();
+            $data["client_missed"] = $client_missed->get();
+            $data["missed_age"] = $missed_age->get();
+            $data["missed_gender"] = $missed_gender->get();
+            $data["missed_marital"] = $missed_marital->get();
+            $data["missed_county"] = $missed_county->get();
+            $data["missed_partner"] = $missed_partner->get();
+            $data["client_app_list"] = $client_app_list->get();
+            $data["app_period"] = $app_period->get();
+
+            return $data;
     }
 }

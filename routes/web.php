@@ -268,4 +268,5 @@ Route::group(['middleware' => 'auth'], function () {
   //upi dashboard
   Route::get('/upi/dashboard', ['uses' => 'App\Http\Controllers\UpiController@index', 'as' => 'upi_dashboard']);
   Route::get('/home/appointment', ['uses' => 'App\Http\Controllers\FinalDashboardController@appointment', 'as' => 'appointment-dashboard']);
+  Route::get('/filter_app_data', ['uses' => 'App\Http\Controllers\FinalDashboardController@filter_data', 'as' => 'filter_app_data']);
 });
