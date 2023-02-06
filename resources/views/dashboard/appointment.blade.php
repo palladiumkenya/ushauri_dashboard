@@ -148,28 +148,32 @@
             </div>
             <div class="col-lg-2">
                 <div class="form-group">
-                    <select class="form-control filter_facility input-rounded input-sm select2" id="site" name="site" multiple="multiple">
-                        <option value="">Module : </option>
-                        <option value="DSD">DSD</option>
-                        <option value="PMTCT">PMTCT</option>
+                    <select class="form-control input-rounded input-sm select2" id="sites" name="site" multiple="multiple">
+                        <option value=""> </option>
+                        <option value="Paper Based">Paper Based</option>
+                        <option value="EMR Based">EMR Based</option>
                     </select>
                 </div>
             </div>
             <div class="col-lg-2">
                 <div class="form-group">
-                    <select class="form-control input-rounded input-sm select2" id="clinic" name="clinic" multiple="multiple">
-                        <option value="">Module : </option>
-                        <option value="DSD">DSD</option>
-                        <option value="PMTCT">PMTCT</option>
+                    <select class="form-control input-rounded input-sm select2" id="clinics" name="clinic" multiple="multiple">
+                        <option value=""></option>
+                        @if (count($clinics) > 0)
+                        @foreach($clinics as $clinic)
+                        <option value="{{$clinic->name }}">{{ ucwords($clinic->name) }}</option>
+                        @endforeach
+                        @endif
                     </select>
                 </div>
             </div>
             <div class="col-lg-2">
                 <div class="form-group">
-                    <select class="form-control filter_facility input-rounded input-sm select2" id="app_type" name="app_type" multiple="multiple">
-                        <option value="">Module : </option>
-                        <option value="DSD">DSD</option>
-                        <option value="PMTCT">PMTCTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT</option>
+                    <select class="form-control input-rounded input-sm select2" id="appointments" name="appointment" multiple="multiple">
+                        <option value=""></option>
+                        <option value="Missed">Missed</option>
+                        <option value="Defaulted">Defaulted</option>
+                        <option value="IIT">IIT</option>
                     </select>
                 </div>
             </div>
@@ -226,53 +230,70 @@
         <div class="row">
             <div class="col-lg-3">
                 <div class="form-group">
-                    <select class="form-control select2" id="partners" name="partner" multiple="multiple" style="max-height: 100%">
-                        <option value="">Partner</option>
-                        <option>JavaScript</option>
-                        <option>PHP</option>
+
+                    <select class="form-control select2" id="partners" name="partner[]" multiple="multiple">
+                        <option></option>
+                        @if (count($partners) > 0)
+                        @foreach($partners as $partner)
+                        <option value="{{$partner->id }}">{{ ucwords($partner->name) }}</option>
+                        @endforeach
+                        @endif
+                        <option></option>
                     </select>
                 </div>
             </div>
             <div class="col-lg-3">
                 <div class="form-group">
-                    <select class="form-control subcounty input-rounded input-sm select2" id="subcounties" name="subcounty" multiple="multiple">
-                        <option value=""> Sub County : </option>
+                    <select class="form-control select2" id="subcounties" name="subcounty" multiple="multiple">
                         <option value=""></option>
+                        @if (count($sub_counties) > 0)
+                        @foreach($sub_counties as $sub_county)
+                        <option value="{{$sub_county->id }}">{{ ucwords($sub_county->name) }}</option>
+                        @endforeach
+                        @endif
                     </select>
                 </div>
             </div>
             <div class="col-lg-3">
                 <div class="form-group">
-                    <select class="form-control filter_facility input-rounded input-sm select2" id="facilities" name="facility" multiple="multiple">
-                        <option value="">Facility : </option>
+                    <select class="form-control select2" id="facilities" name="facility" multiple="multiple">
                         <option value=""></option>
+                        @if (count($facilities) > 0)
+                        @foreach($facilities as $facility)
+                        <option value="{{$facility->code }}">{{ ucwords($facility->name) }}</option>
+                        @endforeach
+                        @endif
                     </select>
                 </div>
             </div>
             <div class="col-lg-2">
                 <div class="form-group">
-                    <select class="form-control filter_facility input-rounded input-sm select2" id="site" name="site" multiple="multiple">
-                        <option value="">Module : </option>
-                        <option value="DSD">DSD</option>
-                        <option value="PMTCT">PMTCT</option>
+                    <select class="form-control input-rounded input-sm select2" id="sites" name="site" multiple="multiple">
+                        <option value=""> </option>
+                        <option value="Paper Based">Paper Based</option>
+                        <option value="EMR Based">EMR Based</option>
                     </select>
                 </div>
             </div>
             <div class="col-lg-2">
                 <div class="form-group">
-                    <select class="form-control input-rounded input-sm select2" id="clinic" name="clinic" multiple="multiple">
-                        <option value="">Module : </option>
-                        <option value="DSD">DSD</option>
-                        <option value="PMTCT">PMTCT</option>
+                    <select class="form-control input-rounded input-sm select2" id="clinics" name="clinic" multiple="multiple">
+                        <option value=""></option>
+                        @if (count($clinics) > 0)
+                        @foreach($clinics as $clinic)
+                        <option value="{{$clinic->name }}">{{ ucwords($clinic->name) }}</option>
+                        @endforeach
+                        @endif
                     </select>
                 </div>
             </div>
             <div class="col-lg-2">
                 <div class="form-group">
-                    <select class="form-control filter_facility input-rounded input-sm select2" id="app_type" name="app_type" multiple="multiple">
-                        <option value="">Module : </option>
-                        <option value="DSD">DSD</option>
-                        <option value="PMTCT">PMTCTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT</option>
+                    <select class="form-control input-rounded input-sm select2" id="appointments" name="appointment" multiple="multiple">
+                        <option value=""></option>
+                        <option value="Missed">Missed</option>
+                        <option value="Defaulted">Defaulted</option>
+                        <option value="IIT">IIT</option>
                     </select>
                 </div>
             </div>
@@ -329,36 +350,44 @@
         <div class="row">
             <div class="col-lg-3">
                 <div class="form-group">
-                    <select class="form-control filter_facility input-rounded input-sm select2" id="facilities" name="facility" multiple="multiple">
-                        <option value="">Facility : </option>
+                    <select class="form-control select2" id="facilities" name="facility" multiple="multiple">
                         <option value=""></option>
+                        @if (count($facilities) > 0)
+                        @foreach($facilities as $facility)
+                        <option value="{{$facility->code }}">{{ ucwords($facility->name) }}</option>
+                        @endforeach
+                        @endif
                     </select>
                 </div>
             </div>
             <div class="col-lg-2">
                 <div class="form-group">
-                    <select class="form-control filter_facility input-rounded input-sm select2" id="site" name="site" multiple="multiple">
-                        <option value="">Module : </option>
-                        <option value="DSD">DSD</option>
-                        <option value="PMTCT">PMTCT</option>
+                    <select class="form-control input-rounded input-sm select2" id="sites" name="site" multiple="multiple">
+                        <option value=""> </option>
+                        <option value="Paper Based">Paper Based</option>
+                        <option value="EMR Based">EMR Based</option>
                     </select>
                 </div>
             </div>
             <div class="col-lg-2">
                 <div class="form-group">
-                    <select class="form-control input-rounded input-sm select2" id="clinic" name="clinic" multiple="multiple">
-                        <option value="">Module : </option>
-                        <option value="DSD">DSD</option>
-                        <option value="PMTCT">PMTCT</option>
+                    <select class="form-control input-rounded input-sm select2" id="clinics" name="clinic" multiple="multiple">
+                        <option value=""></option>
+                        @if (count($clinics) > 0)
+                        @foreach($clinics as $clinic)
+                        <option value="{{$clinic->name }}">{{ ucwords($clinic->name) }}</option>
+                        @endforeach
+                        @endif
                     </select>
                 </div>
             </div>
             <div class="col-lg-2">
                 <div class="form-group">
-                    <select class="form-control filter_facility input-rounded input-sm select2" id="app_type" name="app_type" multiple="multiple">
-                        <option value="">Module : </option>
-                        <option value="DSD">DSD</option>
-                        <option value="PMTCT">PMTCTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT</option>
+                    <select class="form-control input-rounded input-sm select2" id="appointments" name="appointment" multiple="multiple">
+                        <option value=""></option>
+                        <option value="Missed">Missed</option>
+                        <option value="Defaulted">Defaulted</option>
+                        <option value="IIT">IIT</option>
                     </select>
                 </div>
             </div>
@@ -415,17 +444,23 @@
         <div class="row">
             <div class="col-lg-2">
                 <div class="form-group">
-                    <select class="form-control input-rounded input-sm select2" id="clinic" name="clinic" multiple="multiple">
-                        <option value="">Module : </option>
+                    <select class="form-control input-rounded input-sm select2" id="clinics" name="clinic" multiple="multiple">
+                        <option value=""></option>
+                        @if (count($clinics) > 0)
+                        @foreach($clinics as $clinic)
+                        <option value="{{$clinic->name }}">{{ ucwords($clinic->name) }}</option>
+                        @endforeach
+                        @endif
                     </select>
                 </div>
             </div>
             <div class="col-lg-2">
                 <div class="form-group">
-                    <select class="form-control filter_facility input-rounded input-sm select2" id="app_type" name="app_type" multiple="multiple">
-                        <option value="">Module : </option>
-                        <option value="DSD">DSD</option>
-                        <option value="PMTCT">PMTCTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT</option>
+                    <select class="form-control input-rounded input-sm select2" id="appointments" name="appointment" multiple="multiple">
+                        <option value=""></option>
+                        <option value="Missed">Missed</option>
+                        <option value="Defaulted">Defaulted</option>
+                        <option value="IIT">IIT</option>
                     </select>
                 </div>
             </div>
@@ -491,7 +526,7 @@
                     <div class="TX_Curr card o-hidden mb-4 h-75">
                         <div class="card-body">
                             <div class="content">
-                                <span id="tx_curr">{{ number_format(json_decode($all_tx_curr[0]->tx_cur)) }}</span>
+                                <span id="tx_curr"></span>
                                 <p>TX_Curr</p>
 
                             </div>
@@ -503,10 +538,10 @@
                     <div class="Consented card o-hidden mb-4 h-75">
                         <div class="card-body">
                             <div class="content" id="maindiv">
-                                <span id="consented">{{ number_format(json_decode($consented_clients[0]->consented)) }}</span>
+                                <span id="consented"></span>
                                 <p>Clients Consented</p>
                                 <div style="width: 3em; height: 3em; text-align: center; border-radius:50%; border:solid #fff 1px; box-shadow: 0 0 0 2px; padding:2px; margin-bottom: 10px;">
-                                    <h2 id="percnt_consented" style="font-size: 10px; margin-top: 12px;">{{ round(json_decode($consented_clients[0]->percent_consented), 1) }}%</h2>
+                                    <h2 id="percnt_consented" style="font-size: 10px; margin-top: 12px;"></h2>
                                 </div>
                             </div>
 
@@ -517,7 +552,7 @@
                     <div class="Booked card o-hidden mb-4 h-75">
                         <div class="card-body">
                             <div class="content" id="maindiv">
-                                <span id="all_appointments">{{ number_format(json_decode($all_appoinments[0]->total_app)) }}</span>
+                                <span id="all_appointments"></span>
                                 <p>Booked Appointments</p>
 
                             </div>
@@ -529,7 +564,7 @@
                     <div class="Messages card o-hidden mb-4 h-75">
                         <div class="card-body">
                             <div class="content">
-                                <span id="sms_sent">{{ number_format(json_decode($all_appoinments[0]->messages)) }}</span>
+                                <span id="sms_sent"></span>
                                 <p>Received Messages</p>
 
                             </div>
@@ -547,10 +582,10 @@
                     <div class="Kept card o-hidden mb-4 h-75">
                         <div class="card-body">
                             <div class="content">
-                                <span id="app_kept" class="">{{ number_format(json_decode($all_appoinments[0]->kept_app)) }}</span>
+                                <span id="app_kept" class=""></span>
                                 <p class="pt-0">Appointments Kept</p>
                                 <div style="width: 3em; height: 3em; text-align: center; border-radius:50%; border:solid #fff 1px; box-shadow: 0 0 0 2px; padding:2px; margin-bottom: 10px;">
-                                    <h2 id="percnt_kept" style="font-size: 10px; margin-top: 12px;">{{ round(json_decode($all_appoinments[0]->percent_kept), 1) }}%</h2>
+                                    <h2 id="percnt_kept" style="font-size: 10px; margin-top: 12px;"></h2>
                                 </div>
                             </div>
                         </div>
@@ -560,10 +595,10 @@
                     <div class="Not_Kept card o-hidden mb-4 h-75">
                         <div class="card-body">
                             <div class="content">
-                                <span id="app_not_kept" class="">{{ number_format(json_decode($all_appoinments[0]->not_kept_app)) }}</span>
+                                <span id="app_not_kept" class=""></span>
                                 <p class="pt-0">Appointments Not Kept</p>
                                 <div style="width: 3em; height: 3em; text-align: center; border-radius:50%; border:solid #fff 1px; box-shadow: 0 0 0 2px; padding:2px; margin-bottom: 10px;">
-                                    <h2 id="percnt_not_kept" style="font-size: 10px; margin-top: 12px;">{{ round(json_decode($all_appoinments[0]->percent_not_kept),1) }}%</h2>
+                                    <h2 id="percnt_not_kept" style="font-size: 10px; margin-top: 12px;"></h2>
                                 </div>
                             </div>
 
@@ -574,10 +609,10 @@
                     <div class="Future card  o-hidden mb-4 h-75">
                         <div class="card-body">
                             <div class="content" id="maindiv">
-                                <span id="app_future">{{ number_format(json_decode($all_appoinments[0]->future)) }}</span>
+                                <span id="app_future"></span>
                                 <p>Future Appointments</p>
                                 <div style="width: 3em; height: 3em; text-align: center; border-radius:50%; border:solid #fff 1px; box-shadow: 0 0 0 2px; padding:2px; margin-bottom: 10px;">
-                                    <h2 id="percnt_future" style="font-size: 10px; margin-top: 12px;">{{ round(json_decode($all_appoinments[0]->percent_future),1) }}%</h2>
+                                    <h2 id="percnt_future" style="font-size: 10px; margin-top: 12px;"></h2>
                                 </div>
                             </div>
 
@@ -728,7 +763,7 @@
                     <div class="TX_Curr card o-hidden mb-4 h-75">
                         <div class="card-body">
                             <div class="content">
-                                <span id="app_missed">{{ number_format(json_decode($client_missed[0]->not_kept_app)) }}</span>
+                                <span id="app_missed"></span>
                                 <p>Clients With Missed Appointment</p>
                             </div>
 
@@ -739,24 +774,24 @@
                     <div class="Consented card o-hidden mb-4 h-75">
                         <div class="card-body">
                             <div class="content" id="maindiv">
-                                <span id="consent_app">{{ number_format(json_decode($client_missed[0]->consent)) }}</span>
+                                <span id="consent_app"></span>
                                 <p>Consented Clients Who Missed</p>
                             </div>
                             <div class="h-45" style="float:right; margin-right: 20px;">
                                 <div class="row">
                                     <div class="" style="margin-right: 20px;">
                                         <p>Missed</p>
-                                        <span id="consent_missed">{{ number_format(json_decode($client_missed[0]->missed_consent)) }}</span>
+                                        <span id="consent_missed"></span>
                                     </div>
                                     <div class="" style="margin-right: 10px; border-left: 2px solid;"></div>
                                     <div class="" style="margin-right: 20px;">
                                         <p>Defaulted</p>
-                                        <span id="consent_defaulted">{{ number_format(json_decode($client_missed[0]->defaulted_consent)) }}</span>
+                                        <span id="consent_defaulted"></span>
                                     </div>
                                     <div class="" style="margin-right: 10px; border-left: 2px solid;"></div>
                                     <div class="" style="margin-right: 20px;">
                                         <p>IIT</p>
-                                        <span id="consent_iit">{{ number_format(json_decode($client_missed[0]->iit_consent)) }}</span>
+                                        <span id="consent_iit"></span>
                                     </div>
                                 </div>
                             </div>
@@ -769,24 +804,24 @@
                     <div class="Booked card o-hidden mb-4 h-75">
                         <div class="card-body">
                             <div class="content" id="maindiv">
-                                <span id="sms">{{ number_format(json_decode($client_missed[0]->messages)) }}</span>
+                                <span id="sms"></span>
                                 <p>Clients Who Received SMS</p>
                             </div>
                             <div class="h-45" style="float:right; margin-right: 20px;">
                                 <div class="row">
                                     <div class="" style="margin-right: 20px;">
                                         <p>Missed</p>
-                                        <span id="sms_missed">{{ number_format(json_decode($client_missed[0]->missed_messages)) }}</span>
+                                        <span id="sms_missed"></span>
                                     </div>
                                     <div class="" style="margin-right: 10px; border-left: 2px solid;"></div>
                                     <div style="margin-right: 20px;">
                                         <p>Defaulted</p>
-                                        <span id="sms_defaulted">{{ number_format(json_decode($client_missed[0]->defaulted_messages)) }}</span>
+                                        <span id="sms_defaulted"></span>
                                     </div>
                                     <div class="" style="margin-right: 10px; border-left: 2px solid;"></div>
                                     <div style="margin-right: 20px;">
                                         <p>IIT</p>
-                                        <span id="sms_iit">{{ number_format(json_decode($client_missed[0]->iit_messages)) }}</span>
+                                        <span id="sms_iit"></span>
                                     </div>
                                 </div>
                             </div>
@@ -802,7 +837,7 @@
                     <div class="Kept card o-hidden mb-4 h-75">
                         <div class="card-body">
                             <div class="content">
-                                <span id="contacted">{{ number_format(json_decode($client_missed[0]->called)) }}</span>
+                                <span id="contacted"></span>
                                 <p>Clients Called</p>
 
                             </div>
@@ -811,17 +846,17 @@
                                 <div class="row">
                                     <div class="" style="margin-right: 20px;">
                                         <p>Missed</p>
-                                        <span id="contacted_missed">{{ number_format(json_decode($client_missed[0]->missed_called)) }}</span>
+                                        <span id="contacted_missed"></span>
                                     </div>
                                     <div class="" style="margin-right: 10px; border-left: 2px solid;"></div>
                                     <div class="" style="margin-right: 20px; ">
                                         <p>Defaulted</p>
-                                        <span id="contacted_defaulted">{{ number_format(json_decode($client_missed[0]->defaulted_called)) }}</span>
+                                        <span id="contacted_defaulted"></span>
                                     </div>
                                     <div class="" style="margin-right: 10px; border-left: 2px solid;"></div>
                                     <div class="" style="margin-right: 20px;">
                                         <p>IIT</p>
-                                        <span id="contacted_iit">{{ number_format(json_decode($client_missed[0]->iit_called)) }}</span>
+                                        <span id="contacted_iit"></span>
                                     </div>
                                 </div>
                             </div>
@@ -832,24 +867,24 @@
                     <div class="Not_Kept card o-hidden mb-4 h-75">
                         <div class="card-body">
                             <div class="content" id="maindiv">
-                                <span id="traced">{{ number_format(json_decode($client_missed[0]->physically_traced)) }}</span>
+                                <span id="traced"></span>
                                 <p>Clients Physically Traced</p>
                             </div>
                             <div class="h-45" style="float:right;">
                                 <div class="row">
                                     <div class="" style="margin-right: 20px;">
                                         <p>Missed</p>
-                                        <span id="traced_missed" class="text-center" style="margin-top: 5px;">{{ number_format(json_decode($client_missed[0]->missed_traced)) }}</span>
+                                        <span id="traced_missed" class="text-center" style="margin-top: 5px;"></span>
                                     </div>
                                     <div class="" style="margin-right: 10px; border-left: 2px solid;"></div>
                                     <div class="" style="margin-right: 20px;">
                                         <p>Defaulted</p>
-                                        <span id="traced_defaulted" class="text-center" style="margin-top: 5px;">{{ number_format(json_decode($client_missed[0]->defaulted_traced)) }}</span>
+                                        <span id="traced_defaulted" class="text-center" style="margin-top: 5px;"></span>
                                     </div>
                                     <div class="" style="margin-right: 10px; border-left: 2px solid;"></div>
                                     <div class="" style="margin-right: 20px;">
                                         <p>IIT</p>
-                                        <span id="traced_iit" class="text-center" style="margin-top: 5px;">{{ number_format(json_decode($client_missed[0]->iit_traced)) }}</span>
+                                        <span id="traced_iit" class="text-center" style="margin-top: 5px;"></span>
                                     </div>
                                 </div>
                             </div>
@@ -860,7 +895,7 @@
                     <div class="Future card o-hidden mb-4 h-75">
                         <div class="card-body">
                             <div class="content" id="maindiv">
-                                <span id="outcome">{{ number_format(json_decode($client_missed[0]->final_outcome)) }}</span>
+                                <span id="outcome"></span>
                                 <p>Clients Who RTC</p>
 
                             </div>
@@ -868,17 +903,17 @@
                                 <div class="row">
                                     <div class="text-right" style="margin-right: 20px;">
                                         <p>Missed</p>
-                                        <span id="outcome_missed">{{ number_format(json_decode($client_missed[0]->missed_outcome)) }}</span>
+                                        <span id="outcome_missed"></span>
                                     </div>
                                     <div class="" style="margin-right: 10px; border-left: 2px solid;"></div>
                                     <div class="text-right" style="margin-right: 20px;">
                                         <p>Defaulted</p>
-                                        <span id="outcome_defaulted">{{ number_format(json_decode($client_missed[0]->defaulted_outcome)) }}</span>
+                                        <span id="outcome_defaulted"></span>
                                     </div>
                                     <div class="" style="margin-right: 10px; border-left: 2px solid;"></div>
                                     <div class="text-right" style="margin-right: 20px;">
                                         <p>IIT</p>
-                                        <span id="outcome_iit">{{ number_format(json_decode($client_missed[0]->iit_outcome)) }}</span>
+                                        <span id="outcome_iit"></span>
                                     </div>
                                 </div>
                             </div>
@@ -1027,16 +1062,17 @@
     </div>
 
 </div>
-<div id="dashboard_loader">
+<!-- <div id="dashboard_loader">
     <img style="  position:absolute;
-        top:0;
+        top:50px;
         left:0;
         right:0;
-        bottom:0;
-        text-align: center;
-        margin:auto;" src="{{url('/images/loading-white.gif')}}" alt="loader" />
+        bottom: 0px;
+        width: 2000px;
+        height: 2000px;
+        margin:auto;" src="{{url('/images/loader.gif')}}" alt="loader" />
 
-</div>
+</div> -->
 
 @endsection
 
@@ -1067,6 +1103,7 @@
 <script type="text/javascript">
     $("select").select2();
     $("#partners").select2({
+        width: 'element',
         placeholder: "Select Partner"
     });
     $("#counties").select2({
@@ -1077,6 +1114,15 @@
     });
     $("#facilities").select2({
         placeholder: "Select Facility"
+    });
+    $("#clinics").select2({
+        placeholder: "Select Clinic"
+    });
+    $("#appointments").select2({
+        placeholder: "Appointment Failure Type"
+    });
+    $("#sites").select2({
+        placeholder: "Site Type"
     });
 
     $('#table_client').DataTable({
@@ -1125,38 +1171,181 @@
 
     let authenticated = $('#authenticated').val();
     // console.log(authenticated);
-    var All_Appointments = <?php echo json_encode($client_missed) ?>;
-    var App_Gender = <?php echo json_encode($appointment_gender) ?>;
-    var App_Age = <?php echo json_encode($appointment_age) ?>;
-    var App_Marital = <?php echo json_encode($appointment_marital) ?>;
 
-    var App_County = <?php echo json_encode($appointment_county) ?>;
-    var App_Partner = <?php echo json_encode($appointment_partner) ?>;
-    var Missed_County = <?php echo json_encode($missed_county) ?>;
-    var Missed_Partner = <?php echo json_encode($missed_partner) ?>;
+    Swal.fire({
+        title: "Please wait, Loading Charts!",
+        showConfirmButton: false,
+        allowOutsideClick: false
+    });
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        }
+    });
+    $.ajax({
+        type: 'GET',
+        url: "{{ route('appointment_data') }}",
+        success: function(data) {
+            const consent = data.consented_clients;
+            const apps = data.all_appoinments;
+            const tx = data.all_tx_curr;
+            const missed = data.client_missed;
+            appGender(data.appointment_gender);
+            appAge(data.appointment_age);
+            appMarital(data.appointment_marital);
 
-    var Missed_Age = <?php echo json_encode($missed_age) ?>;
-    var Missed_Gender = <?php echo json_encode($missed_gender) ?>;
-    var Missed_Marital = <?php echo json_encode($missed_marital) ?>;
-    var App_Period = <?php echo json_encode($app_period) ?>;
+            missedAge(data.missed_age);
+            missedGender(data.missed_gender);
+            missedMarital(data.missed_marital);
+            if (authenticated == 'Admin' || authenticated == 'Donor') {
+                appCounty(data.appointment_county);
+                appPartner(data.appointment_partner)
+                missedCounty(data.missed_county);
+                missedPartner(data.missed_partner);
+            }
+            if (authenticated == 'County' || authenticated == 'Sub County') {
+                appPartner(data.appointment_partner)
+                missedPartner(data.missed_partner);
+            }
+            missedPeriod(data.app_period);
 
-    var Test = <?php echo json_encode($consented_clients[0]->consented) ?>;
-    console.log(Test);
+            console.log(missed);
+
+            for (var x = 0; x < consent.length; x++) {
+                consented = consent[x].consented;
+                consented = consented.toLocaleString();
+                percnt_consented = parseFloat(consent[x].percent_consented).toFixed(1);
+            }
+            for (var x = 0; x < apps.length; x++) {
+                all_appointments = apps[x].total_app;
+                all_appointments = all_appointments.toLocaleString();
+                app_kept = apps[x].kept_app;
+                app_kept = app_kept.toLocaleString();
+                app_not_kept = apps[x].not_kept_app;
+                app_not_kept = app_not_kept.toLocaleString();
+                app_future = apps[x].future;
+                app_future = app_future.toLocaleString();
+                sms_sent = apps[x].messages;
+                sms_sent = sms_sent.toLocaleString();
+                percnt_kept = parseFloat(apps[x].percent_kept).toFixed(1);
+                percnt_not_kept = parseFloat(apps[x].percent_not_kept).toFixed(1);
+                percnt_future = parseFloat(apps[x].percent_future).toFixed(1);
+            }
+            for (var x = 0; x < tx.length; x++) {
+                tx_curr = tx[x].tx_cur;
+            }
+            for (var x = 0; x < missed.length; x++) {
+                app_missed = missed[x].not_kept_app;
+                app_missed = app_missed.toLocaleString();
+                consent_app = missed[x].consent;
+                consent_app = consent_app.toLocaleString();
+                consent_missed = missed[x].missed_consent;
+                consent_missed = consent_missed.toLocaleString();
+                consent_defaulted = missed[x].defaulted_consent;
+                consent_defaulted = consent_defaulted.toLocaleString();
+                consent_iit = missed[x].iit_consent;
+                consent_iit = consent_iit.toLocaleString();
+
+                sms = missed[x].messages;
+                sms = sms.toLocaleString();
+                sms_missed = missed[x].missed_messages;
+                sms_missed = sms_missed.toLocaleString();
+                sms_defaulted = missed[x].defaulted_messages;
+                sms_defaulted = sms_defaulted.toLocaleString();
+                sms_iit = missed[x].iit_messages;
+                sms_iit = sms_iit.toLocaleString();
+
+                contacted = missed[x].called;
+                contacted = contacted.toLocaleString();
+                contacted_missed = missed[x].missed_called;
+                contacted_missed = contacted_missed.toLocaleString();
+                contacted_defaulted = missed[x].defaulted_called;
+                contacted_defaulted = contacted_defaulted.toLocaleString();
+                contacted_iit = missed[x].iit_called;
+                contacted_iit = contacted_iit.toLocaleString();
+
+                traced = missed[x].physically_traced;
+                traced = traced.toLocaleString();
+                traced_missed = missed[x].missed_traced;
+                traced_missed = traced_missed.toLocaleString();
+                traced_defaulted = missed[x].defaulted_traced;
+                traced_defaulted = traced_defaulted.toLocaleString();
+                traced_iit = missed[x].iit_traced;
+                traced_iit = traced_iit.toLocaleString();
+
+                outcome = missed[x].final_outcome;
+                outcome = outcome.toLocaleString();
+                outcome_missed = missed[x].missed_outcome;
+                outcome_missed = outcome_missed.toLocaleString();
+                outcome_defaulted = missed[x].defaulted_outcome;
+                outcome_defaulted = outcome_defaulted.toLocaleString();
+                outcome_iit = missed[x].iit_outcome;
+                outcome_iit = outcome_iit.toLocaleString();
+            }
+            $("#tx_curr").html(tx_curr);
+            $("#consented").html(consented);
+            $("#percnt_consented").html(percnt_consented);
+            $("#all_appointments").html(all_appointments);
+            $("#app_kept").html(app_kept);
+            $("#app_not_kept").html(app_not_kept);
+            $("#app_future").html(app_future);
+            $("#sms_sent").html(sms_sent);
+            $("#percnt_kept").html(percnt_kept);
+            $("#percnt_not_kept").html(percnt_not_kept);
+            $("#percnt_future").html(percnt_future);
+
+            $("#app_missed").html(app_missed);
+            $("#consent_app").html(consent_app);
+            $("#consent_missed").html(consent_missed);
+            $("#consent_defaulted").html(consent_defaulted);
+            $("#consent_iit").html(consent_iit);
+
+            $("#sms").html(sms);
+            $("#sms_missed").html(sms_missed);
+            $("#sms_defaulted").html(sms_defaulted);
+            $("#sms_iit").html(sms_iit);
+
+            $("#contacted").html(contacted);
+            $("#contacted_missed").html(contacted_missed);
+            $("#contacted_defaulted").html(contacted_defaulted);
+            $("#contacted_iit").html(contacted_iit);
+
+            $("#traced").html(traced);
+            $("#traced_missed").html(traced_missed);
+            $("#traced_defaulted").html(traced_defaulted);
+            $("#traced_iit").html(traced_iit);
+
+            $("#outcome").html(outcome);
+            $("#outcome_missed").html(outcome_missed);
+            $("#outcome_defaulted").html(outcome_defaulted);
+            $("#outcome_iit").html(outcome_iit);
+            Swal.close();
+            // $("#dashboard_loader").hide();
+        }
+    });
 
     $('#dataFilter').on('submit', function(e) {
         e.preventDefault();
-        $("#dashboard_loader").show();
+        // $("#dashboard_loader").show();
         let partners = $('#partners').val();
         let counties = $('#counties').val();
         let subcounties = $('#subcounties').val();
         let facilities = $('#facilities').val();
         let from = $('#from').val();
         let to = $('#to').val();
+        let clinics = $('#clinics').val();
+        let appointments = $('#appointments').val();
+        let sites = $('#sites').val();
 
         $.ajaxSetup({
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             }
+        });
+        Swal.fire({
+            title: "Please wait, Loading Charts!",
+            showConfirmButton: false,
+            allowOutsideClick: false
         });
 
         $.ajax({
@@ -1165,7 +1354,12 @@
                 "partners": partners,
                 "counties": counties,
                 "subcounties": subcounties,
-                "facilities": facilities
+                "facilities": facilities,
+                "from": from,
+                "to": to,
+                "clinics": clinics,
+                "appointments": appointments,
+                "sites": sites
             },
             url: "{{ route('filter_app_data') }}",
             success: function(data) {
@@ -1174,51 +1368,96 @@
                 const apps = data.all_appoinments;
                 const tx = data.all_tx_curr;
                 const missed = data.client_missed;
+                appGender(data.appointment_gender);
+                appAge(data.appointment_age);
+                appMarital(data.appointment_marital);;
+
+                missedAge(data.missed_age);
+                missedGender(data.missed_gender);
+                missedMarital(data.missed_marital);
+                if (authenticated == 'Admin' || authenticated == 'Donor') {
+                    appCounty(data.appointment_county);
+                    appPartner(data.appointment_partner)
+                    missedCounty(data.missed_county);
+                    missedPartner(data.missed_partner);
+                }
+                if (authenticated == 'County' || authenticated == 'Sub County') {
+                    appPartner(data.appointment_partner)
+                    missedPartner(data.missed_partner);
+                }
+                missedPeriod(data.app_period);
                 console.log(missed);
 
                 for (var x = 0; x < consent.length; x++) {
                     consented = consent[x].consented;
+                    consented = consented.toLocaleString();
                     percnt_consented = Math.round(consent[x].percent_consented).toFixed(1);
                 }
                 for (var x = 0; x < apps.length; x++) {
                     all_appointments = apps[x].total_app;
+                    all_appointments = all_appointments.toLocaleString();
                     app_kept = apps[x].kept_app;
+                    app_kept = app_kept.toLocaleString();
                     app_not_kept = apps[x].not_kept_app;
+                    app_not_kept = app_not_kept.toLocaleString();
                     app_future = apps[x].future;
+                    app_future = app_future.toLocaleString();
                     sms_sent = apps[x].messages;
-                    percnt_kept = apps[x].percent_kept;
-                    percnt_not_kept = apps[x].percent_not_kept;
-                    percnt_future = apps[x].percent_future;
+                    sms_sent = sms_sent.toLocaleString();
+                    percnt_kept = parseFloat(apps[x].percent_kept).toFixed(1);
+                    percnt_not_kept = parseFloat(apps[x].percent_not_kept).toFixed(1);
+                    percnt_future = parseFloat(apps[x].percent_future).toFixed(1);
                 }
                 for (var x = 0; x < tx.length; x++) {
                     tx_curr = tx[x].tx_cur;
                 }
                 for (var x = 0; x < missed.length; x++) {
                     app_missed = missed[x].not_kept_app;
+                    app_missed = app_missed.toLocaleString();
                     consent_app = missed[x].consent;
+                    consent_app = consent_app.toLocaleString();
                     consent_missed = missed[x].missed_consent;
+                    consent_missed = consent_missed.toLocaleString();
                     consent_defaulted = missed[x].defaulted_consent;
+                    consent_defaulted = consent_defaulted.toLocaleString();
                     consent_iit = missed[x].iit_consent;
+                    consent_iit = consent_iit.toLocaleString();
 
                     sms = missed[x].messages;
+                    sms = sms.toLocaleString();
                     sms_missed = missed[x].missed_messages;
+                    sms_missed = sms_missed.toLocaleString();
                     sms_defaulted = missed[x].defaulted_messages;
+                    sms_defaulted = sms_defaulted.toLocaleString();
                     sms_iit = missed[x].iit_messages;
+                    sms_iit = sms_iit.toLocaleString();
 
                     contacted = missed[x].called;
+                    contacted = contacted.toLocaleString();
                     contacted_missed = missed[x].missed_called;
+                    contacted_missed = contacted_missed.toLocaleString();
                     contacted_defaulted = missed[x].defaulted_called;
+                    contacted_defaulted = contacted_defaulted.toLocaleString();
                     contacted_iit = missed[x].iit_called;
+                    contacted_iit = contacted_iit.toLocaleString();
 
                     traced = missed[x].physically_traced;
+                    traced = traced.toLocaleString();
                     traced_missed = missed[x].missed_traced;
+                    traced_missed = traced_missed.toLocaleString();
                     traced_defaulted = missed[x].defaulted_traced;
+                    traced_defaulted = traced_defaulted.toLocaleString();
                     traced_iit = missed[x].iit_traced;
+                    traced_iit = traced_iit.toLocaleString();
 
                     outcome = missed[x].final_outcome;
+                    outcome = outcome.toLocaleString();
                     outcome_missed = missed[x].missed_outcome;
+                    outcome_missed = outcome_missed.toLocaleString();
                     outcome_defaulted = missed[x].defaulted_outcome;
+                    outcome_defaulted = outcome_defaulted.toLocaleString();
                     outcome_iit = missed[x].iit_outcome;
+                    outcome_iit = outcome_iit.toLocaleString();
                 }
                 $("#tx_curr").html(tx_curr);
                 $("#consented").html(consented);
@@ -1259,8 +1498,8 @@
                 $("#outcome_iit").html(outcome_iit);
 
                 console.log(consented);
-
-                $("#dashboard_loader").hide();
+                Swal.close();
+                // $("#dashboard_loader").hide();
 
             }
         });
@@ -1302,532 +1541,153 @@
         ]
     });
 
-    var AppointmentAge = Highcharts.chart('appointment_age', {
-        chart: {
-            type: 'column',
-        },
-        legend: {
-            itemStyle: {
-                fontFamily: 'Manrope',
-                fontSize: '12px'
-            }
-        },
-        title: {
-            text: 'Appointment Distribution by Age',
-            style: {
-                fontFamily: 'Manrope',
-                fontSize: '12px'
-            }
-        },
-        style: {
-            fontFamily: 'Manrope'
-        },
-
-        xAxis: {
-            categories: App_Age.map(function(x) {
-                return x.age_group;
-            }),
-            crosshair: true
-        },
-        yAxis: {
-            max: 100,
+    function appAge(data) {
+        let age_group = [];
+        let percent_kept = [];
+        let percent_not_kept = [];
+        for (let i = 0; i < data.length; i++) {
+            age_group.push(data[i].age_group);
+            parseFloat(percent_kept.push(data[i].percent_kept)).toFixed(1);
+            parseFloat(percent_not_kept.push(data[i].percent_not_kept)).toFixed(1);
+        }
+        Highcharts.chart('appointment_age', {
+            chart: {
+                type: 'column',
+            },
+            legend: {
+                itemStyle: {
+                    fontFamily: 'Manrope',
+                    fontSize: '12px'
+                }
+            },
             title: {
-                useHTML: true,
-                text: 'Percentage'
-            }
-        },
-        tooltip: {
-            headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
-            pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
-                '<td style="padding:0"><b>{point.y:.1f}</b></td></tr>',
-            footerFormat: '</table>',
-            shared: true,
-            useHTML: true
-        },
-        plotOptions: {
-            column: {
-                pointPadding: 0.2,
-                borderWidth: 0
-            }
-        },
-        series: [{
-            name: 'Kept',
-            data: App_Age.map(function(x) {
-                return {
-                    name: x.name,
-                    y: parseFloat(x.percent_kept, 10)
+                text: 'Appointment Distribution by Age',
+                style: {
+                    fontFamily: 'Manrope',
+                    fontSize: '12px'
                 }
-            }),
-            color: '#01058A'
-
-        }, {
-            name: 'Not Kept',
-            data: App_Age.map(function(x) {
-                return {
-                    name: x.name,
-                    y: parseFloat(x.percent_not_kept, 10)
-                }
-            }),
-            color: '#97080F'
-
-        }]
-    });
-
-    var AppointmentGender = Highcharts.chart('appointment_gender', {
-        chart: {
-            type: 'column'
-        },
-        legend: {
-            itemStyle: {
-                fontFamily: 'Manrope',
-                fontSize: '12px'
-            }
-        },
-        style: {
-            fontFamily: 'Manrope'
-        },
-        title: {
-            text: 'Appointment Distribution by Gender',
+            },
             style: {
-                fontFamily: 'Manrope',
-                fontSize: '12px'
-            }
-        },
-
-        xAxis: {
-            categories: App_Gender.map(function(x) {
-                return x.gender;
-            }),
-            crosshair: true
-        },
-        yAxis: {
-            max: 100,
-            title: {
-                useHTML: true,
-                text: 'Percentage'
-            }
-        },
-        labels: {
-            formatter: function() {
-                var pcnt = (this.value / appointment_gender) * 100;
-
-                return Highcharts.numberFormat(pcnt, 0, ',') + '%';
-                console.log(pcnt);
-            }
-        },
-        tooltip: {
-            headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
-            pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
-                '<td style="padding:0"><b>{point.y:.1f}</b></td></tr>',
-            footerFormat: '</table>',
-            shared: true,
-            useHTML: true
-        },
-        plotOptions: {
-            column: {
-                pointPadding: 0.2,
-                borderWidth: 0
-            }
-        },
-        series: [{
-            name: 'Kept',
-            color: '#01058A',
-            data: App_Gender.map(function(x) {
-                return {
-                    name: x.name,
-                    y: parseFloat(x.percent_kept, 10)
-                }
-            })
-        }, {
-            name: 'Not Kept',
-            color: '#97080F',
-            data: App_Gender.map(function(x) {
-                return {
-                    name: x.name,
-                    y: parseFloat(x.percent_not_kept, 10)
-                }
-            })
-
-        }]
-    });
-
-    var DistributionMarital = Highcharts.chart('distribution_marital', {
-        chart: {
-            type: 'column'
-        },
-        legend: {
-            itemStyle: {
-                fontFamily: 'Manrope',
-                fontSize: '12px'
-            }
-        },
-        title: {
-            text: 'Appointment Distribution by Marital Status',
-            style: {
-                fontFamily: 'Manrope',
-                fontSize: '12px'
-            }
-        },
-        xAxis: {
-            categories: App_Marital.map(function(x) {
-                return x.marital;
-            }),
-
-        },
-        yAxis: {
-            min: 0,
-            max: 100,
-            title: {
-                text: 'Percentage'
+                fontFamily: 'Manrope'
             },
 
-            stackLabels: {
-                enabled: true,
-                style: {
-                    fontWeight: 'bold',
-                    color: ( // theme
-                        Highcharts.defaultOptions.title.style &&
-                        Highcharts.defaultOptions.title.style.color
-                    ) || 'gray'
-                }
-            }
-        },
-        tooltip: {
-            formatter: function() {
-                return '<b>' + this.x + '</b><br/>' +
-                    this.series.name + ': ' + this.y;
-            }
-        },
-        plotOptions: {
-            column: {
-                pointPadding: 0.2,
-                borderWidth: 0
-            }
-        },
-        series: [{
-            name: 'Kept',
-            color: '#01058A',
-            data: App_Marital.map(function(x) {
-                return {
-                    name: x.name,
-                    y: parseFloat(x.percent_kept, 10)
-                }
-            })
-
-        }, {
-            name: 'Not Kept',
-            color: '#97080F',
-            data: App_Marital.map(function(x) {
-                return {
-                    name: x.name,
-                    y: parseFloat(x.percent_not_kept, 10)
-                }
-            })
-
-        }],
-
-    });
-
-    var MissedGender = Highcharts.chart('missed_gender', {
-        chart: {
-            type: 'column'
-        },
-        legend: {
-            itemStyle: {
-                fontFamily: 'Manrope',
-                fontSize: '12px'
-            }
-        },
-        title: {
-            text: 'Missed Appointment Distribution by Gender',
-            style: {
-                fontFamily: 'Manrope',
-                fontSize: '12px'
-            }
-        },
-        xAxis: {
-            categories: Missed_Gender.map(function(x) {
-                return x.gender;
-            }),
-            crosshair: true
-        },
-        yAxis: {
-            min: 0,
-            max: 100,
-            title: {
-                text: 'Percentage '
+            xAxis: {
+                categories: age_group,
+                crosshair: true
             },
-            stackLabels: {
-                enabled: false,
-                style: {
-                    fontWeight: 'bold',
-                    textOutline: 'none'
+            yAxis: {
+                max: 100,
+                title: {
+                    useHTML: true,
+                    text: 'Percentage'
                 }
-            }
-        },
-
-        tooltip: {
-            formatter: function() {
-                return '<b>' + this.x + '</b><br/>' +
-                    this.series.name + ': ' + this.y;
-            }
-        },
-        plotOptions: {
-            column: {
-                stacking: 'normal',
-                dataLabels: {
-                    enabled: false
-                }
-            }
-        },
-        series: [{
-            name: 'Missed',
-            color: '#01058A',
-            data: Missed_Gender.map(function(x) {
-                return {
-                    name: x.name,
-                    y: parseFloat(x.percent_not_kept, 10)
-                }
-            })
-
-        }, {
-            name: 'Returned to care',
-            color: '#97080F',
-            data: Missed_Gender.map(function(x) {
-                return {
-                    name: x.name,
-                    y: parseFloat(x.percent_rtc, 10)
-                }
-            })
-
-        }]
-    });
-    var MissedAge = Highcharts.chart('missed_age', {
-        chart: {
-            type: 'column'
-        },
-        legend: {
-            itemStyle: {
-                fontFamily: 'Manrope',
-                fontSize: '12px'
-            }
-        },
-        title: {
-            text: 'Missed Appointment Distribution by Age',
-            style: {
-                fontFamily: 'Manrope',
-                fontSize: '12px'
-            }
-        },
-        xAxis: {
-            categories: Missed_Age.map(function(x) {
-                return x.age_group;
-            }),
-            crosshair: true
-        },
-        yAxis: {
-            min: 0,
-            max: 100,
-            title: {
-                text: 'Percentage '
             },
-            stackLabels: {
-                enabled: false,
-                style: {
-                    fontWeight: 'bold',
-                    textOutline: 'none'
-                }
-            }
-        },
-
-        tooltip: {
-            formatter: function() {
-                return '<b>' + this.x + '</b><br/>' +
-                    this.series.name + ': ' + this.y;
-            }
-        },
-        plotOptions: {
-            column: {
-                stacking: 'normal',
-                dataLabels: {
-                    enabled: false
-                }
-            }
-        },
-        series: [{
-            name: 'Missed',
-            color: '#01058A',
-            data: Missed_Age.map(function(x) {
-                return {
-                    name: x.name,
-                    y: parseFloat(x.percent_not_kept, 10)
-                }
-            })
-
-        }, {
-            name: 'Returned to care',
-            color: '#97080F',
-            data: Missed_Age.map(function(x) {
-                return {
-                    name: x.name,
-                    y: parseFloat(x.percent_rtc, 10)
-                }
-            })
-
-        }]
-    });
-
-    var MissedMarital = Highcharts.chart('missed_marital', {
-        chart: {
-            type: 'column'
-        },
-        legend: {
-            itemStyle: {
-                fontFamily: 'Manrope',
-                fontSize: '12px'
-            }
-        },
-        title: {
-            text: 'Missed Client Distribution by Marital Status',
-            style: {
-                fontFamily: 'Manrope',
-                fontSize: '12px'
-            }
-        },
-        xAxis: {
-            categories: Missed_Marital.map(function(x) {
-                return x.marital;
-            }),
-            crosshair: true
-        },
-        yAxis: {
-            min: 0,
-            max: 100,
-            title: {
-                text: 'Percentage '
+            tooltip: {
+                headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+                pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+                    '<td style="padding:0"><b>{point.y:.1f}</b></td></tr>',
+                footerFormat: '</table>',
+                shared: true,
+                useHTML: true
             },
-            stackLabels: {
-                enabled: false,
-                style: {
-                    fontWeight: 'bold',
-                    textOutline: 'none'
+            plotOptions: {
+                column: {
+                    pointPadding: 0.2,
+                    borderWidth: 0
                 }
-            }
-        },
-
-        tooltip: {
-            formatter: function() {
-                return '<b>' + this.x + '</b><br/>' +
-                    this.series.name + ': ' + this.y;
-            }
-        },
-        plotOptions: {
-            column: {
-                stacking: 'normal',
-                dataLabels: {
-                    enabled: false
-                }
-            }
-        },
-        series: [{
-            name: 'Missed',
-            color: '#01058A',
-            data: Missed_Marital.map(function(x) {
-                return {
-                    name: x.name,
-                    y: parseFloat(x.percent_not_kept, 10)
-                }
-            })
-
-        }, {
-            name: 'Returned to care',
-            color: '#97080F',
-            data: Missed_Marital.map(function(x) {
-                return {
-                    name: x.name,
-                    y: parseFloat(x.percent_rtc, 10)
-                }
-            })
-
-        }]
-    });
-    var MissedPeriod = Highcharts.chart('missed_period', {
-        chart: {
-            type: 'column'
-        },
-        legend: {
-            itemStyle: {
-                fontFamily: 'Manrope',
-                fontSize: '12px'
-            }
-        },
-        title: {
-            text: 'Missed Client Distribution by Period',
-            style: {
-                fontFamily: 'Manrope',
-                fontSize: '12px'
-            }
-        },
-        xAxis: {
-            categories: App_Period.map(function(x) {
-                return x.new_date;
-            }),
-            crosshair: true
-        },
-        yAxis: {
-            min: 0,
-            max: 100,
-            title: {
-                text: 'Percentage '
             },
-            stackLabels: {
-                enabled: false,
+            series: [{
+                name: 'Kept',
+                data: percent_kept,
+                color: '#01058A'
+
+            }, {
+                name: 'Not Kept',
+                data: percent_not_kept,
+                color: '#97080F'
+
+            }]
+        });
+    }
+
+    function appGender(data) {
+        let gender = [];
+        let percent_kept = [];
+        let percent_not_kept = [];
+        for (let i = 0; i < data.length; i++) {
+            gender.push(data[i].gender);
+            parseFloat(percent_kept.push(data[i].percent_kept)).toFixed(1);
+            parseFloat(percent_not_kept.push(data[i].percent_not_kept)).toFixed(1);
+        }
+        Highcharts.chart('appointment_gender', {
+            chart: {
+                type: 'column'
+            },
+            legend: {
+                itemStyle: {
+                    fontFamily: 'Manrope',
+                    fontSize: '12px'
+                }
+            },
+            style: {
+                fontFamily: 'Manrope'
+            },
+            title: {
+                text: 'Appointment Distribution by Gender',
                 style: {
-                    fontWeight: 'bold',
-                    textOutline: 'none'
+                    fontFamily: 'Manrope',
+                    fontSize: '12px'
                 }
-            }
-        },
+            },
 
-        tooltip: {
-            formatter: function() {
-                return '<b>' + this.x + '</b><br/>' +
-                    this.series.name + ': ' + this.y;
-            }
-        },
-        plotOptions: {
-            column: {
-                stacking: 'normal',
-                dataLabels: {
-                    enabled: false
+            xAxis: {
+                categories: gender,
+                crosshair: true
+            },
+            yAxis: {
+                max: 100,
+                title: {
+                    useHTML: true,
+                    text: 'Percentage'
                 }
-            }
-        },
-        series: [{
-            name: 'Missed',
-            color: '#01058A',
-            data: App_Period.map(function(x) {
-                return {
-                    name: x.name,
-                    y: parseInt(x.percent_not_kept, 10)
+            },
+            tooltip: {
+                headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+                pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+                    '<td style="padding:0"><b>{point.y:.1f}</b></td></tr>',
+                footerFormat: '</table>',
+                shared: true,
+                useHTML: true
+            },
+            plotOptions: {
+                column: {
+                    pointPadding: 0.2,
+                    borderWidth: 0
                 }
-            })
+            },
+            series: [{
+                name: 'Kept',
+                color: '#01058A',
+                data: percent_kept
+            }, {
+                name: 'Not Kept',
+                color: '#97080F',
+                data: percent_not_kept
 
-        }, {
-            name: 'Returned to care',
-            color: '#97080F',
-            data: App_Period.map(function(x) {
-                return {
-                    name: x.name,
-                    y: parseInt(x.percent_rtc, 10)
-                }
-            })
+            }]
+        });
+    }
 
-        }]
-    });
-
-    if (authenticated == 'Admin' || authenticated == 'Donor') {
-        var DistributionCounty = Highcharts.chart('distribution_county', {
+    function appMarital(data) {
+        let marital = [];
+        let percent_kept = [];
+        let percent_not_kept = [];
+        for (let i = 0; i < data.length; i++) {
+            marital.push(data[i].marital);
+            parseFloat(percent_kept.push(data[i].percent_kept)).toFixed(1);
+            parseFloat(percent_not_kept.push(data[i].percent_not_kept)).toFixed(1);
+        }
+        Highcharts.chart('distribution_marital', {
             chart: {
                 type: 'column'
             },
@@ -1838,16 +1698,14 @@
                 }
             },
             title: {
-                text: 'Appointment Distribution by County',
+                text: 'Appointment Distribution by Marital Status',
                 style: {
                     fontFamily: 'Manrope',
                     fontSize: '12px'
                 }
             },
             xAxis: {
-                categories: App_County.map(function(x) {
-                    return x.county;
-                }),
+                categories: marital,
 
             },
             yAxis: {
@@ -1856,6 +1714,7 @@
                 title: {
                     text: 'Percentage'
                 },
+
                 stackLabels: {
                     enabled: true,
                     style: {
@@ -1882,252 +1741,28 @@
             series: [{
                 name: 'Kept',
                 color: '#01058A',
-                data: App_County.map(function(x) {
-                    return {
-                        name: x.name,
-                        y: parseFloat(x.percent_kept, 10)
-                    }
-                })
+                data: percent_kept
 
             }, {
                 name: 'Not Kept',
                 color: '#97080F',
-                data: App_County.map(function(x) {
-                    return {
-                        name: x.name,
-                        y: parseFloat(x.percent_not_kept, 10)
-                    }
-                })
-
-            }],
-
-        });
-        var MissedCounty = Highcharts.chart('missed_county', {
-            chart: {
-                type: 'column'
-            },
-            legend: {
-                itemStyle: {
-                    fontFamily: 'Manrope',
-                    fontSize: '12px'
-                }
-            },
-            title: {
-                text: 'Missed Client Distribution by County',
-                style: {
-                    fontFamily: 'Manrope',
-                    fontSize: '12px'
-                }
-            },
-            xAxis: {
-                categories: Missed_County.map(function(x) {
-                    return x.county;
-                }),
-                crosshair: true
-            },
-            yAxis: {
-                min: 0,
-                max: 100,
-                title: {
-                    text: 'Percentage '
-                },
-                stackLabels: {
-                    enabled: false,
-                    style: {
-                        fontWeight: 'bold',
-                        textOutline: 'none'
-                    }
-                }
-            },
-
-            tooltip: {
-                formatter: function() {
-                    return '<b>' + this.x + '</b><br/>' +
-                        this.series.name + ': ' + this.y;
-                }
-            },
-            plotOptions: {
-                column: {
-                    stacking: 'normal',
-                    dataLabels: {
-                        enabled: false
-                    }
-                }
-            },
-            series: [{
-                name: 'Missed',
-                color: '#01058A',
-                data: Missed_County.map(function(x) {
-                    return {
-                        name: x.name,
-                        y: parseInt(x.percent_not_kept, 10)
-                    }
-                })
-
-            }, {
-                name: 'Returned to care',
-                color: '#97080F',
-                data: Missed_County.map(function(x) {
-                    return {
-                        name: x.name,
-                        y: parseInt(x.percent_rtc, 10)
-                    }
-                })
-
-            }]
-        });
-        var MissedPartner = Highcharts.chart('missed_partner', {
-            chart: {
-                type: 'column'
-            },
-            legend: {
-                itemStyle: {
-                    fontFamily: 'Manrope',
-                    fontSize: '12px'
-                }
-            },
-            title: {
-                text: 'Missed Client Distribution by Partner',
-                style: {
-                    fontFamily: 'Manrope',
-                    fontSize: '12px'
-                }
-            },
-            xAxis: {
-                categories: Missed_Partner.map(function(x) {
-                    return x.partner;
-                }),
-                crosshair: true
-            },
-            yAxis: {
-                min: 0,
-                max: 100,
-                title: {
-                    text: 'Percentage '
-                },
-                stackLabels: {
-                    enabled: false,
-                    style: {
-                        fontWeight: 'normal',
-                        textOutline: 'none'
-                    }
-                }
-            },
-
-            tooltip: {
-                formatter: function() {
-                    return '<b>' + this.x + '</b><br/>' +
-                        this.series.name + ': ' + this.y;
-                }
-            },
-            plotOptions: {
-                column: {
-                    stacking: 'normal',
-                    dataLabels: {
-                        enabled: false
-                    }
-                }
-            },
-            series: [{
-                name: 'Missed',
-                color: '#01058A',
-                data: Missed_Partner.map(function(x) {
-                    return {
-                        name: x.name,
-                        y: parseInt(x.percent_not_kept, 10)
-                    }
-                })
-
-            }, {
-                name: 'Returned to care',
-                color: '#97080F',
-                data: Missed_Partner.map(function(x) {
-                    return {
-                        name: x.name,
-                        y: parseInt(x.percent_rtc, 10)
-                    }
-                })
-
-            }]
-        });
-        var DistributionPartner = Highcharts.chart('distribution_partner', {
-            chart: {
-                type: 'column'
-            },
-            legend: {
-                itemStyle: {
-                    fontFamily: 'Manrope',
-                    fontSize: '12px'
-                }
-            },
-            title: {
-                text: 'Appointment Distribution by Partner',
-                style: {
-                    fontFamily: 'Manrope',
-                    fontSize: '12px'
-                }
-            },
-            xAxis: {
-                categories: App_Partner.map(function(x) {
-                    return x.partner;
-                }),
-            },
-            yAxis: {
-                min: 0,
-                max: 100,
-                title: {
-                    text: 'Percentage'
-                },
-                stackLabels: {
-                    enabled: true,
-                    style: {
-                        fontWeight: 'bold',
-                        color: ( // theme
-                            Highcharts.defaultOptions.title.style &&
-                            Highcharts.defaultOptions.title.style.color
-                        ) || 'gray'
-                    }
-                }
-            },
-            tooltip: {
-                formatter: function() {
-                    return '<b>' + this.x + '</b><br/>' +
-                        this.series.name + ': ' + this.y;
-                }
-            },
-            plotOptions: {
-                column: {
-                    pointPadding: 0.2,
-                    borderWidth: 0
-                }
-            },
-            series: [{
-                name: 'Kept',
-                color: '#01058A',
-                data: App_Partner.map(function(x) {
-                    return {
-                        name: x.name,
-                        y: parseFloat(x.percent_kept, 10)
-                    }
-                })
-
-            }, {
-                name: 'Not Kept',
-                color: '#97080F',
-                data: App_Partner.map(function(x) {
-                    return {
-                        name: x.name,
-                        y: parseFloat(x.percent_not_kept, 10)
-                    }
-                })
+                data: percent_not_kept
 
             }],
 
         });
     }
 
-    if (authenticated == 'County' || authenticated == 'Sub County') {
-        var MissedPartner = Highcharts.chart('missed_partner', {
+    function missedGender(data) {
+        let gender = [];
+        let percent_rtc = [];
+        let percent_not_kept = [];
+        for (let i = 0; i < data.length; i++) {
+            gender.push(data[i].gender);
+            parseFloat(percent_rtc.push(data[i].percent_rtc)).toFixed(1);
+            parseFloat(percent_not_kept.push(data[i].percent_not_kept)).toFixed(1);
+        }
+        Highcharts.chart('missed_gender', {
             chart: {
                 type: 'column'
             },
@@ -2138,16 +1773,14 @@
                 }
             },
             title: {
-                text: 'Missed Client Distribution by Partner',
+                text: 'Missed Appointment Distribution by Gender',
                 style: {
                     fontFamily: 'Manrope',
                     fontSize: '12px'
                 }
             },
             xAxis: {
-                categories: Missed_Partner.map(function(x) {
-                    return x.partner;
-                }),
+                categories: gender,
                 crosshair: true
             },
             yAxis: {
@@ -2159,7 +1792,7 @@
                 stackLabels: {
                     enabled: false,
                     style: {
-                        fontWeight: 'normal',
+                        fontWeight: 'bold',
                         textOutline: 'none'
                     }
                 }
@@ -2182,26 +1815,27 @@
             series: [{
                 name: 'Missed',
                 color: '#01058A',
-                data: Missed_Partner.map(function(x) {
-                    return {
-                        name: x.name,
-                        y: parseInt(x.percent_not_kept, 10)
-                    }
-                })
+                data: percent_not_kept
 
             }, {
                 name: 'Returned to care',
                 color: '#97080F',
-                data: Missed_Partner.map(function(x) {
-                    return {
-                        name: x.name,
-                        y: parseInt(x.percent_rtc, 10)
-                    }
-                })
+                data: percent_rtc
 
             }]
         });
-        var DistributionPartner = Highcharts.chart('distribution_partner', {
+    }
+
+    function missedAge(data) {
+        let age_group = [];
+        let percent_rtc = [];
+        let percent_not_kept = [];
+        for (let i = 0; i < data.length; i++) {
+            age_group.push(data[i].age_group);
+            parseFloat(percent_rtc.push(data[i].percent_rtc)).toFixed(1);
+            parseFloat(percent_not_kept.push(data[i].percent_not_kept)).toFixed(1);
+        }
+        Highcharts.chart('missed_age', {
             chart: {
                 type: 'column'
             },
@@ -2212,34 +1846,31 @@
                 }
             },
             title: {
-                text: 'Appointment Distribution by Partner',
+                text: 'Missed Appointment Distribution by Age',
                 style: {
                     fontFamily: 'Manrope',
                     fontSize: '12px'
                 }
             },
             xAxis: {
-                categories: App_Partner.map(function(x) {
-                    return x.partner;
-                }),
+                categories: age_group,
+                crosshair: true
             },
             yAxis: {
                 min: 0,
                 max: 100,
                 title: {
-                    text: 'Percentage'
+                    text: 'Percentage '
                 },
                 stackLabels: {
-                    enabled: true,
+                    enabled: false,
                     style: {
                         fontWeight: 'bold',
-                        color: ( // theme
-                            Highcharts.defaultOptions.title.style &&
-                            Highcharts.defaultOptions.title.style.color
-                        ) || 'gray'
+                        textOutline: 'none'
                     }
                 }
             },
+
             tooltip: {
                 formatter: function() {
                     return '<b>' + this.x + '</b><br/>' +
@@ -2248,33 +1879,613 @@
             },
             plotOptions: {
                 column: {
-                    pointPadding: 0.2,
-                    borderWidth: 0
+                    stacking: 'normal',
+                    dataLabels: {
+                        enabled: false
+                    }
                 }
             },
             series: [{
-                name: 'Kept',
+                name: 'Missed',
                 color: '#01058A',
-                data: App_Partner.map(function(x) {
-                    return {
-                        name: x.name,
-                        y: parseFloat(x.percent_kept, 10)
-                    }
-                })
+                data: percent_not_kept
 
             }, {
-                name: 'Not Kept',
+                name: 'Returned to care',
                 color: '#97080F',
-                data: App_Partner.map(function(x) {
-                    return {
-                        name: x.name,
-                        y: parseFloat(x.percent_not_kept, 10)
-                    }
-                })
+                data: percent_rtc
 
-            }],
-
+            }]
         });
+    }
+
+    function missedMarital(data) {
+        let marital = [];
+        let percent_rtc = [];
+        let percent_not_kept = [];
+        for (let i = 0; i < data.length; i++) {
+            marital.push(data[i].marital);
+            parseFloat(percent_rtc.push(data[i].percent_rtc)).toFixed(1);
+            parseFloat(percent_not_kept.push(data[i].percent_not_kept)).toFixed(1);
+        }
+        Highcharts.chart('missed_marital', {
+            chart: {
+                type: 'column'
+            },
+            legend: {
+                itemStyle: {
+                    fontFamily: 'Manrope',
+                    fontSize: '12px'
+                }
+            },
+            title: {
+                text: 'Missed Client Distribution by Marital Status',
+                style: {
+                    fontFamily: 'Manrope',
+                    fontSize: '12px'
+                }
+            },
+            xAxis: {
+                categories: marital,
+                crosshair: true
+            },
+            yAxis: {
+                min: 0,
+                max: 100,
+                title: {
+                    text: 'Percentage '
+                },
+                stackLabels: {
+                    enabled: false,
+                    style: {
+                        fontWeight: 'bold',
+                        textOutline: 'none'
+                    }
+                }
+            },
+
+            tooltip: {
+                formatter: function() {
+                    return '<b>' + this.x + '</b><br/>' +
+                        this.series.name + ': ' + this.y;
+                }
+            },
+            plotOptions: {
+                column: {
+                    stacking: 'normal',
+                    dataLabels: {
+                        enabled: false
+                    }
+                }
+            },
+            series: [{
+                name: 'Missed',
+                color: '#01058A',
+                data: percent_not_kept
+
+            }, {
+                name: 'Returned to care',
+                color: '#97080F',
+                data: percent_rtc
+
+            }]
+        });
+    }
+
+    function missedPeriod(data) {
+        let new_date = [];
+        let percent_rtc = [];
+        let percent_not_kept = [];
+        for (let i = 0; i < data.length; i++) {
+            new_date.push(data[i].new_date);
+            parseFloat(percent_rtc.push(data[i].percent_rtc)).toFixed(1);
+            parseFloat(percent_not_kept.push(data[i].percent_not_kept)).toFixed(1);
+        }
+        Highcharts.chart('missed_period', {
+            chart: {
+                type: 'column'
+            },
+            legend: {
+                itemStyle: {
+                    fontFamily: 'Manrope',
+                    fontSize: '12px'
+                }
+            },
+            title: {
+                text: 'Missed Client Distribution by Period',
+                style: {
+                    fontFamily: 'Manrope',
+                    fontSize: '12px'
+                }
+            },
+            xAxis: {
+                categories: new_date,
+                crosshair: true
+            },
+            yAxis: {
+                min: 0,
+                max: 100,
+                title: {
+                    text: 'Percentage '
+                },
+                stackLabels: {
+                    enabled: false,
+                    style: {
+                        fontWeight: 'bold',
+                        textOutline: 'none'
+                    }
+                }
+            },
+
+            tooltip: {
+                formatter: function() {
+                    return '<b>' + this.x + '</b><br/>' +
+                        this.series.name + ': ' + this.y;
+                }
+            },
+            plotOptions: {
+                column: {
+                    stacking: 'normal',
+                    dataLabels: {
+                        enabled: false
+                    }
+                }
+            },
+            series: [{
+                name: 'Missed',
+                color: '#01058A',
+                data: percent_not_kept
+
+            }, {
+                name: 'Returned to care',
+                color: '#97080F',
+                data: percent_rtc
+
+            }]
+        });
+    }
+
+    if (authenticated == 'Admin' || authenticated == 'Donor') {
+        function appCounty(data) {
+            let county = [];
+            let percent_kept = [];
+            let percent_not_kept = [];
+            for (let i = 0; i < data.length; i++) {
+                county.push(data[i].county);
+                parseFloat(percent_kept.push(data[i].percent_kept)).toFixed(1);
+                parseFloat(percent_not_kept.push(data[i].percent_not_kept)).toFixed(1);
+            }
+            Highcharts.chart('distribution_county', {
+                chart: {
+                    type: 'column'
+                },
+                legend: {
+                    itemStyle: {
+                        fontFamily: 'Manrope',
+                        fontSize: '12px'
+                    }
+                },
+                title: {
+                    text: 'Appointment Distribution by County',
+                    style: {
+                        fontFamily: 'Manrope',
+                        fontSize: '12px'
+                    }
+                },
+                xAxis: {
+                    categories: county
+
+                },
+                yAxis: {
+                    min: 0,
+                    max: 100,
+                    title: {
+                        text: 'Percentage'
+                    },
+                    stackLabels: {
+                        enabled: true,
+                        style: {
+                            fontWeight: 'bold',
+                            color: ( // theme
+                                Highcharts.defaultOptions.title.style &&
+                                Highcharts.defaultOptions.title.style.color
+                            ) || 'gray'
+                        }
+                    }
+                },
+                tooltip: {
+                    formatter: function() {
+                        return '<b>' + this.x + '</b><br/>' +
+                            this.series.name + ': ' + this.y;
+                    }
+                },
+                plotOptions: {
+                    column: {
+                        pointPadding: 0.2,
+                        borderWidth: 0
+                    }
+                },
+                series: [{
+                    name: 'Kept',
+                    color: '#01058A',
+                    data: percent_kept
+
+                }, {
+                    name: 'Not Kept',
+                    color: '#97080F',
+                    data: percent_not_kept
+
+                }],
+
+            });
+        }
+
+        function missedCounty(data) {
+            let county = [];
+            let percent_rtc = [];
+            let percent_not_kept = [];
+            for (let i = 0; i < data.length; i++) {
+                county.push(data[i].county);
+                parseFloat(percent_rtc.push(data[i].percent_rtc)).toFixed(1);
+                parseFloat(percent_not_kept.push(data[i].percent_not_kept)).toFixed(1);
+            }
+            Highcharts.chart('missed_county', {
+                chart: {
+                    type: 'column'
+                },
+                legend: {
+                    itemStyle: {
+                        fontFamily: 'Manrope',
+                        fontSize: '12px'
+                    }
+                },
+                title: {
+                    text: 'Missed Client Distribution by County',
+                    style: {
+                        fontFamily: 'Manrope',
+                        fontSize: '12px'
+                    }
+                },
+                xAxis: {
+                    categories: county,
+                    crosshair: true
+                },
+                yAxis: {
+                    min: 0,
+                    max: 100,
+                    title: {
+                        text: 'Percentage '
+                    },
+                    stackLabels: {
+                        enabled: false,
+                        style: {
+                            fontWeight: 'bold',
+                            textOutline: 'none'
+                        }
+                    }
+                },
+
+                tooltip: {
+                    formatter: function() {
+                        return '<b>' + this.x + '</b><br/>' +
+                            this.series.name + ': ' + this.y;
+                    }
+                },
+                plotOptions: {
+                    column: {
+                        stacking: 'normal',
+                        dataLabels: {
+                            enabled: false
+                        }
+                    }
+                },
+                series: [{
+                    name: 'Missed',
+                    color: '#01058A',
+                    data: percent_not_kept
+
+                }, {
+                    name: 'Returned to care',
+                    color: '#97080F',
+                    data: percent_rtc
+
+                }]
+            });
+        }
+
+        function missedPartner(data) {
+            let partner = [];
+            let percent_rtc = [];
+            let percent_not_kept = [];
+            for (let i = 0; i < data.length; i++) {
+                partner.push(data[i].partner);
+                parseFloat(percent_rtc.push(data[i].percent_rtc)).toFixed(1);
+                parseFloat(percent_not_kept.push(data[i].percent_not_kept)).toFixed(1);
+            }
+            Highcharts.chart('missed_partner', {
+                chart: {
+                    type: 'column'
+                },
+                legend: {
+                    itemStyle: {
+                        fontFamily: 'Manrope',
+                        fontSize: '12px'
+                    }
+                },
+                title: {
+                    text: 'Missed Client Distribution by Partner',
+                    style: {
+                        fontFamily: 'Manrope',
+                        fontSize: '12px'
+                    }
+                },
+                xAxis: {
+                    categories: partner,
+                    crosshair: true
+                },
+                yAxis: {
+                    min: 0,
+                    max: 100,
+                    title: {
+                        text: 'Percentage '
+                    },
+                    stackLabels: {
+                        enabled: false,
+                        style: {
+                            fontWeight: 'normal',
+                            textOutline: 'none'
+                        }
+                    }
+                },
+
+                tooltip: {
+                    formatter: function() {
+                        return '<b>' + this.x + '</b><br/>' +
+                            this.series.name + ': ' + this.y;
+                    }
+                },
+                plotOptions: {
+                    column: {
+                        stacking: 'normal',
+                        dataLabels: {
+                            enabled: false
+                        }
+                    }
+                },
+                series: [{
+                    name: 'Missed',
+                    color: '#01058A',
+                    data: percent_not_kept
+
+                }, {
+                    name: 'Returned to care',
+                    color: '#97080F',
+                    data: percent_rtc
+
+                }]
+            });
+        }
+
+        function appPartner(data) {
+            let partner = [];
+            let percent_kept = [];
+            let percent_not_kept = [];
+            for (let i = 0; i < data.length; i++) {
+                partner.push(data[i].partner);
+                parseFloat(percent_kept.push(data[i].percent_kept)).toFixed(1);
+                parseFloat(percent_not_kept.push(data[i].percent_not_kept)).toFixed(1);
+            }
+            Highcharts.chart('distribution_partner', {
+                chart: {
+                    type: 'column'
+                },
+                legend: {
+                    itemStyle: {
+                        fontFamily: 'Manrope',
+                        fontSize: '12px'
+                    }
+                },
+                title: {
+                    text: 'Appointment Distribution by Partner',
+                    style: {
+                        fontFamily: 'Manrope',
+                        fontSize: '12px'
+                    }
+                },
+                xAxis: {
+                    categories: partner,
+                },
+                yAxis: {
+                    min: 0,
+                    max: 100,
+                    title: {
+                        text: 'Percentage'
+                    },
+                    stackLabels: {
+                        enabled: true,
+                        style: {
+                            fontWeight: 'bold',
+                            color: ( // theme
+                                Highcharts.defaultOptions.title.style &&
+                                Highcharts.defaultOptions.title.style.color
+                            ) || 'gray'
+                        }
+                    }
+                },
+                tooltip: {
+                    formatter: function() {
+                        return '<b>' + this.x + '</b><br/>' +
+                            this.series.name + ': ' + this.y;
+                    }
+                },
+                plotOptions: {
+                    column: {
+                        pointPadding: 0.2,
+                        borderWidth: 0
+                    }
+                },
+                series: [{
+                    name: 'Kept',
+                    color: '#01058A',
+                    data: percent_kept
+
+                }, {
+                    name: 'Not Kept',
+                    color: '#97080F',
+                    data: percent_not_kept
+
+                }],
+
+            });
+        }
+    }
+
+    if (authenticated == 'County' || authenticated == 'Sub County') {
+        function missedPartner(data) {
+            let partner = [];
+            let percent_rtc = [];
+            let percent_not_kept = [];
+            for (let i = 0; i < data.length; i++) {
+                partner.push(data[i].partner);
+                parseFloat(percent_rtc.push(data[i].percent_rtc)).toFixed();
+                parseFloat(percent_not_kept.push(data[i].percent_not_kept)).toFixed(1);
+            }
+            Highcharts.chart('missed_partner', {
+                chart: {
+                    type: 'column'
+                },
+                legend: {
+                    itemStyle: {
+                        fontFamily: 'Manrope',
+                        fontSize: '12px'
+                    }
+                },
+                title: {
+                    text: 'Missed Client Distribution by Partner',
+                    style: {
+                        fontFamily: 'Manrope',
+                        fontSize: '12px'
+                    }
+                },
+                xAxis: {
+                    categories: partner,
+                    crosshair: true
+                },
+                yAxis: {
+                    min: 0,
+                    max: 100,
+                    title: {
+                        text: 'Percentage '
+                    },
+                    stackLabels: {
+                        enabled: false,
+                        style: {
+                            fontWeight: 'normal',
+                            textOutline: 'none'
+                        }
+                    }
+                },
+
+                tooltip: {
+                    formatter: function() {
+                        return '<b>' + this.x + '</b><br/>' +
+                            this.series.name + ': ' + this.y;
+                    }
+                },
+                plotOptions: {
+                    column: {
+                        stacking: 'normal',
+                        dataLabels: {
+                            enabled: false
+                        }
+                    }
+                },
+                series: [{
+                    name: 'Missed',
+                    color: '#01058A',
+                    data: percent_not_kept
+
+                }, {
+                    name: 'Returned to care',
+                    color: '#97080F',
+                    data: percent_rtc
+
+                }]
+            });
+        }
+
+        function appPartner(data) {
+            let partner = [];
+            let percent_kept = [];
+            let percent_not_kept = [];
+            for (let i = 0; i < data.length; i++) {
+                partner.push(data[i].partner);
+                parseFloat(percent_kept.push(data[i].percent_kept)).toFixed(1);
+                parseFloat(percent_not_kept.push(data[i].percent_not_kept)).toFixed(1);
+            }
+            Highcharts.chart('distribution_partner', {
+                chart: {
+                    type: 'column'
+                },
+                legend: {
+                    itemStyle: {
+                        fontFamily: 'Manrope',
+                        fontSize: '12px'
+                    }
+                },
+                title: {
+                    text: 'Appointment Distribution by Partner',
+                    style: {
+                        fontFamily: 'Manrope',
+                        fontSize: '12px'
+                    }
+                },
+                xAxis: {
+                    categories: partner,
+                },
+                yAxis: {
+                    min: 0,
+                    max: 100,
+                    title: {
+                        text: 'Percentage'
+                    },
+                    stackLabels: {
+                        enabled: true,
+                        style: {
+                            fontWeight: 'bold',
+                            color: ( // theme
+                                Highcharts.defaultOptions.title.style &&
+                                Highcharts.defaultOptions.title.style.color
+                            ) || 'gray'
+                        }
+                    }
+                },
+                tooltip: {
+                    formatter: function() {
+                        return '<b>' + this.x + '</b><br/>' +
+                            this.series.name + ': ' + this.y;
+                    }
+                },
+                plotOptions: {
+                    column: {
+                        pointPadding: 0.2,
+                        borderWidth: 0
+                    }
+                },
+                series: [{
+                    name: 'Kept',
+                    color: '#01058A',
+                    data: percent_kept
+
+                }, {
+                    name: 'Not Kept',
+                    color: '#97080F',
+                    data: percent_not_kept
+
+                }],
+
+            });
+        }
     }
 </script>
 
