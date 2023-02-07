@@ -442,7 +442,7 @@
     <form role="form" method="get" action="#" id="dataFilter">
         {{ csrf_field() }}
         <div class="row">
-            <div class="col-lg-2">
+            <div class="col-lg-3">
                 <div class="form-group">
                     <select class="form-control input-rounded input-sm select2" id="clinics" name="clinic" multiple="multiple">
                         <option value=""></option>
@@ -454,7 +454,7 @@
                     </select>
                 </div>
             </div>
-            <div class="col-lg-2">
+            <div class="col-lg-3">
                 <div class="form-group">
                     <select class="form-control input-rounded input-sm select2" id="appointments" name="appointment" multiple="multiple">
                         <option value=""></option>
@@ -464,7 +464,6 @@
                     </select>
                 </div>
             </div>
-
             <div class='col-lg-2'>
                 <div class="form-group">
                     <div class="input-group">
@@ -1209,78 +1208,184 @@
             }
             missedPeriod(data.app_period);
 
-            console.log(missed);
 
             for (var x = 0; x < consent.length; x++) {
                 consented = consent[x].consented;
-                consented = consented.toLocaleString();
-                percnt_consented = parseFloat(consent[x].percent_consented).toFixed(1);
+                if (consented == undefined || consented == null) {
+                    consented = 0;
+                } else {
+                    consented = consented.toLocaleString();
+                }
+                percnt_consented = Math.round(consent[x].percent_consented).toFixed(0) + '%';
             }
             for (var x = 0; x < apps.length; x++) {
                 all_appointments = apps[x].total_app;
-                all_appointments = all_appointments.toLocaleString();
+                if (all_appointments == undefined || all_appointments == null) {
+                    all_appointments = 0;
+                } else {
+                    all_appointments = all_appointments.toLocaleString();
+                }
                 app_kept = apps[x].kept_app;
-                app_kept = app_kept.toLocaleString();
+                if (app_kept == undefined || app_kept == null) {
+                    app_kept = 0;
+                } else {
+                    app_kept = app_kept.toLocaleString();
+                }
                 app_not_kept = apps[x].not_kept_app;
-                app_not_kept = app_not_kept.toLocaleString();
+                if (app_not_kept == undefined || app_not_kept == null) {
+                    app_not_kept = 0;
+                } else {
+                    app_not_kept = app_not_kept.toLocaleString();
+                }
                 app_future = apps[x].future;
-                app_future = app_future.toLocaleString();
+                if (app_future == undefined || app_future == null) {
+                    app_future = 0;
+                } else {
+                    app_future = app_future.toLocaleString();
+                }
                 sms_sent = apps[x].messages;
-                sms_sent = sms_sent.toLocaleString();
-                percnt_kept = parseFloat(apps[x].percent_kept).toFixed(1);
-                percnt_not_kept = parseFloat(apps[x].percent_not_kept).toFixed(1);
-                percnt_future = parseFloat(apps[x].percent_future).toFixed(1);
+                if (sms_sent == undefined || sms_sent == null) {
+                    sms_sent = 0;
+                } else {
+                    sms_sent = sms_sent.toLocaleString();
+                }
+                percnt_kept = parseFloat(apps[x].percent_kept).toFixed(1) + '%';
+                percnt_not_kept = parseFloat(apps[x].percent_not_kept).toFixed(1) + '%';
+                percnt_future = parseFloat(apps[x].percent_future).toFixed(1) + '%';
             }
             for (var x = 0; x < tx.length; x++) {
                 tx_curr = tx[x].tx_cur;
             }
             for (var x = 0; x < missed.length; x++) {
                 app_missed = missed[x].not_kept_app;
-                app_missed = app_missed.toLocaleString();
+                if (app_missed == undefined || app_missed == null) {
+                    app_missed = 0;
+                } else {
+                    app_missed = app_missed.toLocaleString();
+                }
                 consent_app = missed[x].consent;
-                consent_app = consent_app.toLocaleString();
+                if (consent_app == undefined || consent_app == null) {
+                    consent_app = 0;
+                } else {
+                    consent_app = consent_app.toLocaleString();
+                }
                 consent_missed = missed[x].missed_consent;
-                consent_missed = consent_missed.toLocaleString();
+                if (consent_missed == undefined || consent_missed == null) {
+                    consent_missed = 0;
+                } else {
+                    consent_missed = consent_missed.toLocaleString();
+                }
                 consent_defaulted = missed[x].defaulted_consent;
-                consent_defaulted = consent_defaulted.toLocaleString();
+                if (consent_defaulted == undefined || consent_defaulted == null) {
+                    consent_defaulted = 0;
+                } else {
+                    consent_defaulted = consent_defaulted.toLocaleString();
+                }
                 consent_iit = missed[x].iit_consent;
-                consent_iit = consent_iit.toLocaleString();
-
+                if (consent_iit == undefined || consent_iit == null) {
+                    consent_iit = 0;
+                } else {
+                    consent_iit = consent_iit.toLocaleString();
+                }
                 sms = missed[x].messages;
-                sms = sms.toLocaleString();
+                if (sms == undefined || sms == null) {
+                    sms = 0;
+                } else {
+                    sms = sms.toLocaleString();
+                }
                 sms_missed = missed[x].missed_messages;
-                sms_missed = sms_missed.toLocaleString();
+                if (sms_missed == undefined || sms_missed == null) {
+                    sms_missed = 0;
+                } else {
+                    sms_missed = sms_missed.toLocaleString();
+                }
                 sms_defaulted = missed[x].defaulted_messages;
-                sms_defaulted = sms_defaulted.toLocaleString();
+                if (sms_defaulted == undefined || sms_defaulted == null) {
+                    sms_defaulted = 0;
+                } else {
+                    sms_defaulted = sms_defaulted.toLocaleString();
+                }
                 sms_iit = missed[x].iit_messages;
-                sms_iit = sms_iit.toLocaleString();
+                if (sms_iit == undefined || sms_iit == null) {
+                    sms_iit = 0;
+                } else {
+                    sms_iit = sms_iit.toLocaleString();
+                }
 
                 contacted = missed[x].called;
-                contacted = contacted.toLocaleString();
-                contacted_missed = missed[x].missed_called;
-                contacted_missed = contacted_missed.toLocaleString();
-                contacted_defaulted = missed[x].defaulted_called;
-                contacted_defaulted = contacted_defaulted.toLocaleString();
-                contacted_iit = missed[x].iit_called;
-                contacted_iit = contacted_iit.toLocaleString();
+                    if (contacted == undefined || contacted == null) {
+                        contacted = 0;
+                    } else {
+                        contacted = contacted.toLocaleString();
+                    }
+                    contacted_missed = missed[x].missed_called;
+                    if (contacted_missed == undefined || contacted_missed == null) {
+                        contacted_missed = 0;
+                    } else {
+                        contacted_missed = contacted_missed.toLocaleString();
+                    }
+                    contacted_defaulted = missed[x].defaulted_called;
+                    if (contacted_defaulted == undefined || contacted_defaulted == null) {
+                        contacted_defaulted = 0;
+                    } else {
+                        contacted_defaulted = contacted_defaulted.toLocaleString();
+                    }
+                    contacted_iit = missed[x].iit_called;
+                    if (contacted_iit == undefined || contacted_iit == null) {
+                        contacted_iit = 0;
+                    } else {
+                        contacted_iit = contacted_iit.toLocaleString();
+                    }
 
                 traced = missed[x].physically_traced;
-                traced = traced.toLocaleString();
+                if (traced == undefined || traced == null) {
+                    traced = 0;
+                } else {
+                    traced = traced.toLocaleString();
+                }
                 traced_missed = missed[x].missed_traced;
-                traced_missed = traced_missed.toLocaleString();
+                if (traced_missed == undefined || traced_missed == null) {
+                    traced_missed = 0;
+                } else {
+                    traced_missed = traced_missed.toLocaleString();
+                }
                 traced_defaulted = missed[x].defaulted_traced;
-                traced_defaulted = traced_defaulted.toLocaleString();
+                if (traced_defaulted == undefined || traced_defaulted == null) {
+                    traced_defaulted = 0;
+                } else {
+                    traced_defaulted = traced_defaulted.toLocaleString();
+                }
                 traced_iit = missed[x].iit_traced;
-                traced_iit = traced_iit.toLocaleString();
+                if (traced_iit == undefined || traced_iit == null) {
+                    traced_iit = 0;
+                } else {
+                    traced_iit = traced_iit.toLocaleString();
+                }
 
                 outcome = missed[x].final_outcome;
-                outcome = outcome.toLocaleString();
+                if (outcome == undefined || outcome == null) {
+                    outcome = 0;
+                } else {
+                    outcome = outcome.toLocaleString();
+                }
                 outcome_missed = missed[x].missed_outcome;
-                outcome_missed = outcome_missed.toLocaleString();
+                if (outcome_missed == undefined || outcome_missed == null) {
+                    outcome_missed = 0;
+                } else {
+                    outcome_missed = outcome_missed.toLocaleString();
+                }
                 outcome_defaulted = missed[x].defaulted_outcome;
-                outcome_defaulted = outcome_defaulted.toLocaleString();
+                if (outcome_defaulted == undefined || outcome_defaulted == null) {
+                    outcome_defaulted = 0;
+                } else {
+                    outcome_defaulted = outcome_defaulted.toLocaleString();
+                }
                 outcome_iit = missed[x].iit_outcome;
-                outcome_iit = outcome_iit.toLocaleString();
+                if (outcome_iit == undefined || outcome_iit == null) {
+                    outcome_iit = 0;
+                } else {
+                    outcome_iit = outcome_iit.toLocaleString();
+                }
             }
             $("#tx_curr").html(tx_curr);
             $("#consented").html(consented);
@@ -1390,20 +1495,45 @@
 
                 for (var x = 0; x < consent.length; x++) {
                     consented = consent[x].consented;
-                    consented = consented.toLocaleString();
+                    console.log(consented);
+                    if (consented == undefined || consented == null) {
+                        consented = 0;
+                    } else {
+                        consented = consented.toLocaleString();
+                    }
                     percnt_consented = Math.round(consent[x].percent_consented).toFixed(1);
                 }
                 for (var x = 0; x < apps.length; x++) {
                     all_appointments = apps[x].total_app;
-                    all_appointments = all_appointments.toLocaleString();
+                    if (all_appointments == undefined || all_appointments == null) {
+                        all_appointments = 0;
+                    } else {
+                        all_appointments = all_appointments.toLocaleString();
+                    }
                     app_kept = apps[x].kept_app;
-                    app_kept = app_kept.toLocaleString();
+                    if (app_kept == undefined || app_kept == null) {
+                        app_kept = 0;
+                    } else {
+                        app_kept = app_kept.toLocaleString();
+                    }
                     app_not_kept = apps[x].not_kept_app;
-                    app_not_kept = app_not_kept.toLocaleString();
+                    if (app_not_kept == undefined || app_not_kept == null) {
+                        app_not_kept = 0;
+                    } else {
+                        app_not_kept = app_not_kept.toLocaleString();
+                    }
                     app_future = apps[x].future;
-                    app_future = app_future.toLocaleString();
+                    if (app_future == undefined || app_future == null) {
+                        app_future = 0;
+                    } else {
+                        app_future = app_future.toLocaleString();
+                    }
                     sms_sent = apps[x].messages;
-                    sms_sent = sms_sent.toLocaleString();
+                    if (sms_sent == undefined || sms_sent == null) {
+                        sms_sent = 0;
+                    } else {
+                        sms_sent = sms_sent.toLocaleString();
+                    }
                     percnt_kept = parseFloat(apps[x].percent_kept).toFixed(1);
                     percnt_not_kept = parseFloat(apps[x].percent_not_kept).toFixed(1);
                     percnt_future = parseFloat(apps[x].percent_future).toFixed(1);
@@ -1413,51 +1543,136 @@
                 }
                 for (var x = 0; x < missed.length; x++) {
                     app_missed = missed[x].not_kept_app;
-                    app_missed = app_missed.toLocaleString();
+                    if (app_missed == undefined || app_missed == null) {
+                        app_missed = 0;
+                    } else {
+                        app_missed = app_missed.toLocaleString();
+                    }
                     consent_app = missed[x].consent;
-                    consent_app = consent_app.toLocaleString();
+                    if (consent_app == undefined || consent_app == null) {
+                        consent_app = 0;
+                    } else {
+                        consent_app = consent_app.toLocaleString();
+                    }
                     consent_missed = missed[x].missed_consent;
-                    consent_missed = consent_missed.toLocaleString();
+                    if (consent_missed == undefined || consent_missed == null) {
+                        consent_missed = 0;
+                    } else {
+                        consent_missed = consent_missed.toLocaleString();
+                    }
                     consent_defaulted = missed[x].defaulted_consent;
-                    consent_defaulted = consent_defaulted.toLocaleString();
+                    if (consent_defaulted == undefined || consent_defaulted == null) {
+                        consent_defaulted = 0;
+                    } else {
+                        consent_defaulted = consent_defaulted.toLocaleString();
+                    }
                     consent_iit = missed[x].iit_consent;
-                    consent_iit = consent_iit.toLocaleString();
-
+                    if (consent_iit == undefined || consent_iit == null) {
+                        consent_iit = 0;
+                    } else {
+                        consent_iit = consent_iit.toLocaleString();
+                    }
                     sms = missed[x].messages;
-                    sms = sms.toLocaleString();
+                    if (sms == undefined || sms == null) {
+                        sms = 0;
+                    } else {
+                        sms = sms.toLocaleString();
+                    }
                     sms_missed = missed[x].missed_messages;
-                    sms_missed = sms_missed.toLocaleString();
+                    if (sms_missed == undefined || sms_missed == null) {
+                        sms_missed = 0;
+                    } else {
+                        sms_missed = sms_missed.toLocaleString();
+                    }
                     sms_defaulted = missed[x].defaulted_messages;
-                    sms_defaulted = sms_defaulted.toLocaleString();
+                    if (sms_defaulted == undefined || sms_defaulted == null) {
+                        sms_defaulted = 0;
+                    } else {
+                        sms_defaulted = sms_defaulted.toLocaleString();
+                    }
                     sms_iit = missed[x].iit_messages;
-                    sms_iit = sms_iit.toLocaleString();
+                    if (sms_iit == undefined || sms_iit == null) {
+                        sms_iit = 0;
+                    } else {
+                        sms_iit = sms_iit.toLocaleString();
+                    }
 
                     contacted = missed[x].called;
-                    contacted = contacted.toLocaleString();
+                    if (contacted == undefined || contacted == null) {
+                        contacted = 0;
+                    } else {
+                        contacted = contacted.toLocaleString();
+                    }
                     contacted_missed = missed[x].missed_called;
-                    contacted_missed = contacted_missed.toLocaleString();
+                    if (contacted_missed == undefined || contacted_missed == null) {
+                        contacted_missed = 0;
+                    } else {
+                        contacted_missed = contacted_missed.toLocaleString();
+                    }
                     contacted_defaulted = missed[x].defaulted_called;
-                    contacted_defaulted = contacted_defaulted.toLocaleString();
+                    if (contacted_defaulted == undefined || contacted_defaulted == null) {
+                        contacted_defaulted = 0;
+                    } else {
+                        contacted_defaulted = contacted_defaulted.toLocaleString();
+                    }
                     contacted_iit = missed[x].iit_called;
-                    contacted_iit = contacted_iit.toLocaleString();
+                    if (contacted_iit == undefined || contacted_iit == null) {
+                        contacted_iit = 0;
+                    } else {
+                        contacted_iit = contacted_iit.toLocaleString();
+                    }
+
 
                     traced = missed[x].physically_traced;
-                    traced = traced.toLocaleString();
+                    if (traced == undefined || traced == null) {
+                        traced = 0;
+                    } else {
+                        traced = traced.toLocaleString();
+                    }
                     traced_missed = missed[x].missed_traced;
-                    traced_missed = traced_missed.toLocaleString();
+                    if (traced_missed == undefined || traced_missed == null) {
+                        traced_missed = 0;
+                    } else {
+                        traced_missed = traced_missed.toLocaleString();
+                    }
                     traced_defaulted = missed[x].defaulted_traced;
-                    traced_defaulted = traced_defaulted.toLocaleString();
+                    if (traced_defaulted == undefined || traced_defaulted == null) {
+                        traced_defaulted = 0;
+                    } else {
+                        traced_defaulted = traced_defaulted.toLocaleString();
+                    }
                     traced_iit = missed[x].iit_traced;
-                    traced_iit = traced_iit.toLocaleString();
+                    if (traced_iit == undefined || traced_iit == null) {
+                        traced_iit = 0;
+                    } else {
+                        traced_iit = traced_iit.toLocaleString();
+                    }
 
                     outcome = missed[x].final_outcome;
-                    outcome = outcome.toLocaleString();
+                    if (outcome == undefined || outcome == null) {
+                        outcome = 0;
+                    } else {
+                        outcome = outcome.toLocaleString();
+                    }
                     outcome_missed = missed[x].missed_outcome;
-                    outcome_missed = outcome_missed.toLocaleString();
+                    if (outcome_missed == undefined || outcome_missed == null) {
+                        outcome_missed = 0;
+                    } else {
+                        outcome_missed = outcome_missed.toLocaleString();
+                    }
                     outcome_defaulted = missed[x].defaulted_outcome;
-                    outcome_defaulted = outcome_defaulted.toLocaleString();
+                    if (outcome_defaulted == undefined || outcome_defaulted == null) {
+                        outcome_defaulted = 0;
+                    } else {
+                        outcome_defaulted = outcome_defaulted.toLocaleString();
+                    }
                     outcome_iit = missed[x].iit_outcome;
-                    outcome_iit = outcome_iit.toLocaleString();
+                    if (outcome_iit == undefined || outcome_iit == null) {
+                        outcome_iit = 0;
+                    } else {
+                        outcome_iit = outcome_iit.toLocaleString();
+                    }
+
                 }
                 $("#tx_curr").html(tx_curr);
                 $("#consented").html(consented);

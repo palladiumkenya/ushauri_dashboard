@@ -1271,14 +1271,14 @@ class FinalDashboardController extends Controller
                 $appointment_county = $appointment_county->where('clinic_type', $selected_clinics);
                 $appointment_partner = $appointment_partner->where('clinic_type', $selected_clinics);
                 $appointment_facility = $appointment_facility->where('clinic_type', $selected_clinics);
-                $client_list = $client_list->where('clinic_type', $selected_clinics);
+                $client_list = $client_list->where('etl_client_detail.clinic_type', $selected_clinics);
                 $client_missed = $client_missed->where('clinic_type', $selected_clinics);
                 $missed_age = $missed_age->where('clinic_type', $selected_clinics);
                 $missed_gender = $missed_gender->where('clinic_type', $selected_clinics);
                 $missed_marital = $missed_marital->where('clinic_type', $selected_clinics);
                 $missed_county = $missed_county->where('clinic_type', $selected_clinics);
                 $missed_partner = $missed_partner->where('clinic_type', $selected_clinics);
-                $client_app_list = $client_app_list->where('clinic_type', $selected_clinics);
+                $client_app_list = $client_app_list->where('etl_client_detail.clinic_type', $selected_clinics);
                 $app_period = $app_period->where('clinic_type', $selected_clinics);
             }
             if (!empty($selected_appointments)) {
@@ -1643,14 +1643,14 @@ class FinalDashboardController extends Controller
                 $appointment_county = $appointment_county->where('clinic_type', $selected_clinics);
                 $appointment_partner = $appointment_partner->where('clinic_type', $selected_clinics);
                 $appointment_facility = $appointment_facility->where('clinic_type', $selected_clinics);
-                $client_list = $client_list->where('clinic_type', $selected_clinics);
+                $client_list = $client_list->where('etl_client_detail.clinic_type', $selected_clinics);
                 $client_missed = $client_missed->where('clinic_type', $selected_clinics);
                 $missed_age = $missed_age->where('clinic_type', $selected_clinics);
                 $missed_gender = $missed_gender->where('clinic_type', $selected_clinics);
                 $missed_marital = $missed_marital->where('clinic_type', $selected_clinics);
                 $missed_county = $missed_county->where('clinic_type', $selected_clinics);
                 $missed_partner = $missed_partner->where('clinic_type', $selected_clinics);
-                $client_app_list = $client_app_list->where('clinic_type', $selected_clinics);
+                $client_app_list = $client_app_list->where('etl_client_detail.clinic_type', $selected_clinics);
                 $app_period = $app_period->where('clinic_type', $selected_clinics);
             }
             if (!empty($selected_appointments)) {
@@ -1993,14 +1993,14 @@ class FinalDashboardController extends Controller
                 $appointment_county = $appointment_county->where('clinic_type', $selected_clinics);
                 $appointment_partner = $appointment_partner->where('clinic_type', $selected_clinics);
                 $appointment_facility = $appointment_facility->where('clinic_type', $selected_clinics);
-                $client_list = $client_list->where('clinic_type', $selected_clinics);
+                $client_list = $client_list->where('etl_client_detail.clinic_type', $selected_clinics);
                 $client_missed = $client_missed->where('clinic_type', $selected_clinics);
                 $missed_age = $missed_age->where('clinic_type', $selected_clinics);
                 $missed_gender = $missed_gender->where('clinic_type', $selected_clinics);
                 $missed_marital = $missed_marital->where('clinic_type', $selected_clinics);
                 $missed_county = $missed_county->where('clinic_type', $selected_clinics);
                 $missed_partner = $missed_partner->where('clinic_type', $selected_clinics);
-                $client_app_list = $client_app_list->where('clinic_type', $selected_clinics);
+                $client_app_list = $client_app_list->where('etl_client_detail.clinic_type', $selected_clinics);
                 $app_period = $app_period->where('clinic_type', $selected_clinics);
             }
             if (!empty($selected_appointments)) {
@@ -2346,14 +2346,14 @@ class FinalDashboardController extends Controller
                 $appointment_county = $appointment_county->where('clinic_type', $selected_clinics);
                 $appointment_partner = $appointment_partner->where('clinic_type', $selected_clinics);
                 $appointment_facility = $appointment_facility->where('clinic_type', $selected_clinics);
-                $client_list = $client_list->where('clinic_type', $selected_clinics);
+                $client_list = $client_list->where('etl_client_detail.clinic_type', $selected_clinics);
                 $client_missed = $client_missed->where('clinic_type', $selected_clinics);
                 $missed_age = $missed_age->where('clinic_type', $selected_clinics);
                 $missed_gender = $missed_gender->where('clinic_type', $selected_clinics);
                 $missed_marital = $missed_marital->where('clinic_type', $selected_clinics);
                 $missed_county = $missed_county->where('clinic_type', $selected_clinics);
                 $missed_partner = $missed_partner->where('clinic_type', $selected_clinics);
-                $client_app_list = $client_app_list->where('clinic_type', $selected_clinics);
+                $client_app_list = $client_app_list->where('etl_client_detail.clinic_type', $selected_clinics);
                 $app_period = $app_period->where('clinic_type', $selected_clinics);
             }
             if (!empty($selected_appointments)) {
@@ -2700,14 +2700,14 @@ class FinalDashboardController extends Controller
                 $appointment_county = $appointment_county->where('clinic_type', $selected_clinics);
                 $appointment_partner = $appointment_partner->where('clinic_type', $selected_clinics);
                 $appointment_facility = $appointment_facility->where('clinic_type', $selected_clinics);
-                $client_list = $client_list->where('clinic_type', $selected_clinics);
+                $client_list = $client_list->where('etl_client_detail.clinic_type', $selected_clinics);
                 $client_missed = $client_missed->where('clinic_type', $selected_clinics);
                 $missed_age = $missed_age->where('clinic_type', $selected_clinics);
                 $missed_gender = $missed_gender->where('clinic_type', $selected_clinics);
                 $missed_marital = $missed_marital->where('clinic_type', $selected_clinics);
                 $missed_county = $missed_county->where('clinic_type', $selected_clinics);
                 $missed_partner = $missed_partner->where('clinic_type', $selected_clinics);
-                $client_app_list = $client_app_list->where('clinic_type', $selected_clinics);
+                $client_app_list = $client_app_list->where('etl_client_detail.clinic_type', $selected_clinics);
                 $app_period = $app_period->where('clinic_type', $selected_clinics);
             }
             if (!empty($selected_appointments)) {
