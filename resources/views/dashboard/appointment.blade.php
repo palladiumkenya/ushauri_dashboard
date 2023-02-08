@@ -831,7 +831,9 @@
                                         <tr>
                                             <th>NUPI No</th>
                                             <th>Clinic No</th>
+                                            <th>Client Name</th>
                                             <th>DOB</th>
+                                            <th>Phone No</th>
                                             <th>SMS Consent</th>
                                             <th>Status</th>
                                             <th>Appointment Kept</th>
@@ -845,7 +847,9 @@
 
                                             <td> {{$result->upi_no}}</td>
                                             <td> {{$result->ccc_number}}</td>
+                                            <td> {{$result->client_name}}</td>
                                             <td> {{$result->dob}}</td>
+                                            <td> {{$result->phone_no}}</td>
                                             <td> {{$result->consented}}</td>
                                             <td> {{$result->client_status}}</td>
                                             <td> {{$result->kept_app}}</td>
@@ -1160,7 +1164,9 @@
                                         <tr>
                                             <th>NUPI No</th>
                                             <th>Clinic No</th>
+                                            <th>Client Name</th>
                                             <th>DOB</th>
+                                            <th>Phone No</th>
                                             <th>SMS Consent</th>
                                             <th>Status</th>
                                             <th>No of Days Missed</th>
@@ -1174,7 +1180,9 @@
 
                                             <td> {{$result->upi_no}}</td>
                                             <td> {{$result->ccc_number}}</td>
+                                            <td> {{$result->client_name}}</td>
                                             <td> {{$result->dob}}</td>
+                                            <td> {{$result->phone_no}}</td>
                                             <td> {{$result->consented}}</td>
                                             <td> {{$result->client_status}}</td>
                                             <td> {{$result->days_defaulted}}</td>

@@ -47,6 +47,8 @@ class FinalDashboardController extends Controller
                 'etl_client_detail.dob',
                 'etl_client_detail.consented',
                 'etl_client_detail.client_status',
+                'etl_client_detail.client_name',
+                'etl_client_detail.phone_no',
                 DB::raw('COUNT(etl_appointment_detail.app_kept) AS kept_app '),
                 DB::raw('SUM(etl_appointment_detail.app_not_kept) AS not_kept_app ')
             )
@@ -60,6 +62,8 @@ class FinalDashboardController extends Controller
                 'etl_client_detail.dob',
                 'etl_client_detail.consented',
                 'etl_client_detail.client_status',
+                'etl_client_detail.client_name',
+                'etl_client_detail.phone_no',
                 'etl_appointment_detail.days_defaulted',
                 'etl_appointment_detail.final_outcome'
             )
@@ -186,6 +190,8 @@ class FinalDashboardController extends Controller
                 'etl_client_detail.dob',
                 'etl_client_detail.consented',
                 'etl_client_detail.client_status',
+                'etl_client_detail.client_name',
+                'etl_client_detail.phone_no',
                 DB::raw('COUNT(etl_appointment_detail.app_kept) AS kept_app '),
                 DB::raw('SUM(etl_appointment_detail.app_not_kept) AS not_kept_app ')
             )
@@ -306,7 +312,9 @@ class FinalDashboardController extends Controller
                 'etl_client_detail.consented',
                 'etl_client_detail.client_status',
                 'etl_appointment_detail.days_defaulted',
-                'etl_appointment_detail.final_outcome'
+                'etl_appointment_detail.final_outcome',
+                'etl_client_detail.client_name',
+                'etl_client_detail.phone_no'
             )
                 ->join('etl_appointment_detail', 'etl_client_detail.client_id', '=', 'etl_appointment_detail.client_id')
                 ->where('etl_client_detail.mfl_code', Auth::user()->facility_id)
@@ -1564,6 +1572,8 @@ class FinalDashboardController extends Controller
                 'etl_client_detail.dob',
                 'etl_client_detail.consented',
                 'etl_client_detail.client_status',
+                'etl_client_detail.client_name',
+                'etl_client_detail.phone_no',
                 DB::raw('COUNT(etl_appointment_detail.app_kept) AS kept_app '),
                 DB::raw('SUM(etl_appointment_detail.app_not_kept) AS not_kept_app ')
             )
@@ -1674,7 +1684,9 @@ class FinalDashboardController extends Controller
                 'etl_client_detail.consented',
                 'etl_client_detail.client_status',
                 'etl_appointment_detail.days_defaulted',
-                'etl_appointment_detail.final_outcome'
+                'etl_appointment_detail.final_outcome',
+                'etl_client_detail.client_name',
+                'etl_client_detail.phone_no'
             )
                 ->join('etl_appointment_detail', 'etl_client_detail.client_id', '=', 'etl_appointment_detail.client_id')
                 ->where('etl_client_detail.mfl_code', Auth::user()->facility_id)

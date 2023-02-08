@@ -270,4 +270,5 @@ Route::group(['middleware' => 'auth'], function () {
   Route::get('/home/appointment', ['uses' => 'App\Http\Controllers\FinalDashboardController@index', 'as' => 'appointment-dashboard']);
   Route::get('/appointment/data', ['uses' => 'App\Http\Controllers\FinalDashboardController@appointment', 'as' => 'appointment_data']);
   Route::get('/filter_app_data', ['uses' => 'App\Http\Controllers\FinalDashboardController@filter_data', 'as' => 'filter_app_data']);
+  Route::get('/user/info', ['uses' => 'App\Http\Controllers\UserController@user_info', 'as' => 'user_info']);
 });

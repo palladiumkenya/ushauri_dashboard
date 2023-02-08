@@ -21,6 +21,61 @@ use Session;
 class UserController extends Controller
 {
     //
+    public function user_info()
+    {
+        if (Auth::user()->access_level == 'Sub County') {
+            $data  = [];
+
+            $user_info = DB::table('tbl_users')->select(
+                'tbl_sub_county.name as sub_county'
+            )->join('tbl_partner_facility', 'tbl_users.subcounty_id', '=', 'tbl_partner_facility.sub_county_id')
+                ->join('tbl_sub_county', 'tbl_partner_facility.sub_county_id', '=', 'tbl_sub_county.id')
+                ->where('tbl_sub_county.id', '=', Auth::user()->subcounty_id)
+                ->groupBy('tbl_sub_county.name');
+            $data["user_info"] = $user_info->get();
+
+            return $data;
+        }
+        if (Auth::user()->access_level == 'County') {
+            $data  = [];
+
+            $user_info = DB::table('tbl_users')->select(
+                'tbl_county.name as county'
+            )->join('tbl_partner_facility', 'tbl_users.county_id', '=', 'tbl_partner_facility.county_id')
+                ->join('tbl_county', 'tbl_partner_facility.county_id', '=', 'tbl_county.id')
+                ->where('tbl_county.id', '=', Auth::user()->county_id)
+                ->groupBy('tbl_county.name');
+            $data["user_info"] = $user_info->get();
+
+            return $data;
+        }
+        if (Auth::user()->access_level == 'Facility') {
+            $data  = [];
+
+            $user_info = DB::table('tbl_users')->select(
+                'tbl_master_facility.name as facility', 'tbl_master_facility.code'
+            )->join('tbl_partner_facility', 'tbl_users.facility_id', '=', 'tbl_partner_facility.mfl_code')
+                ->join('tbl_master_facility', 'tbl_partner_facility.mfl_code', '=', 'tbl_master_facility.code')
+                ->where('tbl_master_facility.code', '=', Auth::user()->facility_id)
+                ->groupBy('tbl_master_facility.name');
+            $data["user_info"] = $user_info->get();
+
+            return $data;
+        }
+        if (Auth::user()->access_level == 'Partner') {
+            $data  = [];
+
+            $user_info = DB::table('tbl_users')->select(
+                'tbl_partner.name as partner'
+            )->join('tbl_partner_facility', 'tbl_users.facility_id', '=', 'tbl_partner_facility.mfl_code')
+                ->join('tbl_partner', 'tbl_partner_facility.partner_id', '=', 'tbl_partner.id')
+                ->where('tbl_partner.id', '=', Auth::user()->partner_id)
+                ->groupBy('tbl_partner.name');
+            $data["user_info"] = $user_info->get();
+
+            return $data;
+        }
+    }
     public function showUsers()
     {
         if (Auth::user()->access_level == 'Partner') {
