@@ -69,17 +69,36 @@
     }
 
     .Indicator {
-
         font-family: 'Manrope';
         font-style: normal;
         font-weight: 700;
-        font-size: 17px;
+        font-size: 12px;
         line-height: 140%;
         /* identical to box height, or 24px */
         letter-spacing: -0.3px;
         text-transform: uppercase;
 
+        color: #0020C6;
+    }
 
+    .Definition {
+        font-family: 'Manrope';
+        font-style: normal;
+        font-weight: 700;
+        font-size: 10px;
+        line-height: 120%;
+        /* identical to box height, or 20px */
+        letter-spacing: -0.3px;
+        text-transform: capitalize;
+
+        color: #888888;
+    }
+
+    .Indications {
+        box-sizing: border-box;
+        background: rgba(229, 247, 255, 0.28);
+        border: 1px solid #E5F7FF;
+        border-radius: 10px;
     }
 </style>
 @endsection
@@ -99,7 +118,7 @@
             <div class="col-lg-3">
                 <div class="form-group">
 
-                    <select class="form-control select2" id="partners" name="partner[]" multiple="multiple">
+                    <select class="form-control select2" id="partners" name="partners[]" multiple="multiple">
                         <option></option>
                         @if (count($partners) > 0)
                         @foreach($partners as $partner)
@@ -181,12 +200,8 @@
             <div class='col-lg-2'>
                 <div class="form-group">
                     <div class="input-group">
-                        <div class="col-md-2">
-                            <label for="firstName1">From</label>
-                        </div>
-                        <div class="col-md-10">
-
-                            <input type="date" id="from" class="form-control" placeholder="From" name="from" max="{{date("Y-m-d")}}">
+                        <div class="col-md-12">
+                            <input type="text" id="from" class="form-control" placeholder="From" name="from" max="{{date("Y-m-d")}}" onfocus="(this.type='date')" />
                         </div>
                         <div class="input-group-append">
 
@@ -197,12 +212,9 @@
             <div class="col-lg-2">
                 <div class="form-group">
                     <div class="input-group">
-                        <div class="col-md-2">
-                            <label for="firstName1">To</label>
-                        </div>
-                        <div class="col-md-10">
+                        <div class="col-md-12">
 
-                            <input type="date" id="to" class="form-control" placeholder="To" name="to" max="{{date("Y-m-d")}}">
+                            <input type="text" id="to" class="form-control" placeholder="To" name="to" max="{{date("Y-m-d")}}" onfocus="(this.type='date')" />
                         </div>
                         <div class="input-group-append">
 
@@ -266,7 +278,7 @@
                     </select>
                 </div>
             </div>
-            <div class="col-lg-2">
+            <div class="col-lg-3">
                 <div class="form-group">
                     <select class="form-control input-rounded input-sm select2" id="sites" name="site" multiple="multiple">
                         <option value=""> </option>
@@ -275,7 +287,7 @@
                     </select>
                 </div>
             </div>
-            <div class="col-lg-2">
+            <div class="col-lg-3">
                 <div class="form-group">
                     <select class="form-control input-rounded input-sm select2" id="clinics" name="clinic" multiple="multiple">
                         <option value=""></option>
@@ -287,7 +299,7 @@
                     </select>
                 </div>
             </div>
-            <div class="col-lg-2">
+            <div class="col-lg-3">
                 <div class="form-group">
                     <select class="form-control input-rounded input-sm select2" id="appointments" name="appointment" multiple="multiple">
                         <option value=""></option>
@@ -301,12 +313,8 @@
             <div class='col-lg-2'>
                 <div class="form-group">
                     <div class="input-group">
-                        <div class="col-md-2">
-                            <label for="firstName1">From</label>
-                        </div>
-                        <div class="col-md-10">
-
-                            <input type="date" id="from" class="form-control" placeholder="From" name="from" max="{{date("Y-m-d")}}">
+                        <div class="col-md-14">
+                            <input type="text" id="from" class="form-control" placeholder="From" name="from" max="{{date("Y-m-d")}}" onfocus="(this.type='date')" />
                         </div>
                         <div class="input-group-append">
 
@@ -317,12 +325,120 @@
             <div class="col-lg-2">
                 <div class="form-group">
                     <div class="input-group">
-                        <div class="col-md-2">
-                            <label for="firstName1">To</label>
-                        </div>
-                        <div class="col-md-10">
+                        <div class="col-md-14">
 
-                            <input type="date" id="to" class="form-control" placeholder="To" name="to" max="{{date("Y-m-d")}}">
+                            <input type="text" id="to" class="form-control" placeholder="To" name="to" max="{{date("Y-m-d")}}" onfocus="(this.type='date')" />
+                        </div>
+                        <div class="input-group-append">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-2">
+                <div class="form-group">
+                    <span class="filter_facility_wait" style="display: none;"></span>
+                    <button class="btn btn-default filter btn-round  btn-small btn-primary  " type="submit" name="filter" id="filter"> <i class="fa fa-filter"></i>
+                        Filter</button>
+                </div>
+            </div>
+        </div>
+
+    </form>
+
+</div>
+@endif
+@if (Auth::user()->access_level == 'Partner')
+<div class="col">
+    <form role="form" method="get" action="#" id="dataFilter">
+        {{ csrf_field() }}
+        <div class="row">
+            <div class="col-lg-3">
+                <div class="form-group">
+                    <select class="form-control select2" id="counties" name="county" multiple="multiple">
+                        <option value=""></option>
+                        @if (count($counties) > 0)
+                        @foreach($counties as $county)
+                        <option value="{{$county->id }}">{{ ucwords($county->name) }}</option>
+                        @endforeach
+                        @endif
+                    </select>
+                </div>
+            </div>
+            <div class="col-lg-3">
+                <div class="form-group">
+                    <select class="form-control select2" id="subcounties" name="subcounty" multiple="multiple">
+                        <option value=""></option>
+                        @if (count($sub_counties) > 0)
+                        @foreach($sub_counties as $sub_county)
+                        <option value="{{$sub_county->id }}">{{ ucwords($sub_county->name) }}</option>
+                        @endforeach
+                        @endif
+                    </select>
+                </div>
+            </div>
+            <div class="col-lg-3">
+                <div class="form-group">
+                    <select class="form-control select2" id="facilities" name="facility" multiple="multiple">
+                        <option value=""></option>
+                        @if (count($facilities) > 0)
+                        @foreach($facilities as $facility)
+                        <option value="{{$facility->code }}">{{ ucwords($facility->name) }}</option>
+                        @endforeach
+                        @endif
+                    </select>
+                </div>
+            </div>
+            <div class="col-lg-3">
+                <div class="form-group">
+                    <select class="form-control input-rounded input-sm select2" id="sites" name="site" multiple="multiple">
+                        <option value=""> </option>
+                        <option value="Paper Based">Paper Based</option>
+                        <option value="EMR Based">EMR Based</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-lg-3">
+                <div class="form-group">
+                    <select class="form-control input-rounded input-sm select2" id="clinics" name="clinic" multiple="multiple">
+                        <option value=""></option>
+                        @if (count($clinics) > 0)
+                        @foreach($clinics as $clinic)
+                        <option value="{{$clinic->name }}">{{ ucwords($clinic->name) }}</option>
+                        @endforeach
+                        @endif
+                    </select>
+                </div>
+            </div>
+            <div class="col-lg-3">
+                <div class="form-group">
+                    <select class="form-control input-rounded input-sm select2" id="appointments" name="appointment" multiple="multiple">
+                        <option value=""></option>
+                        <option value="Missed">Missed</option>
+                        <option value="Defaulted">Defaulted</option>
+                        <option value="IIT">IIT</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class='col-lg-2'>
+                <div class="form-group">
+                    <div class="input-group">
+                        <div class="col-md-12">
+                            <input type="text" id="from" class="form-control" placeholder="From" name="from" max="{{date("Y-m-d")}}" onfocus="(this.type='date')" />
+                        </div>
+                        <div class="input-group-append">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-2">
+                <div class="form-group">
+                    <div class="input-group">
+                        <div class="col-md-12">
+
+                            <input type="text" id="to" class="form-control" placeholder="To" name="to" max="{{date("Y-m-d")}}" onfocus="(this.type='date')" />
                         </div>
                         <div class="input-group-append">
 
@@ -360,7 +476,7 @@
                     </select>
                 </div>
             </div>
-            <div class="col-lg-2">
+            <div class="col-lg-3">
                 <div class="form-group">
                     <select class="form-control input-rounded input-sm select2" id="sites" name="site" multiple="multiple">
                         <option value=""> </option>
@@ -369,7 +485,7 @@
                     </select>
                 </div>
             </div>
-            <div class="col-lg-2">
+            <div class="col-lg-3">
                 <div class="form-group">
                     <select class="form-control input-rounded input-sm select2" id="clinics" name="clinic" multiple="multiple">
                         <option value=""></option>
@@ -381,7 +497,7 @@
                     </select>
                 </div>
             </div>
-            <div class="col-lg-2">
+            <div class="col-lg-3">
                 <div class="form-group">
                     <select class="form-control input-rounded input-sm select2" id="appointments" name="appointment" multiple="multiple">
                         <option value=""></option>
@@ -395,12 +511,8 @@
             <div class='col-lg-2'>
                 <div class="form-group">
                     <div class="input-group">
-                        <div class="col-md-2">
-                            <label for="firstName1">From</label>
-                        </div>
-                        <div class="col-md-10">
-
-                            <input type="date" id="from" class="form-control" placeholder="From" name="from" max="{{date("Y-m-d")}}">
+                        <div class="col-md-12">
+                            <input type="text" id="from" class="form-control" placeholder="From" name="from" max="{{date("Y-m-d")}}" onfocus="(this.type='date')" />
                         </div>
                         <div class="input-group-append">
 
@@ -411,12 +523,9 @@
             <div class="col-lg-2">
                 <div class="form-group">
                     <div class="input-group">
-                        <div class="col-md-2">
-                            <label for="firstName1">To</label>
-                        </div>
-                        <div class="col-md-10">
+                        <div class="col-md-12">
 
-                            <input type="date" id="to" class="form-control" placeholder="To" name="to" max="{{date("Y-m-d")}}">
+                            <input type="text" id="to" class="form-control" placeholder="To" name="to" max="{{date("Y-m-d")}}" onfocus="(this.type='date')" />
                         </div>
                         <div class="input-group-append">
 
@@ -467,12 +576,8 @@
             <div class='col-lg-2'>
                 <div class="form-group">
                     <div class="input-group">
-                        <div class="col-md-2">
-                            <label for="firstName1">From</label>
-                        </div>
-                        <div class="col-md-10">
-
-                            <input type="date" id="from" class="form-control" placeholder="From" name="from" max="{{date("Y-m-d")}}">
+                        <div class="col-md-12">
+                            <input type="text" id="from" class="form-control" placeholder="From" name="from" max="{{date("Y-m-d")}}" onfocus="(this.type='date')" />
                         </div>
                         <div class="input-group-append">
 
@@ -483,12 +588,9 @@
             <div class="col-lg-2">
                 <div class="form-group">
                     <div class="input-group">
-                        <div class="col-md-2">
-                            <label for="firstName1">To</label>
-                        </div>
-                        <div class="col-md-10">
+                        <div class="col-md-12">
 
-                            <input type="date" id="to" class="form-control" placeholder="To" name="to" max="{{date("Y-m-d")}}">
+                            <input type="text" id="to" class="form-control" placeholder="To" name="to" max="{{date("Y-m-d")}}" onfocus="(this.type='date')" />
                         </div>
                         <div class="input-group-append">
 
@@ -621,23 +723,10 @@
 
             </div>
         </div>
-        <div class="col-md-12">
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class=" card card-icon-bg card-icon-bg-primary o-hidden mb-4 h-75">
-                        <div class="card-body">
-                            <div class="content">
-                                <p class="line-height-1 mb-2"></p>
-                                <p class="Indicator">Indicator Definition</p>
-
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
-
-
-            </div>
+        <div class="Indications card-body col-lg-12" id="maindiv">
+            <p class="Indicator">Indicator Definition</p>
+            <p class="Definition">Appointment Honored & Not Honored</p>
+            <p class="Definition">{{ json_encode($indicator_k[0]->description) }}</p>
         </div>
 
         <div class="col-md-12">
@@ -668,6 +757,36 @@
             </div>
         </div>
         <input id="authenticated" type="hidden" value="{{ auth()->user()->access_level }}">
+        @if (Auth::user()->access_level == 'Sub County' || Auth::user()->access_level == 'Partner')
+
+        <div class="col-md-12">
+            <div class="row">
+
+                <div class="col-12">
+                    <div class="card-body row">
+                        <div id="distribution_facility" class="col" style="height:  400px;margin-top:20px;width: 900px"></div> <br />
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+        @endif
+        @if (Auth::user()->access_level == 'County')
+
+        <div class="col-md-12">
+            <div class="row">
+
+                <div class="col-12">
+                    <div class="card-body row">
+                        <div id="distribution_partner" class="col" style="height:  400px;margin-top:20px;width: 900px"></div> <br />
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+        @endif
         @if (Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Donor')
 
         <div class="col-md-12">
@@ -922,21 +1041,13 @@
 
             </div>
         </div>
-        <div class="col-md-12">
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="card-body">
-                        <div class="content">
-                            <p class="line-height-1 mb-2"></p>
-                            <p class="Indicator">Indicator Definition</p>
 
-                        </div>
-
-                    </div>
-                </div>
-
-            </div>
+        <div class="Indications card-body col-lg-12" id="maindiv">
+            <p class="Indicator">Indicator Definition</p>
+            <p class="Definition">Missed Appointments</p>
+            <p class="Definition">{{ json_encode($indicator_m[0]->description) }}</p>
         </div>
+
 
         <div class="col-md-12">
             <div class="row">
@@ -978,6 +1089,36 @@
 
             </div>
         </div>
+        @if (Auth::user()->access_level == 'Sub County' || Auth::user()->access_level == 'Partner')
+
+        <div class="col-md-12">
+            <div class="row">
+
+                <div class="col-12">
+                    <div class="card-body row">
+                        <div id="missed_facility" class="col" style="height:  400px;margin-top:20px;width: 900px"></div> <br />
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+        @endif
+        @if (Auth::user()->access_level == 'County')
+
+        <div class="col-md-12">
+            <div class="row">
+
+                <div class="col-12">
+                    <div class="card-body row">
+                        <div id="missed_partner" class="col" style="height:  400px;margin-top:20px;width: 900px"></div> <br />
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+        @endif
         @if (Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Donor')
         <div class="col-md-12">
             <div class="row">
@@ -1172,7 +1313,7 @@
     // console.log(authenticated);
 
     Swal.fire({
-        title: "Please wait, Loading Charts!",
+        title: "Please wait, loading...",
         showConfirmButton: false,
         allowOutsideClick: false
     });
@@ -1202,19 +1343,25 @@
                 missedCounty(data.missed_county);
                 missedPartner(data.missed_partner);
             }
-            if (authenticated == 'County' || authenticated == 'Sub County') {
+            if (authenticated == 'County') {
                 appPartner(data.appointment_partner)
                 missedPartner(data.missed_partner);
+            }
+            if (authenticated == 'Partner' || authenticated == 'Sub County') {
+                appFacility(data.appointment_facility)
+                missedFacility(data.missed_facility)
             }
             missedPeriod(data.app_period);
 
 
             for (var x = 0; x < consent.length; x++) {
-                consented = consent[x].consented;
+                consented = (consent[x].consented).toLocaleString();
+                console.log(consented);
                 if (consented == undefined || consented == null) {
                     consented = 0;
                 } else {
                     consented = consented.toLocaleString();
+                    console.log(consented);
                 }
                 percnt_consented = Math.round(consent[x].percent_consented).toFixed(0) + '%';
             }
@@ -1313,29 +1460,29 @@
                 }
 
                 contacted = missed[x].called;
-                    if (contacted == undefined || contacted == null) {
-                        contacted = 0;
-                    } else {
-                        contacted = contacted.toLocaleString();
-                    }
-                    contacted_missed = missed[x].missed_called;
-                    if (contacted_missed == undefined || contacted_missed == null) {
-                        contacted_missed = 0;
-                    } else {
-                        contacted_missed = contacted_missed.toLocaleString();
-                    }
-                    contacted_defaulted = missed[x].defaulted_called;
-                    if (contacted_defaulted == undefined || contacted_defaulted == null) {
-                        contacted_defaulted = 0;
-                    } else {
-                        contacted_defaulted = contacted_defaulted.toLocaleString();
-                    }
-                    contacted_iit = missed[x].iit_called;
-                    if (contacted_iit == undefined || contacted_iit == null) {
-                        contacted_iit = 0;
-                    } else {
-                        contacted_iit = contacted_iit.toLocaleString();
-                    }
+                if (contacted == undefined || contacted == null) {
+                    contacted = 0;
+                } else {
+                    contacted = contacted.toLocaleString();
+                }
+                contacted_missed = missed[x].missed_called;
+                if (contacted_missed == undefined || contacted_missed == null) {
+                    contacted_missed = 0;
+                } else {
+                    contacted_missed = contacted_missed.toLocaleString();
+                }
+                contacted_defaulted = missed[x].defaulted_called;
+                if (contacted_defaulted == undefined || contacted_defaulted == null) {
+                    contacted_defaulted = 0;
+                } else {
+                    contacted_defaulted = contacted_defaulted.toLocaleString();
+                }
+                contacted_iit = missed[x].iit_called;
+                if (contacted_iit == undefined || contacted_iit == null) {
+                    contacted_iit = 0;
+                } else {
+                    contacted_iit = contacted_iit.toLocaleString();
+                }
 
                 traced = missed[x].physically_traced;
                 if (traced == undefined || traced == null) {
@@ -1448,7 +1595,7 @@
             }
         });
         Swal.fire({
-            title: "Please wait, Loading Charts!",
+            title: "Please wait, loading...",
             showConfirmButton: false,
             allowOutsideClick: false
         });
@@ -1475,7 +1622,7 @@
                 const missed = data.client_missed;
                 appGender(data.appointment_gender);
                 appAge(data.appointment_age);
-                appMarital(data.appointment_marital);;
+                appMarital(data.appointment_marital);
 
                 missedAge(data.missed_age);
                 missedGender(data.missed_gender);
@@ -1486,9 +1633,13 @@
                     missedCounty(data.missed_county);
                     missedPartner(data.missed_partner);
                 }
-                if (authenticated == 'County' || authenticated == 'Sub County') {
+                if (authenticated == 'County') {
                     appPartner(data.appointment_partner)
                     missedPartner(data.missed_partner);
+                }
+                if (authenticated == 'Partner' || authenticated == 'Sub County') {
+                    appFacility(data.appointment_facility)
+                    missedFacility(data.missed_facility)
                 }
                 missedPeriod(data.app_period);
                 console.log(missed);
@@ -1501,7 +1652,7 @@
                     } else {
                         consented = consented.toLocaleString();
                     }
-                    percnt_consented = Math.round(consent[x].percent_consented).toFixed(1);
+                    percnt_consented = Math.round(consent[x].percent_consented).toFixed(1) + '%';
                 }
                 for (var x = 0; x < apps.length; x++) {
                     all_appointments = apps[x].total_app;
@@ -1534,9 +1685,10 @@
                     } else {
                         sms_sent = sms_sent.toLocaleString();
                     }
-                    percnt_kept = parseFloat(apps[x].percent_kept).toFixed(1);
-                    percnt_not_kept = parseFloat(apps[x].percent_not_kept).toFixed(1);
-                    percnt_future = parseFloat(apps[x].percent_future).toFixed(1);
+
+                    percnt_kept = parseFloat(apps[x].percent_kept).toFixed(1) + '%';
+                    percnt_not_kept = parseFloat(apps[x].percent_not_kept).toFixed(1) + '%';
+                    percnt_future = parseFloat(apps[x].percent_future).toFixed(1) + '%';
                 }
                 for (var x = 0; x < tx.length; x++) {
                     tx_curr = tx[x].tx_cur;
@@ -1758,10 +1910,15 @@
 
     function appAge(data) {
         let age_group = [];
+        let kept_app = [];
+        let not_kept_app = [];
+        let total = [];
         let percent_kept = [];
         let percent_not_kept = [];
         for (let i = 0; i < data.length; i++) {
             age_group.push(data[i].age_group);
+
+            not_kept_app.push(data[i].not_kept_app)
             parseFloat(percent_kept.push(data[i].percent_kept)).toFixed(1);
             parseFloat(percent_not_kept.push(data[i].percent_not_kept)).toFixed(1);
         }
@@ -1798,12 +1955,11 @@
                 }
             },
             tooltip: {
-                headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
-                pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
-                    '<td style="padding:0"><b>{point.y:.1f}</b></td></tr>',
-                footerFormat: '</table>',
-                shared: true,
-                useHTML: true
+
+                formatter: function() {
+                    return '<b>' + this.x + '</b><br/>' +
+                        this.series.name + ': ' + this.y + '%';
+                }
             },
             plotOptions: {
                 column: {
@@ -1831,8 +1987,8 @@
         let percent_not_kept = [];
         for (let i = 0; i < data.length; i++) {
             gender.push(data[i].gender);
-            parseFloat(percent_kept.push(data[i].percent_kept)).toFixed(1);
-            parseFloat(percent_not_kept.push(data[i].percent_not_kept)).toFixed(1);
+            Math.round(percent_kept.push(data[i].percent_kept)).toFixed(1);
+            Math.round(percent_not_kept.push(data[i].percent_not_kept)).toFixed(1);
         }
         Highcharts.chart('appointment_gender', {
             chart: {
@@ -1867,12 +2023,11 @@
                 }
             },
             tooltip: {
-                headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
-                pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
-                    '<td style="padding:0"><b>{point.y:.1f}</b></td></tr>',
-                footerFormat: '</table>',
-                shared: true,
-                useHTML: true
+
+                formatter: function() {
+                    return '<b>' + this.x + '</b><br/>' +
+                        this.series.name + ': ' + this.y + '%';
+                }
             },
             plotOptions: {
                 column: {
@@ -1899,8 +2054,8 @@
         let percent_not_kept = [];
         for (let i = 0; i < data.length; i++) {
             marital.push(data[i].marital);
-            parseFloat(percent_kept.push(data[i].percent_kept)).toFixed(1);
-            parseFloat(percent_not_kept.push(data[i].percent_not_kept)).toFixed(1);
+            Math.round(percent_kept.push(data[i].percent_kept)).toFixed(1);
+            Math.round(percent_not_kept.push(data[i].percent_not_kept)).toFixed(1);
         }
         Highcharts.chart('distribution_marital', {
             chart: {
@@ -1944,7 +2099,7 @@
             tooltip: {
                 formatter: function() {
                     return '<b>' + this.x + '</b><br/>' +
-                        this.series.name + ': ' + this.y;
+                        this.series.name + ': ' + this.y + '%';
                 }
             },
             plotOptions: {
@@ -1974,8 +2129,8 @@
         let percent_not_kept = [];
         for (let i = 0; i < data.length; i++) {
             gender.push(data[i].gender);
-            parseFloat(percent_rtc.push(data[i].percent_rtc)).toFixed(1);
-            parseFloat(percent_not_kept.push(data[i].percent_not_kept)).toFixed(1);
+            Math.round(percent_rtc.push(data[i].percent_rtc)).toFixed(1);
+            Math.round(percent_not_kept.push(data[i].percent_not_kept)).toFixed(1);
         }
         Highcharts.chart('missed_gender', {
             chart: {
@@ -2016,7 +2171,7 @@
             tooltip: {
                 formatter: function() {
                     return '<b>' + this.x + '</b><br/>' +
-                        this.series.name + ': ' + this.y;
+                        this.series.name + ': ' + this.y + '%';
                 }
             },
             plotOptions: {
@@ -2047,8 +2202,8 @@
         let percent_not_kept = [];
         for (let i = 0; i < data.length; i++) {
             age_group.push(data[i].age_group);
-            parseFloat(percent_rtc.push(data[i].percent_rtc)).toFixed(1);
-            parseFloat(percent_not_kept.push(data[i].percent_not_kept)).toFixed(1);
+            Math.round(percent_rtc.push(data[i].percent_rtc)).toFixed(1);
+            Math.round(percent_not_kept.push(data[i].percent_not_kept)).toFixed(1);
         }
         Highcharts.chart('missed_age', {
             chart: {
@@ -2089,7 +2244,7 @@
             tooltip: {
                 formatter: function() {
                     return '<b>' + this.x + '</b><br/>' +
-                        this.series.name + ': ' + this.y;
+                        this.series.name + ': ' + this.y + '%';
                 }
             },
             plotOptions: {
@@ -2120,8 +2275,8 @@
         let percent_not_kept = [];
         for (let i = 0; i < data.length; i++) {
             marital.push(data[i].marital);
-            parseFloat(percent_rtc.push(data[i].percent_rtc)).toFixed(1);
-            parseFloat(percent_not_kept.push(data[i].percent_not_kept)).toFixed(1);
+            Math.round(percent_rtc.push(data[i].percent_rtc)).toFixed(1);
+            Math.round(percent_not_kept.push(data[i].percent_not_kept)).toFixed(1);
         }
         Highcharts.chart('missed_marital', {
             chart: {
@@ -2162,7 +2317,7 @@
             tooltip: {
                 formatter: function() {
                     return '<b>' + this.x + '</b><br/>' +
-                        this.series.name + ': ' + this.y;
+                        this.series.name + ': ' + this.y + '%';
                 }
             },
             plotOptions: {
@@ -2193,8 +2348,8 @@
         let percent_not_kept = [];
         for (let i = 0; i < data.length; i++) {
             new_date.push(data[i].new_date);
-            parseFloat(percent_rtc.push(data[i].percent_rtc)).toFixed(1);
-            parseFloat(percent_not_kept.push(data[i].percent_not_kept)).toFixed(1);
+            Math.round(percent_rtc.push(data[i].percent_rtc)).toFixed(1);
+            Math.round(percent_not_kept.push(data[i].percent_not_kept)).toFixed(1);
         }
         Highcharts.chart('missed_period', {
             chart: {
@@ -2235,7 +2390,7 @@
             tooltip: {
                 formatter: function() {
                     return '<b>' + this.x + '</b><br/>' +
-                        this.series.name + ': ' + this.y;
+                        this.series.name + ': ' + this.y + '%';
                 }
             },
             plotOptions: {
@@ -2267,8 +2422,8 @@
             let percent_not_kept = [];
             for (let i = 0; i < data.length; i++) {
                 county.push(data[i].county);
-                parseFloat(percent_kept.push(data[i].percent_kept)).toFixed(1);
-                parseFloat(percent_not_kept.push(data[i].percent_not_kept)).toFixed(1);
+                Math.round(percent_kept.push(data[i].percent_kept)).toFixed(1);
+                Math.round(percent_not_kept.push(data[i].percent_not_kept)).toFixed(1);
             }
             Highcharts.chart('distribution_county', {
                 chart: {
@@ -2311,7 +2466,7 @@
                 tooltip: {
                     formatter: function() {
                         return '<b>' + this.x + '</b><br/>' +
-                            this.series.name + ': ' + this.y;
+                            this.series.name + ': ' + this.y + '%';
                     }
                 },
                 plotOptions: {
@@ -2341,8 +2496,8 @@
             let percent_not_kept = [];
             for (let i = 0; i < data.length; i++) {
                 county.push(data[i].county);
-                parseFloat(percent_rtc.push(data[i].percent_rtc)).toFixed(1);
-                parseFloat(percent_not_kept.push(data[i].percent_not_kept)).toFixed(1);
+                Math.round(percent_rtc.push(data[i].percent_rtc)).toFixed(1);
+                Math.round(percent_not_kept.push(data[i].percent_not_kept)).toFixed(1);
             }
             Highcharts.chart('missed_county', {
                 chart: {
@@ -2383,7 +2538,7 @@
                 tooltip: {
                     formatter: function() {
                         return '<b>' + this.x + '</b><br/>' +
-                            this.series.name + ': ' + this.y;
+                            this.series.name + ': ' + this.y + '%';
                     }
                 },
                 plotOptions: {
@@ -2414,8 +2569,8 @@
             let percent_not_kept = [];
             for (let i = 0; i < data.length; i++) {
                 partner.push(data[i].partner);
-                parseFloat(percent_rtc.push(data[i].percent_rtc)).toFixed(1);
-                parseFloat(percent_not_kept.push(data[i].percent_not_kept)).toFixed(1);
+                Math.round(percent_rtc.push(data[i].percent_rtc)).toFixed(1);
+                Math.round(percent_not_kept.push(data[i].percent_not_kept)).toFixed(1);
             }
             Highcharts.chart('missed_partner', {
                 chart: {
@@ -2456,7 +2611,7 @@
                 tooltip: {
                     formatter: function() {
                         return '<b>' + this.x + '</b><br/>' +
-                            this.series.name + ': ' + this.y;
+                            this.series.name + ': ' + this.y + '%';
                     }
                 },
                 plotOptions: {
@@ -2487,8 +2642,8 @@
             let percent_not_kept = [];
             for (let i = 0; i < data.length; i++) {
                 partner.push(data[i].partner);
-                parseFloat(percent_kept.push(data[i].percent_kept)).toFixed(1);
-                parseFloat(percent_not_kept.push(data[i].percent_not_kept)).toFixed(1);
+                Math.round(percent_kept.push(data[i].percent_kept)).toFixed(1);
+                Math.round(percent_not_kept.push(data[i].percent_not_kept)).toFixed(1);
             }
             Highcharts.chart('distribution_partner', {
                 chart: {
@@ -2530,7 +2685,7 @@
                 tooltip: {
                     formatter: function() {
                         return '<b>' + this.x + '</b><br/>' +
-                            this.series.name + ': ' + this.y;
+                            this.series.name + ': ' + this.y + '%';
                     }
                 },
                 plotOptions: {
@@ -2555,15 +2710,15 @@
         }
     }
 
-    if (authenticated == 'County' || authenticated == 'Sub County') {
+    if (authenticated == 'County') {
         function missedPartner(data) {
             let partner = [];
             let percent_rtc = [];
             let percent_not_kept = [];
             for (let i = 0; i < data.length; i++) {
                 partner.push(data[i].partner);
-                parseFloat(percent_rtc.push(data[i].percent_rtc)).toFixed();
-                parseFloat(percent_not_kept.push(data[i].percent_not_kept)).toFixed(1);
+                Math.round(percent_rtc.push(data[i].percent_rtc)).toFixed();
+                Math.round(percent_not_kept.push(data[i].percent_not_kept)).toFixed(1);
             }
             Highcharts.chart('missed_partner', {
                 chart: {
@@ -2604,7 +2759,7 @@
                 tooltip: {
                     formatter: function() {
                         return '<b>' + this.x + '</b><br/>' +
-                            this.series.name + ': ' + this.y;
+                            this.series.name + ': ' + this.y + '%';
                     }
                 },
                 plotOptions: {
@@ -2635,8 +2790,8 @@
             let percent_not_kept = [];
             for (let i = 0; i < data.length; i++) {
                 partner.push(data[i].partner);
-                parseFloat(percent_kept.push(data[i].percent_kept)).toFixed(1);
-                parseFloat(percent_not_kept.push(data[i].percent_not_kept)).toFixed(1);
+                Math.round(percent_kept.push(data[i].percent_kept)).toFixed(1);
+                Math.round(percent_not_kept.push(data[i].percent_not_kept)).toFixed(1);
             }
             Highcharts.chart('distribution_partner', {
                 chart: {
@@ -2678,7 +2833,7 @@
                 tooltip: {
                     formatter: function() {
                         return '<b>' + this.x + '</b><br/>' +
-                            this.series.name + ': ' + this.y;
+                            this.series.name + ': ' + this.y + '%';
                     }
                 },
                 plotOptions: {
@@ -2696,6 +2851,153 @@
                     name: 'Not Kept',
                     color: '#97080F',
                     data: percent_not_kept
+
+                }],
+
+            });
+        }
+    }
+    if (authenticated == 'Partner' || authenticated == 'Sub County') {
+        function appFacility(data) {
+            let facility = [];
+            let percent_kept = [];
+            let percent_not_kept = [];
+            for (let i = 0; i < data.length; i++) {
+                facility.push(data[i].facility);
+                Math.round(percent_kept.push(data[i].percent_kept)).toFixed(1);
+                Math.round(percent_not_kept.push(data[i].percent_not_kept)).toFixed(1);
+            }
+            Highcharts.chart('distribution_facility', {
+                chart: {
+                    type: 'column'
+                },
+                legend: {
+                    itemStyle: {
+                        fontFamily: 'Manrope',
+                        fontSize: '12px'
+                    }
+                },
+                title: {
+                    text: 'Appointment Distribution by Facility',
+                    style: {
+                        fontFamily: 'Manrope',
+                        fontSize: '12px'
+                    }
+                },
+                xAxis: {
+                    categories: facility,
+                },
+                yAxis: {
+                    min: 0,
+                    max: 100,
+                    title: {
+                        text: 'Percentage'
+                    },
+                    stackLabels: {
+                        enabled: true,
+                        style: {
+                            fontWeight: 'bold',
+                            color: ( // theme
+                                Highcharts.defaultOptions.title.style &&
+                                Highcharts.defaultOptions.title.style.color
+                            ) || 'gray'
+                        }
+                    }
+                },
+                tooltip: {
+                    formatter: function() {
+                        return '<b>' + this.x + '</b><br/>' +
+                            this.series.name + ': ' + this.y + '%';
+                    }
+                },
+                plotOptions: {
+                    column: {
+                        pointPadding: 0.2,
+                        borderWidth: 0
+                    }
+                },
+                series: [{
+                    name: 'Kept',
+                    color: '#01058A',
+                    data: percent_kept
+
+                }, {
+                    name: 'Not Kept',
+                    color: '#97080F',
+                    data: percent_not_kept
+
+                }],
+
+            });
+        }
+
+        function missedFacility(data) {
+            let facility = [];
+            let percent_rtc = [];
+            let percent_not_kept = [];
+            for (let i = 0; i < data.length; i++) {
+                facility.push(data[i].facility);
+                Math.round(percent_rtc.push(data[i].percent_rtc)).toFixed();
+                Math.round(percent_not_kept.push(data[i].percent_not_kept)).toFixed(1);
+            }
+            Highcharts.chart('missed_facility', {
+                chart: {
+                    type: 'column'
+                },
+                legend: {
+                    itemStyle: {
+                        fontFamily: 'Manrope',
+                        fontSize: '12px'
+                    }
+                },
+                title: {
+                    text: 'Missed Appointment Distribution by Facility',
+                    style: {
+                        fontFamily: 'Manrope',
+                        fontSize: '12px'
+                    }
+                },
+                xAxis: {
+                    categories: facility,
+                },
+                yAxis: {
+                    min: 0,
+                    max: 100,
+                    title: {
+                        text: 'Percentage'
+                    },
+                    stackLabels: {
+                        enabled: true,
+                        style: {
+                            fontWeight: 'bold',
+                            color: ( // theme
+                                Highcharts.defaultOptions.title.style &&
+                                Highcharts.defaultOptions.title.style.color
+                            ) || 'gray'
+                        }
+                    }
+                },
+                tooltip: {
+                    formatter: function() {
+                        return '<b>' + this.x + '</b><br/>' +
+                            this.series.name + ': ' + this.y + '%';
+                    }
+                },
+                plotOptions: {
+                    column: {
+                        pointPadding: 0.2,
+                        borderWidth: 0
+                    }
+                },
+                series: [{
+                    name: 'Missed',
+                    color: '#01058A',
+                    data: percent_not_kept
+
+                }, {
+                    name: 'Returned To Care',
+                    color: '#97080F',
+                    data: percent_rtc
 
                 }],
 
