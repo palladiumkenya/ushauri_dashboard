@@ -7,7 +7,7 @@
         font-family: 'Manrope';
         font-style: normal;
         font-weight: 500;
-        font-size: 12px;
+        font-size: 16px;
         line-height: 16px;
         color: #FFFFFF;
     }
@@ -85,7 +85,6 @@
         font-family: 'Manrope';
         font-style: normal;
         font-weight: 700;
-        font-size: 10px;
         line-height: 120%;
         /* identical to box height, or 20px */
         letter-spacing: -0.3px;
@@ -99,6 +98,18 @@
         background: rgba(229, 247, 255, 0.28);
         border: 1px solid #E5F7FF;
         border-radius: 10px;
+    }
+
+    .box_pec {
+        top: 12px;
+        right: 10px;
+        float: right;
+        position: absolute;
+
+    }
+    .no_count {
+        font-weight: 700;
+        font-size: 24px;
     }
 </style>
 @endsection
@@ -118,7 +129,7 @@
             <div class="col-lg-3">
                 <div class="form-group">
 
-                    <select class="form-control select2" id="partners" name="partners[]" multiple="multiple">
+                    <select class="form-control select2" id="partners" name="partners">
                         <option></option>
                         @if (count($partners) > 0)
                         @foreach($partners as $partner)
@@ -131,7 +142,7 @@
             </div>
             <div class="col-lg-3">
                 <div class="form-group">
-                    <select class="form-control select2" id="counties" name="county" multiple="multiple">
+                    <select class="form-control select2" id="counties" name="county">
                         <option value=""></option>
                         @if (count($counties) > 0)
                         @foreach($counties as $county)
@@ -143,7 +154,7 @@
             </div>
             <div class="col-lg-3">
                 <div class="form-group">
-                    <select class="form-control select2" id="subcounties" name="subcounty" multiple="multiple">
+                    <select class="form-control select2" id="subcounties" name="subcounty">
                         <option value=""></option>
                         @if (count($sub_counties) > 0)
                         @foreach($sub_counties as $sub_county)
@@ -155,7 +166,7 @@
             </div>
             <div class="col-lg-3">
                 <div class="form-group">
-                    <select class="form-control select2" id="facilities" name="facility" multiple="multiple">
+                    <select class="form-control select2" id="facilities" name="facility">
                         <option value=""></option>
                         @if (count($facilities) > 0)
                         @foreach($facilities as $facility)
@@ -167,7 +178,7 @@
             </div>
             <div class="col-lg-2">
                 <div class="form-group">
-                    <select class="form-control input-rounded input-sm select2" id="sites" name="site" multiple="multiple">
+                    <select class="form-control input-rounded input-sm select2" id="sites" name="site">
                         <option value=""> </option>
                         <option value="Paper Based">Paper Based</option>
                         <option value="EMR Based">EMR Based</option>
@@ -176,7 +187,7 @@
             </div>
             <div class="col-lg-2">
                 <div class="form-group">
-                    <select class="form-control input-rounded input-sm select2" id="clinics" name="clinic" multiple="multiple">
+                    <select class="form-control input-rounded input-sm select2" id="clinics" name="clinic">
                         <option value=""></option>
                         @if (count($clinics) > 0)
                         @foreach($clinics as $clinic)
@@ -188,7 +199,7 @@
             </div>
             <div class="col-lg-2">
                 <div class="form-group">
-                    <select class="form-control input-rounded input-sm select2" id="appointments" name="appointment" multiple="multiple">
+                    <select class="form-control input-rounded input-sm select2" id="appointments" name="appointment">
                         <option value=""></option>
                         <option value="Missed">Missed</option>
                         <option value="Defaulted">Defaulted</option>
@@ -243,7 +254,7 @@
             <div class="col-lg-3">
                 <div class="form-group">
 
-                    <select class="form-control select2" id="partners" name="partner[]" multiple="multiple">
+                    <select class="form-control select2" id="partners" name="partner">
                         <option></option>
                         @if (count($partners) > 0)
                         @foreach($partners as $partner)
@@ -256,7 +267,19 @@
             </div>
             <div class="col-lg-3">
                 <div class="form-group">
-                    <select class="form-control select2" id="subcounties" name="subcounty" multiple="multiple">
+                    <select class="form-control select2" id="counties" name="county">
+                        <option value=""></option>
+                        @if (count($counties) > 0)
+                        @foreach($counties as $county)
+                        <option value="{{$county->id }}">{{ ucwords($county->name) }}</option>
+                        @endforeach
+                        @endif
+                    </select>
+                </div>
+            </div>
+            <div class="col-lg-3">
+                <div class="form-group">
+                    <select class="form-control select2" id="subcounties" name="subcounty">
                         <option value=""></option>
                         @if (count($sub_counties) > 0)
                         @foreach($sub_counties as $sub_county)
@@ -268,7 +291,7 @@
             </div>
             <div class="col-lg-3">
                 <div class="form-group">
-                    <select class="form-control select2" id="facilities" name="facility" multiple="multiple">
+                    <select class="form-control select2" id="facilities" name="facility" >
                         <option value=""></option>
                         @if (count($facilities) > 0)
                         @foreach($facilities as $facility)
@@ -280,7 +303,7 @@
             </div>
             <div class="col-lg-3">
                 <div class="form-group">
-                    <select class="form-control input-rounded input-sm select2" id="sites" name="site" multiple="multiple">
+                    <select class="form-control input-rounded input-sm select2" id="sites" name="site" >
                         <option value=""> </option>
                         <option value="Paper Based">Paper Based</option>
                         <option value="EMR Based">EMR Based</option>
@@ -289,7 +312,7 @@
             </div>
             <div class="col-lg-3">
                 <div class="form-group">
-                    <select class="form-control input-rounded input-sm select2" id="clinics" name="clinic" multiple="multiple">
+                    <select class="form-control input-rounded input-sm select2" id="clinics" name="clinic">
                         <option value=""></option>
                         @if (count($clinics) > 0)
                         @foreach($clinics as $clinic)
@@ -301,7 +324,7 @@
             </div>
             <div class="col-lg-3">
                 <div class="form-group">
-                    <select class="form-control input-rounded input-sm select2" id="appointments" name="appointment" multiple="multiple">
+                    <select class="form-control input-rounded input-sm select2" id="appointments" name="appointment">
                         <option value=""></option>
                         <option value="Missed">Missed</option>
                         <option value="Defaulted">Defaulted</option>
@@ -355,7 +378,7 @@
         <div class="row">
             <div class="col-lg-3">
                 <div class="form-group">
-                    <select class="form-control select2" id="counties" name="county" multiple="multiple">
+                    <select class="form-control select2" id="counties" name="county" >
                         <option value=""></option>
                         @if (count($counties) > 0)
                         @foreach($counties as $county)
@@ -367,7 +390,7 @@
             </div>
             <div class="col-lg-3">
                 <div class="form-group">
-                    <select class="form-control select2" id="subcounties" name="subcounty" multiple="multiple">
+                    <select class="form-control select2" id="subcounties" name="subcounty" >
                         <option value=""></option>
                         @if (count($sub_counties) > 0)
                         @foreach($sub_counties as $sub_county)
@@ -379,7 +402,7 @@
             </div>
             <div class="col-lg-3">
                 <div class="form-group">
-                    <select class="form-control select2" id="facilities" name="facility" multiple="multiple">
+                    <select class="form-control select2" id="facilities" name="facility" >
                         <option value=""></option>
                         @if (count($facilities) > 0)
                         @foreach($facilities as $facility)
@@ -391,7 +414,7 @@
             </div>
             <div class="col-lg-3">
                 <div class="form-group">
-                    <select class="form-control input-rounded input-sm select2" id="sites" name="site" multiple="multiple">
+                    <select class="form-control input-rounded input-sm select2" id="sites" name="site" >
                         <option value=""> </option>
                         <option value="Paper Based">Paper Based</option>
                         <option value="EMR Based">EMR Based</option>
@@ -400,7 +423,7 @@
             </div>
             <div class="col-lg-3">
                 <div class="form-group">
-                    <select class="form-control input-rounded input-sm select2" id="clinics" name="clinic" multiple="multiple">
+                    <select class="form-control input-rounded input-sm select2" id="clinics" name="clinic">
                         <option value=""></option>
                         @if (count($clinics) > 0)
                         @foreach($clinics as $clinic)
@@ -412,7 +435,7 @@
             </div>
             <div class="col-lg-3">
                 <div class="form-group">
-                    <select class="form-control input-rounded input-sm select2" id="appointments" name="appointment" multiple="multiple">
+                    <select class="form-control input-rounded input-sm select2" id="appointments" name="appointment" >
                         <option value=""></option>
                         <option value="Missed">Missed</option>
                         <option value="Defaulted">Defaulted</option>
@@ -466,7 +489,7 @@
         <div class="row">
             <div class="col-lg-3">
                 <div class="form-group">
-                    <select class="form-control select2" id="facilities" name="facility" multiple="multiple">
+                    <select class="form-control select2" id="facilities" name="facility" >
                         <option value=""></option>
                         @if (count($facilities) > 0)
                         @foreach($facilities as $facility)
@@ -478,7 +501,7 @@
             </div>
             <div class="col-lg-3">
                 <div class="form-group">
-                    <select class="form-control input-rounded input-sm select2" id="sites" name="site" multiple="multiple">
+                    <select class="form-control input-rounded input-sm select2" id="sites" name="site" >
                         <option value=""> </option>
                         <option value="Paper Based">Paper Based</option>
                         <option value="EMR Based">EMR Based</option>
@@ -487,7 +510,7 @@
             </div>
             <div class="col-lg-3">
                 <div class="form-group">
-                    <select class="form-control input-rounded input-sm select2" id="clinics" name="clinic" multiple="multiple">
+                    <select class="form-control input-rounded input-sm select2" id="clinics" name="clinic">
                         <option value=""></option>
                         @if (count($clinics) > 0)
                         @foreach($clinics as $clinic)
@@ -499,7 +522,7 @@
             </div>
             <div class="col-lg-3">
                 <div class="form-group">
-                    <select class="form-control input-rounded input-sm select2" id="appointments" name="appointment" multiple="multiple">
+                    <select class="form-control input-rounded input-sm select2" id="appointments" name="appointment">
                         <option value=""></option>
                         <option value="Missed">Missed</option>
                         <option value="Defaulted">Defaulted</option>
@@ -553,7 +576,7 @@
         <div class="row">
             <div class="col-lg-3">
                 <div class="form-group">
-                    <select class="form-control input-rounded input-sm select2" id="clinics" name="clinic" multiple="multiple">
+                    <select class="form-control input-rounded input-sm select2" id="clinics" name="clinic">
                         <option value=""></option>
                         @if (count($clinics) > 0)
                         @foreach($clinics as $clinic)
@@ -565,7 +588,7 @@
             </div>
             <div class="col-lg-3">
                 <div class="form-group">
-                    <select class="form-control input-rounded input-sm select2" id="appointments" name="appointment" multiple="multiple">
+                    <select class="form-control input-rounded input-sm select2" id="appointments" name="appointment">
                         <option value=""></option>
                         <option value="Missed">Missed</option>
                         <option value="Defaulted">Defaulted</option>
@@ -611,7 +634,6 @@
 
 </div>
 @endif
-
 <nav>
     <div class="nav nav-tabs" id="nav-tab" role="tablist">
         <a class="nav-item nav-link active" id="nav-dashboard-tab" data-toggle="tab" href="#nav-dashboard" role="tab" aria-controls="nav-dashboard" aria-selected="true">Appointment trends</a>
@@ -621,107 +643,89 @@
 <div class="tab-content" id="nav-tabContent">
     <!-- main dashbaord starts -->
     <div class="tab-pane fade show active" id="nav-dashboard" role="tabpanel" aria-labelledby="nav-dashboard-tab">
-        <div class="col-md-12">
-            <div class="row">
-                <div class="col-lg-3">
-                    <div class="TX_Curr card o-hidden mb-4 h-75">
-                        <div class="card-body">
-                            <div class="content">
-                                <span id="tx_curr"></span>
-                                <p>TX_Curr</p>
-
-                            </div>
-
+        <div class="row">
+            <div class="col-sm-4">
+                <div class="TX_Curr card o-hidden mb-0 h-75">
+                    <div class="card-body">
+                        <div class="content">
+                            <span>TX_Curr</span>
+                            <p id="tx_curr" class="no_count" style="margin-top:5px;"></p>
                         </div>
+
                     </div>
                 </div>
-                <div class="col-lg-3">
-                    <div class="Consented card o-hidden mb-4 h-75">
-                        <div class="card-body">
-                            <div class="content" id="maindiv">
-                                <span id="consented"></span>
-                                <p>Clients Consented</p>
-                                <div style="width: 3em; height: 3em; text-align: center; border-radius:50%; border:solid #fff 1px; box-shadow: 0 0 0 2px; padding:2px; margin-bottom: 10px;">
-                                    <h2 id="percnt_consented" style="font-size: 10px; margin-top: 12px;"></h2>
-                                </div>
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-3">
-                    <div class="Booked card o-hidden mb-4 h-75">
-                        <div class="card-body">
-                            <div class="content" id="maindiv">
-                                <span id="all_appointments"></span>
-                                <p>Booked Appointments</p>
-
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-3">
-                    <div class="Messages card o-hidden mb-4 h-75">
-                        <div class="card-body">
-                            <div class="content">
-                                <span id="sms_sent"></span>
-                                <p>Received Messages</p>
-
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
-
             </div>
+            <div class="col-sm-4">
+                <div class="Consented card o-hidden mb-0 h-75">
+                    <div class="card-body">
+                        <div class="content" id="maindiv">
+                            <span class="mb-4">Clients Consented</span>
+                            <p id="consented" class="no_count" style="margin-top:5px;"></p>
+                            <div class="box_pec" style="width: 3em; height: 3em; text-align: center; border-radius:50%; border:solid #fff 1px; box-shadow: 0 0 0 2px; padding:2px;">
+                                <h2 id="percnt_consented" style="font-size: 10px; margin-top: 15px;"></h2>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="Booked card o-hidden mb-0 h-75">
+                    <div class="card-body">
+                        <div class="content" id="maindiv">
+                            <span>Booked Appointments</span>
+                            <p id="all_appointments" class="no_count" style="margin-top:5px;"></p>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
         </div>
 
-        <div class="col-md-12">
-            <div class="row">
-                <div class="col-lg-4">
-                    <div class="Kept card o-hidden mb-4 h-75">
-                        <div class="card-body">
-                            <div class="content">
-                                <span id="app_kept" class=""></span>
-                                <p class="pt-0">Appointments Kept</p>
-                                <div style="width: 3em; height: 3em; text-align: center; border-radius:50%; border:solid #fff 1px; box-shadow: 0 0 0 2px; padding:2px; margin-bottom: 10px;">
-                                    <h2 id="percnt_kept" style="font-size: 10px; margin-top: 12px;"></h2>
-                                </div>
+        <div class="row">
+            <div class="col-sm-4">
+                <div class="Kept card o-hidden mb-2 h-75">
+                    <div class="card-body">
+                        <div class="content">
+                            <span class="pt-0">Appointments Kept</span>
+                            <p id="app_kept" class="no_count" style="margin-top:5px;"></p>
+                            <div class="box_pec" style="width: 3em; height: 3em; text-align: center; border-radius:50%; border:solid #fff 1px; box-shadow: 0 0 0 2px; padding:2px; margin-bottom: 10px;">
+                                <h2 id="percnt_kept" style="font-size: 10px; margin-top: 15px;"></h2>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="col-lg-4">
-                    <div class="Not_Kept card o-hidden mb-4 h-75">
-                        <div class="card-body">
-                            <div class="content">
-                                <span id="app_not_kept" class=""></span>
-                                <p class="pt-0">Appointments Not Kept</p>
-                                <div style="width: 3em; height: 3em; text-align: center; border-radius:50%; border:solid #fff 1px; box-shadow: 0 0 0 2px; padding:2px; margin-bottom: 10px;">
-                                    <h2 id="percnt_not_kept" style="font-size: 10px; margin-top: 12px;"></h2>
-                                </div>
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-4">
-                    <div class="Future card  o-hidden mb-4 h-75">
-                        <div class="card-body">
-                            <div class="content" id="maindiv">
-                                <span id="app_future"></span>
-                                <p>Future Appointments</p>
-                                <div style="width: 3em; height: 3em; text-align: center; border-radius:50%; border:solid #fff 1px; box-shadow: 0 0 0 2px; padding:2px; margin-bottom: 10px;">
-                                    <h2 id="percnt_future" style="font-size: 10px; margin-top: 12px;"></h2>
-                                </div>
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
-
             </div>
+            <div class="col-sm-4">
+                <div class="Not_Kept card o-hidden mb-2 h-75">
+                    <div class="card-body">
+                        <div class="content">
+                            <span class="">Appointments Not Kept</span>
+                            <p id="app_not_kept" class="no_count" style="margin-top:5px;"></p>
+                            <div class="box_pec" style="width: 3em; height: 3em; text-align: center; border-radius:50%; border:solid #fff 1px; box-shadow: 0 0 0 2px; padding:2px; margin-bottom: 10px;">
+                                <h2 id="percnt_not_kept" style="font-size: 10px; margin-top: 15px;"></h2>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="Future card  o-hidden mb-2 h-75">
+                    <div class="card-body">
+                        <div class="content" id="maindiv">
+                            <span>Future Appointments</span>
+                            <p id="app_future" class="no_count" style="margin-top:5px;"></p>
+                            <div class="box_pec" style="width: 3em; height: 3em; text-align: center; border-radius:50%; border:solid #fff 1px; box-shadow: 0 0 0 2px; padding:2px;">
+                                <h2 id="percnt_future" style="font-size: 10px; margin-top: 15px;"></h2>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
         </div>
         <div class="Indications card-body col-lg-12" id="maindiv">
             <p class="Indicator">Indicator Definition</p>
@@ -835,29 +839,14 @@
                                             <th>DOB</th>
                                             <th>Phone No</th>
                                             <th>SMS Consent</th>
+                                            <th>DSD Status</th>
                                             <th>Status</th>
                                             <th>Appointment Kept</th>
                                             <th>Appointment Not Kept</th>
                                         </tr>
                                     </thead>
-                                    <tbody>
-                                        @if (count($client_list) > 0)
-                                        @foreach($client_list as $result)
-                                        <tr>
+                                    <tbody id="client">
 
-                                            <td> {{$result->upi_no}}</td>
-                                            <td> {{$result->ccc_number}}</td>
-                                            <td> {{$result->client_name}}</td>
-                                            <td> {{$result->dob}}</td>
-                                            <td> {{$result->phone_no}}</td>
-                                            <td> {{$result->consented}}</td>
-                                            <td> {{$result->client_status}}</td>
-                                            <td> {{$result->kept_app}}</td>
-                                            <td> {{$result->not_kept_app}}</td>
-
-                                        </tr>
-                                        @endforeach
-                                        @endif
                                     </tbody>
 
                                 </table>
@@ -879,170 +868,162 @@
     <div class="tab-pane fade" id="nav-appointment" role="tabpanel" aria-labelledby="nav-appointment-tab">
 
 
-        <div class="col-md-12">
-            <div class="row">
-                <div class="col-lg-4">
-                    <div class="TX_Curr card o-hidden mb-4 h-75">
-                        <div class="card-body">
-                            <div class="content">
-                                <span id="app_missed"></span>
-                                <p>Clients With Missed Appointment</p>
-                            </div>
-
+        <div class="row">
+            <div class="col-sm-4">
+                <div class="TX_Curr card o-hidden mb-0 h-75">
+                    <div class="card-body">
+                        <div class="content">
+                            <span>Clients With Missed Appointment</span>
+                            <p id="app_missed" class="no_count" style="margin-top:5px;"></p>
                         </div>
+
                     </div>
                 </div>
-                <div class="col-lg-4">
-                    <div class="Consented card o-hidden mb-4 h-75">
-                        <div class="card-body">
-                            <div class="content" id="maindiv">
-                                <span id="consent_app"></span>
-                                <p>Consented Clients Who Missed</p>
-                            </div>
-                            <div class="h-45" style="float:right; margin-right: 20px;">
-                                <div class="row">
-                                    <div class="" style="margin-right: 20px;">
-                                        <p>Missed</p>
-                                        <span id="consent_missed"></span>
-                                    </div>
-                                    <div class="" style="margin-right: 10px; border-left: 2px solid;"></div>
-                                    <div class="" style="margin-right: 20px;">
-                                        <p>Defaulted</p>
-                                        <span id="consent_defaulted"></span>
-                                    </div>
-                                    <div class="" style="margin-right: 10px; border-left: 2px solid;"></div>
-                                    <div class="" style="margin-right: 20px;">
-                                        <p>IIT</p>
-                                        <span id="consent_iit"></span>
-                                    </div>
-                                </div>
-                            </div>
-
-
+            </div>
+            <div class="col-sm-4">
+                <div class="Consented card o-hidden mb-0 h-75">
+                    <div class="card-body">
+                        <div class="content" id="maindiv">
+                            <span>Consented Clients Who Missed</span>
+                            <p id="consent_app" class="no_count" style="margin-top:5px;"></p>
                         </div>
-                    </div>
-                </div>
-                <div class="col-lg-4">
-                    <div class="Booked card o-hidden mb-4 h-75">
-                        <div class="card-body">
-                            <div class="content" id="maindiv">
-                                <span id="sms"></span>
-                                <p>Clients Who Received SMS</p>
-                            </div>
-                            <div class="h-45" style="float:right; margin-right: 20px;">
-                                <div class="row">
-                                    <div class="" style="margin-right: 20px;">
-                                        <p>Missed</p>
-                                        <span id="sms_missed"></span>
-                                    </div>
-                                    <div class="" style="margin-right: 10px; border-left: 2px solid;"></div>
-                                    <div style="margin-right: 20px;">
-                                        <p>Defaulted</p>
-                                        <span id="sms_defaulted"></span>
-                                    </div>
-                                    <div class="" style="margin-right: 10px; border-left: 2px solid;"></div>
-                                    <div style="margin-right: 20px;">
-                                        <p>IIT</p>
-                                        <span id="sms_iit"></span>
-                                    </div>
+                        <div class="h-45" style="float:right; margin-right: 20px;">
+                            <div class="row">
+                                <div class="" style="margin-right: 20px;">
+                                    <span>Missed</span>
+                                    <p id="consent_missed"></p>
+                                </div>
+                                <div class="" style="margin-right: 10px; border-left: 1px solid;"></div>
+                                <div class="" style="margin-right: 20px;">
+                                    <span>Defaulted</span>
+                                    <p id="consent_defaulted"></p>
+                                </div>
+                                <div class="" style="margin-right: 10px; border-left: 1px solid;"></div>
+                                <div class="" style="margin-right: 20px;">
+                                    <span>IIT</span>
+                                    <p id="consent_iit"></p>
                                 </div>
                             </div>
-
                         </div>
                     </div>
                 </div>
             </div>
+            <div class="col-sm-4">
+                <div class="Booked card o-hidden mb-0 h-75">
+                    <div class="card-body">
+                        <div class="content" id="maindiv">
+                            <span>Clients Who Received SMS</span>
+                            <p id="sms" class="no_count" style="margin-top:5px;"></p>
+                        </div>
+                        <div class="h-45" style="float:right; margin-right: 20px;">
+                            <div class="row">
+                                <div class="" style="margin-right: 20px;">
+                                    <span>Missed</span>
+                                    <p id="sms_missed"></p>
+                                </div>
+                                <div class="" style="margin-right: 10px; border-left: 1px solid;"></div>
+                                <div style="margin-right: 20px;">
+                                    <span>Defaulted</span>
+                                    <p id="sms_defaulted"></p>
+                                </div>
+                                <div class="" style="margin-right: 10px; border-left: 1px solid;"></div>
+                                <div style="margin-right: 20px;">
+                                    <span>IIT</span>
+                                    <p id="sms_iit"></p>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="mt-2 col-md-12">
-            <div class="row">
-                <div class="col-lg-4">
-                    <div class="Kept card o-hidden mb-4 h-75">
-                        <div class="card-body">
-                            <div class="content">
-                                <span id="contacted"></span>
-                                <p>Clients Called</p>
+        <div class="row">
+            <div class="col-sm-4">
+                <div class="Kept card o-hidden mb-0 h-75">
+                    <div class="card-body">
+                        <div class="content">
+                            <span>Clients Called</span>
+                            <p id="contacted" class="no_count" style="margin-top:5px;"></p>
+                        </div>
 
-                            </div>
-
-                            <div class="h-45" style="float:right;">
-                                <div class="row">
-                                    <div class="" style="margin-right: 20px;">
-                                        <p>Missed</p>
-                                        <span id="contacted_missed"></span>
-                                    </div>
-                                    <div class="" style="margin-right: 10px; border-left: 2px solid;"></div>
-                                    <div class="" style="margin-right: 20px; ">
-                                        <p>Defaulted</p>
-                                        <span id="contacted_defaulted"></span>
-                                    </div>
-                                    <div class="" style="margin-right: 10px; border-left: 2px solid;"></div>
-                                    <div class="" style="margin-right: 20px;">
-                                        <p>IIT</p>
-                                        <span id="contacted_iit"></span>
-                                    </div>
+                        <div class="h-45" style="float:right;">
+                            <div class="row">
+                                <div class="" style="margin-right: 20px;">
+                                    <span>Missed</span>
+                                    <p id="contacted_missed"></p>
+                                </div>
+                                <div class="" style="margin-right: 10px; border-left: 1px solid;"></div>
+                                <div class="" style="margin-right: 20px; ">
+                                    <span>Defaulted</span>
+                                    <p id="contacted_defaulted"></p>
+                                </div>
+                                <div class="" style="margin-right: 10px; border-left: 1px solid;"></div>
+                                <div class="" style="margin-right: 20px;">
+                                    <span>IIT</span>
+                                    <p id="contacted_iit"></p>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="col-lg-4">
-                    <div class="Not_Kept card o-hidden mb-4 h-75">
-                        <div class="card-body">
-                            <div class="content" id="maindiv">
-                                <span id="traced"></span>
-                                <p>Clients Physically Traced</p>
-                            </div>
-                            <div class="h-45" style="float:right;">
-                                <div class="row">
-                                    <div class="" style="margin-right: 20px;">
-                                        <p>Missed</p>
-                                        <span id="traced_missed" class="text-center" style="margin-top: 5px;"></span>
-                                    </div>
-                                    <div class="" style="margin-right: 10px; border-left: 2px solid;"></div>
-                                    <div class="" style="margin-right: 20px;">
-                                        <p>Defaulted</p>
-                                        <span id="traced_defaulted" class="text-center" style="margin-top: 5px;"></span>
-                                    </div>
-                                    <div class="" style="margin-right: 10px; border-left: 2px solid;"></div>
-                                    <div class="" style="margin-right: 20px;">
-                                        <p>IIT</p>
-                                        <span id="traced_iit" class="text-center" style="margin-top: 5px;"></span>
-                                    </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="Not_Kept card o-hidden mb-0 h-75">
+                    <div class="card-body">
+                        <div class="content" id="maindiv">
+                            <span>Clients Physically Traced</span>
+                            <p id="traced" class="no_count" style="margin-top:5px;"></p>
+                        </div>
+                        <div class="h-45" style="float:right;">
+                            <div class="row">
+                                <div class="" style="margin-right: 20px;">
+                                    <span>Missed</span>
+                                    <p id="traced_missed" class="text-center" style="margin-top: 5px;"></p>
+                                </div>
+                                <div class="" style="margin-right: 10px; border-left: 1px solid;"></div>
+                                <div class="" style="margin-right: 20px;">
+                                    <span>Defaulted</span>
+                                    <p id="traced_defaulted" class="text-center" style="margin-top: 5px;"></p>
+                                </div>
+                                <div class="" style="margin-right: 10px; border-left: 1px solid;"></div>
+                                <div class="" style="margin-right: 20px;">
+                                    <span>IIT</span>
+                                    <p id="traced_iit" class="text-center" style="margin-top: 5px;"></p>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="col-lg-4">
-                    <div class="Future card o-hidden mb-4 h-75">
-                        <div class="card-body">
-                            <div class="content" id="maindiv">
-                                <span id="outcome"></span>
-                                <p>Clients Who RTC</p>
+            </div>
+            <div class="col-sm-4">
+                <div class="Future card o-hidden mb-0 h-75">
+                    <div class="card-body">
+                        <div class="content" id="maindiv">
+                            <span>Clients Who RTC</span>
+                            <p id="outcome" class="no_count" style="margin-top:5px;"></p>
 
-                            </div>
-                            <div class="h-45" style="float:right;">
-                                <div class="row">
-                                    <div class="text-right" style="margin-right: 20px;">
-                                        <p>Missed</p>
-                                        <span id="outcome_missed"></span>
-                                    </div>
-                                    <div class="" style="margin-right: 10px; border-left: 2px solid;"></div>
-                                    <div class="text-right" style="margin-right: 20px;">
-                                        <p>Defaulted</p>
-                                        <span id="outcome_defaulted"></span>
-                                    </div>
-                                    <div class="" style="margin-right: 10px; border-left: 2px solid;"></div>
-                                    <div class="text-right" style="margin-right: 20px;">
-                                        <p>IIT</p>
-                                        <span id="outcome_iit"></span>
-                                    </div>
+                        </div>
+                        <div class="h-35" style="float:right;">
+                            <div class="row">
+                                <div class="text-right" style="margin-right: 20px;">
+                                    <span>Missed</span>
+                                    <p id="outcome_missed"></p>
+                                </div>
+                                <div class="" style="margin-right: 10px; border-left: 1px solid;"></div>
+                                <div class="text-right" style="margin-right: 20px;">
+                                    <span>Defaulted</span>
+                                    <p id="outcome_defaulted"></p>
+                                </div>
+                                <div class="" style="margin-right: 10px; border-left: 1px solid;"></div>
+                                <div class="" style="margin-right: 20px;">
+                                    <span>IIT</span>
+                                    <p class="" id="outcome_iit"></p>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-
             </div>
         </div>
 
@@ -1168,6 +1149,7 @@
                                             <th>DOB</th>
                                             <th>Phone No</th>
                                             <th>SMS Consent</th>
+                                            <th>DSD Status</th>
                                             <th>Status</th>
                                             <th>No of Days Missed</th>
                                             <th>Outcome</th>
@@ -1184,6 +1166,7 @@
                                             <td> {{$result->dob}}</td>
                                             <td> {{$result->phone_no}}</td>
                                             <td> {{$result->consented}}</td>
+                                            <td> {{$result->dsd_status}}</td>
                                             <td> {{$result->client_status}}</td>
                                             <td> {{$result->days_defaulted}}</td>
                                             <td> {{$result->final_outcome}}</td>
@@ -1267,10 +1250,88 @@
         placeholder: "Select Clinic"
     });
     $("#appointments").select2({
-        placeholder: "Appointment Failure Type"
+        placeholder: "Appointment Status"
     });
     $("#sites").select2({
         placeholder: "Site Type"
+    });
+
+    $(document).ready(function() {
+        $('select[name="partner"]').on('change', function() {
+            var partnerID = $(this).val();
+            if (partnerID) {
+                $.ajax({
+                    url: '/get_dashboard_counties/' + partnerID,
+                    type: "GET",
+                    dataType: "json",
+                    success: function(data) {
+
+
+                        $('select[name="county"]').empty();
+                        $('select[name="county"]').append('<option value="">Please County</option>');
+                        $.each(data, function(key, value) {
+                            $('select[name="county"]').append('<option value="' + key + '">' + value + '</option>');
+                        });
+
+
+                    }
+                });
+            } else {
+                $('select[name="county"]').empty();
+            }
+        });
+    });
+
+    $(document).ready(function() {
+        $('select[name="county"]').on('change', function() {
+            var countyID = $(this).val();
+            if (countyID) {
+                $.ajax({
+                    url: '/get_dashboard_sub_counties/' + countyID,
+                    type: "GET",
+                    dataType: "json",
+                    success: function(data) {
+
+
+                        $('select[name="subcounty"]').empty();
+                        $('select[name="subcounty"]').append('<option value="">Please Select Sub County</option>');
+                        $.each(data, function(key, value) {
+                            $('select[name="subcounty"]').append('<option value="' + key + '">' + value + '</option>');
+                        });
+
+
+                    }
+                });
+            } else {
+                $('select[name="subcounty"]').empty();
+            }
+        });
+    });
+
+    $(document).ready(function() {
+        $('select[name="subcounty"]').on('change', function() {
+            var subcountyID = $(this).val();
+            if (subcountyID) {
+                $.ajax({
+                    url: '/get_dashboard_facilities/' + subcountyID,
+                    type: "GET",
+                    dataType: "json",
+                    success: function(data) {
+
+
+                        $('select[name="facility"]').empty();
+                        $('select[name="facility"]').append('<option value="">Please Select Facility</option>');
+                        $.each(data, function(key, value) {
+                            $('select[name="facility"]').append('<option value="' + key + '">' + value + '</option>');
+                        });
+
+
+                    }
+                });
+            } else {
+                $('select[name="facility"]').empty();
+            }
+        });
     });
 
     $('#table_client').DataTable({
@@ -1345,6 +1406,23 @@
             missedAge(data.missed_age);
             missedGender(data.missed_gender);
             missedMarital(data.missed_marital);
+            if (authenticated == 'Facility') {
+
+                $.each(data.client_list, function(key, value) {
+                    $('#client').append("<tr>\
+										<td>" + value.upi_no + "</td>\
+										<td>" + value.ccc_number + "</td>\
+										<td>" + value.client_name + "</td>\
+                                        <td>" + value.dob + "</td>\
+                                        <td>" + value.phone_no + "</td>\
+                                        <td>" + value.consented + "</td>\
+                                        <td>" + value.dsd_status + "</td>\
+                                        <td>" + value.client_status + "</td>\
+                                        <td>" + value.kept_app + "</td>\
+                                        <td>" + value.not_kept_app + "</td>\
+										</tr>");
+                })
+            }
             if (authenticated == 'Admin' || authenticated == 'Donor') {
                 appCounty(data.appointment_county);
                 appPartner(data.appointment_partner)
@@ -1363,18 +1441,18 @@
 
 
             for (var x = 0; x < consent.length; x++) {
-                consented = (consent[x].consented).toLocaleString();
+                consented = parseInt(consent[x].consented);
                 console.log(consented);
                 if (consented == undefined || consented == null) {
                     consented = 0;
                 } else {
                     consented = consented.toLocaleString();
-                    console.log(consented);
                 }
                 percnt_consented = Math.round(consent[x].percent_consented).toFixed(0) + '%';
             }
             for (var x = 0; x < apps.length; x++) {
                 all_appointments = apps[x].total_app;
+                console.log(all_appointments);
                 if (all_appointments == undefined || all_appointments == null) {
                     all_appointments = 0;
                 } else {
@@ -1404,12 +1482,13 @@
                 } else {
                     sms_sent = sms_sent.toLocaleString();
                 }
-                percnt_kept = parseFloat(apps[x].percent_kept).toFixed(1) + '%';
-                percnt_not_kept = parseFloat(apps[x].percent_not_kept).toFixed(1) + '%';
-                percnt_future = parseFloat(apps[x].percent_future).toFixed(1) + '%';
+                percnt_kept = Math.round(apps[x].percent_kept).toFixed(1) + '%';
+                percnt_not_kept = Math.round(apps[x].percent_not_kept).toFixed(1) + '%';
+                percnt_future = Math.round(apps[x].percent_future).toFixed(1) + '%';
             }
             for (var x = 0; x < tx.length; x++) {
-                tx_curr = tx[x].tx_cur;
+                tx_curr = parseInt(tx[x].tx_cur).toLocaleString();
+
             }
             for (var x = 0; x < missed.length; x++) {
                 app_missed = missed[x].not_kept_app;
@@ -1418,25 +1497,25 @@
                 } else {
                     app_missed = app_missed.toLocaleString();
                 }
-                consent_app = missed[x].consent;
+                consent_app = parseInt(missed[x].consent);
                 if (consent_app == undefined || consent_app == null) {
                     consent_app = 0;
                 } else {
                     consent_app = consent_app.toLocaleString();
                 }
-                consent_missed = missed[x].missed_consent;
+                consent_missed = parseInt(missed[x].missed_consent);
                 if (consent_missed == undefined || consent_missed == null) {
                     consent_missed = 0;
                 } else {
                     consent_missed = consent_missed.toLocaleString();
                 }
-                consent_defaulted = missed[x].defaulted_consent;
+                consent_defaulted = parseInt(missed[x].defaulted_consent);
                 if (consent_defaulted == undefined || consent_defaulted == null) {
                     consent_defaulted = 0;
                 } else {
                     consent_defaulted = consent_defaulted.toLocaleString();
                 }
-                consent_iit = missed[x].iit_consent;
+                consent_iit = parseInt(missed[x].iit_consent);
                 if (consent_iit == undefined || consent_iit == null) {
                     consent_iit = 0;
                 } else {
@@ -1448,19 +1527,19 @@
                 } else {
                     sms = sms.toLocaleString();
                 }
-                sms_missed = missed[x].missed_messages;
+                sms_missed = parseInt(missed[x].missed_messages);
                 if (sms_missed == undefined || sms_missed == null) {
                     sms_missed = 0;
                 } else {
                     sms_missed = sms_missed.toLocaleString();
                 }
-                sms_defaulted = missed[x].defaulted_messages;
+                sms_defaulted = parseInt(missed[x].defaulted_messages);
                 if (sms_defaulted == undefined || sms_defaulted == null) {
                     sms_defaulted = 0;
                 } else {
                     sms_defaulted = sms_defaulted.toLocaleString();
                 }
-                sms_iit = missed[x].iit_messages;
+                sms_iit = parseInt(missed[x].iit_messages);
                 if (sms_iit == undefined || sms_iit == null) {
                     sms_iit = 0;
                 } else {
@@ -1473,19 +1552,19 @@
                 } else {
                     contacted = contacted.toLocaleString();
                 }
-                contacted_missed = missed[x].missed_called;
+                contacted_missed = parseInt(missed[x].missed_called);
                 if (contacted_missed == undefined || contacted_missed == null) {
                     contacted_missed = 0;
                 } else {
                     contacted_missed = contacted_missed.toLocaleString();
                 }
-                contacted_defaulted = missed[x].defaulted_called;
+                contacted_defaulted = parseInt(missed[x].defaulted_called);
                 if (contacted_defaulted == undefined || contacted_defaulted == null) {
                     contacted_defaulted = 0;
                 } else {
                     contacted_defaulted = contacted_defaulted.toLocaleString();
                 }
-                contacted_iit = missed[x].iit_called;
+                contacted_iit = parseInt(missed[x].iit_called);
                 if (contacted_iit == undefined || contacted_iit == null) {
                     contacted_iit = 0;
                 } else {
@@ -1498,44 +1577,44 @@
                 } else {
                     traced = traced.toLocaleString();
                 }
-                traced_missed = missed[x].missed_traced;
+                traced_missed = parseInt(missed[x].missed_traced);
                 if (traced_missed == undefined || traced_missed == null) {
                     traced_missed = 0;
                 } else {
                     traced_missed = traced_missed.toLocaleString();
                 }
-                traced_defaulted = missed[x].defaulted_traced;
+                traced_defaulted = parseInt(missed[x].defaulted_traced);
                 if (traced_defaulted == undefined || traced_defaulted == null) {
                     traced_defaulted = 0;
                 } else {
                     traced_defaulted = traced_defaulted.toLocaleString();
                 }
-                traced_iit = missed[x].iit_traced;
+                traced_iit = parseInt(missed[x].iit_traced);
                 if (traced_iit == undefined || traced_iit == null) {
                     traced_iit = 0;
                 } else {
                     traced_iit = traced_iit.toLocaleString();
                 }
 
-                outcome = missed[x].final_outcome;
+                outcome = parseInt(missed[x].final_outcome);
                 if (outcome == undefined || outcome == null) {
                     outcome = 0;
                 } else {
                     outcome = outcome.toLocaleString();
                 }
-                outcome_missed = missed[x].missed_outcome;
+                outcome_missed = parseInt(missed[x].missed_outcome);
                 if (outcome_missed == undefined || outcome_missed == null) {
                     outcome_missed = 0;
                 } else {
                     outcome_missed = outcome_missed.toLocaleString();
                 }
-                outcome_defaulted = missed[x].defaulted_outcome;
+                outcome_defaulted = parseInt(missed[x].defaulted_outcome);
                 if (outcome_defaulted == undefined || outcome_defaulted == null) {
                     outcome_defaulted = 0;
                 } else {
                     outcome_defaulted = outcome_defaulted.toLocaleString();
                 }
-                outcome_iit = missed[x].iit_outcome;
+                outcome_iit = parseInt(missed[x].iit_outcome);
                 if (outcome_iit == undefined || outcome_iit == null) {
                     outcome_iit = 0;
                 } else {
@@ -1635,6 +1714,23 @@
                 missedAge(data.missed_age);
                 missedGender(data.missed_gender);
                 missedMarital(data.missed_marital);
+                if (authenticated == 'Facility') {
+                    $.each(data.client_list, function(key, value) {
+                        $('#client').append("<tr>\
+										<td>" + value.upi_no + "</td>\
+										<td>" + value.ccc_number + "</td>\
+										<td>" + value.client_name + "</td>\
+                                        <td>" + value.dob + "</td>\
+                                        <td>" + value.phone_no + "</td>\
+                                        <td>" + value.consented + "</td>\
+                                        <td>" + value.dsd_status + "</td>\
+                                        <td>" + value.client_status + "</td>\
+                                        <td>" + value.kept_app + "</td>\
+                                        <td>" + value.not_kept_app + "</td>\
+										</tr>");
+                    })
+
+                }
                 if (authenticated == 'Admin' || authenticated == 'Donor') {
                     appCounty(data.appointment_county);
                     appPartner(data.appointment_partner)
@@ -1694,9 +1790,9 @@
                         sms_sent = sms_sent.toLocaleString();
                     }
 
-                    percnt_kept = parseFloat(apps[x].percent_kept).toFixed(1) + '%';
-                    percnt_not_kept = parseFloat(apps[x].percent_not_kept).toFixed(1) + '%';
-                    percnt_future = parseFloat(apps[x].percent_future).toFixed(1) + '%';
+                    percnt_kept = Math.round(apps[x].percent_kept).toFixed(1) + '%';
+                    percnt_not_kept = Math.round(apps[x].percent_not_kept).toFixed(1) + '%';
+                    percnt_future = Math.round(apps[x].percent_future).toFixed(1) + '%';
                 }
                 for (var x = 0; x < tx.length; x++) {
                     tx_curr = tx[x].tx_cur;
@@ -2192,12 +2288,12 @@
             },
             series: [{
                 name: 'Missed',
-                color: '#01058A',
+                color: '#97080F',
                 data: percent_not_kept
 
             }, {
                 name: 'Returned to care',
-                color: '#97080F',
+                color: '#01058A',
                 data: percent_rtc
 
             }]
@@ -2265,12 +2361,12 @@
             },
             series: [{
                 name: 'Missed',
-                color: '#01058A',
+                color: '#97080F',
                 data: percent_not_kept
 
             }, {
                 name: 'Returned to care',
-                color: '#97080F',
+                color: '#01058A',
                 data: percent_rtc
 
             }]
@@ -2338,12 +2434,12 @@
             },
             series: [{
                 name: 'Missed',
-                color: '#01058A',
+                color: '#97080F',
                 data: percent_not_kept
 
             }, {
                 name: 'Returned to care',
-                color: '#97080F',
+                color: '#01058A',
                 data: percent_rtc
 
             }]
@@ -2411,12 +2507,12 @@
             },
             series: [{
                 name: 'Missed',
-                color: '#01058A',
+                color: '#97080F',
                 data: percent_not_kept
 
             }, {
                 name: 'Returned to care',
-                color: '#97080F',
+                color: '#01058A',
                 data: percent_rtc
 
             }]
@@ -2559,12 +2655,12 @@
                 },
                 series: [{
                     name: 'Missed',
-                    color: '#01058A',
+                    color: '#97080F',
                     data: percent_not_kept
 
                 }, {
                     name: 'Returned to care',
-                    color: '#97080F',
+                    color: '#01058A',
                     data: percent_rtc
 
                 }]
@@ -2632,12 +2728,12 @@
                 },
                 series: [{
                     name: 'Missed',
-                    color: '#01058A',
+                    color: '#97080F',
                     data: percent_not_kept
 
                 }, {
                     name: 'Returned to care',
-                    color: '#97080F',
+                    color: '#01058A',
                     data: percent_rtc
 
                 }]
@@ -2780,12 +2876,12 @@
                 },
                 series: [{
                     name: 'Missed',
-                    color: '#01058A',
+                    color: '#97080F',
                     data: percent_not_kept
 
                 }, {
                     name: 'Returned to care',
-                    color: '#97080F',
+                    color: '#01058A',
                     data: percent_rtc
 
                 }]
@@ -2999,7 +3095,7 @@
                 },
                 series: [{
                     name: 'Missed',
-                    color: '#01058A',
+                    color: '#97080F',
                     data: percent_not_kept
 
                 }, {

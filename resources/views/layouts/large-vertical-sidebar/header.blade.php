@@ -94,18 +94,21 @@
                 for (var x = 0; x < user.length; x++) {
                     users = user[x].sub_county;
                 }
+                $("#user").html(users);
             }
             if (authenticated == 'County') {
                 const user = data.user_info;
                 for (var x = 0; x < user.length; x++) {
                     users = user[x].county;
                 }
+                $("#user").html(users);
             }
             if (authenticated == 'Facility') {
                 const user = data.user_info;
                 for (var x = 0; x < user.length; x++) {
                     users = user[x].facility;
                 }
+                $("#user").html(users);
             }
             if (authenticated == 'Partner') {
                 const user = data.user_info;
