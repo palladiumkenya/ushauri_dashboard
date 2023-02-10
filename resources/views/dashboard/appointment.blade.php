@@ -4,7 +4,7 @@
 
 <style rel="stylesheet" type="text/css">
     .tab-content {
-        font-family: 'Manrope';
+        font-family: 'Inter';
         font-style: normal;
         font-weight: 500;
         font-size: 16px;
@@ -119,6 +119,13 @@
     .no_pec {
         font-weight: 700;
         font-size: 16px;
+    }
+    .card_sub_title {
+        font-size: 14px;
+    }
+    .card_title {
+        font-size: 16px;
+
     }
 </style>
 @endsection
@@ -656,7 +663,7 @@
                 <div class="TX_Curr card o-hidden mb-0 h-75">
                     <div class="card-body">
                         <div class="content">
-                            <span>TX_Curr</span>
+                            <span class="card_title" >TX_Curr</span>
                             <p id="tx_curr" class="no_count" style="margin-top:5px;"></p>
                         </div>
 
@@ -667,8 +674,8 @@
                 <div class="Consented card o-hidden mb-0 h-75">
                     <div class="card-body">
                         <div class="content" id="maindiv">
-                            <span class="mb-4">Clients Consented</span>
-                            <p id="consented" class="no_count" style="margin-top:5px;"></p>
+                            <span class="card_title" >Clients Consented</span>
+                            <p id="consented" class="no_count" style="margin-top:8px;"></p>
                             <div class="box_pec" style="width: 3em; height: 3em; text-align: center; border-radius:50%; border:solid #fff 1px; box-shadow: 0 0 0 2px; padding:2px;">
                                 <h2 class="no_pec" id="percnt_consented" style="font-size: 10px; margin-top: 15px;"></h2>
                             </div>
@@ -681,8 +688,8 @@
                 <div class="Booked card o-hidden mb-0 h-75">
                     <div class="card-body">
                         <div class="content" id="maindiv">
-                            <span>Booked Appointments</span>
-                            <p class="no_pec" id="all_appointments" class="no_count" style="margin-top:5px;"></p>
+                            <span class="card_title" >Booked Appointments</span>
+                            <p id="all_appointments" class="no_count" style="margin-top:8px;"></p>
                         </div>
 
                     </div>
@@ -696,8 +703,8 @@
                 <div class="Kept card o-hidden mb-2 h-75">
                     <div class="card-body">
                         <div class="content">
-                            <span class="pt-0">Appointments Kept</span>
-                            <p id="app_kept" class="no_count" style="margin-top:5px;"></p>
+                            <span class="card_title" >Appointments Kept</span>
+                            <p id="app_kept" class="no_count" style="margin-top:8px;"></p>
                             <div class="box_pec" style="width: 3em; height: 3em; text-align: center; border-radius:50%; border:solid #fff 1px; box-shadow: 0 0 0 2px; padding:2px; margin-bottom: 10px;">
                                 <h2 class="no_pec" id="percnt_kept" style="font-size: 10px; margin-top: 15px;"></h2>
                             </div>
@@ -709,8 +716,8 @@
                 <div class="Not_Kept card o-hidden mb-2 h-75">
                     <div class="card-body">
                         <div class="content">
-                            <span class="">Appointments Not Kept</span>
-                            <p id="app_not_kept" class="no_count" style="margin-top:5px;"></p>
+                            <span class="card_title">Appointments Not Kept</span>
+                            <p id="app_not_kept" class="no_count" style="margin-top:8px;"></p>
                             <div class="box_pec" style="width: 3em; height: 3em; text-align: center; border-radius:50%; border:solid #fff 1px; box-shadow: 0 0 0 2px; padding:2px; margin-bottom: 10px;">
                                 <h2 class="no_pec" id="percnt_not_kept" style="font-size: 10px; margin-top: 15px;"></h2>
                             </div>
@@ -723,7 +730,7 @@
                 <div class="Future card  o-hidden mb-2 h-75">
                     <div class="card-body">
                         <div class="content" id="maindiv">
-                            <span>Future Appointments</span>
+                            <span class="card_title">Future Appointments</span>
                             <p id="app_future" class="no_count" style="margin-top:5px;"></p>
                             <div class="box_pec" style="width: 3em; height: 3em; text-align: center; border-radius:50%; border:solid #fff 1px; box-shadow: 0 0 0 2px; padding:2px;">
                                 <h2 class="no_pec" id="percnt_future" style="font-size: 10px; margin-top: 15px;"></h2>
@@ -898,7 +905,7 @@
                 <div class="TX_Curr card o-hidden mb-0 h-75">
                     <div class="card-body">
                         <div class="content">
-                            <span>Clients With Missed Appointment</span>
+                            <span class="card_title">Clients With Missed Appointment</span>
                             <p id="app_missed" class="no_count" style="margin-top:5px;"></p>
                         </div>
 
@@ -909,23 +916,23 @@
                 <div class="Consented card o-hidden mb-0 h-75">
                     <div class="card-body">
                         <div class="content" id="maindiv">
-                            <span>Consented Clients Who Missed</span>
+                            <span class="card_title">Consented Clients Who Missed</span>
                             <p id="consent_app" class="no_count" style="margin-top:5px;"></p>
                         </div>
                         <div class="h-45" style="float:right; margin-right: 20px;">
                             <div class="row">
                                 <div class="" style="margin-right: 20px;">
-                                    <span>Missed</span>
+                                    <span class="card_sub_title">Missed</span>
                                     <p class="sub_missed" id="consent_missed"></p>
                                 </div>
                                 <div class="" style="margin-right: 10px; border-left: 1px solid;"></div>
                                 <div class="" style="margin-right: 20px;">
-                                    <span>Defaulted</span>
+                                    <span class="card_sub_title">Defaulted</span>
                                     <p class="sub_missed" id="consent_defaulted"></p>
                                 </div>
                                 <div class="" style="margin-right: 10px; border-left: 1px solid;"></div>
                                 <div class="" style="margin-right: 20px;">
-                                    <span>IIT</span>
+                                    <span class="card_sub_title">IIT</span>
                                     <p class="sub_missed" id="consent_iit"></p>
                                 </div>
                             </div>
@@ -937,23 +944,23 @@
                 <div class="Booked card o-hidden mb-0 h-75">
                     <div class="card-body">
                         <div class="content" id="maindiv">
-                            <span>Clients Who Received SMS</span>
+                            <span class="card_title" >Clients Who Received SMS</span>
                             <p id="sms" class="no_count" style="margin-top:5px;"></p>
                         </div>
                         <div class="h-45" style="float:right; margin-right: 20px;">
                             <div class="row">
                                 <div class="" style="margin-right: 20px;">
-                                    <span>Missed</span>
+                                    <span class="card_sub_title">Missed</span>
                                     <p class="sub_missed" id="sms_missed"></p>
                                 </div>
                                 <div class="" style="margin-right: 10px; border-left: 1px solid;"></div>
                                 <div style="margin-right: 20px;">
-                                    <span>Defaulted</span>
+                                    <span class="card_sub_title">Defaulted</span>
                                     <p class="sub_missed" id="sms_defaulted"></p>
                                 </div>
                                 <div class="" style="margin-right: 10px; border-left: 1px solid;"></div>
                                 <div style="margin-right: 20px;">
-                                    <span>IIT</span>
+                                    <span class="card_sub_title">IIT</span>
                                     <p class="sub_missed" id="sms_iit"></p>
                                 </div>
                             </div>
@@ -968,24 +975,24 @@
                 <div class="Kept card o-hidden mb-0 h-75">
                     <div class="card-body">
                         <div class="content">
-                            <span>Clients Called</span>
+                            <span class="card_title">Clients Called</span>
                             <p id="contacted" class="no_count" style="margin-top:5px;"></p>
                         </div>
 
                         <div class="h-45" style="float:right;">
                             <div class="row">
                                 <div class="" style="margin-right: 20px;">
-                                    <span>Missed</span>
+                                    <span class="card_sub_title">Missed</span>
                                     <p class="sub_missed" id="contacted_missed"></p>
                                 </div>
                                 <div class="" style="margin-right: 10px; border-left: 1px solid;"></div>
                                 <div class="" style="margin-right: 20px; ">
-                                    <span>Defaulted</span>
+                                    <span class="card_sub_title">Defaulted</span>
                                     <p class="sub_missed" id="contacted_defaulted"></p>
                                 </div>
                                 <div class="" style="margin-right: 10px; border-left: 1px solid;"></div>
                                 <div class="" style="margin-right: 20px;">
-                                    <span>IIT</span>
+                                    <span class="card_sub_title">IIT</span>
                                     <p class="sub_missed" id="contacted_iit"></p>
                                 </div>
                             </div>
@@ -997,23 +1004,23 @@
                 <div class="Not_Kept card o-hidden mb-0 h-75">
                     <div class="card-body">
                         <div class="content" id="maindiv">
-                            <span>Clients Physically Traced</span>
+                            <span class="card_title" >Clients Physically Traced</span>
                             <p id="traced" class="no_count" style="margin-top:5px;"></p>
                         </div>
                         <div class="h-45" style="float:right;">
                             <div class="row">
                                 <div class="" style="margin-right: 20px;">
-                                    <span>Missed</span>
+                                    <span class="card_sub_title">Missed</span>
                                     <p id="traced_missed" class="sub_missed" style="margin-top: 5px;"></p>
                                 </div>
                                 <div class="" style="margin-right: 10px; border-left: 1px solid;"></div>
                                 <div class="" style="margin-right: 20px;">
-                                    <span>Defaulted</span>
+                                    <span class="card_sub_title">Defaulted</span>
                                     <p id="traced_defaulted" class="sub_missed" style="margin-top: 5px;"></p>
                                 </div>
                                 <div class="" style="margin-right: 10px; border-left: 1px solid;"></div>
                                 <div class="" style="margin-right: 20px;">
-                                    <span>IIT</span>
+                                    <span class="card_sub_title">IIT</span>
                                     <p id="traced_iit" class="sub_missed" style="margin-top: 5px;"></p>
                                 </div>
                             </div>
@@ -1025,24 +1032,24 @@
                 <div class="Future card o-hidden mb-0 h-75">
                     <div class="card-body">
                         <div class="content" id="maindiv">
-                            <span>Clients Who RTC</span>
+                            <span class="card_title">Clients Who RTC</span>
                             <p id="outcome" class="no_count" style="margin-top:5px;"></p>
 
                         </div>
                         <div class="h-35" style="float:right;">
                             <div class="row">
                                 <div class="" style="margin-right: 20px;">
-                                    <span>Missed</span>
+                                    <span class="card_sub_title">Missed</span>
                                     <p class="sub_missed" id="outcome_missed"></p>
                                 </div>
                                 <div class="" style="margin-right: 10px; border-left: 1px solid;"></div>
                                 <div class="" style="margin-right: 20px;">
-                                    <span>Defaulted</span>
+                                    <span class="card_sub_title">Defaulted</span>
                                     <p class="sub_missed" id="outcome_defaulted"></p>
                                 </div>
                                 <div class="" style="margin-right: 10px; border-left: 1px solid;"></div>
                                 <div class="" style="margin-right: 20px;">
-                                    <span>IIT</span>
+                                    <span class="card_sub_title">IIT</span>
                                     <p class="sub_missed" id="outcome_iit"></p>
                                 </div>
                             </div>

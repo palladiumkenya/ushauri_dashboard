@@ -138,7 +138,7 @@ class FinalDashboardController extends Controller
 
             $data                = [];
             $all_appoinments = ETLAppointment::select(
-                DB::raw('COUNT(*) as total_app'),
+                DB::raw('(SUM(app_kept)+SUM(app_not_kept)+SUM(future)) as total_app'),
                 DB::raw('SUM(app_kept) AS kept_app '),
                 DB::raw('SUM(app_not_kept) AS not_kept_app '),
                 DB::raw('SUM(future) AS future '),
@@ -232,23 +232,23 @@ class FinalDashboardController extends Controller
             // missed appointment
             $client_missed = DB::table('etl_appointment_detail')->select(
                 DB::raw('SUM(app_not_kept) AS not_kept_app '),
-                DB::raw('SUM(received_sms) AS messages '),
+                DB::raw('SUM(CASE WHEN appointment_status = "Missed" OR appointment_status = "Defaulted" OR appointment_status = "IIT" THEN received_sms END) AS messages '),
                 DB::raw('SUM(CASE WHEN received_sms = 1 AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_messages '),
                 DB::raw('SUM(CASE WHEN received_sms = 1 AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_messages '),
                 DB::raw('SUM(CASE WHEN received_sms = 1 AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_messages '),
-                DB::raw('SUM(called) AS called '),
+                DB::raw('SUM(CASE WHEN appointment_status = "Missed" OR appointment_status = "Defaulted" OR appointment_status = "IIT" THEN called END) AS called '),
                 DB::raw('SUM(CASE WHEN called = 1 AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_called '),
                 DB::raw('SUM(CASE WHEN called = 1 AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_called '),
                 DB::raw('SUM(CASE WHEN called = 1 AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_called '),
-                DB::raw('SUM(physically_traced) AS physically_traced '),
+                DB::raw('SUM(CASE WHEN appointment_status = "Missed" OR appointment_status = "Defaulted" OR appointment_status = "IIT" THEN physically_traced END) AS physically_traced '),
                 DB::raw('SUM(CASE WHEN physically_traced = 1 AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_traced '),
                 DB::raw('SUM(CASE WHEN physically_traced = 1 AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_traced '),
                 DB::raw('SUM(CASE WHEN physically_traced = 1 AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_traced '),
-                DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" THEN 1 ELSE 0 END) AS final_outcome'),
+                DB::raw('SUM(CASE WHEN appointment_status = "Missed" OR appointment_status = "Defaulted" OR appointment_status = "IIT" THEN rtc_no END) AS final_outcome'),
                 DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_outcome '),
                 DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_outcome '),
                 DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_outcome '),
-                DB::raw('SUM(CASE WHEN appointment_status = "Missed" OR appointment_status = "Defaulted" OR appointment_status = "IIT" AND consent = "Yes" THEN 1 ELSE 0 END) AS consent '),
+                DB::raw('SUM(CASE WHEN appointment_status = "Missed" OR appointment_status = "Defaulted" OR appointment_status = "IIT" THEN consent_no END) AS consent '),
                 DB::raw('SUM(CASE WHEN consent = "Yes" AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_consent '),
                 DB::raw('SUM(CASE WHEN consent = "Yes" AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_consent '),
                 DB::raw('SUM(CASE WHEN consent = "Yes" AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_consent ')
@@ -334,6 +334,7 @@ class FinalDashboardController extends Controller
                 ->where('mfl_code', Auth::user()->facility_id)
                 ->where('appointment_date', '<=', date("Y-M-D"))
                 ->where(DB::raw('DATE_FORMAT(appointment_date, "%Y-%M")'), '>=', "2017-January")
+                ->where(DB::raw('DATE_FORMAT(appointment_date, "%Y-%M")'), '<=', date('Y-M'))
                 ->orderBy('appointment_date', 'ASC')
                 ->groupBy('new_date');
 
@@ -364,7 +365,7 @@ class FinalDashboardController extends Controller
             $data                = [];
 
             $all_appoinments = ETLAppointment::select(
-                DB::raw('COUNT(*) as total_app'),
+                DB::raw('(SUM(app_kept)+SUM(app_not_kept)+SUM(future)) as total_app'),
                 DB::raw('SUM(app_kept) AS kept_app '),
                 DB::raw('SUM(app_not_kept) AS not_kept_app '),
                 DB::raw('SUM(future) AS future '),
@@ -443,23 +444,23 @@ class FinalDashboardController extends Controller
             // missed appointment
             $client_missed = DB::table('etl_appointment_detail')->select(
                 DB::raw('SUM(app_not_kept) AS not_kept_app '),
-                DB::raw('SUM(received_sms) AS messages '),
+                DB::raw('SUM(CASE WHEN appointment_status = "Missed" OR appointment_status = "Defaulted" OR appointment_status = "IIT" THEN received_sms END) AS messages '),
                 DB::raw('SUM(CASE WHEN received_sms = 1 AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_messages '),
                 DB::raw('SUM(CASE WHEN received_sms = 1 AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_messages '),
                 DB::raw('SUM(CASE WHEN received_sms = 1 AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_messages '),
-                DB::raw('SUM(called) AS called '),
+                DB::raw('SUM(CASE WHEN appointment_status = "Missed" OR appointment_status = "Defaulted" OR appointment_status = "IIT" THEN called END) AS called '),
                 DB::raw('SUM(CASE WHEN called = 1 AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_called '),
                 DB::raw('SUM(CASE WHEN called = 1 AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_called '),
                 DB::raw('SUM(CASE WHEN called = 1 AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_called '),
-                DB::raw('SUM(physically_traced) AS physically_traced '),
+                DB::raw('SUM(CASE WHEN appointment_status = "Missed" OR appointment_status = "Defaulted" OR appointment_status = "IIT" THEN physically_traced END) AS physically_traced '),
                 DB::raw('SUM(CASE WHEN physically_traced = 1 AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_traced '),
                 DB::raw('SUM(CASE WHEN physically_traced = 1 AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_traced '),
                 DB::raw('SUM(CASE WHEN physically_traced = 1 AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_traced '),
-                DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" THEN 1 ELSE 0 END) AS final_outcome'),
+                DB::raw('SUM(CASE WHEN appointment_status = "Missed" OR appointment_status = "Defaulted" OR appointment_status = "IIT" THEN rtc_no END) AS final_outcome'),
                 DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_outcome '),
                 DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_outcome '),
                 DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_outcome '),
-                DB::raw('SUM(CASE WHEN consent = "Yes" AND appointment_status = "Missed" OR appointment_status = "Defaulted" OR appointment_status = "IIT" THEN 1 ELSE 0 END) AS consent '),
+                DB::raw('SUM(CASE WHEN appointment_status = "Missed" OR appointment_status = "Defaulted" OR appointment_status = "IIT" THEN consent_no END) AS consent '),
                 DB::raw('SUM(CASE WHEN consent = "Yes" AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_consent '),
                 DB::raw('SUM(CASE WHEN consent = "Yes" AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_consent '),
                 DB::raw('SUM(CASE WHEN consent = "Yes" AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_consent ')
@@ -533,6 +534,7 @@ class FinalDashboardController extends Controller
             )->whereNotNull('appointment_date')
                 ->where('appointment_date', '<=', date("Y-M-D"))
                 ->where(DB::raw('DATE_FORMAT(appointment_date, "%Y-%M")'), '>=', "2017-January")
+                ->where(DB::raw('DATE_FORMAT(appointment_date, "%Y-%M")'), '<=', date('Y-M'))
                 ->orderBy('appointment_date', 'ASC')
                 ->groupBy('new_date');
 
@@ -563,7 +565,7 @@ class FinalDashboardController extends Controller
             $data                = [];
 
             $all_appoinments = ETLAppointment::select(
-                DB::raw('COUNT(*) as total_app'),
+                DB::raw('(SUM(app_kept)+SUM(app_not_kept)+SUM(future)) as total_app'),
                 DB::raw('SUM(app_kept) AS kept_app '),
                 DB::raw('SUM(app_not_kept) AS not_kept_app '),
                 DB::raw('SUM(future) AS future '),
@@ -647,23 +649,23 @@ class FinalDashboardController extends Controller
             // missed appointment
             $client_missed = DB::table('etl_appointment_detail')->select(
                 DB::raw('SUM(app_not_kept) AS not_kept_app '),
-                DB::raw('SUM(received_sms) AS messages '),
+                DB::raw('SUM(CASE WHEN appointment_status = "Missed" OR appointment_status = "Defaulted" OR appointment_status = "IIT" THEN received_sms END) AS messages '),
                 DB::raw('SUM(CASE WHEN received_sms = 1 AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_messages '),
                 DB::raw('SUM(CASE WHEN received_sms = 1 AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_messages '),
                 DB::raw('SUM(CASE WHEN received_sms = 1 AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_messages '),
-                DB::raw('SUM(called) AS called '),
+                DB::raw('SUM(CASE WHEN appointment_status = "Missed" OR appointment_status = "Defaulted" OR appointment_status = "IIT" THEN called END) AS called '),
                 DB::raw('SUM(CASE WHEN called = 1 AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_called '),
                 DB::raw('SUM(CASE WHEN called = 1 AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_called '),
                 DB::raw('SUM(CASE WHEN called = 1 AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_called '),
-                DB::raw('SUM(physically_traced) AS physically_traced '),
+                DB::raw('SUM(CASE WHEN appointment_status = "Missed" OR appointment_status = "Defaulted" OR appointment_status = "IIT" THEN physically_traced END) AS physically_traced '),
                 DB::raw('SUM(CASE WHEN physically_traced = 1 AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_traced '),
                 DB::raw('SUM(CASE WHEN physically_traced = 1 AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_traced '),
                 DB::raw('SUM(CASE WHEN physically_traced = 1 AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_traced '),
-                DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" THEN 1 ELSE 0 END) AS final_outcome'),
+                DB::raw('SUM(CASE WHEN appointment_status = "Missed" OR appointment_status = "Defaulted" OR appointment_status = "IIT" THEN rtc_no END) AS final_outcome'),
                 DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_outcome '),
                 DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_outcome '),
                 DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_outcome '),
-                DB::raw('SUM(CASE WHEN consent = "Yes" AND appointment_status = "Missed" OR appointment_status = "Defaulted" OR appointment_status = "IIT" THEN 1 ELSE 0 END) AS consent '),
+                DB::raw('SUM(CASE WHEN appointment_status = "Missed" OR appointment_status = "Defaulted" OR appointment_status = "IIT" THEN consent_no END) AS consent '),
                 DB::raw('SUM(CASE WHEN consent = "Yes" AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_consent '),
                 DB::raw('SUM(CASE WHEN consent = "Yes" AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_consent '),
                 DB::raw('SUM(CASE WHEN consent = "Yes" AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_consent ')
@@ -738,6 +740,7 @@ class FinalDashboardController extends Controller
                 ->where('partner_id', Auth::user()->partner_id)
                 ->where('appointment_date', '<=', date("Y-M-D"))
                 ->where(DB::raw('DATE_FORMAT(appointment_date, "%Y-%M")'), '>=', "2017-January")
+                ->where(DB::raw('DATE_FORMAT(appointment_date, "%Y-%M")'), '<=', date('Y-M'))
                 ->orderBy('appointment_date', 'ASC')
                 ->groupBy('new_date');
 
@@ -768,7 +771,7 @@ class FinalDashboardController extends Controller
             $data  = [];
 
             $all_appoinments = ETLAppointment::select(
-                DB::raw('COUNT(*) as total_app'),
+                DB::raw('(SUM(app_kept)+SUM(app_not_kept)+SUM(future)) as total_app'),
                 DB::raw('SUM(app_kept) AS kept_app '),
                 DB::raw('SUM(app_not_kept) AS not_kept_app '),
                 DB::raw('SUM(future) AS future '),
@@ -853,23 +856,23 @@ class FinalDashboardController extends Controller
             // missed appointment
             $client_missed = DB::table('etl_appointment_detail')->select(
                 DB::raw('SUM(app_not_kept) AS not_kept_app '),
-                DB::raw('SUM(received_sms) AS messages '),
+                DB::raw('SUM(CASE WHEN appointment_status = "Missed" OR appointment_status = "Defaulted" OR appointment_status = "IIT" THEN received_sms END) AS messages '),
                 DB::raw('SUM(CASE WHEN received_sms = 1 AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_messages '),
                 DB::raw('SUM(CASE WHEN received_sms = 1 AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_messages '),
                 DB::raw('SUM(CASE WHEN received_sms = 1 AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_messages '),
-                DB::raw('SUM(called) AS called '),
+                DB::raw('SUM(CASE WHEN appointment_status = "Missed" OR appointment_status = "Defaulted" OR appointment_status = "IIT" THEN called END) AS called '),
                 DB::raw('SUM(CASE WHEN called = 1 AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_called '),
                 DB::raw('SUM(CASE WHEN called = 1 AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_called '),
                 DB::raw('SUM(CASE WHEN called = 1 AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_called '),
-                DB::raw('SUM(physically_traced) AS physically_traced '),
+                DB::raw('SUM(CASE WHEN appointment_status = "Missed" OR appointment_status = "Defaulted" OR appointment_status = "IIT" THEN physically_traced END) AS physically_traced '),
                 DB::raw('SUM(CASE WHEN physically_traced = 1 AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_traced '),
                 DB::raw('SUM(CASE WHEN physically_traced = 1 AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_traced '),
                 DB::raw('SUM(CASE WHEN physically_traced = 1 AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_traced '),
-                DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" THEN 1 ELSE 0 END) AS final_outcome'),
+                DB::raw('SUM(CASE WHEN appointment_status = "Missed" OR appointment_status = "Defaulted" OR appointment_status = "IIT" THEN rtc_no END) AS final_outcome'),
                 DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_outcome '),
                 DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_outcome '),
                 DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_outcome '),
-                DB::raw('SUM(CASE WHEN consent = "Yes" AND appointment_status = "Missed" OR appointment_status = "Defaulted" OR appointment_status = "IIT" THEN 1 ELSE 0 END) AS consent '),
+                DB::raw('SUM(CASE WHEN appointment_status = "Missed" OR appointment_status = "Defaulted" OR appointment_status = "IIT" THEN consent_no END) AS consent '),
                 DB::raw('SUM(CASE WHEN consent = "Yes" AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_consent '),
                 DB::raw('SUM(CASE WHEN consent = "Yes" AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_consent '),
                 DB::raw('SUM(CASE WHEN consent = "Yes" AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_consent ')
@@ -947,6 +950,7 @@ class FinalDashboardController extends Controller
                 ->where('subcounty_id', Auth::user()->subcounty_id)
                 ->where('appointment_date', '<=', date("Y-M-D"))
                 ->where(DB::raw('DATE_FORMAT(appointment_date, "%Y-%M")'), '>=', "2017-January")
+                ->where(DB::raw('DATE_FORMAT(appointment_date, "%Y-%M")'), '<=', date('Y-M'))
                 ->orderBy('appointment_date', 'ASC')
                 ->groupBy('new_date');
 
@@ -977,7 +981,7 @@ class FinalDashboardController extends Controller
             $data    = [];
 
             $all_appoinments = ETLAppointment::select(
-                DB::raw('COUNT(*) as total_app'),
+                DB::raw('(SUM(app_kept)+SUM(app_not_kept)+SUM(future)) as total_app'),
                 DB::raw('SUM(app_kept) AS kept_app '),
                 DB::raw('SUM(app_not_kept) AS not_kept_app '),
                 DB::raw('SUM(future) AS future '),
@@ -1064,23 +1068,23 @@ class FinalDashboardController extends Controller
             // missed appointment
             $client_missed = DB::table('etl_appointment_detail')->select(
                 DB::raw('SUM(app_not_kept) AS not_kept_app '),
-                DB::raw('SUM(received_sms) AS messages '),
+                DB::raw('SUM(CASE WHEN appointment_status = "Missed" OR appointment_status = "Defaulted" OR appointment_status = "IIT" THEN received_sms END) AS messages '),
                 DB::raw('SUM(CASE WHEN received_sms = 1 AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_messages '),
                 DB::raw('SUM(CASE WHEN received_sms = 1 AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_messages '),
                 DB::raw('SUM(CASE WHEN received_sms = 1 AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_messages '),
-                DB::raw('SUM(called) AS called '),
+                DB::raw('SUM(CASE WHEN appointment_status = "Missed" OR appointment_status = "Defaulted" OR appointment_status = "IIT" THEN called END) AS called '),
                 DB::raw('SUM(CASE WHEN called = 1 AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_called '),
                 DB::raw('SUM(CASE WHEN called = 1 AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_called '),
                 DB::raw('SUM(CASE WHEN called = 1 AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_called '),
-                DB::raw('SUM(physically_traced) AS physically_traced '),
+                DB::raw('SUM(CASE WHEN appointment_status = "Missed" OR appointment_status = "Defaulted" OR appointment_status = "IIT" THEN physically_traced END) AS physically_traced '),
                 DB::raw('SUM(CASE WHEN physically_traced = 1 AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_traced '),
                 DB::raw('SUM(CASE WHEN physically_traced = 1 AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_traced '),
                 DB::raw('SUM(CASE WHEN physically_traced = 1 AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_traced '),
-                DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" THEN 1 ELSE 0 END) AS final_outcome'),
+                DB::raw('SUM(CASE WHEN appointment_status = "Missed" OR appointment_status = "Defaulted" OR appointment_status = "IIT" THEN rtc_no END) AS final_outcome'),
                 DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_outcome '),
                 DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_outcome '),
                 DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_outcome '),
-                DB::raw('SUM(CASE WHEN consent = "Yes" AND appointment_status = "Missed" OR appointment_status = "Defaulted" OR appointment_status = "IIT" THEN 1 ELSE 0 END) AS consent '),
+                DB::raw('SUM(CASE WHEN appointment_status = "Missed" OR appointment_status = "Defaulted" OR appointment_status = "IIT" THEN consent_no END) AS consent '),
                 DB::raw('SUM(CASE WHEN consent = "Yes" AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_consent '),
                 DB::raw('SUM(CASE WHEN consent = "Yes" AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_consent '),
                 DB::raw('SUM(CASE WHEN consent = "Yes" AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_consent ')
@@ -1160,6 +1164,7 @@ class FinalDashboardController extends Controller
                 ->where('county_id', Auth::user()->county_id)
                 ->where('appointment_date', '<=', date("Y-M-D"))
                 ->where(DB::raw('DATE_FORMAT(appointment_date, "%Y-%M")'), '>=', "2017-January")
+                ->where(DB::raw('DATE_FORMAT(appointment_date, "%Y-%M")'), '<=', date('Y-M'))
                 ->orderBy('appointment_date', 'ASC')
                 ->groupBy('new_date');
 
@@ -1202,7 +1207,7 @@ class FinalDashboardController extends Controller
             $selected_site = $request->site;
 
             $all_appoinments = ETLAppointment::select(
-                DB::raw('COUNT(*) as total_app'),
+                DB::raw('(SUM(app_kept)+SUM(app_not_kept)+SUM(future)) as total_app'),
                 DB::raw('SUM(app_kept) AS kept_app '),
                 DB::raw('SUM(app_not_kept) AS not_kept_app '),
                 DB::raw('SUM(future) AS future '),
@@ -1277,23 +1282,23 @@ class FinalDashboardController extends Controller
             // missed appointment
             $client_missed = DB::table('etl_appointment_detail')->select(
                 DB::raw('SUM(app_not_kept) AS not_kept_app '),
-                DB::raw('SUM(received_sms) AS messages '),
+                DB::raw('SUM(CASE WHEN appointment_status = "Missed" OR appointment_status = "Defaulted" OR appointment_status = "IIT" THEN received_sms END) AS messages '),
                 DB::raw('SUM(CASE WHEN received_sms = 1 AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_messages '),
                 DB::raw('SUM(CASE WHEN received_sms = 1 AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_messages '),
                 DB::raw('SUM(CASE WHEN received_sms = 1 AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_messages '),
-                DB::raw('SUM(called) AS called '),
+                DB::raw('SUM(CASE WHEN appointment_status = "Missed" OR appointment_status = "Defaulted" OR appointment_status = "IIT" THEN called END) AS called '),
                 DB::raw('SUM(CASE WHEN called = 1 AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_called '),
                 DB::raw('SUM(CASE WHEN called = 1 AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_called '),
                 DB::raw('SUM(CASE WHEN called = 1 AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_called '),
-                DB::raw('SUM(physically_traced) AS physically_traced '),
+                DB::raw('SUM(CASE WHEN appointment_status = "Missed" OR appointment_status = "Defaulted" OR appointment_status = "IIT" THEN physically_traced END) AS physically_traced '),
                 DB::raw('SUM(CASE WHEN physically_traced = 1 AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_traced '),
                 DB::raw('SUM(CASE WHEN physically_traced = 1 AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_traced '),
                 DB::raw('SUM(CASE WHEN physically_traced = 1 AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_traced '),
-                DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" THEN 1 ELSE 0 END) AS final_outcome'),
+                DB::raw('SUM(CASE WHEN appointment_status = "Missed" OR appointment_status = "Defaulted" OR appointment_status = "IIT" THEN rtc_no END) AS final_outcome'),
                 DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_outcome '),
                 DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_outcome '),
                 DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_outcome '),
-                DB::raw('SUM(CASE WHEN consent = "Yes" AND appointment_status = "Missed" OR appointment_status = "Defaulted" OR appointment_status = "IIT" THEN 1 ELSE 0 END) AS consent '),
+                DB::raw('SUM(CASE WHEN appointment_status = "Missed" OR appointment_status = "Defaulted" OR appointment_status = "IIT" THEN consent_no END) AS consent '),
                 DB::raw('SUM(CASE WHEN consent = "Yes" AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_consent '),
                 DB::raw('SUM(CASE WHEN consent = "Yes" AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_consent '),
                 DB::raw('SUM(CASE WHEN consent = "Yes" AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_consent ')
@@ -1554,7 +1559,7 @@ class FinalDashboardController extends Controller
             $selected_site = $request->site;
             $data                = [];
             $all_appoinments = ETLAppointment::select(
-                DB::raw('COUNT(*) as total_app'),
+                DB::raw('(SUM(app_kept)+SUM(app_not_kept)+SUM(future)) as total_app'),
                 DB::raw('SUM(app_kept) AS kept_app '),
                 DB::raw('SUM(app_not_kept) AS not_kept_app '),
                 DB::raw('SUM(future) AS future '),
@@ -1647,23 +1652,23 @@ class FinalDashboardController extends Controller
             // missed appointment
             $client_missed = DB::table('etl_appointment_detail')->select(
                 DB::raw('SUM(app_not_kept) AS not_kept_app '),
-                DB::raw('SUM(received_sms) AS messages '),
+                DB::raw('SUM(CASE WHEN appointment_status = "Missed" OR appointment_status = "Defaulted" OR appointment_status = "IIT" THEN received_sms END) AS messages '),
                 DB::raw('SUM(CASE WHEN received_sms = 1 AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_messages '),
                 DB::raw('SUM(CASE WHEN received_sms = 1 AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_messages '),
                 DB::raw('SUM(CASE WHEN received_sms = 1 AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_messages '),
-                DB::raw('SUM(called) AS called '),
+                DB::raw('SUM(CASE WHEN appointment_status = "Missed" OR appointment_status = "Defaulted" OR appointment_status = "IIT" THEN called END) AS called '),
                 DB::raw('SUM(CASE WHEN called = 1 AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_called '),
                 DB::raw('SUM(CASE WHEN called = 1 AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_called '),
                 DB::raw('SUM(CASE WHEN called = 1 AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_called '),
-                DB::raw('SUM(physically_traced) AS physically_traced '),
+                DB::raw('SUM(CASE WHEN appointment_status = "Missed" OR appointment_status = "Defaulted" OR appointment_status = "IIT" THEN physically_traced END) AS physically_traced '),
                 DB::raw('SUM(CASE WHEN physically_traced = 1 AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_traced '),
                 DB::raw('SUM(CASE WHEN physically_traced = 1 AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_traced '),
                 DB::raw('SUM(CASE WHEN physically_traced = 1 AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_traced '),
-                DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" THEN 1 ELSE 0 END) AS final_outcome'),
+                DB::raw('SUM(CASE WHEN appointment_status = "Missed" OR appointment_status = "Defaulted" OR appointment_status = "IIT" THEN rtc_no END) AS final_outcome'),
                 DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_outcome '),
                 DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_outcome '),
                 DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_outcome '),
-                DB::raw('SUM(CASE WHEN consent = "Yes" AND appointment_status = "Missed" OR appointment_status = "Defaulted" OR appointment_status = "IIT" THEN 1 ELSE 0 END) AS consent '),
+                DB::raw('SUM(CASE WHEN appointment_status = "Missed" OR appointment_status = "Defaulted" OR appointment_status = "IIT" THEN consent_no END) AS consent '),
                 DB::raw('SUM(CASE WHEN consent = "Yes" AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_consent '),
                 DB::raw('SUM(CASE WHEN consent = "Yes" AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_consent '),
                 DB::raw('SUM(CASE WHEN consent = "Yes" AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_consent ')
@@ -1938,7 +1943,7 @@ class FinalDashboardController extends Controller
             $data                = [];
 
             $all_appoinments = ETLAppointment::select(
-                DB::raw('COUNT(*) as total_app'),
+                DB::raw('(SUM(app_kept)+SUM(app_not_kept)+SUM(future)) as total_app'),
                 DB::raw('SUM(app_kept) AS kept_app '),
                 DB::raw('SUM(app_not_kept) AS not_kept_app '),
                 DB::raw('SUM(future) AS future '),
@@ -2018,23 +2023,23 @@ class FinalDashboardController extends Controller
             // missed appointment
             $client_missed = DB::table('etl_appointment_detail')->select(
                 DB::raw('SUM(app_not_kept) AS not_kept_app '),
-                DB::raw('SUM(received_sms) AS messages '),
+                DB::raw('SUM(CASE WHEN appointment_status = "Missed" OR appointment_status = "Defaulted" OR appointment_status = "IIT" THEN received_sms END) AS messages '),
                 DB::raw('SUM(CASE WHEN received_sms = 1 AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_messages '),
                 DB::raw('SUM(CASE WHEN received_sms = 1 AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_messages '),
                 DB::raw('SUM(CASE WHEN received_sms = 1 AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_messages '),
-                DB::raw('SUM(called) AS called '),
+                DB::raw('SUM(CASE WHEN appointment_status = "Missed" OR appointment_status = "Defaulted" OR appointment_status = "IIT" THEN called END) AS called '),
                 DB::raw('SUM(CASE WHEN called = 1 AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_called '),
                 DB::raw('SUM(CASE WHEN called = 1 AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_called '),
                 DB::raw('SUM(CASE WHEN called = 1 AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_called '),
-                DB::raw('SUM(physically_traced) AS physically_traced '),
+                DB::raw('SUM(CASE WHEN appointment_status = "Missed" OR appointment_status = "Defaulted" OR appointment_status = "IIT" THEN physically_traced END) AS physically_traced '),
                 DB::raw('SUM(CASE WHEN physically_traced = 1 AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_traced '),
                 DB::raw('SUM(CASE WHEN physically_traced = 1 AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_traced '),
                 DB::raw('SUM(CASE WHEN physically_traced = 1 AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_traced '),
-                DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" THEN 1 ELSE 0 END) AS final_outcome'),
+                DB::raw('SUM(CASE WHEN appointment_status = "Missed" OR appointment_status = "Defaulted" OR appointment_status = "IIT" THEN rtc_no END) AS final_outcome'),
                 DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_outcome '),
                 DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_outcome '),
                 DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_outcome '),
-                DB::raw('SUM(CASE WHEN consent = "Yes" AND appointment_status = "Missed" OR appointment_status = "Defaulted" OR appointment_status = "IIT" THEN 1 ELSE 0 END) AS consent '),
+                DB::raw('SUM(CASE WHEN appointment_status = "Missed" OR appointment_status = "Defaulted" OR appointment_status = "IIT" THEN consent_no END) AS consent '),
                 DB::raw('SUM(CASE WHEN consent = "Yes" AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_consent '),
                 DB::raw('SUM(CASE WHEN consent = "Yes" AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_consent '),
                 DB::raw('SUM(CASE WHEN consent = "Yes" AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_consent ')
@@ -2316,7 +2321,7 @@ class FinalDashboardController extends Controller
             $selected_site = $request->site;
 
             $all_appoinments = ETLAppointment::select(
-                DB::raw('COUNT(*) as total_app'),
+                DB::raw('(SUM(app_kept)+SUM(app_not_kept)+SUM(future)) as total_app'),
                 DB::raw('SUM(app_kept) AS kept_app '),
                 DB::raw('SUM(app_not_kept) AS not_kept_app '),
                 DB::raw('SUM(future) AS future '),
@@ -2397,23 +2402,23 @@ class FinalDashboardController extends Controller
             // missed appointment
             $client_missed = DB::table('etl_appointment_detail')->select(
                 DB::raw('SUM(app_not_kept) AS not_kept_app '),
-                DB::raw('SUM(received_sms) AS messages '),
+                DB::raw('SUM(CASE WHEN appointment_status = "Missed" OR appointment_status = "Defaulted" OR appointment_status = "IIT" THEN received_sms END) AS messages '),
                 DB::raw('SUM(CASE WHEN received_sms = 1 AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_messages '),
                 DB::raw('SUM(CASE WHEN received_sms = 1 AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_messages '),
                 DB::raw('SUM(CASE WHEN received_sms = 1 AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_messages '),
-                DB::raw('SUM(called) AS called '),
+                DB::raw('SUM(CASE WHEN appointment_status = "Missed" OR appointment_status = "Defaulted" OR appointment_status = "IIT" THEN called END) AS called '),
                 DB::raw('SUM(CASE WHEN called = 1 AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_called '),
                 DB::raw('SUM(CASE WHEN called = 1 AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_called '),
                 DB::raw('SUM(CASE WHEN called = 1 AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_called '),
-                DB::raw('SUM(physically_traced) AS physically_traced '),
+                DB::raw('SUM(CASE WHEN appointment_status = "Missed" OR appointment_status = "Defaulted" OR appointment_status = "IIT" THEN physically_traced END) AS physically_traced '),
                 DB::raw('SUM(CASE WHEN physically_traced = 1 AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_traced '),
                 DB::raw('SUM(CASE WHEN physically_traced = 1 AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_traced '),
                 DB::raw('SUM(CASE WHEN physically_traced = 1 AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_traced '),
-                DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" THEN 1 ELSE 0 END) AS final_outcome'),
+                DB::raw('SUM(CASE WHEN appointment_status = "Missed" OR appointment_status = "Defaulted" OR appointment_status = "IIT" THEN rtc_no END) AS final_outcome'),
                 DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_outcome '),
                 DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_outcome '),
                 DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_outcome '),
-                DB::raw('SUM(CASE WHEN consent = "Yes" AND appointment_status = "Missed" OR appointment_status = "Defaulted" OR appointment_status = "IIT" THEN 1 ELSE 0 END) AS consent '),
+                DB::raw('SUM(CASE WHEN appointment_status = "Missed" OR appointment_status = "Defaulted" OR appointment_status = "IIT" THEN consent_no END) AS consent '),
                 DB::raw('SUM(CASE WHEN consent = "Yes" AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_consent '),
                 DB::raw('SUM(CASE WHEN consent = "Yes" AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_consent '),
                 DB::raw('SUM(CASE WHEN consent = "Yes" AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_consent ')
@@ -2697,7 +2702,7 @@ class FinalDashboardController extends Controller
             $selected_site = $request->site;
 
             $all_appoinments = ETLAppointment::select(
-                DB::raw('COUNT(*) as total_app'),
+                DB::raw('(SUM(app_kept)+SUM(app_not_kept)+SUM(future)) as total_app'),
                 DB::raw('SUM(app_kept) AS kept_app '),
                 DB::raw('SUM(app_not_kept) AS not_kept_app '),
                 DB::raw('SUM(future) AS future '),
@@ -2780,23 +2785,23 @@ class FinalDashboardController extends Controller
             // missed appointment
             $client_missed = DB::table('etl_appointment_detail')->select(
                 DB::raw('SUM(app_not_kept) AS not_kept_app '),
-                DB::raw('SUM(received_sms) AS messages '),
+                DB::raw('SUM(CASE WHEN appointment_status = "Missed" OR appointment_status = "Defaulted" OR appointment_status = "IIT" THEN received_sms END) AS messages '),
                 DB::raw('SUM(CASE WHEN received_sms = 1 AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_messages '),
                 DB::raw('SUM(CASE WHEN received_sms = 1 AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_messages '),
                 DB::raw('SUM(CASE WHEN received_sms = 1 AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_messages '),
-                DB::raw('SUM(called) AS called '),
+                DB::raw('SUM(CASE WHEN appointment_status = "Missed" OR appointment_status = "Defaulted" OR appointment_status = "IIT" THEN called END) AS called '),
                 DB::raw('SUM(CASE WHEN called = 1 AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_called '),
                 DB::raw('SUM(CASE WHEN called = 1 AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_called '),
                 DB::raw('SUM(CASE WHEN called = 1 AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_called '),
-                DB::raw('SUM(physically_traced) AS physically_traced '),
+                DB::raw('SUM(CASE WHEN appointment_status = "Missed" OR appointment_status = "Defaulted" OR appointment_status = "IIT" THEN physically_traced END) AS physically_traced '),
                 DB::raw('SUM(CASE WHEN physically_traced = 1 AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_traced '),
                 DB::raw('SUM(CASE WHEN physically_traced = 1 AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_traced '),
                 DB::raw('SUM(CASE WHEN physically_traced = 1 AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_traced '),
-                DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" THEN 1 ELSE 0 END) AS final_outcome'),
+                DB::raw('SUM(CASE WHEN appointment_status = "Missed" OR appointment_status = "Defaulted" OR appointment_status = "IIT" THEN rtc_no END) AS final_outcome'),
                 DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_outcome '),
                 DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_outcome '),
                 DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_outcome '),
-                DB::raw('SUM(CASE WHEN consent = "Yes" AND appointment_status = "Missed" OR appointment_status = "Defaulted" OR appointment_status = "IIT" THEN 1 ELSE 0 END) AS consent '),
+                DB::raw('SUM(CASE WHEN appointment_status = "Missed" OR appointment_status = "Defaulted" OR appointment_status = "IIT" THEN consent_no END) AS consent '),
                 DB::raw('SUM(CASE WHEN consent = "Yes" AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_consent '),
                 DB::raw('SUM(CASE WHEN consent = "Yes" AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_consent '),
                 DB::raw('SUM(CASE WHEN consent = "Yes" AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_consent ')
