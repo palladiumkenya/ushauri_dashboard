@@ -212,7 +212,7 @@
                 <div class="form-group">
                     <div class="input-group">
                         <div class="col-md-12">
-                            <input type="text" id="from" class="form-control" placeholder="From" name="from" max="{{date("Y-m-d")}}" onfocus="(this.type='date')" />
+                            <input type="text" id="from" class="form-control" placeholder="From" name="from" max="{{date("Y-m-d")}}" onfocus="(this.type='date')" onkeydown="return false"/>
                         </div>
                         <div class="input-group-append">
 
@@ -225,7 +225,7 @@
                     <div class="input-group">
                         <div class="col-md-12">
 
-                            <input type="text" id="to" class="form-control" placeholder="To" name="to" max="{{date("Y-m-d")}}" onfocus="(this.type='date')" />
+                            <input type="text" id="to" class="form-control" placeholder="To" name="to" max="{{date("Y-m-d")}}" onfocus="(this.type='date')" onkeydown="return false"/>
                         </div>
                         <div class="input-group-append">
 
@@ -337,7 +337,7 @@
                 <div class="form-group">
                     <div class="input-group">
                         <div class="col-md-14">
-                            <input type="text" id="from" class="form-control" placeholder="From" name="from" max="{{date("Y-m-d")}}" onfocus="(this.type='date')" />
+                            <input type="text" id="from" class="form-control" placeholder="From" name="from" max="{{date("Y-m-d")}}" onfocus="(this.type='date')" onkeydown="return false"/>
                         </div>
                         <div class="input-group-append">
 
@@ -350,7 +350,7 @@
                     <div class="input-group">
                         <div class="col-md-14">
 
-                            <input type="text" id="to" class="form-control" placeholder="To" name="to" max="{{date("Y-m-d")}}" onfocus="(this.type='date')" />
+                            <input type="text" id="to" class="form-control" placeholder="To" name="to" max="{{date("Y-m-d")}}" onfocus="(this.type='date')" onkeydown="return false"/>
                         </div>
                         <div class="input-group-append">
 
@@ -448,7 +448,7 @@
                 <div class="form-group">
                     <div class="input-group">
                         <div class="col-md-12">
-                            <input type="text" id="from" class="form-control" placeholder="From" name="from" max="{{date("Y-m-d")}}" onfocus="(this.type='date')" />
+                            <input type="text" id="from" class="form-control" placeholder="From" name="from" max="{{date("Y-m-d")}}" onfocus="(this.type='date')" onkeydown="return false"/>
                         </div>
                         <div class="input-group-append">
 
@@ -461,7 +461,7 @@
                     <div class="input-group">
                         <div class="col-md-12">
 
-                            <input type="text" id="to" class="form-control" placeholder="To" name="to" max="{{date("Y-m-d")}}" onfocus="(this.type='date')" />
+                            <input type="text" id="to" class="form-control" placeholder="To" name="to" max="{{date("Y-m-d")}}" onfocus="(this.type='date')" onkeydown="return false"/>
                         </div>
                         <div class="input-group-append">
 
@@ -535,7 +535,7 @@
                 <div class="form-group">
                     <div class="input-group">
                         <div class="col-md-12">
-                            <input type="text" id="from" class="form-control" placeholder="From" name="from" max="{{date("Y-m-d")}}" onfocus="(this.type='date')" />
+                            <input type="text" id="from" class="form-control" placeholder="From" name="from" max="{{date("Y-m-d")}}" onfocus="(this.type='date')" onkeydown="return false"/>
                         </div>
                         <div class="input-group-append">
 
@@ -548,7 +548,7 @@
                     <div class="input-group">
                         <div class="col-md-12">
 
-                            <input type="text" id="to" class="form-control" placeholder="To" name="to" max="{{date("Y-m-d")}}" onfocus="(this.type='date')" />
+                            <input type="text" id="to" class="form-control" placeholder="To" name="to" max="{{date("Y-m-d")}}" onfocus="(this.type='date')" onkeydown="return false"/>
                         </div>
                         <div class="input-group-append">
 
@@ -600,7 +600,7 @@
                 <div class="form-group">
                     <div class="input-group">
                         <div class="col-md-12">
-                            <input type="text" id="from" class="form-control" placeholder="From" name="from" max="{{date("Y-m-d")}}" onfocus="(this.type='date')" />
+                            <input type="text" id="from" class="form-control" placeholder="From" name="from" max="{{date("Y-m-d")}}" onfocus="(this.type='date')" onkeydown="return false"/>
                         </div>
                         <div class="input-group-append">
 
@@ -612,8 +612,7 @@
                 <div class="form-group">
                     <div class="input-group">
                         <div class="col-md-12">
-
-                            <input type="text" id="to" class="form-control" placeholder="To" name="to" max="{{date("Y-m-d")}}" onfocus="(this.type='date')" />
+                            <input type="text" id="to" class="form-control" placeholder="To" name="to" max="{{date("Y-m-d")}}" onfocus="(this.type='date')" onkeydown="return false"/>
                         </div>
                         <div class="input-group-append">
 
@@ -846,7 +845,24 @@
                                         </tr>
                                     </thead>
                                     <tbody id="client">
+                                    @if (count($client_list) > 0)
+                                        @foreach($client_list as $result)
+                                        <tr>
 
+                                            <td> {{$result->upi_no}}</td>
+                                            <td> {{$result->ccc_number}}</td>
+                                            <td> {{$result->client_name}}</td>
+                                            <td> {{$result->dob}}</td>
+                                            <td> {{$result->phone_no}}</td>
+                                            <td> {{$result->consented}}</td>
+                                            <td> {{$result->dsd_status}}</td>
+                                            <td> {{$result->client_status}}</td>
+                                            <td> {{$result->kept_app}}</td>
+                                            <td> {{$result->not_kept_app}}</td>
+
+                                        </tr>
+                                        @endforeach
+                                        @endif
                                     </tbody>
 
                                 </table>
@@ -1408,20 +1424,20 @@
             missedMarital(data.missed_marital);
             if (authenticated == 'Facility') {
 
-                $.each(data.client_list, function(key, value) {
-                    $('#client').append("<tr>\
-										<td>" + value.upi_no + "</td>\
-										<td>" + value.ccc_number + "</td>\
-										<td>" + value.client_name + "</td>\
-                                        <td>" + value.dob + "</td>\
-                                        <td>" + value.phone_no + "</td>\
-                                        <td>" + value.consented + "</td>\
-                                        <td>" + value.dsd_status + "</td>\
-                                        <td>" + value.client_status + "</td>\
-                                        <td>" + value.kept_app + "</td>\
-                                        <td>" + value.not_kept_app + "</td>\
-										</tr>");
-                })
+                // $.each(data.client_list, function(key, value) {
+                //     $('#client').append("<tr>\
+				// 						<td>" + value.upi_no + "</td>\
+				// 						<td>" + value.ccc_number + "</td>\
+				// 						<td>" + value.client_name + "</td>\
+                //                         <td>" + value.dob + "</td>\
+                //                         <td>" + value.phone_no + "</td>\
+                //                         <td>" + value.consented + "</td>\
+                //                         <td>" + value.dsd_status + "</td>\
+                //                         <td>" + value.client_status + "</td>\
+                //                         <td>" + value.kept_app + "</td>\
+                //                         <td>" + value.not_kept_app + "</td>\
+				// 						</tr>");
+                // })
             }
             if (authenticated == 'Admin' || authenticated == 'Donor') {
                 appCounty(data.appointment_county);
