@@ -27,7 +27,7 @@
     </div>
 
     <div style="margin: auto">
-        <input id="authenticated" type="hidden" value="{{ auth()->user()->access_level }}">
+        <!-- <input id="authenticated" type="hidden" value="{{ auth()->user()->access_level }}">
         @if (Auth::user()->access_level == 'Sub County')
         <h6 id="user"></h6>
         <h6 style="text-align:right;float:right; padding-left: 5px;">Sub County</h6>
@@ -40,7 +40,7 @@
         <h6 id="user"></h6>
         @else
         <h6>National Super Administrator</h6>
-        @endif
+        @endif -->
 
     </div>
 

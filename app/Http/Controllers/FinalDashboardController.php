@@ -384,8 +384,8 @@ class FinalDashboardController extends Controller
                 'gender',
                 DB::raw('SUM(app_kept) AS kept_app '),
                 DB::raw('SUM(app_not_kept) AS not_kept_app '),
-                DB::raw('AVG(percent_kept) AS percent_kept '),
-                DB::raw('AVG(percent_not_kept) AS percent_not_kept ')
+                DB::raw('ROUND(AVG(percent_kept),1) AS percent_kept '),
+                DB::raw('ROUND(AVG(percent_not_kept),1) AS percent_not_kept ')
             )
                 ->whereNotNull('gender')
                 ->orderBy('percent_kept', 'DESC')
@@ -394,8 +394,8 @@ class FinalDashboardController extends Controller
                 'age_group',
                 DB::raw('SUM(app_kept) AS kept_app '),
                 DB::raw('SUM(app_not_kept) AS not_kept_app '),
-                DB::raw('AVG(percent_kept) AS percent_kept '),
-                DB::raw('AVG(percent_not_kept) AS percent_not_kept ')
+                DB::raw('ROUND(AVG(percent_kept),1) AS percent_kept '),
+                DB::raw('ROUND(AVG(percent_not_kept),1) AS percent_not_kept ')
             )
                 ->whereNotNull('age_group')
                 ->groupBy('age_group');
@@ -633,8 +633,8 @@ class FinalDashboardController extends Controller
                 'facility',
                 DB::raw('SUM(app_kept) AS kept_app '),
                 DB::raw('SUM(app_not_kept) AS not_kept_app '),
-                DB::raw('AVG(percent_kept) AS percent_kept '),
-                DB::raw('AVG(percent_not_kept) AS percent_not_kept ')
+                DB::raw('ROUND(AVG(percent_kept),1) AS percent_kept '),
+                DB::raw('ROUND(AVG(percent_not_kept),1) AS percent_not_kept ')
             )
                 ->where('partner_id', Auth::user()->partner_id)
                 ->orderBy('percent_kept', 'DESC')

@@ -106,10 +106,19 @@
         float: right;
         position: absolute;
 
+
     }
     .no_count {
         font-weight: 700;
         font-size: 24px;
+    }
+    .sub_missed {
+        font-weight: 700;
+        font-size: 18px;
+    }
+    .no_pec {
+        font-weight: 700;
+        font-size: 16px;
     }
 </style>
 @endsection
@@ -661,7 +670,7 @@
                             <span class="mb-4">Clients Consented</span>
                             <p id="consented" class="no_count" style="margin-top:5px;"></p>
                             <div class="box_pec" style="width: 3em; height: 3em; text-align: center; border-radius:50%; border:solid #fff 1px; box-shadow: 0 0 0 2px; padding:2px;">
-                                <h2 id="percnt_consented" style="font-size: 10px; margin-top: 15px;"></h2>
+                                <h2 class="no_pec" id="percnt_consented" style="font-size: 10px; margin-top: 15px;"></h2>
                             </div>
                         </div>
 
@@ -673,7 +682,7 @@
                     <div class="card-body">
                         <div class="content" id="maindiv">
                             <span>Booked Appointments</span>
-                            <p id="all_appointments" class="no_count" style="margin-top:5px;"></p>
+                            <p class="no_pec" id="all_appointments" class="no_count" style="margin-top:5px;"></p>
                         </div>
 
                     </div>
@@ -690,7 +699,7 @@
                             <span class="pt-0">Appointments Kept</span>
                             <p id="app_kept" class="no_count" style="margin-top:5px;"></p>
                             <div class="box_pec" style="width: 3em; height: 3em; text-align: center; border-radius:50%; border:solid #fff 1px; box-shadow: 0 0 0 2px; padding:2px; margin-bottom: 10px;">
-                                <h2 id="percnt_kept" style="font-size: 10px; margin-top: 15px;"></h2>
+                                <h2 class="no_pec" id="percnt_kept" style="font-size: 10px; margin-top: 15px;"></h2>
                             </div>
                         </div>
                     </div>
@@ -703,7 +712,7 @@
                             <span class="">Appointments Not Kept</span>
                             <p id="app_not_kept" class="no_count" style="margin-top:5px;"></p>
                             <div class="box_pec" style="width: 3em; height: 3em; text-align: center; border-radius:50%; border:solid #fff 1px; box-shadow: 0 0 0 2px; padding:2px; margin-bottom: 10px;">
-                                <h2 id="percnt_not_kept" style="font-size: 10px; margin-top: 15px;"></h2>
+                                <h2 class="no_pec" id="percnt_not_kept" style="font-size: 10px; margin-top: 15px;"></h2>
                             </div>
                         </div>
 
@@ -717,7 +726,7 @@
                             <span>Future Appointments</span>
                             <p id="app_future" class="no_count" style="margin-top:5px;"></p>
                             <div class="box_pec" style="width: 3em; height: 3em; text-align: center; border-radius:50%; border:solid #fff 1px; box-shadow: 0 0 0 2px; padding:2px;">
-                                <h2 id="percnt_future" style="font-size: 10px; margin-top: 15px;"></h2>
+                                <h2 class="no_pec" id="percnt_future" style="font-size: 10px; margin-top: 15px;"></h2>
                             </div>
                         </div>
 
@@ -907,17 +916,17 @@
                             <div class="row">
                                 <div class="" style="margin-right: 20px;">
                                     <span>Missed</span>
-                                    <p id="consent_missed"></p>
+                                    <p class="sub_missed" id="consent_missed"></p>
                                 </div>
                                 <div class="" style="margin-right: 10px; border-left: 1px solid;"></div>
                                 <div class="" style="margin-right: 20px;">
                                     <span>Defaulted</span>
-                                    <p id="consent_defaulted"></p>
+                                    <p class="sub_missed" id="consent_defaulted"></p>
                                 </div>
                                 <div class="" style="margin-right: 10px; border-left: 1px solid;"></div>
                                 <div class="" style="margin-right: 20px;">
                                     <span>IIT</span>
-                                    <p id="consent_iit"></p>
+                                    <p class="sub_missed" id="consent_iit"></p>
                                 </div>
                             </div>
                         </div>
@@ -935,17 +944,17 @@
                             <div class="row">
                                 <div class="" style="margin-right: 20px;">
                                     <span>Missed</span>
-                                    <p id="sms_missed"></p>
+                                    <p class="sub_missed" id="sms_missed"></p>
                                 </div>
                                 <div class="" style="margin-right: 10px; border-left: 1px solid;"></div>
                                 <div style="margin-right: 20px;">
                                     <span>Defaulted</span>
-                                    <p id="sms_defaulted"></p>
+                                    <p class="sub_missed" id="sms_defaulted"></p>
                                 </div>
                                 <div class="" style="margin-right: 10px; border-left: 1px solid;"></div>
                                 <div style="margin-right: 20px;">
                                     <span>IIT</span>
-                                    <p id="sms_iit"></p>
+                                    <p class="sub_missed" id="sms_iit"></p>
                                 </div>
                             </div>
                         </div>
@@ -967,17 +976,17 @@
                             <div class="row">
                                 <div class="" style="margin-right: 20px;">
                                     <span>Missed</span>
-                                    <p id="contacted_missed"></p>
+                                    <p class="sub_missed" id="contacted_missed"></p>
                                 </div>
                                 <div class="" style="margin-right: 10px; border-left: 1px solid;"></div>
                                 <div class="" style="margin-right: 20px; ">
                                     <span>Defaulted</span>
-                                    <p id="contacted_defaulted"></p>
+                                    <p class="sub_missed" id="contacted_defaulted"></p>
                                 </div>
                                 <div class="" style="margin-right: 10px; border-left: 1px solid;"></div>
                                 <div class="" style="margin-right: 20px;">
                                     <span>IIT</span>
-                                    <p id="contacted_iit"></p>
+                                    <p class="sub_missed" id="contacted_iit"></p>
                                 </div>
                             </div>
                         </div>
@@ -995,17 +1004,17 @@
                             <div class="row">
                                 <div class="" style="margin-right: 20px;">
                                     <span>Missed</span>
-                                    <p id="traced_missed" class="text-center" style="margin-top: 5px;"></p>
+                                    <p id="traced_missed" class="sub_missed" style="margin-top: 5px;"></p>
                                 </div>
                                 <div class="" style="margin-right: 10px; border-left: 1px solid;"></div>
                                 <div class="" style="margin-right: 20px;">
                                     <span>Defaulted</span>
-                                    <p id="traced_defaulted" class="text-center" style="margin-top: 5px;"></p>
+                                    <p id="traced_defaulted" class="sub_missed" style="margin-top: 5px;"></p>
                                 </div>
                                 <div class="" style="margin-right: 10px; border-left: 1px solid;"></div>
                                 <div class="" style="margin-right: 20px;">
                                     <span>IIT</span>
-                                    <p id="traced_iit" class="text-center" style="margin-top: 5px;"></p>
+                                    <p id="traced_iit" class="sub_missed" style="margin-top: 5px;"></p>
                                 </div>
                             </div>
                         </div>
@@ -1022,19 +1031,19 @@
                         </div>
                         <div class="h-35" style="float:right;">
                             <div class="row">
-                                <div class="text-right" style="margin-right: 20px;">
+                                <div class="" style="margin-right: 20px;">
                                     <span>Missed</span>
-                                    <p id="outcome_missed"></p>
+                                    <p class="sub_missed" id="outcome_missed"></p>
                                 </div>
                                 <div class="" style="margin-right: 10px; border-left: 1px solid;"></div>
-                                <div class="text-right" style="margin-right: 20px;">
+                                <div class="" style="margin-right: 20px;">
                                     <span>Defaulted</span>
-                                    <p id="outcome_defaulted"></p>
+                                    <p class="sub_missed" id="outcome_defaulted"></p>
                                 </div>
                                 <div class="" style="margin-right: 10px; border-left: 1px solid;"></div>
                                 <div class="" style="margin-right: 20px;">
                                     <span>IIT</span>
-                                    <p class="" id="outcome_iit"></p>
+                                    <p class="sub_missed" id="outcome_iit"></p>
                                 </div>
                             </div>
                         </div>
@@ -1731,20 +1740,6 @@
                 missedGender(data.missed_gender);
                 missedMarital(data.missed_marital);
                 if (authenticated == 'Facility') {
-                    $.each(data.client_list, function(key, value) {
-                        $('#client').append("<tr>\
-										<td>" + value.upi_no + "</td>\
-										<td>" + value.ccc_number + "</td>\
-										<td>" + value.client_name + "</td>\
-                                        <td>" + value.dob + "</td>\
-                                        <td>" + value.phone_no + "</td>\
-                                        <td>" + value.consented + "</td>\
-                                        <td>" + value.dsd_status + "</td>\
-                                        <td>" + value.client_status + "</td>\
-                                        <td>" + value.kept_app + "</td>\
-                                        <td>" + value.not_kept_app + "</td>\
-										</tr>");
-                    })
 
                 }
                 if (authenticated == 'Admin' || authenticated == 'Donor') {
@@ -1765,7 +1760,7 @@
                 console.log(missed);
 
                 for (var x = 0; x < consent.length; x++) {
-                    consented = consent[x].consented;
+                    consented = parseInt(consent[x].consented);
                     console.log(consented);
                     if (consented == undefined || consented == null) {
                         consented = 0;
@@ -1811,7 +1806,7 @@
                     percnt_future = Math.round(apps[x].percent_future).toFixed(1) + '%';
                 }
                 for (var x = 0; x < tx.length; x++) {
-                    tx_curr = tx[x].tx_cur;
+                    tx_curr = parseInt(tx[x].tx_cur).toLocaleString();
                 }
                 for (var x = 0; x < missed.length; x++) {
                     app_missed = missed[x].not_kept_app;
@@ -1820,7 +1815,7 @@
                     } else {
                         app_missed = app_missed.toLocaleString();
                     }
-                    consent_app = missed[x].consent;
+                    consent_app = parseInt(missed[x].consent);
                     if (consent_app == undefined || consent_app == null) {
                         consent_app = 0;
                     } else {
@@ -1920,7 +1915,7 @@
                         traced_iit = traced_iit.toLocaleString();
                     }
 
-                    outcome = missed[x].final_outcome;
+                    outcome = parseInt(missed[x].final_outcome);
                     if (outcome == undefined || outcome == null) {
                         outcome = 0;
                     } else {
