@@ -69,7 +69,6 @@
     }
 
     .Indicator {
-        font-family: 'Manrope';
         font-style: normal;
         font-weight: 700;
         font-size: 12px;
@@ -82,7 +81,6 @@
     }
 
     .Definition {
-        font-family: 'Manrope';
         font-style: normal;
         font-weight: 700;
         line-height: 120%;
@@ -114,7 +112,7 @@
     }
     .sub_missed {
         font-weight: 700;
-        font-size: 18px;
+        font-size: 14px;
     }
     .no_pec {
         font-weight: 700;
@@ -1767,7 +1765,7 @@
                 console.log(missed);
 
                 for (var x = 0; x < consent.length; x++) {
-                    consented = parseInt(consent[x].consented);
+                    consented = consent[x].consented;
                     console.log(consented);
                     if (consented == undefined || consented == null) {
                         consented = 0;
@@ -1822,7 +1820,7 @@
                     } else {
                         app_missed = app_missed.toLocaleString();
                     }
-                    consent_app = parseInt(missed[x].consent);
+                    consent_app = missed[x].consent;
                     if (consent_app == undefined || consent_app == null) {
                         consent_app = 0;
                     } else {
@@ -1922,7 +1920,7 @@
                         traced_iit = traced_iit.toLocaleString();
                     }
 
-                    outcome = parseInt(missed[x].final_outcome);
+                    outcome = missed[x].final_outcome;
                     if (outcome == undefined || outcome == null) {
                         outcome = 0;
                     } else {
@@ -2050,19 +2048,19 @@
             },
             legend: {
                 itemStyle: {
-                    fontFamily: 'Manrope',
+                    fontFamily: 'Inter',
                     fontSize: '12px'
                 }
             },
             title: {
                 text: 'Appointment Distribution by Age',
                 style: {
-                    fontFamily: 'Manrope',
-                    fontSize: '12px'
+                    fontFamily: 'Inter',
+                    fontSize: '14px'
                 }
             },
             style: {
-                fontFamily: 'Manrope'
+                fontFamily: 'Inter'
             },
 
             xAxis: {
@@ -2118,18 +2116,18 @@
             },
             legend: {
                 itemStyle: {
-                    fontFamily: 'Manrope',
+                    fontFamily: 'Inter',
                     fontSize: '12px'
                 }
             },
             style: {
-                fontFamily: 'Manrope'
+                fontFamily: 'Inter'
             },
             title: {
                 text: 'Appointment Distribution by Gender',
                 style: {
-                    fontFamily: 'Manrope',
-                    fontSize: '12px'
+                    fontFamily: 'Inter',
+                    fontSize: '14px'
                 }
             },
 
@@ -2185,15 +2183,15 @@
             },
             legend: {
                 itemStyle: {
-                    fontFamily: 'Manrope',
+                    fontFamily: 'Inter',
                     fontSize: '12px'
                 }
             },
             title: {
                 text: 'Appointment Distribution by Marital Status',
                 style: {
-                    fontFamily: 'Manrope',
-                    fontSize: '12px'
+                    fontFamily: 'Inter',
+                    fontSize: '14px'
                 }
             },
             xAxis: {
@@ -2260,15 +2258,15 @@
             },
             legend: {
                 itemStyle: {
-                    fontFamily: 'Manrope',
+                    fontFamily: 'Inter',
                     fontSize: '12px'
                 }
             },
             title: {
                 text: 'Missed Appointment Distribution by Gender',
                 style: {
-                    fontFamily: 'Manrope',
-                    fontSize: '12px'
+                    fontFamily: 'Inter',
+                    fontSize: '14px'
                 }
             },
             xAxis: {
@@ -2333,15 +2331,15 @@
             },
             legend: {
                 itemStyle: {
-                    fontFamily: 'Manrope',
+                    fontFamily: 'Inter',
                     fontSize: '12px'
                 }
             },
             title: {
                 text: 'Missed Appointment Distribution by Age',
                 style: {
-                    fontFamily: 'Manrope',
-                    fontSize: '12px'
+                    fontFamily: 'Inter',
+                    fontSize: '14px'
                 }
             },
             xAxis: {
@@ -2406,15 +2404,15 @@
             },
             legend: {
                 itemStyle: {
-                    fontFamily: 'Manrope',
+                    fontFamily: 'Inter',
                     fontSize: '12px'
                 }
             },
             title: {
                 text: 'Missed Client Distribution by Marital Status',
                 style: {
-                    fontFamily: 'Manrope',
-                    fontSize: '12px'
+                    fontFamily: 'Inter',
+                    fontSize: '14px'
                 }
             },
             xAxis: {
@@ -2479,15 +2477,15 @@
             },
             legend: {
                 itemStyle: {
-                    fontFamily: 'Manrope',
+                    fontFamily: 'Inter',
                     fontSize: '12px'
                 }
             },
             title: {
                 text: 'Missed Client Distribution by Period',
                 style: {
-                    fontFamily: 'Manrope',
-                    fontSize: '12px'
+                    fontFamily: 'Inter',
+                    fontSize: '14px'
                 }
             },
             xAxis: {
@@ -2553,15 +2551,15 @@
                 },
                 legend: {
                     itemStyle: {
-                        fontFamily: 'Manrope',
+                        fontFamily: 'Inter',
                         fontSize: '12px'
                     }
                 },
                 title: {
                     text: 'Appointment Distribution by County',
                     style: {
-                        fontFamily: 'Manrope',
-                        fontSize: '12px'
+                        fontFamily: 'Inter',
+                        fontSize: '14px'
                     }
                 },
                 xAxis: {
@@ -2627,15 +2625,15 @@
                 },
                 legend: {
                     itemStyle: {
-                        fontFamily: 'Manrope',
+                        fontFamily: 'Inter',
                         fontSize: '12px'
                     }
                 },
                 title: {
                     text: 'Missed Client Distribution by County',
                     style: {
-                        fontFamily: 'Manrope',
-                        fontSize: '12px'
+                        fontFamily: 'Inter',
+                        fontSize: '14px'
                     }
                 },
                 xAxis: {
@@ -2700,15 +2698,15 @@
                 },
                 legend: {
                     itemStyle: {
-                        fontFamily: 'Manrope',
+                        fontFamily: 'Inter',
                         fontSize: '12px'
                     }
                 },
                 title: {
                     text: 'Missed Client Distribution by Partner',
                     style: {
-                        fontFamily: 'Manrope',
-                        fontSize: '12px'
+                        fontFamily: 'Inter',
+                        fontSize: '14px'
                     }
                 },
                 xAxis: {
@@ -2773,15 +2771,15 @@
                 },
                 legend: {
                     itemStyle: {
-                        fontFamily: 'Manrope',
+                        fontFamily: 'Inter',
                         fontSize: '12px'
                     }
                 },
                 title: {
                     text: 'Appointment Distribution by Partner',
                     style: {
-                        fontFamily: 'Manrope',
-                        fontSize: '12px'
+                        fontFamily: 'Inter',
+                        fontSize: '14px'
                     }
                 },
                 xAxis: {
@@ -2848,15 +2846,15 @@
                 },
                 legend: {
                     itemStyle: {
-                        fontFamily: 'Manrope',
+                        fontFamily: 'Inter',
                         fontSize: '12px'
                     }
                 },
                 title: {
                     text: 'Missed Client Distribution by Partner',
                     style: {
-                        fontFamily: 'Manrope',
-                        fontSize: '12px'
+                        fontFamily: 'Inter',
+                        fontSize: '14px'
                     }
                 },
                 xAxis: {
@@ -2921,15 +2919,15 @@
                 },
                 legend: {
                     itemStyle: {
-                        fontFamily: 'Manrope',
+                        fontFamily: 'Inter',
                         fontSize: '12px'
                     }
                 },
                 title: {
                     text: 'Appointment Distribution by Partner',
                     style: {
-                        fontFamily: 'Manrope',
-                        fontSize: '12px'
+                        fontFamily: 'Inter',
+                        fontSize: '14px'
                     }
                 },
                 xAxis: {
@@ -2995,15 +2993,15 @@
                 },
                 legend: {
                     itemStyle: {
-                        fontFamily: 'Manrope',
+                        fontFamily: 'Inter',
                         fontSize: '12px'
                     }
                 },
                 title: {
                     text: 'Appointment Distribution by Facility',
                     style: {
-                        fontFamily: 'Manrope',
-                        fontSize: '12px'
+                        fontFamily: 'Inter',
+                        fontSize: '14px'
                     }
                 },
                 xAxis: {
@@ -3068,15 +3066,15 @@
                 },
                 legend: {
                     itemStyle: {
-                        fontFamily: 'Manrope',
+                        fontFamily: 'Inter',
                         fontSize: '12px'
                     }
                 },
                 title: {
                     text: 'Missed Appointment Distribution by Facility',
                     style: {
-                        fontFamily: 'Manrope',
-                        fontSize: '12px'
+                        fontFamily: 'Inter',
+                        fontSize: '14px'
                     }
                 },
                 xAxis: {

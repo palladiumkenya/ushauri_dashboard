@@ -430,16 +430,7 @@ class FinalDashboardController extends Controller
                 ->whereNotNull('partner')
                 ->orderBy('percent_kept', 'DESC')
                 ->groupBy('partner');
-            $appointment_facility = DB::table('etl_appointment_detail')->select(
-                'facility',
-                DB::raw('SUM(app_kept) AS kept_app '),
-                DB::raw('SUM(app_not_kept) AS not_kept_app '),
 
-            )
-                ->groupBy('facility');
-            $client_list = DB::table('etl_client_detail')->select(
-                DB::raw('COUNT(ccc_number) AS ccc_number ')
-            );
 
             // missed appointment
             $client_missed = DB::table('etl_appointment_detail')->select(
@@ -515,18 +506,7 @@ class FinalDashboardController extends Controller
                 ->whereNotNull('partner')
                 ->orderBy('percent_rtc', 'DESC')
                 ->groupBy('partner');
-            $missed_facility = DB::table('etl_appointment_detail')->select(
-                'facility',
-                DB::raw('SUM(app_not_kept) AS not_kept_app '),
-                DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" THEN 1 ELSE 0 END) AS final_outcome'),
-                DB::raw('ROUND(AVG(percent_rtc),1) AS percent_rtc '),
-                DB::raw('ROUND(AVG(percent_not_kept),1) AS percent_not_kept ')
-            )
-                ->whereNotNull('facility')
-                ->groupBy('facility');
-            $client_app_list = DB::table('etl_client_detail')->select(
-                DB::raw('COUNT(ccc_number) AS ccc_number ')
-            );
+
             $app_period = DB::table('etl_appointment_detail')->select(
                 DB::raw('DATE_FORMAT(appointment_date, "%Y-%M") AS new_date'),
                 DB::raw('ROUND(AVG(percent_rtc),1) AS percent_rtc '),
@@ -546,16 +526,12 @@ class FinalDashboardController extends Controller
             $data["appointment_marital"] = $appointment_marital->get();
             $data["appointment_county"] = $appointment_county->get();
             $data["appointment_partner"] = $appointment_partner->get();
-            $data["appointment_facility"] = $appointment_facility->get();
-            $data["client_list"] = $client_list->get();
             $data["client_missed"] = $client_missed->get();
             $data["missed_age"] = $missed_age->get();
             $data["missed_gender"] = $missed_gender->get();
             $data["missed_marital"] = $missed_marital->get();
             $data["missed_county"] = $missed_county->get();
             $data["missed_partner"] = $missed_partner->get();
-            $data["missed_facility"] = $missed_facility->get();
-            $data["client_app_list"] = $client_app_list->get();
             $data["app_period"] = $app_period->get();
 
             return $data;
@@ -1268,16 +1244,6 @@ class FinalDashboardController extends Controller
             )
                 ->whereNotNull('partner')
                 ->groupBy('partner');
-            $appointment_facility = DB::table('etl_appointment_detail')->select(
-                'facility',
-                DB::raw('SUM(app_kept) AS kept_app '),
-                DB::raw('SUM(app_not_kept) AS not_kept_app '),
-
-            )
-                ->groupBy('facility');
-            $client_list = DB::table('etl_client_detail')->select(
-                DB::raw('COUNT(ccc_number) AS ccc_number ')
-            );
 
             // missed appointment
             $client_missed = DB::table('etl_appointment_detail')->select(
@@ -1349,9 +1315,6 @@ class FinalDashboardController extends Controller
             )
                 ->whereNotNull('partner')
                 ->groupBy('partner');
-            $client_app_list = DB::table('etl_client_detail')->select(
-                DB::raw('COUNT(ccc_number) AS ccc_number ')
-            );
             $app_period = DB::table('etl_appointment_detail')->select(
                 DB::raw('DATE_FORMAT(appointment_date, "%Y-%M") AS new_date'),
                 DB::raw('ROUND(AVG(percent_rtc),1) AS percent_rtc '),
@@ -1371,15 +1334,12 @@ class FinalDashboardController extends Controller
                 $appointment_marital = $appointment_marital->where('partner_id', $selected_partners);
                 $appointment_county = $appointment_county->where('partner_id', $selected_partners);
                 $appointment_partner = $appointment_partner->where('partner_id', $selected_partners);
-                $appointment_facility = $appointment_facility->where('partner_id', $selected_partners);
-                $client_list = $client_list->where('partner_id', $selected_partners);
                 $client_missed = $client_missed->where('partner_id', $selected_partners);
                 $missed_age = $missed_age->where('partner_id', $selected_partners);
                 $missed_gender = $missed_gender->where('partner_id', $selected_partners);
                 $missed_marital = $missed_marital->where('partner_id', $selected_partners);
                 $missed_county = $missed_county->where('partner_id', $selected_partners);
                 $missed_partner = $missed_partner->where('partner_id', $selected_partners);
-                $client_app_list = $client_app_list->where('partner_id', $selected_partners);
                 $app_period = $app_period->where('partner_id', $selected_partners);
             }
             if (!empty($selected_counties)) {
@@ -1391,15 +1351,12 @@ class FinalDashboardController extends Controller
                 $appointment_marital = $appointment_marital->where('county_id', $selected_counties);
                 $appointment_county = $appointment_county->where('county_id', $selected_counties);
                 $appointment_partner = $appointment_partner->where('county_id', $selected_counties);
-                $appointment_facility = $appointment_facility->where('county_id', $selected_counties);
-                $client_list = $client_list->where('county_id', $selected_counties);
                 $client_missed = $client_missed->where('county_id', $selected_counties);
                 $missed_age = $missed_age->where('county_id', $selected_counties);
                 $missed_gender = $missed_gender->where('county_id', $selected_counties);
                 $missed_marital = $missed_marital->where('county_id', $selected_counties);
                 $missed_county = $missed_county->where('county_id', $selected_counties);
                 $missed_partner = $missed_partner->where('county_id', $selected_counties);
-                $client_app_list = $client_app_list->where('county_id', $selected_counties);
                 $app_period = $app_period->where('county_id', $selected_counties);
             }
             if (!empty($selected_subcounties)) {
@@ -1411,15 +1368,12 @@ class FinalDashboardController extends Controller
                 $appointment_marital = $appointment_marital->where('subcounty_id', $selected_subcounties);
                 $appointment_county = $appointment_county->where('subcounty_id', $selected_subcounties);
                 $appointment_partner = $appointment_partner->where('subcounty_id', $selected_subcounties);
-                $appointment_facility = $appointment_facility->where('subcounty_id', $selected_subcounties);
-                $client_list = $client_list->where('subcounty_id', $selected_subcounties);
                 $client_missed = $client_missed->where('subcounty_id', $selected_subcounties);
                 $missed_age = $missed_age->where('subcounty_id', $selected_subcounties);
                 $missed_gender = $missed_gender->where('subcounty_id', $selected_subcounties);
                 $missed_marital = $missed_marital->where('subcounty_id', $selected_subcounties);
                 $missed_county = $missed_county->where('subcounty_id', $selected_subcounties);
                 $missed_partner = $missed_partner->where('subcounty_id', $selected_subcounties);
-                $client_app_list = $client_app_list->where('subcounty_id', $selected_subcounties);
                 $app_period = $app_period->where('subcounty_id', $selected_subcounties);
             }
             if (!empty($selected_facilites)) {
@@ -1431,15 +1385,12 @@ class FinalDashboardController extends Controller
                 $appointment_marital = $appointment_marital->where('mfl_code', $selected_facilites);
                 $appointment_county = $appointment_county->where('mfl_code', $selected_facilites);
                 $appointment_partner = $appointment_partner->where('mfl_code', $selected_facilites);
-                $appointment_facility = $appointment_facility->where('mfl_code', $selected_facilites);
-                $client_list = $client_list->where('mfl_code', $selected_facilites);
                 $client_missed = $client_missed->where('mfl_code', $selected_facilites);
                 $missed_age = $missed_age->where('mfl_code', $selected_facilites);
                 $missed_gender = $missed_gender->where('mfl_code', $selected_facilites);
                 $missed_marital = $missed_marital->where('mfl_code', $selected_facilites);
                 $missed_county = $missed_county->where('mfl_code', $selected_facilites);
                 $missed_partner = $missed_partner->where('mfl_code', $selected_facilites);
-                $client_app_list = $client_app_list->where('mfl_code', $selected_facilites);
                 $app_period = $app_period->where('mfl_code', $selected_facilites);
             }
 
@@ -1452,15 +1403,12 @@ class FinalDashboardController extends Controller
                 $appointment_marital = $appointment_marital->where('clinic_type', $selected_clinics);
                 $appointment_county = $appointment_county->where('clinic_type', $selected_clinics);
                 $appointment_partner = $appointment_partner->where('clinic_type', $selected_clinics);
-                $appointment_facility = $appointment_facility->where('clinic_type', $selected_clinics);
-                $client_list = $client_list->where('etl_client_detail.clinic_type', $selected_clinics);
                 $client_missed = $client_missed->where('clinic_type', $selected_clinics);
                 $missed_age = $missed_age->where('clinic_type', $selected_clinics);
                 $missed_gender = $missed_gender->where('clinic_type', $selected_clinics);
                 $missed_marital = $missed_marital->where('clinic_type', $selected_clinics);
                 $missed_county = $missed_county->where('clinic_type', $selected_clinics);
                 $missed_partner = $missed_partner->where('clinic_type', $selected_clinics);
-                $client_app_list = $client_app_list->where('etl_client_detail.clinic_type', $selected_clinics);
                 $app_period = $app_period->where('clinic_type', $selected_clinics);
             }
             if (!empty($selected_appointments)) {
@@ -1472,15 +1420,12 @@ class FinalDashboardController extends Controller
                 $appointment_marital = $appointment_marital;
                 $appointment_county = $appointment_county;
                 $appointment_partner = $appointment_partner;
-                $appointment_facility = $appointment_facility;
-                $client_list = $client_list;
                 $client_missed = $client_missed->where('appointment_status', $selected_appointments);
                 $missed_age = $missed_age->where('appointment_status', $selected_appointments);
                 $missed_gender = $missed_gender->where('appointment_status', $selected_appointments);
                 $missed_marital = $missed_marital->where('appointment_status', $selected_appointments);
                 $missed_county = $missed_county->where('appointment_status', $selected_appointments);
                 $missed_partner = $missed_partner->where('appointment_status', $selected_appointments);
-                $client_app_list = $client_app_list;
                 $app_period = $app_period->where('appointment_status', $selected_appointments);
             }
             if (!empty($selected_from || $selected_to)) {
@@ -1492,36 +1437,30 @@ class FinalDashboardController extends Controller
                 $appointment_marital = $appointment_marital->where('appointment_date', '>=', date($request->from))->where('appointment_date', '<=', date($request->to));
                 $appointment_county = $appointment_county->where('appointment_date', '>=', date($request->from))->where('appointment_date', '<=', date($request->to));
                 $appointment_partner = $appointment_partner->where('appointment_date', '>=', date($request->from))->where('appointment_date', '<=', date($request->to));
-                $appointment_facility = $appointment_facility->where('appointment_date', '>=', date($request->from))->where('appointment_date', '<=', date($request->to));
-                $client_list = $client_list;
                 $client_missed = $client_missed->where('appointment_date', '>=', date($request->from))->where('appointment_date', '<=', date($request->to));
                 $missed_age = $missed_age->where('appointment_date', '>=', date($request->from))->where('appointment_date', '<=', date($request->to));
                 $missed_gender = $missed_gender->where('appointment_date', '>=', date($request->from))->where('appointment_date', '<=', date($request->to));
                 $missed_marital = $missed_marital->where('appointment_date', '>=', date($request->from))->where('appointment_date', '<=', date($request->to));
                 $missed_county = $missed_county->where('appointment_date', '>=', date($request->from))->where('appointment_date', '<=', date($request->to));
                 $missed_partner = $missed_partner->where('appointment_date', '>=', date($request->from))->where('appointment_date', '<=', date($request->to));
-                $client_app_list = $client_app_list;
                 $app_period = $app_period->where('appointment_date', '>=', date($request->from))->where('appointment_date', '<=', date($request->to));
             }
 
             if (!empty($selected_sites)) {
                 $all_appoinments = $all_appoinments->where('facility_type', $selected_sites);
                 $consented_clients = $consented_clients->where('facility_type', $selected_sites);
-                $all_tx_curr = $all_tx_curr->where('facility_type', $selected_sites);
+                $all_tx_curr = $all_tx_curr->join('tbl_master_facility', 'tbl_tx_cur.mfl_code', '=', 'tbl_master_facility.code')->where('tbl_master_facility.facility_type', $selected_sites);
                 $appointment_gender = $appointment_gender->where('facility_type', $selected_sites);
                 $appointment_age = $appointment_age->where('facility_type', $selected_sites);
                 $appointment_marital = $appointment_marital->where('facility_type', $selected_sites);
                 $appointment_county = $appointment_county->where('facility_type', $selected_sites);
                 $appointment_partner = $appointment_partner->where('facility_type', $selected_sites);
-                $appointment_facility = $appointment_facility->where('facility_type', $selected_sites);
-                $client_list = $client_list->where('facility_type', $selected_sites);
                 $client_missed = $client_missed->where('facility_type', $selected_sites);
                 $missed_age = $missed_age->where('facility_type', $selected_sites);
                 $missed_gender = $missed_gender->where('facility_type', $selected_sites);
                 $missed_marital = $missed_marital->where('facility_type', $selected_sites);
                 $missed_county = $missed_county->where('facility_type', $selected_sites);
                 $missed_partner = $missed_partner->where('facility_type', $selected_sites);
-                $client_app_list = $client_app_list->where('facility_type', $selected_sites);
                 $app_period = $app_period->where('facility_type', $selected_sites);
             }
 
@@ -1533,15 +1472,12 @@ class FinalDashboardController extends Controller
             $data["appointment_marital"] = $appointment_marital->get();
             $data["appointment_county"] = $appointment_county->get();
             $data["appointment_partner"] = $appointment_partner->get();
-            $data["appointment_facility"] = $appointment_facility->get();
-            $data["client_list"] = $client_list->get();
             $data["client_missed"] = $client_missed->get();
             $data["missed_age"] = $missed_age->get();
             $data["missed_gender"] = $missed_gender->get();
             $data["missed_marital"] = $missed_marital->get();
             $data["missed_county"] = $missed_county->get();
             $data["missed_partner"] = $missed_partner->get();
-            $data["client_app_list"] = $client_app_list->get();
             $data["app_period"] = $app_period->get();
 
             return $data;
@@ -2266,7 +2202,7 @@ class FinalDashboardController extends Controller
             if (!empty($selected_sites)) {
                 $all_appoinments = $all_appoinments->where('facility_type', $selected_sites);
                 $consented_clients = $consented_clients->where('facility_type', $selected_sites);
-                $all_tx_curr = $all_tx_curr->where('facility_type', $selected_sites);
+                $all_tx_curr = $all_tx_curr->join('tbl_master_facility', 'tbl_tx_cur.mfl_code', '=', 'tbl_master_facility.code')->where('tbl_master_facility.facility_type', $selected_sites);
                 $appointment_gender = $appointment_gender->where('facility_type', $selected_sites);
                 $appointment_age = $appointment_age->where('facility_type', $selected_sites);
                 $appointment_marital = $appointment_marital->where('facility_type', $selected_sites);
@@ -2647,7 +2583,7 @@ class FinalDashboardController extends Controller
             if (!empty($selected_sites)) {
                 $all_appoinments = $all_appoinments->where('facility_type', $selected_sites);
                 $consented_clients = $consented_clients->where('facility_type', $selected_sites);
-                $all_tx_curr = $all_tx_curr->where('facility_type', $selected_sites);
+                $all_tx_curr = $all_tx_curr->join('tbl_master_facility', 'tbl_tx_cur.mfl_code', '=', 'tbl_master_facility.code')->where('tbl_master_facility.facility_type', $selected_sites);
                 $appointment_gender = $appointment_gender->where('facility_type', $selected_sites);
                 $appointment_age = $appointment_age->where('facility_type', $selected_sites);
                 $appointment_marital = $appointment_marital->where('facility_type', $selected_sites);
@@ -3031,7 +2967,7 @@ class FinalDashboardController extends Controller
             if (!empty($selected_sites)) {
                 $all_appoinments = $all_appoinments->where('facility_type', $selected_sites);
                 $consented_clients = $consented_clients->where('facility_type', $selected_sites);
-                $all_tx_curr = $all_tx_curr->where('facility_type', $selected_sites);
+                $all_tx_curr = $all_tx_curr->join('tbl_master_facility', 'tbl_tx_cur.mfl_code', '=', 'tbl_master_facility.code')->where('tbl_master_facility.facility_type', $selected_sites);
                 $appointment_gender = $appointment_gender->where('facility_type', $selected_sites);
                 $appointment_age = $appointment_age->where('facility_type', $selected_sites);
                 $appointment_marital = $appointment_marital->where('facility_type', $selected_sites);
