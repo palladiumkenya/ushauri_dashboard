@@ -165,7 +165,7 @@
     <script src="{{ asset('assets/js/alerts.js') }}"></script>
 
     <script>
-        @if(session('status'))
+        if(session('status'))
         // alert('{{session('status')}}')
         swal({
             title: "{{session('status')}}",
@@ -173,7 +173,7 @@
             icon: "{{session('statuscode')}}",
             button: "Ok",
         });
-        @endif
+        
     </script>
 
     <script src="{{ asset('assets/js/customizer.script.js') }}"></script>

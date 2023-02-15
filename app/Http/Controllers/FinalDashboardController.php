@@ -1180,7 +1180,7 @@ class FinalDashboardController extends Controller
             $selected_appointments = $request->appointments;
             $selected_from = $request->from;
             $selected_to = $request->to;
-            $selected_site = $request->site;
+            $selected_site = $request->sites;
 
             $all_appoinments = ETLAppointment::select(
                 DB::raw('(SUM(app_kept)+SUM(app_not_kept)+SUM(future)) as total_app'),
@@ -1446,22 +1446,39 @@ class FinalDashboardController extends Controller
                 $app_period = $app_period->where('appointment_date', '>=', date($request->from))->where('appointment_date', '<=', date($request->to));
             }
 
-            if (!empty($selected_sites)) {
-                $all_appoinments = $all_appoinments->where('facility_type', $selected_sites);
-                $consented_clients = $consented_clients->where('facility_type', $selected_sites);
-                $all_tx_curr = $all_tx_curr->join('tbl_master_facility', 'tbl_tx_cur.mfl_code', '=', 'tbl_master_facility.code')->where('tbl_master_facility.facility_type', $selected_sites);
-                $appointment_gender = $appointment_gender->where('facility_type', $selected_sites);
-                $appointment_age = $appointment_age->where('facility_type', $selected_sites);
-                $appointment_marital = $appointment_marital->where('facility_type', $selected_sites);
-                $appointment_county = $appointment_county->where('facility_type', $selected_sites);
-                $appointment_partner = $appointment_partner->where('facility_type', $selected_sites);
-                $client_missed = $client_missed->where('facility_type', $selected_sites);
-                $missed_age = $missed_age->where('facility_type', $selected_sites);
-                $missed_gender = $missed_gender->where('facility_type', $selected_sites);
-                $missed_marital = $missed_marital->where('facility_type', $selected_sites);
-                $missed_county = $missed_county->where('facility_type', $selected_sites);
-                $missed_partner = $missed_partner->where('facility_type', $selected_sites);
-                $app_period = $app_period->where('facility_type', $selected_sites);
+            if (!empty($selected_site == 'EMR Based')) {
+                $all_appoinments = $all_appoinments->where('facility_type', '=', 'EMR Based');
+                $consented_clients = $consented_clients->where('facility_type', '=', 'EMR Based');
+                $all_tx_curr = $all_tx_curr->join('etl_client_detail', 'tbl_tx_cur.mfl_code', '=', 'etl_client_detail.mfl_code')->where('etl_client_detail.facility_type', '=', 'EMR Based')->groupBy('etl_client_detail.mfl_code');
+                $appointment_gender = $appointment_gender->where('facility_type', '=', 'EMR Based');
+                $appointment_age = $appointment_age->where('facility_type', '=', 'EMR Based');
+                $appointment_marital = $appointment_marital->where('facility_type', '=', 'EMR Based');
+                $appointment_county = $appointment_county->where('facility_type', '=', 'EMR Based');
+                $appointment_partner = $appointment_partner->where('facility_type', '=', 'EMR Based');
+                $client_missed = $client_missed->where('facility_type', '=', 'EMR Based');
+                $missed_age = $missed_age->where('facility_type', '=', 'EMR Based');
+                $missed_gender = $missed_gender->where('facility_type', '=', 'EMR Based');
+                $missed_marital = $missed_marital->where('facility_type', '=', 'EMR Based');
+                $missed_county = $missed_county->where('facility_type', '=', 'EMR Based');
+                $missed_partner = $missed_partner->where('facility_type', '=', 'EMR Based');
+                $app_period = $app_period->where('facility_type', '=', 'EMR Based');
+            }
+            if (!empty($selected_site == 'Paper Based')) {
+                $all_appoinments = $all_appoinments->where('facility_type', '=', 'Paper Based');
+                $consented_clients = $consented_clients->where('facility_type', '=', 'Paper Based');
+                $all_tx_curr = $all_tx_curr->join('etl_client_detail', 'tbl_tx_cur.mfl_code', '=', 'etl_client_detail.mfl_code')->where('etl_client_detail.facility_type', '=', 'Paper Based')->groupBy('etl_client_detail.mfl_code');
+                $appointment_gender = $appointment_gender->where('facility_type', '=', 'Paper Based');
+                $appointment_age = $appointment_age->where('facility_type', '=', 'Paper Based');
+                $appointment_marital = $appointment_marital->where('facility_type', '=', 'Paper Based');
+                $appointment_county = $appointment_county->where('facility_type', '=', 'Paper Based');
+                $appointment_partner = $appointment_partner->where('facility_type', '=', 'Paper Based');
+                $client_missed = $client_missed->where('facility_type', '=', 'Paper Based');
+                $missed_age = $missed_age->where('facility_type', '=', 'Paper Based');
+                $missed_gender = $missed_gender->where('facility_type', '=', 'Paper Based');
+                $missed_marital = $missed_marital->where('facility_type', '=', 'Paper Based');
+                $missed_county = $missed_county->where('facility_type', '=', 'Paper Based');
+                $missed_partner = $missed_partner->where('facility_type', '=', 'Paper Based');
+                $app_period = $app_period->where('facility_type', '=', 'Paper Based');
             }
 
             $data["all_appoinments"] = $all_appoinments->get();
@@ -1826,7 +1843,7 @@ class FinalDashboardController extends Controller
             if (!empty($selected_sites)) {
                 $all_appoinments = $all_appoinments->where('facility_type', $selected_sites);
                 $consented_clients = $consented_clients->where('facility_type', $selected_sites);
-                $all_tx_curr = $all_tx_curr->where('facility_type', $selected_sites);
+                $all_tx_curr = $all_tx_curr->join('etl_client_detail', 'tbl_tx_cur.mfl_code', '=', 'etl_client_detail.mfl_code')->where('etl_client_detail.facility_type', '=', 'EMR Based')->groupBy('etl_client_detail.mfl_code');
                 $appointment_gender = $appointment_gender->where('facility_type', $selected_sites);
                 $appointment_age = $appointment_age->where('facility_type', $selected_sites);
                 $appointment_marital = $appointment_marital->where('facility_type', $selected_sites);
@@ -1875,7 +1892,7 @@ class FinalDashboardController extends Controller
             $selected_appointments = $request->appointments;
             $selected_from = $request->from;
             $selected_to = $request->to;
-            $selected_site = $request->site;
+            $selected_site = $request->sites;
             $data                = [];
 
             $all_appoinments = ETLAppointment::select(
@@ -2199,26 +2216,26 @@ class FinalDashboardController extends Controller
                 $app_period = $app_period->where('appointment_date', '>=', date($request->from))->where('appointment_date', '<=', date($request->to));
             }
 
-            if (!empty($selected_sites)) {
-                $all_appoinments = $all_appoinments->where('facility_type', $selected_sites);
-                $consented_clients = $consented_clients->where('facility_type', $selected_sites);
-                $all_tx_curr = $all_tx_curr->join('tbl_master_facility', 'tbl_tx_cur.mfl_code', '=', 'tbl_master_facility.code')->where('tbl_master_facility.facility_type', $selected_sites);
-                $appointment_gender = $appointment_gender->where('facility_type', $selected_sites);
-                $appointment_age = $appointment_age->where('facility_type', $selected_sites);
-                $appointment_marital = $appointment_marital->where('facility_type', $selected_sites);
-                $appointment_county = $appointment_county->where('facility_type', $selected_sites);
-                $appointment_partner = $appointment_partner->where('facility_type', $selected_sites);
-                $appointment_facility = $appointment_facility->where('facility_type', $selected_sites);
-                $client_list = $client_list->where('facility_type', $selected_sites);
-                $client_missed = $client_missed->where('facility_type', $selected_sites);
-                $missed_age = $missed_age->where('facility_type', $selected_sites);
-                $missed_gender = $missed_gender->where('facility_type', $selected_sites);
-                $missed_marital = $missed_marital->where('facility_type', $selected_sites);
-                $missed_county = $missed_county->where('facility_type', $selected_sites);
-                $missed_partner = $missed_partner->where('facility_type', $selected_sites);
-                $missed_facility = $missed_facility->where('facility_type', $selected_sites);
-                $client_app_list = $client_app_list->where('facility_type', $selected_sites);
-                $app_period = $app_period->where('facility_type', $selected_sites);
+            if (!empty($selected_site)) {
+                $all_appoinments = $all_appoinments->where('facility_type', $selected_site);
+                $consented_clients = $consented_clients->where('facility_type', $selected_site);
+                $all_tx_curr = $all_tx_curr->join('etl_client_detail', 'tbl_tx_cur.mfl_code', '=', 'etl_client_detail.mfl_code')->where('etl_client_detail.facility_type', $selected_site)->groupBy('etl_client_detail.mfl_code');
+                $appointment_gender = $appointment_gender->where('facility_type', $selected_site);
+                $appointment_age = $appointment_age->where('facility_type', $selected_site);
+                $appointment_marital = $appointment_marital->where('facility_type', $selected_site);
+                $appointment_county = $appointment_county->where('facility_type', $selected_site);
+                $appointment_partner = $appointment_partner->where('facility_type', $selected_site);
+                $appointment_facility = $appointment_facility->where('facility_type', $selected_site);
+                $client_list = $client_list->where('facility_type', $selected_site);
+                $client_missed = $client_missed->where('facility_type', $selected_site);
+                $missed_age = $missed_age->where('facility_type', $selected_site);
+                $missed_gender = $missed_gender->where('facility_type', $selected_site);
+                $missed_marital = $missed_marital->where('facility_type', $selected_site);
+                $missed_county = $missed_county->where('facility_type', $selected_site);
+                $missed_partner = $missed_partner->where('facility_type', $selected_site);
+                $missed_facility = $missed_facility->where('facility_type', $selected_site);
+                $client_app_list = $client_app_list->where('facility_type', $selected_site);
+                $app_period = $app_period->where('facility_type', $selected_site);
             }
 
             $data["all_appoinments"] = $all_appoinments->get();
@@ -2254,7 +2271,7 @@ class FinalDashboardController extends Controller
             $selected_appointments = $request->appointments;
             $selected_from = $request->from;
             $selected_to = $request->to;
-            $selected_site = $request->site;
+            $selected_sites = $request->sites;
 
             $all_appoinments = ETLAppointment::select(
                 DB::raw('(SUM(app_kept)+SUM(app_not_kept)+SUM(future)) as total_app'),
@@ -2583,7 +2600,7 @@ class FinalDashboardController extends Controller
             if (!empty($selected_sites)) {
                 $all_appoinments = $all_appoinments->where('facility_type', $selected_sites);
                 $consented_clients = $consented_clients->where('facility_type', $selected_sites);
-                $all_tx_curr = $all_tx_curr->join('tbl_master_facility', 'tbl_tx_cur.mfl_code', '=', 'tbl_master_facility.code')->where('tbl_master_facility.facility_type', $selected_sites);
+                $all_tx_curr = $all_tx_curr->join('etl_client_detail', 'tbl_tx_cur.mfl_code', '=', 'etl_client_detail.mfl_code')->where('etl_client_detail.facility_type', $selected_sites)->groupBy('etl_client_detail.mfl_code');
                 $appointment_gender = $appointment_gender->where('facility_type', $selected_sites);
                 $appointment_age = $appointment_age->where('facility_type', $selected_sites);
                 $appointment_marital = $appointment_marital->where('facility_type', $selected_sites);
@@ -2635,7 +2652,7 @@ class FinalDashboardController extends Controller
             $selected_appointments = $request->appointments;
             $selected_from = $request->from;
             $selected_to = $request->to;
-            $selected_site = $request->site;
+            $selected_sites = $request->sites;
 
             $all_appoinments = ETLAppointment::select(
                 DB::raw('(SUM(app_kept)+SUM(app_not_kept)+SUM(future)) as total_app'),
@@ -2967,7 +2984,7 @@ class FinalDashboardController extends Controller
             if (!empty($selected_sites)) {
                 $all_appoinments = $all_appoinments->where('facility_type', $selected_sites);
                 $consented_clients = $consented_clients->where('facility_type', $selected_sites);
-                $all_tx_curr = $all_tx_curr->join('tbl_master_facility', 'tbl_tx_cur.mfl_code', '=', 'tbl_master_facility.code')->where('tbl_master_facility.facility_type', $selected_sites);
+                $all_tx_curr = $all_tx_curr->join('etl_client_detail', 'tbl_tx_cur.mfl_code', '=', 'etl_client_detail.mfl_code')->where('etl_client_detail.facility_type', $selected_sites)->groupBy('etl_client_detail.mfl_code');
                 $appointment_gender = $appointment_gender->where('facility_type', $selected_sites);
                 $appointment_age = $appointment_age->where('facility_type', $selected_sites);
                 $appointment_marital = $appointment_marital->where('facility_type', $selected_sites);
@@ -3009,4 +3026,5 @@ class FinalDashboardController extends Controller
             return $data;
         }
     }
+
 }

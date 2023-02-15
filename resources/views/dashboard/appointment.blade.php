@@ -87,7 +87,13 @@
         /* identical to box height, or 20px */
         letter-spacing: -0.3px;
         text-transform: capitalize;
+        font-size: 12px;
 
+        color: #888888;
+    }
+    .Definitions {
+        font-style: normal;
+        font-size: 12px;
         color: #888888;
     }
 
@@ -96,6 +102,7 @@
         background: rgba(229, 247, 255, 0.28);
         border: 1px solid #E5F7FF;
         border-radius: 10px;
+        font-size: 14px;
     }
 
     .box_pec {
@@ -393,7 +400,7 @@
             <div class="col-lg-3">
                 <div class="form-group">
                     <select class="form-control select2" id="counties" name="county" >
-                        <option value=""></option>
+                    <option value="">All</option>
                         @if (count($counties) > 0)
                         @foreach($counties as $county)
                         <option value="{{$county->id }}">{{ ucwords($county->name) }}</option>
@@ -405,7 +412,7 @@
             <div class="col-lg-3">
                 <div class="form-group">
                     <select class="form-control select2" id="subcounties" name="subcounty" >
-                        <option value=""></option>
+                    <option value="">All</option>
                         @if (count($sub_counties) > 0)
                         @foreach($sub_counties as $sub_county)
                         <option value="{{$sub_county->id }}">{{ ucwords($sub_county->name) }}</option>
@@ -420,6 +427,7 @@
                         <option value=""></option>
                         @if (count($facilities) > 0)
                         @foreach($facilities as $facility)
+                        <option value="">All</option>
                         <option value="{{$facility->code }}">{{ ucwords($facility->name) }}</option>
                         @endforeach
                         @endif
@@ -429,7 +437,7 @@
             <div class="col-lg-3">
                 <div class="form-group">
                     <select class="form-control input-rounded input-sm select2" id="sites" name="site" >
-                        <option value=""> </option>
+                        <option value="">All</option>
                         <option value="Paper Based">Paper Based</option>
                         <option value="EMR Based">EMR Based</option>
                     </select>
@@ -441,6 +449,7 @@
                         <option value=""></option>
                         @if (count($clinics) > 0)
                         @foreach($clinics as $clinic)
+                        <option value="">All</option>
                         <option value="{{$clinic->name }}">{{ ucwords($clinic->name) }}</option>
                         @endforeach
                         @endif
@@ -450,7 +459,7 @@
             <div class="col-lg-3">
                 <div class="form-group">
                     <select class="form-control input-rounded input-sm select2" id="appointments" name="appointment" >
-                        <option value=""></option>
+                    <option value="">All</option>
                         <option value="Missed">Missed</option>
                         <option value="Defaulted">Defaulted</option>
                         <option value="IIT">IIT</option>
@@ -743,7 +752,7 @@
         <div class="Indications card-body col-lg-12" id="maindiv">
             <p class="Indicator">Indicator Definition</p>
             <p class="Definition">Appointment Honored & Not Honored</p>
-            <p class="Definition">{{ json_encode($indicator_k[0]->description) }}</p>
+            <p class="Definitions">{{ json_encode($indicator_k[0]->description) }}</p>
         </div>
 
         <div class="col-md-12">
@@ -1060,7 +1069,7 @@
         <div class="Indications card-body col-lg-12" id="maindiv">
             <p class="Indicator">Indicator Definition</p>
             <p class="Definition">Missed Appointments</p>
-            <p class="Definition">{{ json_encode($indicator_m[0]->description) }}</p>
+            <p class="Definitions">{{ json_encode($indicator_m[0]->description) }}</p>
         </div>
 
 
