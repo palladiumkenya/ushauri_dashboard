@@ -91,6 +91,7 @@
 
         color: #888888;
     }
+
     .Definitions {
         font-style: normal;
         font-size: 12px;
@@ -113,21 +114,26 @@
 
 
     }
+
     .no_count {
         font-weight: 700;
         font-size: 24px;
     }
+
     .sub_missed {
         font-weight: 700;
         font-size: 14px;
     }
+
     .no_pec {
         font-weight: 700;
         font-size: 16px;
     }
+
     .card_sub_title {
         font-size: 14px;
     }
+
     .card_title {
         font-size: 16px;
 
@@ -150,7 +156,7 @@
             <div class="col-lg-3">
                 <div class="form-group">
 
-                    <select class="form-control select2" id="partners" name="partners">
+                    <select class="form-control select2" id="partners" name="partner">
                         <option></option>
                         @if (count($partners) > 0)
                         @foreach($partners as $partner)
@@ -164,7 +170,7 @@
             <div class="col-lg-3">
                 <div class="form-group">
                     <select class="form-control select2" id="counties" name="county">
-                        <option value=""></option>
+                        <option></option>
                         @if (count($counties) > 0)
                         @foreach($counties as $county)
                         <option value="{{$county->id }}">{{ ucwords($county->name) }}</option>
@@ -176,7 +182,7 @@
             <div class="col-lg-3">
                 <div class="form-group">
                     <select class="form-control select2" id="subcounties" name="subcounty">
-                        <option value=""></option>
+                        <option value="">All</option>
                         @if (count($sub_counties) > 0)
                         @foreach($sub_counties as $sub_county)
                         <option value="{{$sub_county->id }}">{{ ucwords($sub_county->name) }}</option>
@@ -186,6 +192,15 @@
                 </div>
             </div>
             <div class="col-lg-3">
+                <div class="form-group">
+                    <select class="form-control input-rounded input-sm select2" id="sites" name="site">
+                        <option value=""> </option>
+                        <option value="Paper Based">Paper Based</option>
+                        <option value="EMR Based">EMR Based</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-lg-2">
                 <div class="form-group">
                     <select class="form-control select2" id="facilities" name="facility">
                         <option value=""></option>
@@ -197,15 +212,7 @@
                     </select>
                 </div>
             </div>
-            <div class="col-lg-2">
-                <div class="form-group">
-                    <select class="form-control input-rounded input-sm select2" id="sites" name="site">
-                        <option value=""> </option>
-                        <option value="Paper Based">Paper Based</option>
-                        <option value="EMR Based">EMR Based</option>
-                    </select>
-                </div>
-            </div>
+
             <div class="col-lg-2">
                 <div class="form-group">
                     <select class="form-control input-rounded input-sm select2" id="clinics" name="clinic">
@@ -233,7 +240,7 @@
                 <div class="form-group">
                     <div class="input-group">
                         <div class="col-md-12">
-                            <input type="text" id="from" class="form-control" placeholder="From" name="from" max="{{date("Y-m-d")}}" onfocus="(this.type='date')" onkeydown="return false"/>
+                            <input type="text" id="from" class="form-control" placeholder="From" name="from" max="{{date("Y-m-d")}}" onfocus="(this.type='date')" onkeydown="return false" />
                         </div>
                         <div class="input-group-append">
 
@@ -246,7 +253,7 @@
                     <div class="input-group">
                         <div class="col-md-12">
 
-                            <input type="text" id="to" class="form-control" placeholder="To" name="to" max="{{date("Y-m-d")}}" onfocus="(this.type='date')" onkeydown="return false"/>
+                            <input type="text" id="to" class="form-control" placeholder="To" name="to" max="{{date("Y-m-d")}}" onfocus="(this.type='date')" onkeydown="return false" />
                         </div>
                         <div class="input-group-append">
 
@@ -312,7 +319,16 @@
             </div>
             <div class="col-lg-3">
                 <div class="form-group">
-                    <select class="form-control select2" id="facilities" name="facility" >
+                    <select class="form-control input-rounded input-sm select2" id="sites" name="site">
+                        <option value=""> </option>
+                        <option value="Paper Based">Paper Based</option>
+                        <option value="EMR Based">EMR Based</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-lg-3">
+                <div class="form-group">
+                    <select class="form-control select2" id="facilities" name="facility">
                         <option value=""></option>
                         @if (count($facilities) > 0)
                         @foreach($facilities as $facility)
@@ -322,15 +338,7 @@
                     </select>
                 </div>
             </div>
-            <div class="col-lg-3">
-                <div class="form-group">
-                    <select class="form-control input-rounded input-sm select2" id="sites" name="site" >
-                        <option value=""> </option>
-                        <option value="Paper Based">Paper Based</option>
-                        <option value="EMR Based">EMR Based</option>
-                    </select>
-                </div>
-            </div>
+
             <div class="col-lg-3">
                 <div class="form-group">
                     <select class="form-control input-rounded input-sm select2" id="clinics" name="clinic">
@@ -358,7 +366,7 @@
                 <div class="form-group">
                     <div class="input-group">
                         <div class="col-md-14">
-                            <input type="text" id="from" class="form-control" placeholder="From" name="from" max="{{date("Y-m-d")}}" onfocus="(this.type='date')" onkeydown="return false"/>
+                            <input type="text" id="from" class="form-control" placeholder="From" name="from" max="{{date("Y-m-d")}}" onfocus="(this.type='date')" onkeydown="return false" />
                         </div>
                         <div class="input-group-append">
 
@@ -371,7 +379,7 @@
                     <div class="input-group">
                         <div class="col-md-14">
 
-                            <input type="text" id="to" class="form-control" placeholder="To" name="to" max="{{date("Y-m-d")}}" onfocus="(this.type='date')" onkeydown="return false"/>
+                            <input type="text" id="to" class="form-control" placeholder="To" name="to" max="{{date("Y-m-d")}}" onfocus="(this.type='date')" onkeydown="return false" />
                         </div>
                         <div class="input-group-append">
 
@@ -399,8 +407,8 @@
         <div class="row">
             <div class="col-lg-3">
                 <div class="form-group">
-                    <select class="form-control select2" id="counties" name="county" >
-                    <option value="">All</option>
+                    <select class="form-control select2" id="counties" name="county">
+                        <option value="">All</option>
                         @if (count($counties) > 0)
                         @foreach($counties as $county)
                         <option value="{{$county->id }}">{{ ucwords($county->name) }}</option>
@@ -411,8 +419,8 @@
             </div>
             <div class="col-lg-3">
                 <div class="form-group">
-                    <select class="form-control select2" id="subcounties" name="subcounty" >
-                    <option value="">All</option>
+                    <select class="form-control select2" id="subcounties" name="subcounty">
+                        <option value="">All</option>
                         @if (count($sub_counties) > 0)
                         @foreach($sub_counties as $sub_county)
                         <option value="{{$sub_county->id }}">{{ ucwords($sub_county->name) }}</option>
@@ -423,7 +431,16 @@
             </div>
             <div class="col-lg-3">
                 <div class="form-group">
-                    <select class="form-control select2" id="facilities" name="facility" >
+                    <select class="form-control input-rounded input-sm select2" id="sites" name="site">
+                        <option value="">All</option>
+                        <option value="Paper Based">Paper Based</option>
+                        <option value="EMR Based">EMR Based</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-lg-3">
+                <div class="form-group">
+                    <select class="form-control select2" id="facilities" name="facility">
                         <option value=""></option>
                         @if (count($facilities) > 0)
                         @foreach($facilities as $facility)
@@ -431,15 +448,6 @@
                         <option value="{{$facility->code }}">{{ ucwords($facility->name) }}</option>
                         @endforeach
                         @endif
-                    </select>
-                </div>
-            </div>
-            <div class="col-lg-3">
-                <div class="form-group">
-                    <select class="form-control input-rounded input-sm select2" id="sites" name="site" >
-                        <option value="">All</option>
-                        <option value="Paper Based">Paper Based</option>
-                        <option value="EMR Based">EMR Based</option>
                     </select>
                 </div>
             </div>
@@ -458,8 +466,8 @@
             </div>
             <div class="col-lg-3">
                 <div class="form-group">
-                    <select class="form-control input-rounded input-sm select2" id="appointments" name="appointment" >
-                    <option value="">All</option>
+                    <select class="form-control input-rounded input-sm select2" id="appointments" name="appointment">
+                        <option value="">All</option>
                         <option value="Missed">Missed</option>
                         <option value="Defaulted">Defaulted</option>
                         <option value="IIT">IIT</option>
@@ -471,7 +479,7 @@
                 <div class="form-group">
                     <div class="input-group">
                         <div class="col-md-12">
-                            <input type="text" id="from" class="form-control" placeholder="From" name="from" max="{{date("Y-m-d")}}" onfocus="(this.type='date')" onkeydown="return false"/>
+                            <input type="text" id="from" class="form-control" placeholder="From" name="from" max="{{date("Y-m-d")}}" onfocus="(this.type='date')" onkeydown="return false" />
                         </div>
                         <div class="input-group-append">
 
@@ -484,7 +492,7 @@
                     <div class="input-group">
                         <div class="col-md-12">
 
-                            <input type="text" id="to" class="form-control" placeholder="To" name="to" max="{{date("Y-m-d")}}" onfocus="(this.type='date')" onkeydown="return false"/>
+                            <input type="text" id="to" class="form-control" placeholder="To" name="to" max="{{date("Y-m-d")}}" onfocus="(this.type='date')" onkeydown="return false" />
                         </div>
                         <div class="input-group-append">
 
@@ -512,7 +520,16 @@
         <div class="row">
             <div class="col-lg-3">
                 <div class="form-group">
-                    <select class="form-control select2" id="facilities" name="facility" >
+                    <select class="form-control input-rounded input-sm select2" id="sites" name="site">
+                        <option value=""> </option>
+                        <option value="Paper Based">Paper Based</option>
+                        <option value="EMR Based">EMR Based</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-lg-3">
+                <div class="form-group">
+                    <select class="form-control select2" id="facilities" name="facility">
                         <option value=""></option>
                         @if (count($facilities) > 0)
                         @foreach($facilities as $facility)
@@ -522,15 +539,7 @@
                     </select>
                 </div>
             </div>
-            <div class="col-lg-3">
-                <div class="form-group">
-                    <select class="form-control input-rounded input-sm select2" id="sites" name="site" >
-                        <option value=""> </option>
-                        <option value="Paper Based">Paper Based</option>
-                        <option value="EMR Based">EMR Based</option>
-                    </select>
-                </div>
-            </div>
+
             <div class="col-lg-3">
                 <div class="form-group">
                     <select class="form-control input-rounded input-sm select2" id="clinics" name="clinic">
@@ -558,7 +567,7 @@
                 <div class="form-group">
                     <div class="input-group">
                         <div class="col-md-12">
-                            <input type="text" id="from" class="form-control" placeholder="From" name="from" max="{{date("Y-m-d")}}" onfocus="(this.type='date')" onkeydown="return false"/>
+                            <input type="text" id="from" class="form-control" placeholder="From" name="from" max="{{date("Y-m-d")}}" onfocus="(this.type='date')" onkeydown="return false" />
                         </div>
                         <div class="input-group-append">
 
@@ -571,7 +580,7 @@
                     <div class="input-group">
                         <div class="col-md-12">
 
-                            <input type="text" id="to" class="form-control" placeholder="To" name="to" max="{{date("Y-m-d")}}" onfocus="(this.type='date')" onkeydown="return false"/>
+                            <input type="text" id="to" class="form-control" placeholder="To" name="to" max="{{date("Y-m-d")}}" onfocus="(this.type='date')" onkeydown="return false" />
                         </div>
                         <div class="input-group-append">
 
@@ -623,7 +632,7 @@
                 <div class="form-group">
                     <div class="input-group">
                         <div class="col-md-12">
-                            <input type="text" id="from" class="form-control" placeholder="From" name="from" max="{{date("Y-m-d")}}" onfocus="(this.type='date')" onkeydown="return false"/>
+                            <input type="text" id="from" class="form-control" placeholder="From" name="from" max="{{date("Y-m-d")}}" onfocus="(this.type='date')" onkeydown="return false" />
                         </div>
                         <div class="input-group-append">
 
@@ -635,7 +644,7 @@
                 <div class="form-group">
                     <div class="input-group">
                         <div class="col-md-12">
-                            <input type="text" id="to" class="form-control" placeholder="To" name="to" max="{{date("Y-m-d")}}" onfocus="(this.type='date')" onkeydown="return false"/>
+                            <input type="text" id="to" class="form-control" placeholder="To" name="to" max="{{date("Y-m-d")}}" onfocus="(this.type='date')" onkeydown="return false" />
                         </div>
                         <div class="input-group-append">
 
@@ -670,7 +679,7 @@
                 <div class="TX_Curr card o-hidden mb-0 h-75">
                     <div class="card-body">
                         <div class="content">
-                            <span class="card_title" >TX_Curr</span>
+                            <span class="card_title">TX_Curr</span>
                             <p id="tx_curr" class="no_count" style="margin-top:5px;"></p>
                         </div>
 
@@ -681,7 +690,7 @@
                 <div class="Consented card o-hidden mb-0 h-75">
                     <div class="card-body">
                         <div class="content" id="maindiv">
-                            <span class="card_title" >Clients Consented</span>
+                            <span class="card_title">Clients Consented</span>
                             <p id="consented" class="no_count" style="margin-top:8px;"></p>
                             <div class="box_pec" style="width: 3em; height: 3em; text-align: center; border-radius:50%; border:solid #fff 1px; box-shadow: 0 0 0 2px; padding:2px;">
                                 <h2 class="no_pec" id="percnt_consented" style="font-size: 10px; margin-top: 15px;"></h2>
@@ -695,7 +704,7 @@
                 <div class="Booked card o-hidden mb-0 h-75">
                     <div class="card-body">
                         <div class="content" id="maindiv">
-                            <span class="card_title" >Booked Appointments</span>
+                            <span class="card_title">Booked Appointments</span>
                             <p id="all_appointments" class="no_count" style="margin-top:8px;"></p>
                         </div>
 
@@ -710,7 +719,7 @@
                 <div class="Kept card o-hidden mb-2 h-75">
                     <div class="card-body">
                         <div class="content">
-                            <span class="card_title" >Appointments Kept</span>
+                            <span class="card_title">Appointments Kept</span>
                             <p id="app_kept" class="no_count" style="margin-top:8px;"></p>
                             <div class="box_pec" style="width: 3em; height: 3em; text-align: center; border-radius:50%; border:solid #fff 1px; box-shadow: 0 0 0 2px; padding:2px; margin-bottom: 10px;">
                                 <h2 class="no_pec" id="percnt_kept" style="font-size: 10px; margin-top: 15px;"></h2>
@@ -868,7 +877,7 @@
                                         </tr>
                                     </thead>
                                     <tbody id="client">
-                                    @if (count($client_list) > 0)
+                                        @if (count($client_list) > 0)
                                         @foreach($client_list as $result)
                                         <tr>
 
@@ -951,7 +960,7 @@
                 <div class="Booked card o-hidden mb-0 h-75">
                     <div class="card-body">
                         <div class="content" id="maindiv">
-                            <span class="card_title" >Clients Who Received SMS</span>
+                            <span class="card_title">Clients Who Received SMS</span>
                             <p id="sms" class="no_count" style="margin-top:5px;"></p>
                         </div>
                         <div class="h-45" style="float:right; margin-right: 20px;">
@@ -1011,7 +1020,7 @@
                 <div class="Not_Kept card o-hidden mb-0 h-75">
                     <div class="card-body">
                         <div class="content" id="maindiv">
-                            <span class="card_title" >Clients Physically Traced</span>
+                            <span class="card_title">Clients Physically Traced</span>
                             <p id="traced" class="no_count" style="margin-top:5px;"></p>
                         </div>
                         <div class="h-45" style="float:right;">
@@ -1321,6 +1330,7 @@
         });
     });
 
+
     $(document).ready(function() {
         $('select[name="county"]').on('change', function() {
             var countyID = $(this).val();
@@ -1353,6 +1363,107 @@
             if (subcountyID) {
                 $.ajax({
                     url: '/get_dashboard_facilities/' + subcountyID,
+                    type: "GET",
+                    dataType: "json",
+                    success: function(data) {
+
+
+                        $('select[name="facility"]').empty();
+                        $('select[name="facility"]').append('<option value="">Please Select Facility</option>');
+                        $.each(data, function(key, value) {
+                            $('select[name="facility"]').append('<option value="' + key + '">' + value + '</option>');
+                        });
+
+
+                    }
+                });
+            } else {
+                $('select[name="facility"]').empty();
+            }
+        });
+    });
+    $(document).ready(function() {
+        $('select[name="county"]').on('change', function() {
+            var countyID = $(this).val();
+            if (countyID) {
+                $.ajax({
+                    url: '/get_county_facilities/' + countyID,
+                    type: "GET",
+                    dataType: "json",
+                    success: function(data) {
+
+
+                        $('select[name="facility"]').empty();
+                        $('select[name="facility"]').append('<option value="">Please Select Facility</option>');
+                        $.each(data, function(key, value) {
+                            $('select[name="facility"]').append('<option value="' + key + '">' + value + '</option>');
+                        });
+
+
+                    }
+                });
+            } else {
+                $('select[name="facility"]').empty();
+            }
+        });
+    });
+
+    $(document).ready(function() {
+        $('select[name="partner"]').on('change', function() {
+            var partnerID = $(this).val();
+            if (partnerID) {
+                $.ajax({
+                    url: '/get_partner_sub_counties/' + partnerID,
+                    type: "GET",
+                    dataType: "json",
+                    success: function(data) {
+
+
+                        $('select[name="subcounty"]').empty();
+                        $('select[name="subcounty"]').append('<option value="">Please Select Sub County</option>');
+                        $.each(data, function(key, value) {
+                            $('select[name="subcounty"]').append('<option value="' + key + '">' + value + '</option>');
+                        });
+
+
+                    }
+                });
+            } else {
+                $('select[name="subcounty"]').empty();
+            }
+        });
+    });
+    $(document).ready(function() {
+        $('select[name="partner"]').on('change', function() {
+            var partnerID = $(this).val();
+            if (partnerID) {
+                $.ajax({
+                    url: '/get_partner_facilities/' + partnerID,
+                    type: "GET",
+                    dataType: "json",
+                    success: function(data) {
+
+
+                        $('select[name="facility"]').empty();
+                        $('select[name="facility"]').append('<option value="">Please Select Facility</option>');
+                        $.each(data, function(key, value) {
+                            $('select[name="facility"]').append('<option value="' + key + '">' + value + '</option>');
+                        });
+
+
+                    }
+                });
+            } else {
+                $('select[name="facility"]').empty();
+            }
+        });
+    });
+    $(document).ready(function() {
+        $('select[name="site"]').on('change', function() {
+            var siteID = $(this).val();
+            if (siteID) {
+                $.ajax({
+                    url: '/get_sitetype_facilities/' + siteID,
                     type: "GET",
                     dataType: "json",
                     success: function(data) {
@@ -1449,9 +1560,9 @@
 
                 // $.each(data.client_list, function(key, value) {
                 //     $('#client').append("<tr>\
-				// 						<td>" + value.upi_no + "</td>\
-				// 						<td>" + value.ccc_number + "</td>\
-				// 						<td>" + value.client_name + "</td>\
+                // 						<td>" + value.upi_no + "</td>\
+                // 						<td>" + value.ccc_number + "</td>\
+                // 						<td>" + value.client_name + "</td>\
                 //                         <td>" + value.dob + "</td>\
                 //                         <td>" + value.phone_no + "</td>\
                 //                         <td>" + value.consented + "</td>\
@@ -1459,7 +1570,7 @@
                 //                         <td>" + value.client_status + "</td>\
                 //                         <td>" + value.kept_app + "</td>\
                 //                         <td>" + value.not_kept_app + "</td>\
-				// 						</tr>");
+                // 						</tr>");
                 // })
             }
             if (authenticated == 'Admin' || authenticated == 'Donor') {
@@ -1745,6 +1856,7 @@
                 const consent = data.consented_clients;
                 const apps = data.all_appoinments;
                 const tx = data.all_tx_curr;
+                console.log(tx);
                 const missed = data.client_missed;
                 appGender(data.appointment_gender);
                 appAge(data.appointment_age);
@@ -1820,7 +1932,13 @@
                     percnt_future = Math.round(apps[x].percent_future).toFixed(1) + '%';
                 }
                 for (var x = 0; x < tx.length; x++) {
-                    tx_curr = parseInt(tx[x].tx_cur).toLocaleString();
+                    tx_curr = tx[x].tx_cur
+                    if (tx_curr == undefined || tx_curr == null || isNaN(tx_curr)) {
+                        tx_curr = 0;
+                    } else {
+                        tx_curr = tx_curr.toLocaleString();
+                    }
+
                 }
                 for (var x = 0; x < missed.length; x++) {
                     app_missed = missed[x].not_kept_app;

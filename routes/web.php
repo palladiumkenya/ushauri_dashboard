@@ -271,4 +271,9 @@ Route::group(['middleware' => 'auth'], function () {
   Route::get('/appointment/data', ['uses' => 'App\Http\Controllers\FinalDashboardController@appointment', 'as' => 'appointment_data']);
   Route::get('/filter_app_data', ['uses' => 'App\Http\Controllers\FinalDashboardController@filter_data', 'as' => 'filter_app_data']);
   Route::get('/user/info', ['uses' => 'App\Http\Controllers\UserController@user_info', 'as' => 'user_info']);
+  Route::get('/get_county_facilities/{id}', ['uses' => 'App\Http\Controllers\FinalDashboardController@get_county_facilities', 'as' => 'get_county_facilities']);
+  Route::get('/get_partner_sub_counties/{id}', ['uses' => 'App\Http\Controllers\FinalDashboardController@get_partner_sub_counties', 'as' => 'get_partner_sub_counties']);
+  Route::get('/get_partner_facilities/{id}', ['uses' => 'App\Http\Controllers\FinalDashboardController@get_partner_facilities', 'as' => 'get_partner_facilities']);
+  Route::get('/get_sitetype_facilities/{id}', ['uses' => 'App\Http\Controllers\FinalDashboardController@get_sitetype_facilities', 'as' => 'get_sitetype_facilities']);
+
 });

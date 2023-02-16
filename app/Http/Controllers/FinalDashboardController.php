@@ -3026,5 +3026,98 @@ class FinalDashboardController extends Controller
             return $data;
         }
     }
+    public function get_county_facilities(Request $request, $id)
+    {
+        $partner_ids = array();
+        $strings_array = $request->partners;
+        if (!empty($strings_array)) {
+            foreach ($strings_array as $each_id) {
+                $partner_ids[] = (int) $each_id;
+            }
+        }
+        $partners_with_ids = PartnerFacility::select('partner_id')->distinct('partner_id')->groupBy('partner_id')->get();
+        $facilities = PartnerFacility::join('tbl_master_facility', 'tbl_partner_facility.mfl_code', '=', 'tbl_master_facility.code')
+            ->where("tbl_partner_facility.county_id", $id)
+            ->orderBy('tbl_master_facility.name', 'ASC')
+            ->pluck("tbl_master_facility.name", "tbl_master_facility.code");
+
+        return json_encode($facilities);
+    }
+    public function get_partner_sub_counties($id)
+    {
+        $subcounties = PartnerFacility::join('tbl_sub_county', 'tbl_partner_facility.sub_county_id', '=', 'tbl_sub_county.id')
+            ->where("tbl_partner_facility.partner_id", $id)
+            ->orderBy('tbl_sub_county.name', 'ASC')
+            ->pluck("tbl_sub_county.name", "tbl_sub_county.id");
+
+        if (Auth::user()->access_level == 'Partner') {
+            $subcounties = PartnerFacility::join('tbl_sub_county', 'tbl_partner_facility.sub_county_id', '=', 'tbl_sub_county.id')
+                ->where("tbl_partner_facility.partner_id", $id)
+                ->where("tbl_partner_facility.partner_id", '=', Auth::user()->partner_id)
+                ->orderBy('tbl_sub_county.name', 'ASC')
+                ->pluck("tbl_sub_county.name", "tbl_sub_county.id");
+        }
+        if (Auth::user()->access_level == 'Sub County') {
+            $subcounties = PartnerFacility::join('tbl_sub_county', 'tbl_partner_facility.sub_county_id', '=', 'tbl_sub_county.id')
+                ->where("tbl_partner_facility.partner_id", $id)
+                ->where("tbl_partner_facility.sub_county_id", '=', Auth::user()->subcounty_id)
+                ->orderBy('tbl_sub_county.name', 'ASC')
+                ->pluck("tbl_sub_county.name", "tbl_sub_county.id");
+        }
+        return json_encode($subcounties);
+    }
+    public function get_partner_facilities(Request $request, $id)
+    {
+        $partner_ids = array();
+        $strings_array = $request->partners;
+        if (!empty($strings_array)) {
+            foreach ($strings_array as $each_id) {
+                $partner_ids[] = (int) $each_id;
+            }
+        }
+        $partners_with_ids = PartnerFacility::select('partner_id')->distinct('partner_id')->groupBy('partner_id')->get();
+        $facilities = PartnerFacility::join('tbl_master_facility', 'tbl_partner_facility.mfl_code', '=', 'tbl_master_facility.code')
+            ->where("tbl_partner_facility.partner_id", $id)
+            // ->where("tbl_partner_facility.partner_id", $id)
+            ->orderBy('tbl_master_facility.name', 'ASC')
+            ->pluck("tbl_master_facility.name", "tbl_master_facility.code");
+
+        if (Auth::user()->access_level == 'Partner') {
+            $facilities = PartnerFacility::join('tbl_master_facility', 'tbl_partner_facility.mfl_code', '=', 'tbl_master_facility.code')
+                ->where("tbl_partner_facility.partner_id", $id)
+                ->where("tbl_partner_facility.partner_id", '=', Auth::user()->partner_id)
+                ->orderBy('tbl_master_facility.name', 'ASC')
+                ->pluck("tbl_master_facility.name", "tbl_master_facility.code");
+        }
+        if (Auth::user()->access_level == 'County') {
+            $facilities = PartnerFacility::join('tbl_master_facility', 'tbl_partner_facility.mfl_code', '=', 'tbl_master_facility.code')
+                ->where("tbl_partner_facility.partner_id", $id)
+                ->where("tbl_partner_facility.county_id", '=', Auth::user()->county_id)
+                ->orderBy('tbl_master_facility.name', 'ASC')
+                ->pluck("tbl_master_facility.name", "tbl_master_facility.code");
+        }
+        if (Auth::user()->access_level == 'Sub County') {
+            $facilities = PartnerFacility::join('tbl_master_facility', 'tbl_partner_facility.mfl_code', '=', 'tbl_master_facility.code')
+                ->where("tbl_partner_facility.partner_id", $id)
+                ->whereIn('tbl_partner_facility.partner_id', $partners_with_ids)
+                ->where("tbl_partner_facility.sub_county_id", '=', Auth::user()->subcounty_id)
+                ->orderBy('tbl_master_facility.name', 'ASC')
+                ->pluck("tbl_master_facility.name", "tbl_master_facility.code");
+        }
+
+        return json_encode($facilities);
+    }
+    public function get_sitetype_facilities(Request $request, $id)
+    {
+        $partner_ids = array();
+        $id = $request->site;
+        $facilities = PartnerFacility::join('tbl_master_facility', 'tbl_partner_facility.mfl_code', '=', 'tbl_master_facility.code')
+            ->where("tbl_master_facility.site_type", $id)
+            ->orderBy('tbl_master_facility.name', 'ASC')
+            ->pluck("tbl_master_facility.name", "tbl_master_facility.code");
+
+        return json_encode($facilities);
+    }
+    
 
 }
