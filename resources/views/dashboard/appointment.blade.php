@@ -157,7 +157,7 @@
                 <div class="form-group">
 
                     <select class="form-control select2" id="partners" name="partner">
-                        <option></option>
+                        <option value="">All</option>
                         @if (count($partners) > 0)
                         @foreach($partners as $partner)
                         <option value="{{$partner->id }}">{{ ucwords($partner->name) }}</option>
@@ -167,7 +167,7 @@
                     </select>
                 </div>
             </div>
-            <div class="col-lg-3">
+            <div class="col-lg-2">
                 <div class="form-group">
                     <select class="form-control select2" id="counties" name="county">
                         <option></option>
@@ -179,7 +179,7 @@
                     </select>
                 </div>
             </div>
-            <div class="col-lg-3">
+            <div class="col-lg-2">
                 <div class="form-group">
                     <select class="form-control select2" id="subcounties" name="subcounty">
                         <option value="">All</option>
@@ -191,7 +191,7 @@
                     </select>
                 </div>
             </div>
-            <div class="col-lg-3">
+            <div class="col-lg-2">
                 <div class="form-group">
                     <select class="form-control input-rounded input-sm select2" id="sites" name="site">
                         <option value=""> </option>
@@ -200,7 +200,7 @@
                     </select>
                 </div>
             </div>
-            <div class="col-lg-2">
+            <div class="col-lg-3">
                 <div class="form-group">
                     <select class="form-control select2" id="facilities" name="facility">
                         <option value=""></option>
@@ -225,7 +225,7 @@
                     </select>
                 </div>
             </div>
-            <div class="col-lg-2">
+            <div class="col-lg-3">
                 <div class="form-group">
                     <select class="form-control input-rounded input-sm select2" id="appointments" name="appointment">
                         <option value=""></option>

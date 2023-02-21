@@ -570,7 +570,7 @@
                 </a>
             </li> -->
 
-            @if (Auth::user()->role_id == 12 || Auth::user()->access_level == 'Partner' || Auth::user()->access_level == 'Admin')
+            @if (Auth::user()->access_level == 'Facility' || Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Donor')
             <li class="nav-item dropdown-sidemenu">
                 <a>
                     <span class="item-name">Client</span>
@@ -640,6 +640,19 @@
                     </li>
                     @endif
 
+                </ul>
+            </li>
+            <li class="nav-item dropdown-sidemenu">
+                <a>
+                    <span class="item-name">New PMTCT</span>
+                    <i class="dd-arrow i-Arrow-Down"></i>
+                </a>
+                <ul class="submenu">
+                    <li>
+                        <a href="">
+                            <span class="item-name">Linelist</span>
+                        </a>
+                    </li>
                 </ul>
             </li>
             @endif

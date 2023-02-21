@@ -1379,7 +1379,7 @@ class FinalDashboardController extends Controller
             if (!empty($selected_facilites)) {
                 $all_appoinments = $all_appoinments->where('mfl_code', $selected_facilites);
                 $consented_clients = $consented_clients->where('mfl_code', $selected_facilites);
-                $all_tx_curr = $all_tx_curr->where('tbl_partner_facility.mfl_code', $selected_facilites);
+                $all_tx_curr = $all_tx_curr->where('tbl_partner_facility.mfl_code', $selected_facilites)->groupBy('tbl_partner_facility.mfl_code');
                 $appointment_gender = $appointment_gender->where('mfl_code', $selected_facilites);
                 $appointment_age = $appointment_age->where('mfl_code', $selected_facilites);
                 $appointment_marital = $appointment_marital->where('mfl_code', $selected_facilites);
@@ -1446,39 +1446,22 @@ class FinalDashboardController extends Controller
                 $app_period = $app_period->where('appointment_date', '>=', date($request->from))->where('appointment_date', '<=', date($request->to));
             }
 
-            if (!empty($selected_site == 'EMR Based')) {
-                $all_appoinments = $all_appoinments->where('facility_type', '=', 'EMR Based');
-                $consented_clients = $consented_clients->where('facility_type', '=', 'EMR Based');
-                $all_tx_curr = $all_tx_curr->join('etl_client_detail', 'tbl_tx_cur.mfl_code', '=', 'etl_client_detail.mfl_code')->where('etl_client_detail.facility_type', '=', 'EMR Based')->groupBy('etl_client_detail.mfl_code');
-                $appointment_gender = $appointment_gender->where('facility_type', '=', 'EMR Based');
-                $appointment_age = $appointment_age->where('facility_type', '=', 'EMR Based');
-                $appointment_marital = $appointment_marital->where('facility_type', '=', 'EMR Based');
-                $appointment_county = $appointment_county->where('facility_type', '=', 'EMR Based');
-                $appointment_partner = $appointment_partner->where('facility_type', '=', 'EMR Based');
-                $client_missed = $client_missed->where('facility_type', '=', 'EMR Based');
-                $missed_age = $missed_age->where('facility_type', '=', 'EMR Based');
-                $missed_gender = $missed_gender->where('facility_type', '=', 'EMR Based');
-                $missed_marital = $missed_marital->where('facility_type', '=', 'EMR Based');
-                $missed_county = $missed_county->where('facility_type', '=', 'EMR Based');
-                $missed_partner = $missed_partner->where('facility_type', '=', 'EMR Based');
-                $app_period = $app_period->where('facility_type', '=', 'EMR Based');
-            }
-            if (!empty($selected_site == 'Paper Based')) {
-                $all_appoinments = $all_appoinments->where('facility_type', '=', 'Paper Based');
-                $consented_clients = $consented_clients->where('facility_type', '=', 'Paper Based');
-                $all_tx_curr = $all_tx_curr->join('etl_client_detail', 'tbl_tx_cur.mfl_code', '=', 'etl_client_detail.mfl_code')->where('etl_client_detail.facility_type', '=', 'Paper Based')->groupBy('etl_client_detail.mfl_code');
-                $appointment_gender = $appointment_gender->where('facility_type', '=', 'Paper Based');
-                $appointment_age = $appointment_age->where('facility_type', '=', 'Paper Based');
-                $appointment_marital = $appointment_marital->where('facility_type', '=', 'Paper Based');
-                $appointment_county = $appointment_county->where('facility_type', '=', 'Paper Based');
-                $appointment_partner = $appointment_partner->where('facility_type', '=', 'Paper Based');
-                $client_missed = $client_missed->where('facility_type', '=', 'Paper Based');
-                $missed_age = $missed_age->where('facility_type', '=', 'Paper Based');
-                $missed_gender = $missed_gender->where('facility_type', '=', 'Paper Based');
-                $missed_marital = $missed_marital->where('facility_type', '=', 'Paper Based');
-                $missed_county = $missed_county->where('facility_type', '=', 'Paper Based');
-                $missed_partner = $missed_partner->where('facility_type', '=', 'Paper Based');
-                $app_period = $app_period->where('facility_type', '=', 'Paper Based');
+            if (!empty($selected_site)) {
+                $all_appoinments = $all_appoinments->where('facility_type', $selected_site);
+                $consented_clients = $consented_clients->where('facility_type', $selected_site);
+                $all_tx_curr = $all_tx_curr;
+                $appointment_gender = $appointment_gender->where('facility_type', $selected_site);
+                $appointment_age = $appointment_age->where('facility_type', $selected_site);
+                $appointment_marital = $appointment_marital->where('facility_type', $selected_site);
+                $appointment_county = $appointment_county->where('facility_type', $selected_site);
+                $appointment_partner = $appointment_partner->where('facility_type', $selected_site);
+                $client_missed = $client_missed->where('facility_type', $selected_site);
+                $missed_age = $missed_age->where('facility_type', $selected_site);
+                $missed_gender = $missed_gender->where('facility_type', $selected_site);
+                $missed_marital = $missed_marital->where('facility_type', $selected_site);
+                $missed_county = $missed_county->where('facility_type', $selected_site);
+                $missed_partner = $missed_partner->where('facility_type', $selected_site);
+                $app_period = $app_period->where('facility_type', $selected_site);
             }
 
             $data["all_appoinments"] = $all_appoinments->get();
@@ -3110,14 +3093,35 @@ class FinalDashboardController extends Controller
     public function get_sitetype_facilities(Request $request, $id)
     {
         $partner_ids = array();
-        $id = $request->site;
-        $facilities = PartnerFacility::join('tbl_master_facility', 'tbl_partner_facility.mfl_code', '=', 'tbl_master_facility.code')
-            ->where("tbl_master_facility.site_type", $id)
-            ->orderBy('tbl_master_facility.name', 'ASC')
-            ->pluck("tbl_master_facility.name", "tbl_master_facility.code");
+        if (!empty($id == 'EMR Based' || $id == 'Paper Based')) {
+            $facilities = PartnerFacility::join('tbl_master_facility', 'tbl_partner_facility.mfl_code', '=', 'tbl_master_facility.code')
+                ->where("tbl_master_facility.site_type", $id)
+                ->orderBy('tbl_master_facility.name', 'ASC')
+                ->pluck("tbl_master_facility.name", "tbl_master_facility.code");
+        }
+
+        if (Auth::user()->access_level == 'Partner') {
+            $facilities = PartnerFacility::join('tbl_master_facility', 'tbl_partner_facility.mfl_code', '=', 'tbl_master_facility.code')
+                ->where("tbl_master_facility.site_type", $id)
+                ->where("tbl_partner_facility.partner_id", '=', Auth::user()->partner_id)
+                ->orderBy('tbl_master_facility.name', 'ASC')
+                ->pluck("tbl_master_facility.name", "tbl_master_facility.code");
+        }
+        if (Auth::user()->access_level == 'County') {
+            $facilities = PartnerFacility::join('tbl_master_facility', 'tbl_partner_facility.mfl_code', '=', 'tbl_master_facility.code')
+                ->where("tbl_master_facility.site_type", $id)
+                ->where("tbl_partner_facility.county_id", '=', Auth::user()->county_id)
+                ->orderBy('tbl_master_facility.name', 'ASC')
+                ->pluck("tbl_master_facility.name", "tbl_master_facility.code");
+        }
+        if (Auth::user()->access_level == 'Sub County') {
+            $facilities = PartnerFacility::join('tbl_master_facility', 'tbl_partner_facility.mfl_code', '=', 'tbl_master_facility.code')
+                ->where("tbl_master_facility.site_type", $id)
+                ->where("tbl_partner_facility.sub_county_id", '=', Auth::user()->subcounty_id)
+                ->orderBy('tbl_master_facility.name', 'ASC')
+                ->pluck("tbl_master_facility.name", "tbl_master_facility.code");
+        }
 
         return json_encode($facilities);
     }
-    
-
 }
