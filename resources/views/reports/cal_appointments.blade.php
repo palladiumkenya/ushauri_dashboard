@@ -66,7 +66,7 @@
                             @if(empty($results->appointment_types))
                             <tr>Appointments Summary - For ALL</tr>
                             @else
-                            <tr><h4 class="card-title mb-3">Appointments Summary - For {{ $results->appointment_types}}</h4> </tr>
+                            <tr><h4 class="card-title mb-3">Appointments Summary </h4> </tr>
                             @endif
                             <tr></tr>
                         </thead>
@@ -91,9 +91,12 @@
                             <th>File No </th>
                             <th>Client Name</th>
                             <th>Phone No</th>
+                            <th>Consented</th>
                             <th>Appointment Date</th>
                             <th>Appointment Type</th>
                             <th>Appointment Status</th>
+                            <th>Message Status</th>
+                            <th>Failure Reason</th>
                             <th>Clinic</th>
                             <th>Action</th>
                         </tr>
@@ -108,6 +111,7 @@
                             <td> {{$row->file_no}}</td>
                             <td> {{$row->f_name.' '.$row->m_name.' '.$row->l_name}}</td>
                             <td> {{$row->phone_no}}</td>
+                            <td> {{$row->smsenable}}</td>
                             <td> {{$row->appntmnt_date}}</td>
                             <td> {{$row->appointment_types}}</td>
                             @if($row->app_status == 'Notified')
@@ -117,6 +121,8 @@
                             @else
                             <td> {{$row->app_status}}</td>
                             @endif
+                            <td> {{$row->callback_status}}</td>
+                            <td> {{$row->failure_reason}}</td>
                             <td> {{$row->clinic}}</td>
                             <td>
                                 <input type="hidden" id="client_id" name="client_id" value="<?php echo $row->client_id; ?>" />

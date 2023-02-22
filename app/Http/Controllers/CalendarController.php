@@ -235,13 +235,16 @@ class CalendarController extends Controller
             $not_honored_app = $row->app_status;
         }
 
-        $query = DB::table('tbl_client')
-            ->join('tbl_appointment', 'tbl_client.id', '=', 'tbl_appointment.client_id')
+        $query = DB::table('tbl_appointment')
+            ->join('tbl_client', 'tbl_appointment.client_id', '=', 'tbl_client.id')
             ->join('tbl_appointment_types', 'tbl_appointment.app_type_1', '=', 'tbl_appointment_types.id')
             ->join('tbl_clinic', 'tbl_client.clinic_id', '=', 'tbl_clinic.id')
-            ->select('tbl_client.file_no', 'tbl_appointment.id as appointment_id', 'tbl_appointment.date_attended', 'tbl_appointment.visit_type', 'tbl_client.f_name', 'tbl_client.m_name', 'tbl_client.l_name', 'tbl_client.phone_no', 'tbl_client.status', 'tbl_client.clinic_number', 'tbl_client.id as client_id', 'tbl_appointment.app_status', 'tbl_appointment.appntmnt_date', 'tbl_appointment.app_type_1', 'tbl_appointment_types.id as appointment_types_id', 'tbl_appointment_types.name as appointment_types', 'tbl_clinic.name as clinic')
+            ->join('tbl_clnt_outgoing', 'tbl_appointment.id', '=', 'tbl_clnt_outgoing.appointment_id')
+            ->select('tbl_client.file_no', 'tbl_appointment.id as appointment_id', 'tbl_appointment.date_attended', 'tbl_appointment.visit_type', 'tbl_client.f_name', 'tbl_client.m_name', 'tbl_client.l_name', 'tbl_client.phone_no', 'tbl_client.status', 'tbl_client.clinic_number', 'tbl_client.id as client_id', 'tbl_appointment.app_status', 'tbl_appointment.appntmnt_date', 'tbl_appointment.app_type_1', 'tbl_appointment_types.id as appointment_types_id', 'tbl_appointment_types.name as appointment_types', 'tbl_clinic.name as clinic',
+            'tbl_clnt_outgoing.status', 'tbl_clnt_outgoing.callback_status', 'tbl_clnt_outgoing.failure_reason', 'tbl_client.smsenable')
             ->where('tbl_client.status', 'Active')
             ->where('tbl_client.mfl_code', Auth::user()->facility_id)
+            ->groupBy('tbl_client.id')
             ->where('tbl_appointment.appntmnt_date', $app_date);
 
         if ($slug == 'id') {

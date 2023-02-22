@@ -4116,4 +4116,12 @@ class PmtcController extends Controller
 
         return $data;
     }
+
+    public function pmtct_enrollment()
+    {
+       $pmtct_anc = DB::table('tbl_pmtct_anc')->join('tbl_client', 'tbl_pmtct_anc.client_id','=', 'tbl_client.id')
+       ->select('tbl_client.f_name', 'tbl_client.l_name', 'tbl_client.clinic_number', 'tbl_pmtct_anc.visit_number')
+       ->get();
+       
+    }
 }
