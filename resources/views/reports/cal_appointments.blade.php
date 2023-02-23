@@ -1,3 +1,4 @@
+
 @extends('layouts.master')
 @section('page-css')
 
@@ -62,14 +63,12 @@
                             <td> {{ $sum_defaulted}}</td>
                             <td> {{ $sum_ltfu}}</td>
                         </tr>
+
                         <thead>
-                            @if(empty($results->appointment_types))
-                            <tr>Appointments Summary - For ALL</tr>
-                            @else
                             <tr><h4 class="card-title mb-3">Appointments Summary</h4> </tr>
-                            @endif
                             <tr></tr>
                         </thead>
+
                     </tbody>
                 </table>
             </div>
