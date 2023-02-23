@@ -80,46 +80,46 @@
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <script type="text/javascript">
-    $.ajaxSetup({
-        headers: {
-            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-        }
-    });
-    $.ajax({
-        type: 'GET',
-        url: "{{ route('user_info') }}",
-        success: function(data) {
-            if (authenticated == 'Sub County') {
-                const user = data.user_info;
-                for (var x = 0; x < user.length; x++) {
-                    users = user[x].sub_county;
-                }
-                $("#user").html(users);
-            }
-            if (authenticated == 'County') {
-                const user = data.user_info;
-                for (var x = 0; x < user.length; x++) {
-                    users = user[x].county;
-                }
-                $("#user").html(users);
-            }
-            if (authenticated == 'Facility') {
-                const user = data.user_info;
-                for (var x = 0; x < user.length; x++) {
-                    users = user[x].facility;
-                }
-                $("#user").html(users);
-            }
-            if (authenticated == 'Partner') {
-                const user = data.user_info;
-                for (var x = 0; x < user.length; x++) {
-                    users = user[x].partner;
-                    console.log(users);
-                }
-                $("#user").html(users);
-            }
+    // $.ajaxSetup({
+    //     headers: {
+    //         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+    //     }
+    // });
+    // $.ajax({
+    //     type: 'GET',
+    //     url: "{{ route('user_info') }}",
+    //     success: function(data) {
+    //         if (authenticated == 'Sub County') {
+    //             const user = data.user_info;
+    //             for (var x = 0; x < user.length; x++) {
+    //                 users = user[x].sub_county;
+    //             }
+    //             $("#user").html(users);
+    //         }
+    //         if (authenticated == 'County') {
+    //             const user = data.user_info;
+    //             for (var x = 0; x < user.length; x++) {
+    //                 users = user[x].county;
+    //             }
+    //             $("#user").html(users);
+    //         }
+    //         if (authenticated == 'Facility') {
+    //             const user = data.user_info;
+    //             for (var x = 0; x < user.length; x++) {
+    //                 users = user[x].facility;
+    //             }
+    //             $("#user").html(users);
+    //         }
+    //         if (authenticated == 'Partner') {
+    //             const user = data.user_info;
+    //             for (var x = 0; x < user.length; x++) {
+    //                 users = user[x].partner;
+    //                 console.log(users);
+    //             }
+    //             $("#user").html(users);
+    //         }
 
-        }
-    });
+    //     }
+    // });
 </script>
 <!-- header top menu end -->
