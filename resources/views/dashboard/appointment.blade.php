@@ -1518,7 +1518,7 @@
             {
                 extend: 'pdf',
                 title: 'Clients List',
-                filename: 'Adults List'
+                filename: 'Clients List'
             },
             {
                 extend: 'print',
@@ -1856,7 +1856,8 @@
                 const consent = data.consented_clients;
                 const apps = data.all_appoinments;
                 const tx = data.all_tx_curr;
-                console.log(tx);
+                const client_app = data.client_app_list;
+                console.log(client_app);
                 const missed = data.client_missed;
                 appGender(data.appointment_gender);
                 appAge(data.appointment_age);
@@ -1866,7 +1867,23 @@
                 missedGender(data.missed_gender);
                 missedMarital(data.missed_marital);
                 if (authenticated == 'Facility') {
+                   // $('#table_client')[0].reset();
+                    // $("tbody").html("");
+                    // $.each(data.client_app_list, function(index, value) {
+                    //     var row = $("<tr><td>" +
+                    //         value.upi_no + "</td><td>" +
+                    //         value.ccc_number + "</td><td>" +
+                    //         value.dob + "</td><td>" +
+                    //         value.phone_no + "</td><td>" +
+                    //         value.consented + "</td><td>" +
+                    //         value.dsd_status + "</td><td>" +
+                    //         value.client_status + "</td><td>" +
+                    //         value.kept_app + "</td><td>" +
+                    //         value.not_kept_app + "</td><td>");
 
+                    //     $("tbody").append(row);
+                    // });
+                    // $("#table_client").html(data.client_app_list);
                 }
                 if (authenticated == 'Admin' || authenticated == 'Donor') {
                     appCounty(data.appointment_county);
