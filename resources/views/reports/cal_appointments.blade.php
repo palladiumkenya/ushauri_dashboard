@@ -49,7 +49,11 @@
                         <?php $sum_missed += substr_count($results->app_status, 'Missed') ?>
                         <?php $sum_ltfu += substr_count($results->app_status, 'LTFU') ?>
                         <?php $sum_unscheduled += substr_count($results->visit_type, 'Un-Scheduled') ?>
+                        @if($results->app_status == 'Notified' && $results->appntmnt_date > date("Y-m-d"))
+                        <?php $sum_scheduled += substr_count($results->app_status, 'Notified') ?>
+                        @elseif($results->app_status == 'Notified' && $results->appntmnt_date < date("Y-m-d"))
                         <?php $sum_honored += substr_count($results->app_status, 'Notified') ?>
+                        @endif
                         <?php $sum_scheduled += substr_count($results->app_status, 'Booked') ?>
 
                         @endforeach
@@ -90,10 +94,10 @@
                             <th>File No </th>
                             <th>Client Name</th>
                             <th>Phone No</th>
-                            <th>Consented</th>
                             <th>Appointment Date</th>
                             <th>Appointment Type</th>
                             <th>Appointment Status</th>
+                            <th>Consented</th>
                             <th>Message Status</th>
                             <th>Failure Reason</th>
                             <th>Clinic</th>
@@ -110,16 +114,18 @@
                             <td> {{$row->file_no}}</td>
                             <td> {{$row->f_name.' '.$row->m_name.' '.$row->l_name}}</td>
                             <td> {{$row->phone_no}}</td>
-                            <td> {{$row->smsenable}}</td>
                             <td> {{$row->appntmnt_date}}</td>
                             <td> {{$row->appointment_types}}</td>
-                            @if($row->app_status == 'Notified')
+                            @if($row->app_status == 'Notified' && $row->appntmnt_date > date("Y-m-d"))
+                            <td> Booked </td>
+                            @elseif($row->app_status == 'Notified' && $row->appntmnt_date < date("Y-m-d"))
                             <td> Honored </td>
                             @elseif($row->app_status == 'LTFU')
                             <td> IIT </td>
                             @else
                             <td> {{$row->app_status}}</td>
                             @endif
+                            <td> {{$row->smsenable}}</td>
                             <td> {{$row->callback_status}}</td>
                             <td> {{$row->failure_reason}}</td>
                             <td> {{$row->clinic}}</td>
