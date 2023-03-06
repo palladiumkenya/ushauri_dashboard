@@ -1549,6 +1549,7 @@
             const apps = data.all_appoinments;
             const tx = data.all_tx_curr;
             const missed = data.client_missed;
+            console.log(missed);
             appGender(data.appointment_gender);
             appAge(data.appointment_age);
             appMarital(data.appointment_marital);
@@ -1640,136 +1641,134 @@
                 tx_curr = parseInt(tx[x].tx_cur).toLocaleString();
 
             }
+            let app_missed = 0;
+            let consent_app = 0;
+            let consent_missed = 0;
+            let consent_defaulted = 0;
+            let consent_iit = 0;
+            let sms = 0;
+            let sms_missed = 0;
+            let sms_defaulted = 0;
+            let sms_iit = 0;
+            let contacted = 0;
+            let contacted_missed = 0;
+            let contacted_defaulted = 0;
+            let contacted_iit = 0;
+            let traced = 0;
+            let traced_missed = 0;
+            let traced_defaulted = 0;
+            let traced_iit = 0;
+            let outcome = 0;
+            let outcome_missed = 0;
+            let outcome_defaulted = 0;
+            let outcome_iit = 0;
             for (var x = 0; x < missed.length; x++) {
-                app_missed = missed[x].not_kept_app;
-                if (app_missed == undefined || app_missed == null) {
-                    app_missed = 0;
+                if (missed[x].not_kept_app > 0) {
+                    app_missed++;
                 } else {
-                    app_missed = app_missed.toLocaleString();
+                    app_missed;
                 }
-                consent_app = parseInt(missed[x].consent);
-                if (consent_app == undefined || consent_app == null) {
-                    consent_app = 0;
+                if (missed[x].consent > 0) {
+                    consent_app++;
                 } else {
-                    consent_app = consent_app.toLocaleString();
+                    consent_app;
                 }
-                consent_missed = parseInt(missed[x].missed_consent);
-                if (consent_missed == undefined || consent_missed == null) {
-                    consent_missed = 0;
+                if (missed[x].missed_consent > 0) {
+                    consent_missed++;
                 } else {
-                    consent_missed = consent_missed.toLocaleString();
+                    consent_missed;
                 }
-                consent_defaulted = parseInt(missed[x].defaulted_consent);
-                if (consent_defaulted == undefined || consent_defaulted == null) {
-                    consent_defaulted = 0;
+                if (missed[x].defaulted_consent > 0) {
+                    consent_defaulted++;
                 } else {
-                    consent_defaulted = consent_defaulted.toLocaleString();
+                    consent_defaulted;
                 }
-                consent_iit = parseInt(missed[x].iit_consent);
-                if (consent_iit == undefined || consent_iit == null) {
-                    consent_iit = 0;
+                if (missed[x].iit_consent > 0) {
+                    consent_iit++;
                 } else {
-                    consent_iit = consent_iit.toLocaleString();
+                    consent_iit;
                 }
-                sms = missed[x].messages;
-                if (sms == undefined || sms == null) {
-                    sms = 0;
+                if (missed[x].messages > 0) {
+                    sms++;
                 } else {
-                    sms = sms.toLocaleString();
+                    sms;
                 }
-                sms_missed = parseInt(missed[x].missed_messages);
-                if (sms_missed == undefined || sms_missed == null) {
-                    sms_missed = 0;
+                if (missed[x].missed_messages > 0) {
+                    sms_missed++;
                 } else {
-                    sms_missed = sms_missed.toLocaleString();
+                    sms_missed;
                 }
-                sms_defaulted = parseInt(missed[x].defaulted_messages);
-                if (sms_defaulted == undefined || sms_defaulted == null) {
-                    sms_defaulted = 0;
+                if (missed[x].defaulted_messages > 0) {
+                    sms_defaulted++;
                 } else {
-                    sms_defaulted = sms_defaulted.toLocaleString();
+                    sms_defaulted;
                 }
-                sms_iit = parseInt(missed[x].iit_messages);
-                if (sms_iit == undefined || sms_iit == null) {
-                    sms_iit = 0;
+                if (missed[x].iit_messages > 0) {
+                    sms_iit++;
                 } else {
-                    sms_iit = sms_iit.toLocaleString();
+                    sms_iit;
+                }
+                if (missed[x].called > 0) {
+                    contacted++;
+                } else {
+                    contacted;
+                }
+                if (missed[x].missed_called > 0) {
+                    contacted_missed++;
+                } else {
+                    contacted_missed;
+                }
+                if (missed[x].defaulted_called > 0) {
+                    contacted_defaulted++;
+                } else {
+                    contacted_defaulted;
+                }
+                if (missed[x].iit_called > 0) {
+                    contacted_iit++;
+                } else {
+                    contacted_iit;
+                }
+                if (missed[x].physically_traced > 0) {
+                    traced++;
+                } else {
+                    traced;
+                }
+                if (missed[x].missed_traced > 0) {
+                    traced_missed++;
+                } else {
+                    traced_missed;
+                }
+                if (missed[x].defaulted_traced > 0) {
+                    traced_defaulted++;
+                } else {
+                    traced_defaulted;
+                }
+                if (missed[x].iit_traced > 0) {
+                    traced_iit++;
+                } else {
+                    traced_iit;
+                }
+                if (missed[x].final_outcome > 0) {
+                    outcome++;
+                } else {
+                    outcome;
+                }
+                if (missed[x].missed_outcome > 0) {
+                    outcome_missed++;
+                } else {
+                    outcome_missed;
+                }
+                if (missed[x].defaulted_outcome > 0) {
+                    outcome_defaulted++;
+                } else {
+                    outcome_defaulted;
+                }
+                if (missed[x].iit_outcome > 0) {
+                    outcome_iit++;
+                } else {
+                    outcome_iit;
                 }
 
-                contacted = missed[x].called;
-                if (contacted == undefined || contacted == null) {
-                    contacted = 0;
-                } else {
-                    contacted = contacted.toLocaleString();
-                }
-                contacted_missed = parseInt(missed[x].missed_called);
-                if (contacted_missed == undefined || contacted_missed == null) {
-                    contacted_missed = 0;
-                } else {
-                    contacted_missed = contacted_missed.toLocaleString();
-                }
-                contacted_defaulted = parseInt(missed[x].defaulted_called);
-                if (contacted_defaulted == undefined || contacted_defaulted == null) {
-                    contacted_defaulted = 0;
-                } else {
-                    contacted_defaulted = contacted_defaulted.toLocaleString();
-                }
-                contacted_iit = parseInt(missed[x].iit_called);
-                if (contacted_iit == undefined || contacted_iit == null) {
-                    contacted_iit = 0;
-                } else {
-                    contacted_iit = contacted_iit.toLocaleString();
-                }
-
-                traced = missed[x].physically_traced;
-                if (traced == undefined || traced == null) {
-                    traced = 0;
-                } else {
-                    traced = traced.toLocaleString();
-                }
-                traced_missed = parseInt(missed[x].missed_traced);
-                if (traced_missed == undefined || traced_missed == null) {
-                    traced_missed = 0;
-                } else {
-                    traced_missed = traced_missed.toLocaleString();
-                }
-                traced_defaulted = parseInt(missed[x].defaulted_traced);
-                if (traced_defaulted == undefined || traced_defaulted == null) {
-                    traced_defaulted = 0;
-                } else {
-                    traced_defaulted = traced_defaulted.toLocaleString();
-                }
-                traced_iit = parseInt(missed[x].iit_traced);
-                if (traced_iit == undefined || traced_iit == null) {
-                    traced_iit = 0;
-                } else {
-                    traced_iit = traced_iit.toLocaleString();
-                }
-
-                outcome = parseInt(missed[x].final_outcome);
-                if (outcome == undefined || outcome == null) {
-                    outcome = 0;
-                } else {
-                    outcome = outcome.toLocaleString();
-                }
-                outcome_missed = parseInt(missed[x].missed_outcome);
-                if (outcome_missed == undefined || outcome_missed == null) {
-                    outcome_missed = 0;
-                } else {
-                    outcome_missed = outcome_missed.toLocaleString();
-                }
-                outcome_defaulted = parseInt(missed[x].defaulted_outcome);
-                if (outcome_defaulted == undefined || outcome_defaulted == null) {
-                    outcome_defaulted = 0;
-                } else {
-                    outcome_defaulted = outcome_defaulted.toLocaleString();
-                }
-                outcome_iit = parseInt(missed[x].iit_outcome);
-                if (outcome_iit == undefined || outcome_iit == null) {
-                    outcome_iit = 0;
-                } else {
-                    outcome_iit = outcome_iit.toLocaleString();
-                }
             }
             $("#tx_curr").html(tx_curr);
             $("#consented").html(consented);
@@ -1867,7 +1866,7 @@
                 missedGender(data.missed_gender);
                 missedMarital(data.missed_marital);
                 if (authenticated == 'Facility') {
-                   // $('#table_client')[0].reset();
+                    // $('#table_client')[0].reset();
                     // $("tbody").html("");
                     // $.each(data.client_app_list, function(index, value) {
                     //     var row = $("<tr><td>" +
@@ -1957,136 +1956,132 @@
                     }
 
                 }
+                let app_missed = 0;
+                let consent_app = 0;
+                let consent_missed = 0;
+                let consent_defaulted = 0;
+                let consent_iit = 0;
+                let sms = 0;
+                let sms_missed = 0;
+                let sms_defaulted = 0;
+                let sms_iit = 0;
+                let contacted = 0;
+                let contacted_missed = 0;
+                let contacted_defaulted = 0;
+                let contacted_iit = 0;
+                let traced = 0;
+                let traced_missed = 0;
+                let traced_defaulted = 0;
+                let traced_iit = 0;
+                let outcome = 0;
+                let outcome_missed = 0;
+                let outcome_defaulted = 0;
+                let outcome_iit = 0;
                 for (var x = 0; x < missed.length; x++) {
-                    app_missed = missed[x].not_kept_app;
-                    if (app_missed == undefined || app_missed == null) {
-                        app_missed = 0;
+                    if (missed[x].not_kept_app > 0) {
+                        app_missed++;
                     } else {
-                        app_missed = app_missed.toLocaleString();
+                        app_missed;
                     }
-                    consent_app = missed[x].consent;
-                    if (consent_app == undefined || consent_app == null) {
-                        consent_app = 0;
+                    if (missed[x].consent > 0) {
+                        consent_app++;
                     } else {
-                        consent_app = consent_app.toLocaleString();
+                        consent_app;
                     }
-                    consent_missed = missed[x].missed_consent;
-                    if (consent_missed == undefined || consent_missed == null) {
-                        consent_missed = 0;
+                    if (missed[x].missed_consent > 0) {
+                        consent_missed++;
                     } else {
-                        consent_missed = consent_missed.toLocaleString();
+                        consent_missed;
                     }
-                    consent_defaulted = missed[x].defaulted_consent;
-                    if (consent_defaulted == undefined || consent_defaulted == null) {
-                        consent_defaulted = 0;
+                    if (missed[x].defaulted_consent > 0) {
+                        consent_defaulted++;
                     } else {
-                        consent_defaulted = consent_defaulted.toLocaleString();
+                        consent_defaulted;
                     }
-                    consent_iit = missed[x].iit_consent;
-                    if (consent_iit == undefined || consent_iit == null) {
-                        consent_iit = 0;
+                    if (missed[x].iit_consent > 0) {
+                        consent_iit++;
                     } else {
-                        consent_iit = consent_iit.toLocaleString();
+                        consent_iit;
                     }
-                    sms = missed[x].messages;
-                    if (sms == undefined || sms == null) {
-                        sms = 0;
+                    if (missed[x].messages > 0) {
+                        sms++;
                     } else {
-                        sms = sms.toLocaleString();
+                        sms;
                     }
-                    sms_missed = missed[x].missed_messages;
-                    if (sms_missed == undefined || sms_missed == null) {
-                        sms_missed = 0;
+                    if (missed[x].missed_messages > 0) {
+                        sms_missed++;
                     } else {
-                        sms_missed = sms_missed.toLocaleString();
+                        sms_missed;
                     }
-                    sms_defaulted = missed[x].defaulted_messages;
-                    if (sms_defaulted == undefined || sms_defaulted == null) {
-                        sms_defaulted = 0;
+                    if (missed[x].defaulted_messages > 0) {
+                        sms_defaulted++;
                     } else {
-                        sms_defaulted = sms_defaulted.toLocaleString();
+                        sms_defaulted;
                     }
-                    sms_iit = missed[x].iit_messages;
-                    if (sms_iit == undefined || sms_iit == null) {
-                        sms_iit = 0;
+                    if (missed[x].iit_messages > 0) {
+                        sms_iit++;
                     } else {
-                        sms_iit = sms_iit.toLocaleString();
+                        sms_iit;
                     }
-
-                    contacted = missed[x].called;
-                    if (contacted == undefined || contacted == null) {
-                        contacted = 0;
+                    if (missed[x].called > 0) {
+                        contacted++;
                     } else {
-                        contacted = contacted.toLocaleString();
+                        contacted;
                     }
-                    contacted_missed = missed[x].missed_called;
-                    if (contacted_missed == undefined || contacted_missed == null) {
-                        contacted_missed = 0;
+                    if (missed[x].missed_called > 0) {
+                        contacted_missed++;
                     } else {
-                        contacted_missed = contacted_missed.toLocaleString();
+                        contacted_missed;
                     }
-                    contacted_defaulted = missed[x].defaulted_called;
-                    if (contacted_defaulted == undefined || contacted_defaulted == null) {
-                        contacted_defaulted = 0;
+                    if (missed[x].defaulted_called > 0) {
+                        contacted_defaulted++;
                     } else {
-                        contacted_defaulted = contacted_defaulted.toLocaleString();
+                        contacted_defaulted;
                     }
-                    contacted_iit = missed[x].iit_called;
-                    if (contacted_iit == undefined || contacted_iit == null) {
-                        contacted_iit = 0;
+                    if (missed[x].iit_called > 0) {
+                        contacted_iit++;
                     } else {
-                        contacted_iit = contacted_iit.toLocaleString();
+                        contacted_iit;
                     }
-
-
-                    traced = missed[x].physically_traced;
-                    if (traced == undefined || traced == null) {
-                        traced = 0;
+                    if (missed[x].physically_traced > 0) {
+                        traced++;
                     } else {
-                        traced = traced.toLocaleString();
+                        traced;
                     }
-                    traced_missed = missed[x].missed_traced;
-                    if (traced_missed == undefined || traced_missed == null) {
-                        traced_missed = 0;
+                    if (missed[x].missed_traced > 0) {
+                        traced_missed++;
                     } else {
-                        traced_missed = traced_missed.toLocaleString();
+                        traced_missed;
                     }
-                    traced_defaulted = missed[x].defaulted_traced;
-                    if (traced_defaulted == undefined || traced_defaulted == null) {
-                        traced_defaulted = 0;
+                    if (missed[x].defaulted_traced > 0) {
+                        traced_defaulted++;
                     } else {
-                        traced_defaulted = traced_defaulted.toLocaleString();
+                        traced_defaulted;
                     }
-                    traced_iit = missed[x].iit_traced;
-                    if (traced_iit == undefined || traced_iit == null) {
-                        traced_iit = 0;
+                    if (missed[x].iit_traced > 0) {
+                        traced_iit++;
                     } else {
-                        traced_iit = traced_iit.toLocaleString();
+                        traced_iit;
                     }
-
-                    outcome = missed[x].final_outcome;
-                    if (outcome == undefined || outcome == null) {
-                        outcome = 0;
+                    if (missed[x].final_outcome > 0) {
+                        outcome++;
                     } else {
-                        outcome = outcome.toLocaleString();
+                        outcome;
                     }
-                    outcome_missed = missed[x].missed_outcome;
-                    if (outcome_missed == undefined || outcome_missed == null) {
-                        outcome_missed = 0;
+                    if (missed[x].missed_outcome > 0) {
+                        outcome_missed++;
                     } else {
-                        outcome_missed = outcome_missed.toLocaleString();
+                        outcome_missed;
                     }
-                    outcome_defaulted = missed[x].defaulted_outcome;
-                    if (outcome_defaulted == undefined || outcome_defaulted == null) {
-                        outcome_defaulted = 0;
+                    if (missed[x].defaulted_outcome > 0) {
+                        outcome_defaulted++;
                     } else {
-                        outcome_defaulted = outcome_defaulted.toLocaleString();
+                        outcome_defaulted;
                     }
-                    outcome_iit = missed[x].iit_outcome;
-                    if (outcome_iit == undefined || outcome_iit == null) {
-                        outcome_iit = 0;
+                    if (missed[x].iit_outcome > 0) {
+                        outcome_iit++;
                     } else {
-                        outcome_iit = outcome_iit.toLocaleString();
+                        outcome_iit;
                     }
 
                 }
