@@ -233,7 +233,7 @@
         </ul>
         @if (Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Partner' || Auth::user()->access_level == 'Donor' || Auth::user()->access_level == 'County' || Auth::user()->access_level == 'Sub County')
         <ul class="childNav" data-parent="main_appointments">
-            <li class="nav-item">
+            <!-- <li class="nav-item">
                 <a href="{{route('appointment_charts')}}">
                     <span class="item-name">Appointment Dashboard</span>
                 </a>
@@ -242,7 +242,7 @@
                 <a href="{{route('missed_appointment_charts')}}">
                     <span class="item-name">Missed Appointment Dashboard</span>
                 </a>
-            </li>
+            </li> -->
             <!-- <li class="nav-item">
                 <a href="{{route('appointment_list')}}">
                     <span class="item-name">Appointment List</span>
@@ -252,7 +252,7 @@
         @endif
         @if (Auth::user()->access_level == 'Facility')
         <ul class="childNav" data-parent="appointments">
-            <li class="nav-item">
+            <!-- <li class="nav-item">
                 <a href="{{route('appointment_charts')}}">
                     <span class="item-name">Appointment Dashboard</span>
                 </a>
@@ -261,7 +261,7 @@
                 <a href="{{route('missed_appointment_charts')}}">
                     <span class="item-name">Missed Appointment Dashboard</span>
                 </a>
-            </li>
+            </li> -->
             <li class="nav-item dropdown-sidemenu">
                 <a>
                     <span class="item-name">Future Appointment Diary</span>
@@ -642,7 +642,7 @@
 
                 </ul>
             </li>
-            <li class="nav-item dropdown-sidemenu">
+            <!-- <li class="nav-item dropdown-sidemenu">
                 <a>
                     <span class="item-name">New PMTCT</span>
                     <i class="dd-arrow i-Arrow-Down"></i>
@@ -654,7 +654,7 @@
                         </a>
                     </li>
                 </ul>
-            </li>
+            </li> -->
             @endif
             @if (Auth::user()->access_level == 'Partner' || Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Donor' || Auth::user()->access_level == 'County' || Auth::user()->access_level == 'Sub County' || Auth::user()->access_level == 'Facility')
             <li class="nav-item dropdown-sidemenu">
