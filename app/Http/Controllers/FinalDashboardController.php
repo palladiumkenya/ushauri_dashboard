@@ -188,20 +188,21 @@ class FinalDashboardController extends Controller
                 ->where('mfl_code', Auth::user()->facility_id)
                 ->orderBy('percent_kept', 'DESC')
                 ->groupBy('marital');
-            $client_list = DB::table('etl_client_detail')->select(
-                'etl_client_detail.upi_no',
-                'etl_client_detail.ccc_number',
-                'etl_client_detail.dob',
-                'etl_client_detail.consented',
-                'etl_client_detail.client_status',
-                'etl_client_detail.client_name',
-                'etl_client_detail.phone_no',
-                DB::raw('COUNT(etl_appointment_detail.app_kept) AS kept_app '),
-                DB::raw('SUM(etl_appointment_detail.app_not_kept) AS not_kept_app ')
-            )
-                ->join('etl_appointment_detail', 'etl_client_detail.client_id', '=', 'etl_appointment_detail.client_id')
-                ->where('etl_client_detail.mfl_code', Auth::user()->facility_id)
-                ->groupBy('etl_appointment_detail.client_id');
+                $client_list = DB::table('etl_client_detail')->select(
+                    'etl_client_detail.upi_no',
+                    'etl_client_detail.ccc_number',
+                    'etl_client_detail.dob',
+                    'etl_client_detail.consented',
+                    'etl_client_detail.client_status',
+                    'etl_client_detail.client_name',
+                    'etl_client_detail.dsd_status',
+                    'etl_client_detail.phone_no',
+                    DB::raw('COUNT(etl_appointment_detail.app_kept) AS kept_app '),
+                    DB::raw('SUM(etl_appointment_detail.app_not_kept) AS not_kept_app ')
+                )
+                    ->join('etl_appointment_detail', 'etl_client_detail.client_id', '=', 'etl_appointment_detail.client_id')
+                    ->where('etl_client_detail.mfl_code', Auth::user()->facility_id)
+                    ->groupBy('etl_appointment_detail.client_id');
             $appointment_county = ETLAppointment::select(
                 'county',
                 DB::raw('SUM(app_kept) AS kept_app '),
@@ -1547,21 +1548,21 @@ class FinalDashboardController extends Controller
                 ->whereNotNull('marital')
                 ->where('mfl_code', Auth::user()->facility_id)
                 ->groupBy('marital');
-            $client_list = DB::table('etl_client_detail')->select(
-                'etl_client_detail.upi_no',
-                'etl_client_detail.ccc_number',
-                'etl_client_detail.dob',
-                'etl_client_detail.consented',
-                'etl_client_detail.client_status',
-                'etl_client_detail.client_name',
-                'etl_client_detail.dsd_status',
-                'etl_client_detail.phone_no',
-                DB::raw('COUNT(etl_appointment_detail.app_kept) AS kept_app '),
-                DB::raw('SUM(etl_appointment_detail.app_not_kept) AS not_kept_app ')
-            )
-                ->join('etl_appointment_detail', 'etl_client_detail.client_id', '=', 'etl_appointment_detail.client_id')
-                ->where('etl_client_detail.mfl_code', Auth::user()->facility_id)
-                ->groupBy('etl_appointment_detail.client_id');
+                $client_list = DB::table('etl_client_detail')->select(
+                    'etl_client_detail.upi_no',
+                    'etl_client_detail.ccc_number',
+                    'etl_client_detail.dob',
+                    'etl_client_detail.consented',
+                    'etl_client_detail.client_status',
+                    'etl_client_detail.client_name',
+                    'etl_client_detail.dsd_status',
+                    'etl_client_detail.phone_no',
+                    DB::raw('COUNT(etl_appointment_detail.app_kept) AS kept_app '),
+                    DB::raw('SUM(etl_appointment_detail.app_not_kept) AS not_kept_app ')
+                )
+                    ->join('etl_appointment_detail', 'etl_client_detail.client_id', '=', 'etl_appointment_detail.client_id')
+                    ->where('etl_client_detail.mfl_code', Auth::user()->facility_id)
+                    ->groupBy('etl_appointment_detail.client_id');
             $appointment_county = ETLAppointment::select(
                 'county',
                 DB::raw('SUM(app_kept) AS kept_app '),

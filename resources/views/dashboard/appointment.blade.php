@@ -22,7 +22,7 @@
 
     .Booked {
 
-        background: #8AC53E;
+        background: #369FFF;
         border: 1px solid #E5F7FF;
         border-radius: 10px;
 
@@ -30,7 +30,7 @@
 
     .Consented {
 
-        background: #FF993A;
+        background: #369FFF;
         box-shadow: 0px 10px 30px rgba(184, 146, 222, 0.4);
         border-radius: 10px;
 
@@ -54,7 +54,7 @@
 
     .Future {
 
-        background: #8AC53E;
+        background: #369FFF;
         border: 1px solid #E5F7FF;
         border-radius: 10px;
 
@@ -62,7 +62,7 @@
 
     .Not_Kept {
 
-        background: #FF993A;
+        background: #369FFF;
         box-shadow: 0px 10px 30px rgba(184, 146, 222, 0.4);
         border-radius: 10px;
 
@@ -948,7 +948,7 @@
                                 </div>
                                 <div class="" style="margin-right: 10px; border-left: 1px solid;"></div>
                                 <div class="" style="margin-right: 20px;">
-                                    <span class="card_sub_title">IIT</span>
+                                    <span class="card_sub_title">LTFU</span>
                                     <p class="sub_missed" id="consent_iit"></p>
                                 </div>
                             </div>
@@ -976,7 +976,7 @@
                                 </div>
                                 <div class="" style="margin-right: 10px; border-left: 1px solid;"></div>
                                 <div style="margin-right: 20px;">
-                                    <span class="card_sub_title">IIT</span>
+                                    <span class="card_sub_title">LTFU</span>
                                     <p class="sub_missed" id="sms_iit"></p>
                                 </div>
                             </div>
@@ -1008,7 +1008,7 @@
                                 </div>
                                 <div class="" style="margin-right: 10px; border-left: 1px solid;"></div>
                                 <div class="" style="margin-right: 20px;">
-                                    <span class="card_sub_title">IIT</span>
+                                    <span class="card_sub_title">LTFU</span>
                                     <p class="sub_missed" id="contacted_iit"></p>
                                 </div>
                             </div>
@@ -1036,7 +1036,7 @@
                                 </div>
                                 <div class="" style="margin-right: 10px; border-left: 1px solid;"></div>
                                 <div class="" style="margin-right: 20px;">
-                                    <span class="card_sub_title">IIT</span>
+                                    <span class="card_sub_title">LTFU</span>
                                     <p id="traced_iit" class="sub_missed" style="margin-top: 5px;"></p>
                                 </div>
                             </div>
@@ -1065,7 +1065,7 @@
                                 </div>
                                 <div class="" style="margin-right: 10px; border-left: 1px solid;"></div>
                                 <div class="" style="margin-right: 20px;">
-                                    <span class="card_sub_title">IIT</span>
+                                    <span class="card_sub_title">LTFU</span>
                                     <p class="sub_missed" id="outcome_iit"></p>
                                 </div>
                             </div>
@@ -1303,6 +1303,8 @@
     $("#sites").select2({
         placeholder: "Site Type"
     });
+
+
 
     $(document).ready(function() {
         $('select[name="partner"]').on('change', function() {
@@ -2131,6 +2133,8 @@
         });
 
     });
+
+
 
     $('#table_missed').DataTable({
         columnDefs: [{
