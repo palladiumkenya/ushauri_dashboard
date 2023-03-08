@@ -3,35 +3,143 @@
 <link rel="stylesheet" href="{{asset('assets/styles/vendor/datatables.min.css')}}">
 
 <style rel="stylesheet" type="text/css">
+    .radial-01 {
+        top: 15px;
+        right: 15px;
+        float: right;
+        position: absolute;
+        width: 40px;
+        height: 40px;
+        text-align: center;
+        border-radius: 100%;
+
+    }
+
+    .radial-01 p {
+        position: absolute;
+        left: -25px;
+        bottom: -55px;
+        z-index: 50;
+        width: 100px;
+    }
+
+    .radial-01 .radial-01-number {
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        right: 0px;
+        bottom: 0px;
+        background-color: #fff;
+        border-radius: 100%;
+        padding-top: 11px;
+        z-index: 20;
+    }
+
+    .radial-01 .radial-01-number {
+        font-weight: 700;
+        font-size: 10px;
+    }
+
+    .radial-01 .radial-01-number .radial-01-syb {
+        font-weight: 700;
+        font-size: 10px;
+    }
+
+    .radial-01>span.radial-01-border-r:before {
+        content: " ";
+        display: block;
+        position: absolute;
+        top: -10px;
+        left: -10px;
+        right: -10px;
+        bottom: -10px;
+        background-color: #ccc;
+        border-radius: 100%;
+        z-index: 5;
+    }
+
+    .radial-01>span.radial-01-border-r:after {
+        content: " ";
+        display: block;
+        position: absolute;
+        top: -10px;
+        left: -10px;
+        right: -10px;
+        bottom: -10px;
+        background-color: #006838;
+        border-radius: 100%;
+        z-index: 10;
+        clip: rect(0px, 60px, 60px, 15px);
+    }
+    .radial-01>span.radial-02-border-r:after {
+        content: " ";
+        display: block;
+        position: absolute;
+        top: -10px;
+        left: -10px;
+        right: -10px;
+        bottom: -10px;
+        background-color: #97080F;
+        border-radius: 100%;
+        z-index: 10;
+        clip: rect(0px, 60px, 60px, 30px);
+    }
+    .radial-01>span.radial-03-border-r:after {
+        content: " ";
+        display: block;
+        position: absolute;
+        top: -10px;
+        left: -10px;
+        right: -10px;
+        bottom: -10px;
+        background-color: #01058A;
+        border-radius: 100%;
+        z-index: 10;
+        clip: rect(0px, 60px, 60px, 40px);
+    }
+
+    .radial-01>span.radial-01-border-l:before {
+        content: " ";
+        display: block;
+        position: absolute;
+        top: -10px;
+        left: -10px;
+        right: -10px;
+        bottom: -10px;
+        background-color: #ccc;
+        border-radius: 100%;
+        z-index: 5;
+    }
+
     .tab-content {
         font-family: 'Inter';
         font-style: normal;
         font-weight: 500;
         font-size: 16px;
         line-height: 16px;
-        color: #FFFFFF;
+
     }
 
     .TX_Curr {
 
-        background: #369FFF;
-        box-shadow: 0px 10px 30px rgba(255, 153, 58, 0.4);
+        background: #FFFFFF;
+        /* box-shadow: 0px 10px 30px rgba(255, 153, 58, 0.4); */
         border-radius: 10px;
 
     }
 
     .Booked {
 
-        background: #369FFF;
-        border: 1px solid #E5F7FF;
+        background: #FFFFFF;
+        /* border: 1px solid #E5F7FF; */
         border-radius: 10px;
 
     }
 
     .Consented {
 
-        background: #369FFF;
-        box-shadow: 0px 10px 30px rgba(184, 146, 222, 0.4);
+        background: #FFFFFF;
+        /* box-shadow: 0px 10px 30px rgba(184, 146, 222, 0.4); */
         border-radius: 10px;
 
     }
@@ -46,24 +154,24 @@
 
     .Kept {
 
-        background: #369FFF;
-        box-shadow: 0px 10px 30px rgba(255, 153, 58, 0.4);
+        background: #FFFFFF;
+        /* box-shadow: 0px 10px 30px rgba(255, 153, 58, 0.4); */
         border-radius: 10px;
 
     }
 
     .Future {
 
-        background: #369FFF;
-        border: 1px solid #E5F7FF;
+        background: #FFFFFF;
+        /* border: 1px solid #E5F7FF; */
         border-radius: 10px;
 
     }
 
     .Not_Kept {
 
-        background: #369FFF;
-        box-shadow: 0px 10px 30px rgba(184, 146, 222, 0.4);
+        background: #FFFFFF;
+        /* box-shadow: 0px 10px 30px rgba(184, 146, 222, 0.4); */
         border-radius: 10px;
 
     }
@@ -111,6 +219,11 @@
         right: 10px;
         float: right;
         position: absolute;
+        text-align: center;
+        position: absolute;
+        z-index: 100;
+        font-weight: 700;
+
 
 
     }
@@ -142,12 +255,15 @@
 @endsection
 
 @section('main-content')
-<!-- <div class="breadcrumb">
-                <ul>
-                    <li><a href="">Appointment Dashboard</a></li>
-                    <li></li>
-                </ul>
-            </div> -->
+<div class="breadcrumb">
+    <ul>
+    <li><a href="">Appointment Dashboard</a></li>
+        <li>
+            As at {{ date('d M Y',strtotime("yesterday"));}}
+        </li>
+
+    </ul>
+</div>
 @if (Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Donor')
 <div class="col">
     <form role="form" method="get" action="#" id="dataFilter">
@@ -679,7 +795,7 @@
                 <div class="TX_Curr card o-hidden mb-0 h-75">
                     <div class="card-body">
                         <div class="content">
-                            <span class="card_title">TX_Curr</span>
+                            <span class="card_title">TX CURR</span>
                             <p id="tx_curr" class="no_count" style="margin-top:5px;"></p>
                         </div>
 
@@ -692,9 +808,16 @@
                         <div class="content" id="maindiv">
                             <span class="card_title">Clients Consented</span>
                             <p id="consented" class="no_count" style="margin-top:8px;"></p>
-                            <div class="box_pec" style="width: 3em; height: 3em; text-align: center; border-radius:50%; border:solid #fff 1px; box-shadow: 0 0 0 2px; padding:2px;">
-                                <h2 class="no_pec" id="percnt_consented" style="font-size: 10px; margin-top: 15px;"></h2>
+                            <div class="radial-01 radial-three-quarters">
+                                <span id="percnt_consented" class="radial-01-number">
+                                    <span class="radial-01-syb"><sup>%</sup></span>
+                                </span>
+                                <span class="radial-01-border-r"></span>
+                                <span class="radial-01-border-l"></span>
                             </div>
+                            <!-- <div class="box_pec" style="width: 3em; height: 3em; text-align: center; border-radius:50%; border:solid #fff 1px; box-shadow: 0 0 0 2px; padding:2px;color:#006838;">
+                                <h2 class="no_pec" id="percnt_consented" style="font-size: 10px; margin-top: 15px;"></h2>
+                            </div> -->
                         </div>
 
                     </div>
@@ -721,9 +844,16 @@
                         <div class="content">
                             <span class="card_title">Appointments Kept</span>
                             <p id="app_kept" class="no_count" style="margin-top:8px;"></p>
-                            <div class="box_pec" style="width: 3em; height: 3em; text-align: center; border-radius:50%; border:solid #fff 1px; box-shadow: 0 0 0 2px; padding:2px; margin-bottom: 10px;">
-                                <h2 class="no_pec" id="percnt_kept" style="font-size: 10px; margin-top: 15px;"></h2>
+                            <div class="radial-01 radial-three-quarters">
+                                <span id="percnt_kept" class="radial-01-number">
+                                    <span class="radial-01-syb"><sup>%</sup></span>
+                                </span>
+                                <span class="radial-01-border-r"></span>
+                                <span class="radial-01-border-l"></span>
                             </div>
+                            <!-- <div class="box_pec" style="width: 3em; height: 3em; text-align: center; border-radius:50%; border:solid #fff 1px; box-shadow: 0 0 0 2px; padding:2px; margin-bottom: 10px;">
+                                <h2 class="no_pec" id="percnt_kept" style="font-size: 10px; margin-top: 15px;"></h2>
+                            </div> -->
                         </div>
                     </div>
                 </div>
@@ -734,9 +864,16 @@
                         <div class="content">
                             <span class="card_title">Appointments Not Kept</span>
                             <p id="app_not_kept" class="no_count" style="margin-top:8px;"></p>
-                            <div class="box_pec" style="width: 3em; height: 3em; text-align: center; border-radius:50%; border:solid #fff 1px; box-shadow: 0 0 0 2px; padding:2px; margin-bottom: 10px;">
-                                <h2 class="no_pec" id="percnt_not_kept" style="font-size: 10px; margin-top: 15px;"></h2>
+                            <div class="radial-01 radial-three-quarters">
+                                <span id="percnt_not_kept" class="radial-01-number">
+                                    <span class="radial-01-syb"><sup>%</sup></span>
+                                </span>
+                                <span class="radial-02-border-r"></span>
+                                <span class="radial-01-border-l"></span>
                             </div>
+                            <!-- <div class="box_pec" style="width: 3em; height: 3em; text-align: center; border-radius:50%; border:solid #fff 1px; box-shadow: 0 0 0 2px; padding:2px; margin-bottom: 10px;">
+                                <h2 class="no_pec" id="percnt_not_kept" style="font-size: 10px; margin-top: 15px;"></h2>
+                            </div> -->
                         </div>
 
                     </div>
@@ -748,9 +885,16 @@
                         <div class="content" id="maindiv">
                             <span class="card_title">Future Appointments</span>
                             <p id="app_future" class="no_count" style="margin-top:5px;"></p>
-                            <div class="box_pec" style="width: 3em; height: 3em; text-align: center; border-radius:50%; border:solid #fff 1px; box-shadow: 0 0 0 2px; padding:2px;">
-                                <h2 class="no_pec" id="percnt_future" style="font-size: 10px; margin-top: 15px;"></h2>
+                            <div class="radial-01 radial-three-quarters">
+                                <span id="percnt_future" class="radial-01-number">
+                                    <span class="radial-01-syb"><sup>%</sup></span>
+                                </span>
+                                <span class="radial-03-border-r"></span>
+                                <span class="radial-01-border-l"></span>
                             </div>
+                            <!-- <div class="box_pec" style="width: 3em; height: 3em; text-align: center; border-radius:50%; border:solid #fff 1px; box-shadow: 0 0 0 2px; padding:2px;">
+                                <h2 class="no_pec" id="percnt_future" style="font-size: 10px; margin-top: 15px;"></h2>
+                            </div> -->
                         </div>
 
                     </div>
