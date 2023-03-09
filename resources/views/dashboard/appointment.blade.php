@@ -71,6 +71,7 @@
         z-index: 10;
         clip: rect(0px, 60px, 60px, 15px);
     }
+
     .radial-01>span.radial-02-border-r:after {
         content: " ";
         display: block;
@@ -84,6 +85,7 @@
         z-index: 10;
         clip: rect(0px, 60px, 60px, 30px);
     }
+
     .radial-01>span.radial-03-border-r:after {
         content: " ";
         display: block;
@@ -233,6 +235,7 @@
         font-size: 24px;
     }
 
+
     .sub_missed {
         font-weight: 700;
         font-size: 14px;
@@ -257,7 +260,7 @@
 @section('main-content')
 <div class="breadcrumb">
     <ul>
-    <li><a href="">Appointment Dashboard</a></li>
+        <li><a href="">Appointment Dashboard</a></li>
         <li>
             As at {{ date('d M Y',strtotime("yesterday"));}}
         </li>
@@ -1259,6 +1262,18 @@
 
                 <div class="col-12">
                     <div class="card-body row">
+                        <div id="missed_rate" class="col" style="height:  400px;margin-top:20px;width: 900px"></div> <br />
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+        <div class="col-md-12">
+            <div class="row">
+
+                <div class="col-12">
+                    <div class="card-body row">
                         <div id="missed_period" class="col" style="height:  400px;margin-top:20px;width: 900px"></div> <br />
                     </div>
                 </div>
@@ -1677,6 +1692,7 @@
     let authenticated = $('#authenticated').val();
     // console.log(authenticated);
 
+
     Swal.fire({
         title: "Please wait, loading...",
         showConfirmButton: false,
@@ -1735,6 +1751,7 @@
                 missedFacility(data.missed_facility)
             }
             missedPeriod(data.app_period);
+            missedRate(data.app_period);
 
 
             for (var x = 0; x < consent.length; x++) {
@@ -2045,7 +2062,9 @@
                     missedFacility(data.missed_facility)
                 }
                 missedPeriod(data.app_period);
-                console.log(missed);
+                const tests = data.app_period;
+                missedRate(data.app_period);
+                console.log(tests);
 
                 for (var x = 0; x < consent.length; x++) {
                     consented = consent[x].consented;
@@ -2053,7 +2072,7 @@
                     if (consented == undefined || consented == null) {
                         consented = 0;
                     } else {
-                        consented = consented.toLocaleString();
+                        consented = parseInt(consented);
                     }
                     percnt_consented = Math.round(consent[x].percent_consented).toFixed(1) + '%';
                 }
@@ -2818,6 +2837,49 @@
                 color: '#01058A',
                 data: percent_rtc
 
+            }]
+        });
+    }
+
+    function missedRate(data) {
+        let new_date = [];
+        let percent_rtc = [];
+        let percent_not_kept = [];
+        for (let i = 0; i < data.length; i++) {
+            new_date.push(data[i].new_date);
+            Math.round(percent_rtc.push(data[i].percent_rtc)).toFixed(1);
+            Math.round(percent_not_kept.push(data[i].percent_not_kept)).toFixed(1);
+        }
+        Highcharts.chart('missed_rate', {
+            title: {
+                text: 'Missed Rate by Period'
+            },
+            xAxis: {
+                categories: new_date
+            },
+            yAxis: {
+                title: {
+                    text: 'Percentage'
+                }
+            },
+            tooltip: {
+                valueSuffix: ' %'
+            },
+            series: [{
+                type: 'column',
+                name: 'Missed',
+                color: '#97080F',
+                data: percent_not_kept
+
+            }, {
+                type: 'spline',
+                name: 'Missed Rate',
+                data: percent_not_kept,
+                marker: {
+                    lineWidth: 2,
+                    lineColor: Highcharts.getOptions().colors[3],
+                    fillColor: 'white'
+                }
             }]
         });
     }

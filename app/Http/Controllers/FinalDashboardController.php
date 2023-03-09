@@ -1687,6 +1687,20 @@ class FinalDashboardController extends Controller
                 ->orderBy('appointment_date', 'ASC')
                 ->groupBy('new_date');
 
+                // if ($selected_appointments == 'Missed') {
+                //     $app_period = DB::table('etl_appointment_detail')->select(
+                //         DB::raw('DATE_FORMAT(appointment_date, "%Y-%M") AS new_date'),
+                //         DB::raw('ROUND((( COUNT(CASE WHEN appointment_status = "Missed" THEN app_not_kept END)/(COUNT(appointment_id)) ) * 100 ), 1 ) AS percent_not_kept'),
+                //         DB::raw('ROUND(AVG(percent_rtc),1) AS percent_rtc '),
+                //         // DB::raw('ROUND(AVG(percent_not_kept),1) AS percent_not_kept ')
+                //     )->whereNotNull('appointment_date')
+                //         ->where('mfl_code', Auth::user()->facility_id)
+                //         ->where('appointment_date', '<=', date("Y-M-D"))
+                //         ->where(DB::raw('DATE_FORMAT(appointment_date, "%Y-%M")'), '>=', "2017-January")
+                //         ->orderBy('appointment_date', 'ASC')
+                //         ->groupBy('new_date');
+                // }
+
             if (!empty($selected_partners)) {
                 $all_appoinments = $all_appoinments->where('partner_id', $selected_partners);
                 $consented_clients = $consented_clients->where('partner_id', $selected_partners);
