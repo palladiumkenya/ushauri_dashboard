@@ -2845,10 +2845,12 @@
         let new_date = [];
         let percent_rtc = [];
         let percent_not_kept = [];
+        let total_app = [];
         for (let i = 0; i < data.length; i++) {
             new_date.push(data[i].new_date);
             Math.round(percent_rtc.push(data[i].percent_rtc)).toFixed(1);
             Math.round(percent_not_kept.push(data[i].percent_not_kept)).toFixed(1);
+            total_app.push(data[i].total_app);
         }
         Highcharts.chart('missed_rate', {
             title: {
@@ -2857,24 +2859,47 @@
             xAxis: {
                 categories: new_date
             },
-            yAxis: {
+            yAxis: [{
                 title: {
-                    text: 'Percentage'
+                    text: 'Number of Appointments'
                 }
-            },
+            }, { // Secondary yAxis
+                gridLineWidth: 0,
+                alignTicks: false,
+                min: 0,
+                max: 100,
+                title: {
+                    text: 'Percentage',
+                    style: {
+                        color: Highcharts.getOptions().colors[0]
+                    }
+                },
+                labels: {
+                    format: '{value} %',
+                    style: {
+                        color: Highcharts.getOptions().colors[0]
+                    }
+                },
+                opposite: true
+            }],
             tooltip: {
-                valueSuffix: ' %'
+                shared: true
             },
             series: [{
                 type: 'column',
-                name: 'Missed',
-                color: '#97080F',
-                data: percent_not_kept
+                name: 'Appointments',
+                color: '#01058A',
+                data: total_app
 
             }, {
                 type: 'spline',
+                yAxis: 1,
                 name: 'Missed Rate',
                 data: percent_not_kept,
+                color: '#97080F',
+                tooltip: {
+                    valueSuffix: '%'
+                },
                 marker: {
                     lineWidth: 2,
                     lineColor: Highcharts.getOptions().colors[3],
@@ -2883,6 +2908,7 @@
             }]
         });
     }
+
 
     if (authenticated == 'Admin' || authenticated == 'Donor') {
         function appCounty(data) {

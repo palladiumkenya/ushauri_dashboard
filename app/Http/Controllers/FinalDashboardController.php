@@ -331,6 +331,7 @@ class FinalDashboardController extends Controller
             $app_period = DB::table('etl_appointment_detail')->select(
                 DB::raw('DATE_FORMAT(appointment_date, "%Y-%M") AS new_date'),
                 DB::raw('ROUND(AVG(percent_rtc),1) AS percent_rtc '),
+                DB::raw('(SUM(app_kept)+SUM(app_not_kept)+SUM(future)) as total_app'),
                 DB::raw('ROUND(AVG(percent_not_kept),1) AS percent_not_kept ')
             )->whereNotNull('appointment_date')
                 ->where('mfl_code', Auth::user()->facility_id)
@@ -512,6 +513,7 @@ class FinalDashboardController extends Controller
             $app_period = DB::table('etl_appointment_detail')->selectRaw(
                 'DATE_FORMAT(appointment_date, "%Y-%M") AS new_date,
                 ROUND(AVG(percent_rtc),1) AS percent_rtc ,
+                (SUM(app_kept)+SUM(app_not_kept)+SUM(future)) as total_app,
                 ROUND(AVG(percent_not_kept),1) AS percent_not_kept '
             )->whereNotNull('appointment_date')
                 ->where('appointment_date', '<=', date("Y-M-D"))
@@ -714,6 +716,7 @@ class FinalDashboardController extends Controller
             $app_period = DB::table('etl_appointment_detail')->select(
                 DB::raw('DATE_FORMAT(appointment_date, "%Y-%M") AS new_date'),
                 DB::raw('ROUND(AVG(percent_rtc),1) AS percent_rtc '),
+                DB::raw('(SUM(app_kept)+SUM(app_not_kept)+SUM(future)) as total_app'),
                 DB::raw('ROUND(AVG(percent_not_kept),1) AS percent_not_kept ')
             )->whereNotNull('appointment_date')
                 ->where('partner_id', Auth::user()->partner_id)
@@ -925,6 +928,7 @@ class FinalDashboardController extends Controller
             $app_period = DB::table('etl_appointment_detail')->select(
                 DB::raw('DATE_FORMAT(appointment_date, "%Y-%M") AS new_date'),
                 DB::raw('ROUND(AVG(percent_rtc),1) AS percent_rtc '),
+                DB::raw('(SUM(app_kept)+SUM(app_not_kept)+SUM(future)) as total_app'),
                 DB::raw('ROUND(AVG(percent_not_kept),1) AS percent_not_kept ')
             )->whereNotNull('appointment_date')
                 ->where('subcounty_id', Auth::user()->subcounty_id)
@@ -1140,6 +1144,7 @@ class FinalDashboardController extends Controller
             $app_period = DB::table('etl_appointment_detail')->select(
                 DB::raw('DATE_FORMAT(appointment_date, "%Y-%M") AS new_date'),
                 DB::raw('ROUND(AVG(percent_rtc),1) AS percent_rtc '),
+                DB::raw('(SUM(app_kept)+SUM(app_not_kept)+SUM(future)) as total_app'),
                 DB::raw('ROUND(AVG(percent_not_kept),1) AS percent_not_kept ')
             )->whereNotNull('appointment_date')
                 ->where('county_id', Auth::user()->county_id)
@@ -1323,6 +1328,7 @@ class FinalDashboardController extends Controller
             $app_period = DB::table('etl_appointment_detail')->select(
                 DB::raw('DATE_FORMAT(appointment_date, "%Y-%M") AS new_date'),
                 DB::raw('ROUND(AVG(percent_rtc),1) AS percent_rtc '),
+                DB::raw('(SUM(app_kept)+SUM(app_not_kept)+SUM(future)) as total_app'),
                 DB::raw('ROUND(AVG(percent_not_kept),1) AS percent_not_kept ')
             )->whereNotNull('appointment_date')
                 ->where('appointment_date', '<=', date("Y-M-D"))
@@ -1679,6 +1685,7 @@ class FinalDashboardController extends Controller
             $app_period = DB::table('etl_appointment_detail')->select(
                 DB::raw('DATE_FORMAT(appointment_date, "%Y-%M") AS new_date'),
                 DB::raw('ROUND(AVG(percent_rtc),1) AS percent_rtc '),
+                DB::raw('(SUM(app_kept)+SUM(app_not_kept)+SUM(future)) as total_app'),
                 DB::raw('ROUND(AVG(percent_not_kept),1) AS percent_not_kept ')
             )->whereNotNull('appointment_date')
                 ->where('mfl_code', Auth::user()->facility_id)
@@ -2063,6 +2070,7 @@ class FinalDashboardController extends Controller
             $app_period = DB::table('etl_appointment_detail')->select(
                 DB::raw('DATE_FORMAT(appointment_date, "%Y-%M") AS new_date'),
                 DB::raw('ROUND(AVG(percent_rtc),1) AS percent_rtc '),
+                DB::raw('(SUM(app_kept)+SUM(app_not_kept)+SUM(future)) as total_app'),
                 DB::raw('ROUND(AVG(percent_not_kept),1) AS percent_not_kept ')
             )->whereNotNull('appointment_date')
                 ->where('partner_id', Auth::user()->partner_id)
@@ -2445,6 +2453,7 @@ class FinalDashboardController extends Controller
             $app_period = DB::table('etl_appointment_detail')->select(
                 DB::raw('DATE_FORMAT(appointment_date, "%Y-%M") AS new_date'),
                 DB::raw('ROUND(AVG(percent_rtc),1) AS percent_rtc '),
+                DB::raw('(SUM(app_kept)+SUM(app_not_kept)+SUM(future)) as total_app'),
                 DB::raw('ROUND(AVG(percent_not_kept),1) AS percent_not_kept ')
             )->whereNotNull('appointment_date')
                 ->where('subcounty_id', Auth::user()->subcounty_id)
@@ -2830,6 +2839,7 @@ class FinalDashboardController extends Controller
             $app_period = DB::table('etl_appointment_detail')->select(
                 DB::raw('DATE_FORMAT(appointment_date, "%Y-%M") AS new_date'),
                 DB::raw('ROUND(AVG(percent_rtc),1) AS percent_rtc '),
+                DB::raw('(SUM(app_kept)+SUM(app_not_kept)+SUM(future)) as total_app'),
                 DB::raw('ROUND(AVG(percent_not_kept),1) AS percent_not_kept ')
             )->whereNotNull('appointment_date')
                 ->where('county_id', Auth::user()->county_id)
