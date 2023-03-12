@@ -156,7 +156,7 @@ class NewDashboardController extends Controller
             $active_facilities = PartnerFacility::join('tbl_client', 'tbl_partner_facility.mfl_code', '=', 'tbl_client.mfl_code')
                 ->join('tbl_appointment', 'tbl_client.id', '=', 'tbl_appointment.client_id')
                 ->select(\DB::raw('COUNT(tbl_partner_facility.mfl_code) as facilities'))
-                ->where('tbl_appointment.created_at', '>=', Carbon::now()->subMonths(6))
+                ->where(DB::raw('(SELECT MAX(DATE(tbl_appointment.created_at)) from tbl_appointment)'), '>=', Carbon::now()->subMonths(6))
                 ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
                 ->orderBy('tbl_appointment.created_at', 'DESC')
                 ->groupBy('tbl_partner_facility.mfl_code')
@@ -271,7 +271,7 @@ class NewDashboardController extends Controller
             $active_facilities = PartnerFacility::join('tbl_client', 'tbl_partner_facility.mfl_code', '=', 'tbl_client.mfl_code')
                 ->join('tbl_appointment', 'tbl_client.id', '=', 'tbl_appointment.client_id')
                 ->select(\DB::raw('COUNT(tbl_partner_facility.mfl_code) as facilities'))
-                ->where('tbl_appointment.created_at', '>=', Carbon::now()->subMonths(6))
+                ->where(DB::raw('(SELECT MAX(DATE(tbl_appointment.created_at)) from tbl_appointment)'), '>=', Carbon::now()->subMonths(6))
                 ->where('tbl_partner_facility.county_id', Auth::user()->county_id)
                 ->orderBy('tbl_appointment.created_at', 'DESC')
                 ->groupBy('tbl_partner_facility.mfl_code')
@@ -386,7 +386,7 @@ class NewDashboardController extends Controller
             $active_facilities = PartnerFacility::join('tbl_client', 'tbl_partner_facility.mfl_code', '=', 'tbl_client.mfl_code')
                 ->join('tbl_appointment', 'tbl_client.id', '=', 'tbl_appointment.client_id')
                 ->select(\DB::raw('COUNT(tbl_partner_facility.mfl_code) as facilities'))
-                ->where('tbl_appointment.created_at', '>=', Carbon::now()->subMonths(6))
+                ->where(DB::raw('(SELECT MAX(DATE(tbl_appointment.created_at)) from tbl_appointment)'), '>=', Carbon::now()->subMonths(6))
                 ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id)
                 ->orderBy('tbl_appointment.created_at', 'DESC')
                 ->groupBy('tbl_partner_facility.mfl_code')
@@ -496,8 +496,8 @@ class NewDashboardController extends Controller
             // $missed_appointment = Appointments::select('id')->whereIn('app_status', ['Defaulted', 'LTFU', 'Missed'])->count();
             $active_facilities = PartnerFacility::join('tbl_client', 'tbl_partner_facility.mfl_code', '=', 'tbl_client.mfl_code')
                 ->join('tbl_appointment', 'tbl_client.id', '=', 'tbl_appointment.client_id')
-                ->select('tbl_partner_facility.mfl_code')
-                ->where('tbl_appointment.created_at', '>=', Carbon::now()->subMonths(6))
+                ->selectRaw('tbl_partner_facility.mfl_code, MAX(DATE(tbl_appointment.created_at)) as max_date')
+                ->where(DB::raw('(SELECT MAX(DATE(tbl_appointment.created_at)) from tbl_appointment)'), '>=', Carbon::now()->subMonths(6))
                 ->orderBy('tbl_appointment.created_at', 'DESC')
                 ->groupBy('tbl_partner_facility.mfl_code')
                 ->get();
@@ -4762,8 +4762,8 @@ class NewDashboardController extends Controller
                 ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id);
             $active_facilities = PartnerFacility::join('tbl_client', 'tbl_partner_facility.mfl_code', '=', 'tbl_client.mfl_code')
                 ->join('tbl_appointment', 'tbl_client.id', '=', 'tbl_appointment.client_id')
-                ->select('tbl_partner_facility.mfl_code')
-                ->where('tbl_appointment.created_at', '>=', Carbon::now()->subMonths(6))
+                ->selectRaw('tbl_partner_facility.mfl_code, MAX(DATE(tbl_appointment.created_at)) as max_date')
+                ->where(DB::raw('(SELECT MAX(DATE(tbl_appointment.created_at)) from tbl_appointment)'), '>=', Carbon::now()->subMonths(6))
                 ->orderBy('tbl_appointment.created_at', 'DESC')
                 ->groupBy('tbl_partner_facility.mfl_code')
                 ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id);
@@ -4865,8 +4865,8 @@ class NewDashboardController extends Controller
                 ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id);
             $active_facilities = PartnerFacility::join('tbl_client', 'tbl_partner_facility.mfl_code', '=', 'tbl_client.mfl_code')
                 ->join('tbl_appointment', 'tbl_client.id', '=', 'tbl_appointment.client_id')
-                ->select('tbl_partner_facility.mfl_code')
-                ->where('tbl_appointment.created_at', '>=', Carbon::now()->subMonths(6))
+                ->selectRaw('tbl_partner_facility.mfl_code, MAX(DATE(tbl_appointment.created_at)) as max_date')
+                ->where(DB::raw('(SELECT MAX(DATE(tbl_appointment.created_at)) from tbl_appointment)'), '>=', Carbon::now()->subMonths(6))
                 ->orderBy('tbl_appointment.created_at', 'DESC')
                 ->groupBy('tbl_partner_facility.mfl_code')
                 ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id);
@@ -4968,8 +4968,8 @@ class NewDashboardController extends Controller
                 ->where('tbl_partner_facility.county_id', Auth::user()->county_id);
             $active_facilities = PartnerFacility::join('tbl_client', 'tbl_partner_facility.mfl_code', '=', 'tbl_client.mfl_code')
                 ->join('tbl_appointment', 'tbl_client.id', '=', 'tbl_appointment.client_id')
-                ->select('tbl_partner_facility.mfl_code')
-                ->where('tbl_appointment.created_at', '>=', Carbon::now()->subMonths(6))
+                ->selectRaw('tbl_partner_facility.mfl_code, MAX(DATE(tbl_appointment.created_at)) as max_date')
+                ->where(DB::raw('(SELECT MAX(DATE(tbl_appointment.created_at)) from tbl_appointment)'), '>=', Carbon::now()->subMonths(6))
                 ->orderBy('tbl_appointment.created_at', 'DESC')
                 ->groupBy('tbl_partner_facility.mfl_code')
                 ->where('tbl_partner_facility.county_id', Auth::user()->county_id);
@@ -5071,10 +5071,11 @@ class NewDashboardController extends Controller
                 ->whereNull('tbl_client.hei_no');
             $active_facilities = PartnerFacility::join('tbl_client', 'tbl_partner_facility.mfl_code', '=', 'tbl_client.mfl_code')
                 ->join('tbl_appointment', 'tbl_client.id', '=', 'tbl_appointment.client_id')
-                ->select('tbl_partner_facility.mfl_code')
-                ->where('tbl_appointment.created_at', '>=', Carbon::now()->subMonths(6))
-                ->orderBy('tbl_appointment.created_at', 'DESC')
+                ->selectRaw('tbl_partner_facility.mfl_code, MAX(DATE(tbl_appointment.created_at)) as max_date')
+                ->where(DB::raw('(SELECT MAX(DATE(tbl_appointment.created_at)) from tbl_appointment)'), '>=', Carbon::now()->subMonths(6))
+                ->orderBy('tbl_appointment.id', 'DESC')
                 ->groupBy('tbl_partner_facility.mfl_code');
+
             $facilities_ever_enrolled = PartnerFacility::select('tbl_partner_facility.mfl_code');
             // active clients by gender
             $clients_male = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
@@ -5215,7 +5216,16 @@ class NewDashboardController extends Controller
         if (!empty($selected_from || $selected_to)) {
             $client = $client->where('tbl_client.created_at', '>=', date($request->from))->where('tbl_client.created_at', '<=', date($request->to));
             $client_ever_enrolled = $client_ever_enrolled->where('tbl_client.created_at', '>=', date($request->from))->where('tbl_client.created_at', '<=', date($request->to));
-            $active_facilities = $active_facilities->where('tbl_appointment.created_at', '>=', date($request->from))->where('tbl_appointment.created_at', '>=', date($request->to));
+            // $active_facilities = $active_facilities->where('tbl_appointment.created_at', '>=', date($request->from))->where('tbl_appointment.created_at', '>=', date($request->to));
+            $active_facilities = PartnerFacility::join('tbl_client', 'tbl_partner_facility.mfl_code', '=', 'tbl_client.mfl_code')
+                ->join('tbl_appointment', 'tbl_client.id', '=', 'tbl_appointment.client_id')
+                ->selectRaw('tbl_partner_facility.mfl_code, MAX(DATE(tbl_appointment.created_at)) as max_date')
+                ->where(DB::raw('(SELECT MAX(DATE(tbl_appointment.created_at)) from tbl_appointment)'), '>=', Carbon::now()->subMonths(6))
+                ->where(DB::raw('(SELECT MAX(DATE(tbl_appointment.created_at)) from tbl_appointment)'), '>=', date($request->from))
+                ->where(DB::raw('(SELECT MAX(DATE(tbl_appointment.created_at)) from tbl_appointment)'), '>=', date($request->to))
+                // ->whereRaw('tbl_appointment.created_at', '>=', date($request->from))->whereDate('tbl_appointment.created_at', '>=', date($request->to))
+                ->orderBy('tbl_appointment.created_at', 'DESC')
+                ->groupBy('tbl_partner_facility.mfl_code');
             $facilities_ever_enrolled = $facilities_ever_enrolled->where('tbl_partner_facility.created_at', '>=', date($request->from))->where('tbl_partner_facility.created_at', '<=', date($request->to));
             $clients_male = $clients_male->where('tbl_client.created_at', '>=', date($request->from))->where('tbl_client.created_at', '<=', date($request->to));
             $clients_female = $clients_female->where('tbl_client.created_at', '>=', date($request->from))->where('tbl_client.created_at', '<=', date($request->to));

@@ -3491,7 +3491,7 @@
 
                 }, {
                     name: 'Returned To Care',
-                    color: '#97080F',
+                    color: '#01058A',
                     data: percent_rtc
 
                 }],
