@@ -95,6 +95,7 @@
                                                                 <tr>
                                                                     <th>No</th>
                                                                     <th>Full Name</th>
+                                                                    <th>UPI Number</th>
                                                                     <th>Mobile</th>
                                                                     <th>Marital Status</th>
                                                                     <th>Language</th>
@@ -119,6 +120,7 @@
                                                                 <tr>
                                                                     <td> {{$loop->iteration }}</td>
                                                                     <td> {{$result->client_name }}</td>
+                                                                    <td> {{$result->upi_no }}</td>
                                                                     <td> {{$result->phone_no}}</td>
                                                                     <td> {{$result->marital}}</td>
                                                                     <td> {{$result->language}}</td>

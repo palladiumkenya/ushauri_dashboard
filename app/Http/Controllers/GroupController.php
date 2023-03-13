@@ -46,7 +46,8 @@ class GroupController extends Controller
     {
         $all_pmtct_clients = Client::join('tbl_groups', 'tbl_groups.id', '=', 'tbl_client.group_id')
         ->selectRaw('tbl_client.clinic_number, tbl_client.f_name, tbl_client.m_name, tbl_client.l_name, tbl_client.client_status, tbl_client.phone_no, tbl_client.enrollment_date, tbl_groups.name')
-        ->where('tbl_client.clinic_id', '=', '2');
+        ->where('tbl_client.clinic_id', '=', '2')
+        ->whereNull('tbl_client.hei_no');
 
         if (Auth::user()->access_level == 'Facility') {
             $all_pmtct_clients->where('facility_id', Auth::user()->facility_id);

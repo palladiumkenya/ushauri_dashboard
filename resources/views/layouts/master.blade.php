@@ -9,7 +9,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="icon" type="image/jpeg" sizes="16x16" href="{{ asset('assets/images/ushauri.jpeg') }}">
     <title>Ushauri - Getting better one text at a time</title>
-    <link href="https://fonts.googleapis.com/css?family=Nunito:300,400,400i,600,700,800,900" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Inter:300,400,400i,600,700,800,900" rel="stylesheet">
     <link rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.12/css/bootstrap-select.min.css">
     @yield('before-css')
@@ -164,7 +164,7 @@
 
     <script src="{{ asset('assets/js/alerts.js') }}"></script>
 
-    <script>
+
         @if(session('status'))
         // alert('{{session('status')}}')
         swal({
@@ -174,7 +174,8 @@
             button: "Ok",
         });
         @endif
-    </script>
+
+
 
     <script src="{{ asset('assets/js/customizer.script.js') }}"></script>
 

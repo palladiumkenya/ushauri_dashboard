@@ -163,6 +163,9 @@ Route::group(['middleware' => 'auth'], function () {
   Route::get('report/refill_apps', ['uses' => 'App\Http\Controllers\CalendarController@refill_apps', 'as' => 'refill_apps']);
   Route::get('report/vl_cd_calendar', ['uses' => 'App\Http\Controllers\CalendarController@vl_cd_calendar', 'as' => 'vl_cd_calendar']);
   Route::get('report/current-appointments/{slug}/{id}', ['uses' => 'App\Http\Controllers\CalendarController@current_appointments', 'as' => 'current_appointments']);
+  Route::get('report/honored_calendar', ['uses' => 'App\Http\Controllers\CalendarController@honored_calendar', 'as' => 'honored_calendar']);
+  Route::get('report/not_honored_calendar', ['uses' => 'App\Http\Controllers\CalendarController@not_honored_calendar', 'as' => 'not_honored_calendar']);
+  Route::get('report/unscheduled_calendar', ['uses' => 'App\Http\Controllers\CalendarController@unscheduled_calendar', 'as' => 'unscheduled_calendar']);
 
   // wellness routes
   Route::get('report/ok_clients', ['uses' => 'App\Http\Controllers\WellnessController@get_ok_clients', 'as' => 'report-ok_clients']);
@@ -226,8 +229,12 @@ Route::group(['middleware' => 'auth'], function () {
   Route::post('/delete/donor', ['uses' => 'App\Http\Controllers\DonorController@deletedonor', 'as' => 'deletedonor']);
 
   //Broadcast routes
+  Route::get('/broadcast/page', ['uses' => 'App\Http\Controllers\BroadcastController@broadcast_page', 'as' => 'broadcast-page']);
   Route::get('/broadcast', ['uses' => 'App\Http\Controllers\BroadcastController@broadcast_form', 'as' => 'broadcast']);
   Route::post('/send-broadcast', ['uses' => 'App\Http\Controllers\BroadcastController@sendSMS', 'as' => 'send-broadcast']);
+
+  Route::get('/broadcast/user', ['uses' => 'App\Http\Controllers\BroadcastController@broadcast_user', 'as' => 'broadcast-user']);
+  Route::post('/send-broadcast-user', ['uses' => 'App\Http\Controllers\BroadcastController@sendSMS_user', 'as' => 'send-broadcast-user']);
 
   // SMS Report routes
   //Route::get('/sms/analytics', ['uses' => 'App\Http\Controllers\SMSReportController@index', 'as' => 'sms-analytics']);
@@ -251,9 +258,22 @@ Route::group(['middleware' => 'auth'], function () {
   Route::get('/new/appointment/list', ['uses' => 'App\Http\Controllers\NewReportController@appointment_list', 'as' => 'appointment_list']);
   Route::get('/active/facilities/list', ['uses' => 'App\Http\Controllers\NewReportController@active_facility', 'as' => 'active_facilities_list']);
   Route::get('/indicators/definition', ['uses' => 'App\Http\Controllers\NewReportController@indicators', 'as' => 'indicators']);
+  Route::get('/client/messages/form', ['uses' => 'App\Http\Controllers\NewReportController@message_form', 'as' => 'message_form']);
   Route::get('/client/messages', ['uses' => 'App\Http\Controllers\NewReportController@client_message', 'as' => 'client_message']);
 
   // Route::get('/home/uptake', ['uses' => 'App\Http\Controllers\UptakeController@index', 'as' => 'uptake']);
   Route::get('/home/uptake', ['uses' => 'App\Http\Controllers\UptakeController@registered', 'as' => 'registered']);
   Route::get('/filter_uptake', ['uses' => 'App\Http\Controllers\UptakeController@filter_uptake', 'as' => 'filter_uptake']);
+
+  //upi dashboard
+  Route::get('/upi/dashboard', ['uses' => 'App\Http\Controllers\UpiController@index', 'as' => 'upi_dashboard']);
+  Route::get('/home/appointment', ['uses' => 'App\Http\Controllers\FinalDashboardController@index', 'as' => 'appointment-dashboard']);
+  Route::get('/appointment/data', ['uses' => 'App\Http\Controllers\FinalDashboardController@appointment', 'as' => 'appointment_data']);
+  Route::get('/filter_app_data', ['uses' => 'App\Http\Controllers\FinalDashboardController@filter_data', 'as' => 'filter_app_data']);
+  Route::get('/user/info', ['uses' => 'App\Http\Controllers\UserController@user_info', 'as' => 'user_info']);
+  Route::get('/get_county_facilities/{id}', ['uses' => 'App\Http\Controllers\FinalDashboardController@get_county_facilities', 'as' => 'get_county_facilities']);
+  Route::get('/get_partner_sub_counties/{id}', ['uses' => 'App\Http\Controllers\FinalDashboardController@get_partner_sub_counties', 'as' => 'get_partner_sub_counties']);
+  Route::get('/get_partner_facilities/{id}', ['uses' => 'App\Http\Controllers\FinalDashboardController@get_partner_facilities', 'as' => 'get_partner_facilities']);
+  Route::get('/get_sitetype_facilities/{id}', ['uses' => 'App\Http\Controllers\FinalDashboardController@get_sitetype_facilities', 'as' => 'get_sitetype_facilities']);
+
 });

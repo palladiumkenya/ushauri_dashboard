@@ -12,7 +12,7 @@
         <div class="d-flex align-items-center">
             <img class="logo" src="{{asset('assets/images/ushauri.jpeg')}}" alt="">
             <div>
-                <p class="m-0">&copy; 2022 Palladium Kenya, All rights reserved</p>
+                <p class="m-0">&copy; <?php echo date('Y'); ?> Palladium Kenya, All rights reserved</p>
             </div>
         </div>
     </div>

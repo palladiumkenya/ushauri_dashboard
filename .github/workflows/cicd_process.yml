@@ -16,6 +16,7 @@ jobs:
         key: ${{ secrets.PRODUCTION_SECRET }}
         port: ${{ secrets.PRODUCTION_PORT }}
         script: |
+
           cd /var/www/ushauri_dashboard
           git pull origin 
-          
+

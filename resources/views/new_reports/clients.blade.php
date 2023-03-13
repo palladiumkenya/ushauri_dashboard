@@ -20,6 +20,7 @@
                         <tr>
                             <th>No.</th>
                             <th>CCC Number</th>
+                            <th>UPI Number</th>
                             <th>Client Name</th>
                             <th>Gender</th>
                             <th>DOB</th>
@@ -40,6 +41,7 @@
                         <tr>
                             <td> {{ $loop->iteration }}</td>
                             <td> {{$client->clinic_number}}</td>
+                            <td> {{$client->upi_no}}</td>
                             <td> {{$client->f_name}} {{$client->m_name}} {{$client->l_name}}</td>
                             <td> {{$client->gender_name}}</td>
                             <td> {{$client->dob}}</td>

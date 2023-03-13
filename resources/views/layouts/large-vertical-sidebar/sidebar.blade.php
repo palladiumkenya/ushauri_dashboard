@@ -110,12 +110,24 @@
                 <a class="{{ Route::currentRouteName()=='Reports-facility_home' ? 'open' : '' }}" href="{{route('Reports-facility_home')}}">
                     <span class=" text-muted">Appointment Register</span>
                 </a>
+                <a class="{{ Route::currentRouteName()=='upi_dashboard' ? 'open' : '' }}" href="{{route('upi_dashboard')}}">
+                    <span class=" text-muted">Client Verification</span>
+                </a>
+                <a class="{{ Route::currentRouteName()=='appointment-dashboard' ? 'open' : '' }}" href="{{route('appointment-dashboard')}}">
+                    <span class=" text-muted">Appointment</span>
+                </a>
             </li>
             @endif
             @if (Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Partner' || Auth::user()->access_level == 'Donor' || Auth::user()->access_level == 'County' || Auth::user()->access_level == 'Sub County')
             <li class="nav-item ">
                 <a class="{{ Route::currentRouteName()=='dashboard' ? 'open' : '' }}" href="{{route('dashboard')}}">
                     <span class=" text-muted">Summary</span>
+                </a>
+                <a class="{{ Route::currentRouteName()=='upi_dashboard' ? 'open' : '' }}" href="{{route('upi_dashboard')}}">
+                    <span class=" text-muted">Client Verification</span>
+                </a>
+                <a class="{{ Route::currentRouteName()=='appointment-dashboard' ? 'open' : '' }}" href="{{route('appointment-dashboard')}}">
+                    <span class=" text-muted">Appointment</span>
                 </a>
             </li>
             @endif
@@ -204,21 +216,24 @@
                     <span class="item-name">Clients Dashboard</span>
                 </a>
             </li>
+            @if (Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Partner' || Auth::user()->access_level == 'Donor')
             <li class="nav-item">
                 <a class="{{ Route::currentRouteName()=='clients_list' ? 'open' : '' }}" href="{{route('clients_list')}}">
                     <span class="item-name">Clients List</span>
                 </a>
             </li>
+
             <li class="nav-item">
                 <a class="{{ Route::currentRouteName()=='upload-clients-form' ? 'open' : '' }}" href={{route('upload-clients-form')}}>
                     <span class="item-name">Upload Clients</span>
                 </a>
             </li>
             @endif
+            @endif
         </ul>
-        @if (Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Partner' || Auth::user()->access_level == 'Donor')
+        @if (Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Partner' || Auth::user()->access_level == 'Donor' || Auth::user()->access_level == 'County' || Auth::user()->access_level == 'Sub County')
         <ul class="childNav" data-parent="main_appointments">
-            <li class="nav-item">
+            <!-- <li class="nav-item">
                 <a href="{{route('appointment_charts')}}">
                     <span class="item-name">Appointment Dashboard</span>
                 </a>
@@ -227,17 +242,17 @@
                 <a href="{{route('missed_appointment_charts')}}">
                     <span class="item-name">Missed Appointment Dashboard</span>
                 </a>
-            </li>
-            <li class="nav-item">
+            </li> -->
+            <!-- <li class="nav-item">
                 <a href="{{route('appointment_list')}}">
                     <span class="item-name">Appointment List</span>
                 </a>
-            </li>
+            </li> -->
         </ul>
         @endif
         @if (Auth::user()->access_level == 'Facility')
         <ul class="childNav" data-parent="appointments">
-            <li class="nav-item">
+            <!-- <li class="nav-item">
                 <a href="{{route('appointment_charts')}}">
                     <span class="item-name">Appointment Dashboard</span>
                 </a>
@@ -246,7 +261,7 @@
                 <a href="{{route('missed_appointment_charts')}}">
                     <span class="item-name">Missed Appointment Dashboard</span>
                 </a>
-            </li>
+            </li> -->
             <li class="nav-item dropdown-sidemenu">
                 <a>
                     <span class="item-name">Future Appointment Diary</span>
@@ -408,7 +423,7 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a class="" href="{{route('broadcast')}}">
+                <a class="" href="{{route('broadcast-page')}}">
                     <span class="item-name">Broadcast</span>
                 </a>
             </li>
@@ -420,7 +435,7 @@
                 </a>
             </li> -->
             <li class="nav-item">
-                <a class="" href="{{route('broadcast')}}">
+                <a class="" href="{{route('broadcast-page')}}">
                     <span class="item-name">Broadcast</span>
                 </a>
             </li>
@@ -432,7 +447,7 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a class="" href="{{route('broadcast')}}">
+                <a class="" href="{{route('broadcast-page')}}">
                     <span class="item-name">Broadcast</span>
                 </a>
             </li>
@@ -454,7 +469,7 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a class="" href="{{route('broadcast')}}">
+                <a class="" href="{{route('broadcast-page')}}">
                     <span class="item-name">Broadcast</span>
                 </a>
             </li>
@@ -472,11 +487,11 @@
                     <span class="item-name">Users</span>
                 </a>
             </li>
-            <li class="nav-item">
+            <!-- <li class="nav-item">
                 <a class="" href="{{route('broadcast')}}">
                     <span class="item-name">Broadcast</span>
                 </a>
-            </li>
+            </li> -->
             @endif
         </ul>
         <!-- <ul class="childNav" data-parent="dsd">
@@ -546,15 +561,16 @@
             </li>
 
         </ul> -->
+
         <ul class="childNav" data-parent="reports">
-            @if (Auth::user()->role_id == 12 || Auth::user()->access_level == 'Partner' || Auth::user()->access_level == 'Admin')
+
             <!-- <li class="nav-item">
                 <a class="" href="{{route('admin-tracer-clients')}}">
                     <span class="item-name">Client Tracer</span>
                 </a>
             </li> -->
-            @endif
 
+            @if (Auth::user()->access_level == 'Facility' || Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Donor')
             <li class="nav-item dropdown-sidemenu">
                 <a>
                     <span class="item-name">Client</span>
@@ -572,7 +588,7 @@
                         </a>
                     </li>
                     <li>
-                        <a href="{{route('report-all_heis')}}">
+                        <a href="{{route('report-pmtct_clients')}}">
                             <span class="item-name">PMTCT Clients</span>
                         </a>
                     </li>
@@ -626,6 +642,21 @@
 
                 </ul>
             </li>
+            <!-- <li class="nav-item dropdown-sidemenu">
+                <a>
+                    <span class="item-name">New PMTCT</span>
+                    <i class="dd-arrow i-Arrow-Down"></i>
+                </a>
+                <ul class="submenu">
+                    <li>
+                        <a href="">
+                            <span class="item-name">Linelist</span>
+                        </a>
+                    </li>
+                </ul>
+            </li> -->
+            @endif
+            @if (Auth::user()->access_level == 'Partner' || Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Donor' || Auth::user()->access_level == 'County' || Auth::user()->access_level == 'Sub County' || Auth::user()->access_level == 'Facility')
             <li class="nav-item dropdown-sidemenu">
                 <a>
                     <span class="item-name">Messages</span>
@@ -633,7 +664,7 @@
                 </a>
                 <ul class="submenu">
                     <li>
-                        <a href="{{route('client_message')}}">
+                        <a href="{{route('message_form')}}">
                             <span class="item-name">Client Messages</span>
                         </a>
                     </li>
@@ -658,12 +689,13 @@
                 </ul>
             </li>
 
-
+            @if (Auth::user()->access_level == 'Partner' || Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Facility')
             <li class="nav-item">
                 <a href="{{route('report-lab_investigation')}}">
                     <span class="item-name">Lab Investigation</span>
                 </a>
             </li>
+            @endif
 
             @if (Auth::user()->access_level == 'Admin')
             <li class="nav-item">
@@ -697,6 +729,7 @@
             </li>
 
         </ul>
+        @endif
     </div>
     <div class="sidebar-overlay"></div>
 </div>

@@ -23,7 +23,7 @@ class AppointmentController extends Controller
         if (Auth::user()->access_level == 'Facility') {
             $all_future_apps = Appointments::join('tbl_client', 'tbl_client.id', '=', 'tbl_appointment.client_id')
                 ->join('tbl_appointment_types', 'tbl_appointment_types.id', '=', 'tbl_appointment.app_type_1')
-                ->select('tbl_appointment.id', 'tbl_appointment.client_id', 'tbl_client.clinic_number', 'tbl_appointment.appntmnt_date', 'tbl_appointment_types.name as app_type')
+                ->select('tbl_appointment.id', 'tbl_appointment.client_id', 'tbl_client.clinic_number', 'tbl_client.upi_no', 'tbl_appointment.appntmnt_date', 'tbl_appointment_types.name as app_type')
                 ->where('tbl_appointment.appntmnt_date', '>', Now())
                 ->where('tbl_client.mfl_code', Auth::user()->facility_id)
                 ->get();
@@ -44,7 +44,7 @@ class AppointmentController extends Controller
                     'expln_app' => "EDITED",
 
                 ]);
-                
+
             if ($appointment) {
                 Session::flash('statuscode', 'success');
                 return redirect('report/future/appointments')->with('status', 'Appointment was updated successfully!');
@@ -61,14 +61,14 @@ class AppointmentController extends Controller
         if (Auth::user()->access_level == 'Admin') {
             $all_future_appointments = Appointments::join('tbl_client', 'tbl_client.id', '=', 'tbl_appointment.client_id')
                 ->join('tbl_appointment_types', 'tbl_appointment_types.id', '=', 'tbl_appointment.app_type_1')
-                ->selectRaw('tbl_client.clinic_number, tbl_client.file_no, tbl_client.f_name, tbl_client.m_name, tbl_client.l_name, tbl_client.phone_no, tbl_appointment.appntmnt_date, tbl_appointment_types.name as app_type')
+                ->selectRaw('tbl_client.clinic_number, tbl_client.upi_no, tbl_client.file_no, tbl_client.f_name, tbl_client.m_name, tbl_client.l_name, tbl_client.phone_no, tbl_appointment.appntmnt_date, tbl_appointment_types.name as app_type')
                 ->where('tbl_appointment.appntmnt_date', '>', Now());
         }
 
         if (Auth::user()->access_level == 'Facility') {
             $all_future_appointments = Appointments::join('tbl_client', 'tbl_client.id', '=', 'tbl_appointment.client_id')
                 ->join('tbl_appointment_types', 'tbl_appointment_types.id', '=', 'tbl_appointment.app_type_1')
-                ->selectRaw('tbl_client.clinic_number, tbl_client.file_no, tbl_client.f_name, tbl_client.m_name, tbl_client.l_name, tbl_client.phone_no, tbl_appointment.appntmnt_date, tbl_appointment_types.name as app_type')
+                ->selectRaw('tbl_client.clinic_number, tbl_client.upi_no, tbl_client.file_no, tbl_client.f_name, tbl_client.m_name, tbl_client.l_name, tbl_client.phone_no, tbl_appointment.appntmnt_date, tbl_appointment_types.name as app_type')
                 ->where('tbl_client.mfl_code', Auth::user()->facility_id)
                 ->where('tbl_appointment.appntmnt_date', '>', Now());
         }
@@ -76,7 +76,7 @@ class AppointmentController extends Controller
         if (Auth::user()->access_level == 'Partner') {
             $all_future_appointments = Appointments::join('tbl_client', 'tbl_client.id', '=', 'tbl_appointment.client_id')
                 ->join('tbl_appointment_types', 'tbl_appointment_types.id', '=', 'tbl_appointment.app_type_1')
-                ->selectRaw('tbl_client.clinic_number, tbl_client.file_no, tbl_client.f_name, tbl_client.m_name, tbl_client.l_name, tbl_client.phone_no, tbl_appointment.appntmnt_date, tbl_appointment_types.name as app_type')
+                ->selectRaw('tbl_client.clinic_number, tbl_client.upi_no, tbl_client.file_no, tbl_client.f_name, tbl_client.m_name, tbl_client.l_name, tbl_client.phone_no, tbl_appointment.appntmnt_date, tbl_appointment_types.name as app_type')
                 ->where('tbl_client.partner_id', Auth::user()->partner_id)
                 ->where('tbl_appointment.appntmnt_date', '>', Now());
         }
@@ -84,7 +84,7 @@ class AppointmentController extends Controller
         if (Auth::user()->access_level == 'Donor') {
             $all_future_appointments = Appointments::join('tbl_client', 'tbl_client.id', '=', 'tbl_appointment.client_id')
                 ->join('tbl_appointment_types', 'tbl_appointment_types.id', '=', 'tbl_appointment.app_type_1')
-                ->selectRaw('tbl_client.clinic_number, tbl_client.file_no, tbl_client.f_name, tbl_client.m_name, tbl_client.l_name, tbl_client.phone_no, tbl_appointment.appntmnt_date, tbl_appointment_types.name as app_type')
+                ->selectRaw('tbl_client.clinic_number, tbl_client.upi_no, tbl_client.file_no, tbl_client.f_name, tbl_client.m_name, tbl_client.l_name, tbl_client.phone_no, tbl_appointment.appntmnt_date, tbl_appointment_types.name as app_type')
                 ->where('donor_id', Auth::user()->donor_id)
                 ->where('tbl_appointment.appntmnt_date', '>', Now());
         }

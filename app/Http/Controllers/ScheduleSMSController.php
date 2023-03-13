@@ -164,6 +164,7 @@ class ScheduleSMSController extends Controller
 
             foreach($notifications as $notification)
             {
+                $cleaned_msg = '';
                 $group_name = $notification->group_name;
                 $group_id = $notification->group_id;
                 $f_name = $notification->f_name;
@@ -261,7 +262,7 @@ class ScheduleSMSController extends Controller
                             ->whereDate('created_at',  $this->current_date)
                             ->doesntExist())
                     {
-                        if ($smsenable == 'Yes') {
+                        if ($smsenable == 'Yes' && trim($cleaned_msg) != '') {
                             $source = 40149;
                             $outgoing = array(
                                 'destination' => $phone_no,
