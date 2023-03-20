@@ -4,10 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Watson\Rememberable\Rememberable;
 
 class County extends Model
 {
     use HasFactory;
+    use Rememberable;
 
     public $table = 'tbl_county';
     public $timestamps = false;

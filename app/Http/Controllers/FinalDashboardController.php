@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Cache;
 
 use App\Models\Client;
 use App\Models\Appointments;
+use App\Models\Clinic;
 use App\Models\Facility;
 use App\Models\Gender;
 use App\Models\Partner;
@@ -27,55 +28,93 @@ class FinalDashboardController extends Controller
 {
     public function index()
     {
+        // dd(Auth::user()->access_level);
         if (Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Donor') {
-            $partners = DB::table('tbl_partner')->select('id', 'name')->where('status', '=', 'Active')->get();
-            $counties = DB::table('tbl_county')->select('id', 'name')->get();
-            $sub_counties = DB::table('tbl_sub_county')->select('id', 'name')->get();
-            $clinics = DB::table('tbl_clinic')->select('id', 'name')->where('status', '=', 'Active')->get();
-            $facilities = DB::table('tbl_master_facility')->select('tbl_master_facility.code', 'tbl_master_facility.name')
-                ->join('tbl_partner_facility', 'tbl_master_facility.code', '=', 'tbl_partner_facility.mfl_code')
-                ->get();
-            $indicator_k = DB::table('tbl_indicators')->select('description')->where('name', '=', 'Kept&Not Kept')->get();
-            $indicator_m = DB::table('tbl_indicators')->select('description')->where('name', '=', 'Missed Appointments')->get();
+            $partners = Partner::where("status", "=", "Active")
+            ->remember(60 * 60 * 24)
+            ->get();
+
+            $counties = County::where("status", "=", "Active")
+            ->remember(60 * 60 * 24)
+            ->get(['id', 'name']);
+
+            $sub_counties = SubCounty::where("status", "=", "Active")
+            ->remember(60 * 60 * 24)
+            ->get(['id', 'name']);
+
+            $clinics = Clinic::where("status", "=", "Active")
+            ->remember(60 * 60 * 24)
+            ->get();
+
+            $facilities = Facility::join('tbl_partner_facility', 'tbl_master_facility.code', '=', 'tbl_partner_facility.mfl_code')
+            ->remember(60 * 60 * 24)
+            ->get(['tbl_master_facility.code', 'tbl_master_facility.name']);
+
+            $indicator_k = Indicator::where('name', 'Kept&Not Kept')
+            ->select('description')
+            ->remember(60 * 60 * 24)
+            ->get();
+
+            $indicator_m = Indicator::where('name', 'Missed Appointments')
+            ->select('description')
+            ->remember(60 * 60 * 24)
+            ->get();
+
+
             return view('dashboard.appointment', compact('partners', 'counties', 'sub_counties', 'facilities', 'clinics', 'indicator_k', 'indicator_m'));
         }
         if (Auth::user()->access_level == 'Facility') {
-            $clinics = DB::table('tbl_clinic')->select('id', 'name')->where('status', '=', 'Active')->get();
-            $client_list = DB::table('etl_client_detail')->select(
-                'etl_client_detail.upi_no',
-                'etl_client_detail.ccc_number',
-                'etl_client_detail.dob',
-                'etl_client_detail.consented',
-                'etl_client_detail.client_status',
-                'etl_client_detail.client_name',
-                'etl_client_detail.dsd_status',
-                'etl_client_detail.phone_no',
-                DB::raw('COUNT(etl_appointment_detail.app_kept) AS kept_app '),
-                DB::raw('SUM(etl_appointment_detail.app_not_kept) AS not_kept_app ')
-            )
-                ->join('etl_appointment_detail', 'etl_client_detail.client_id', '=', 'etl_appointment_detail.client_id')
-                ->where('etl_client_detail.mfl_code', Auth::user()->facility_id)
-                ->groupBy('etl_appointment_detail.client_id')
-                ->get();
-            $client_app_list = DB::table('etl_client_detail')->select(
-                'etl_client_detail.upi_no',
-                'etl_client_detail.ccc_number',
-                'etl_client_detail.dob',
-                'etl_client_detail.consented',
-                'etl_client_detail.client_status',
-                'etl_client_detail.client_name',
-                'etl_client_detail.phone_no',
-                'etl_client_detail.dsd_status',
-                'etl_appointment_detail.days_defaulted',
-                'etl_appointment_detail.final_outcome'
-            )
-                ->join('etl_appointment_detail', 'etl_client_detail.client_id', '=', 'etl_appointment_detail.client_id')
-                ->where('etl_client_detail.mfl_code', Auth::user()->facility_id)
-                ->whereNotNull('etl_appointment_detail.final_outcome')
-                ->groupBy('etl_appointment_detail.client_id')
-                ->get();
-            $indicator_k = DB::table('tbl_indicators')->select('description')->where('name', '=', 'Kept&Not Kept')->get();
-            $indicator_m = DB::table('tbl_indicators')->select('description')->where('name', '=', 'Missed Appointments')->get();
+            // $clinics = DB::table('tbl_clinic')->select('id', 'name')->where('status', '=', 'Active')->get();
+            $clinics = Clinic::where('status', 'Active')
+                        ->select('id', 'name')
+                        ->remember(60 * 60 * 24)
+                        ->get();
+
+            $client_list = ETLClient::join('etl_appointment_detail', 'etl_client_detail.client_id', '=', 'etl_appointment_detail.client_id')
+                        ->where('etl_client_detail.mfl_code', Auth::user()->facility_id)
+                        ->groupBy('etl_appointment_detail.client_id')
+                        ->remember(60 * 60 * 24)
+                        ->get(['etl_client_detail.upi_no',
+                        'etl_client_detail.ccc_number',
+                        'etl_client_detail.dob',
+                        'etl_client_detail.consented',
+                        'etl_client_detail.client_status',
+                        'etl_client_detail.client_name',
+                        'etl_client_detail.dsd_status',
+                        'etl_client_detail.phone_no',
+                        DB::raw('COUNT(etl_appointment_detail.app_kept) AS kept_app '),
+                        DB::raw('SUM(etl_appointment_detail.app_not_kept) AS not_kept_app ')]);
+
+            $client_app_list = ETLClient::join('etl_appointment_detail', 'etl_client_detail.client_id', '=', 'etl_appointment_detail.client_id')
+            ->where('etl_client_detail.mfl_code', Auth::user()->facility_id)
+            ->whereNotNull('etl_appointment_detail.final_outcome')
+            ->groupBy('etl_appointment_detail.client_id')
+            ->remember(60 * 60 * 24)
+            ->get(['etl_client_detail.upi_no',
+            'etl_client_detail.ccc_number',
+            'etl_client_detail.dob',
+            'etl_client_detail.consented',
+            'etl_client_detail.client_status',
+            'etl_client_detail.client_name',
+            'etl_client_detail.phone_no',
+            'etl_client_detail.dsd_status',
+            'etl_appointment_detail.days_defaulted',
+            'etl_appointment_detail.final_outcome']);
+
+            $indicator_k = Indicator::where('name', 'Kept&Not Kept')
+            ->select('description')
+            ->remember(60 * 60 * 24)
+            ->get();
+
+            $indicator_m = Indicator::where('name', 'Missed Appointments')
+            ->select('description')
+            ->remember(60 * 60 * 24)
+            ->get();
+
+            // $indicator_k = DB::table('tbl_indicators')->select('description')->where('name', '=', 'Kept&Not Kept')->get();
+
+            // $indicator_m = DB::table('tbl_indicators')->select('description')->where('name', '=', 'Missed Appointments')->get();
+
             return view('dashboard.appointment', compact('clinics', 'client_list', 'client_app_list', 'indicator_k', 'indicator_m'));
         }
         if (Auth::user()->access_level == 'County') {
