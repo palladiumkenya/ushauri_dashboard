@@ -41,22 +41,42 @@ class FinalDashboardController extends Controller
         }
         if (Auth::user()->access_level == 'Facility') {
             $clinics = DB::table('tbl_clinic')->select('id', 'name')->where('status', '=', 'Active')->get();
-            $client_list = DB::table('etl_client_detail')->select(
-                'etl_client_detail.upi_no',
-                'etl_client_detail.ccc_number',
-                'etl_client_detail.dob',
-                'etl_client_detail.consented',
-                'etl_client_detail.client_status',
-                'etl_client_detail.client_name',
-                'etl_client_detail.dsd_status',
-                'etl_client_detail.phone_no',
-                DB::raw('COUNT(etl_appointment_detail.app_kept) AS kept_app '),
-                DB::raw('SUM(etl_appointment_detail.app_not_kept) AS not_kept_app ')
-            )
-                ->join('etl_appointment_detail', 'etl_client_detail.client_id', '=', 'etl_appointment_detail.client_id')
-                ->where('etl_client_detail.mfl_code', Auth::user()->facility_id)
-                ->groupBy('etl_appointment_detail.client_id')
-                ->get();
+            // $client_list = DB::table('etl_client_detail')->select(
+            //     'etl_client_detail.upi_no',
+            //     'etl_client_detail.ccc_number',
+            //     'etl_client_detail.dob',
+            //     'etl_client_detail.consented',
+            //     'etl_client_detail.client_status',
+            //     'etl_client_detail.client_name',
+            //     'etl_client_detail.dsd_status',
+            //     'etl_client_detail.phone_no',
+            //     DB::raw('COUNT(etl_appointment_detail.app_kept) AS kept_app '),
+            //     DB::raw('SUM(etl_appointment_detail.app_not_kept) AS not_kept_app ')
+            // )
+            //     ->join('etl_appointment_detail', 'etl_client_detail.client_id', '=', 'etl_appointment_detail.client_id')
+            //     ->where('etl_client_detail.mfl_code', Auth::user()->facility_id)
+            //     ->groupBy('etl_appointment_detail.client_id')
+            //     ->get();
+                $clientList = Cache::remember('clientList', 120, function()
+                {
+                    return  DB::table('etl_client_detail')->select(
+                        'etl_client_detail.upi_no',
+                        'etl_client_detail.ccc_number',
+                        'etl_client_detail.dob',
+                        'etl_client_detail.consented',
+                        'etl_client_detail.client_status',
+                        'etl_client_detail.client_name',
+                        'etl_client_detail.dsd_status',
+                        'etl_client_detail.phone_no',
+                        DB::raw('COUNT(etl_appointment_detail.app_kept) AS kept_app '),
+                        DB::raw('SUM(etl_appointment_detail.app_not_kept) AS not_kept_app ')
+                    )
+                        ->join('etl_appointment_detail', 'etl_client_detail.client_id', '=', 'etl_appointment_detail.client_id')
+                        ->where('etl_client_detail.mfl_code', Auth::user()->facility_id)
+                        ->groupBy('etl_appointment_detail.client_id')
+                        ->get();
+                });
+                $client_list = Cache::get('clientList');
             $client_app_list = DB::table('etl_client_detail')->select(
                 'etl_client_detail.upi_no',
                 'etl_client_detail.ccc_number',
@@ -335,9 +355,8 @@ class FinalDashboardController extends Controller
                 DB::raw('ROUND(AVG(percent_not_kept),1) AS percent_not_kept ')
             )->whereNotNull('appointment_date')
                 ->where('mfl_code', Auth::user()->facility_id)
-                ->where('appointment_date', '<=', date("Y-M-D"))
+                ->where('appointment_date', '<=', Carbon::now()->format('Y-m-d'))
                 ->where(DB::raw('DATE_FORMAT(appointment_date, "%Y-%M")'), '>=', "2017-January")
-                ->where(DB::raw('DATE_FORMAT(appointment_date, "%Y-%M")'), '<=', date('Y-M'))
                 ->orderBy('appointment_date', 'ASC')
                 ->groupBy('new_date');
 
@@ -516,9 +535,9 @@ class FinalDashboardController extends Controller
                 (SUM(app_kept)+SUM(app_not_kept)+SUM(future)) as total_app,
                 ROUND(AVG(percent_not_kept),1) AS percent_not_kept '
             )->whereNotNull('appointment_date')
-                ->where('appointment_date', '<=', date("Y-M-D"))
+            ->where('appointment_date', '<=', Carbon::now()->format('Y-m-d'))
                 ->where(DB::raw('DATE_FORMAT(appointment_date, "%Y-%M")'), '>=', "2017-January")
-                ->where(DB::raw('DATE_FORMAT(appointment_date, "%Y-%M")'), '<=', date('Y-M'))
+               // ->where(DB::raw('DATE_FORMAT(appointment_date, "%Y-%M")'), '<=', date('Y-M'))
                 ->orderBy('appointment_date', 'ASC')
                 ->groupBy('new_date');
 
@@ -720,9 +739,9 @@ class FinalDashboardController extends Controller
                 DB::raw('ROUND(AVG(percent_not_kept),1) AS percent_not_kept ')
             )->whereNotNull('appointment_date')
                 ->where('partner_id', Auth::user()->partner_id)
-                ->where('appointment_date', '<=', date("Y-M-D"))
+                ->where('appointment_date', '<=', Carbon::now()->format('Y-m-d'))
                 ->where(DB::raw('DATE_FORMAT(appointment_date, "%Y-%M")'), '>=', "2017-January")
-                ->where(DB::raw('DATE_FORMAT(appointment_date, "%Y-%M")'), '<=', date('Y-M'))
+                //->where(DB::raw('DATE_FORMAT(appointment_date, "%Y-%M")'), '<=', date('Y-M'))
                 ->orderBy('appointment_date', 'ASC')
                 ->groupBy('new_date');
 
@@ -932,9 +951,9 @@ class FinalDashboardController extends Controller
                 DB::raw('ROUND(AVG(percent_not_kept),1) AS percent_not_kept ')
             )->whereNotNull('appointment_date')
                 ->where('subcounty_id', Auth::user()->subcounty_id)
-                ->where('appointment_date', '<=', date("Y-M-D"))
+                ->where('appointment_date', '<=', Carbon::now()->format('Y-m-d'))
                 ->where(DB::raw('DATE_FORMAT(appointment_date, "%Y-%M")'), '>=', "2017-January")
-                ->where(DB::raw('DATE_FORMAT(appointment_date, "%Y-%M")'), '<=', date('Y-M'))
+                //->where(DB::raw('DATE_FORMAT(appointment_date, "%Y-%M")'), '<=', date('Y-M'))
                 ->orderBy('appointment_date', 'ASC')
                 ->groupBy('new_date');
 
@@ -1148,9 +1167,9 @@ class FinalDashboardController extends Controller
                 DB::raw('ROUND(AVG(percent_not_kept),1) AS percent_not_kept ')
             )->whereNotNull('appointment_date')
                 ->where('county_id', Auth::user()->county_id)
-                ->where('appointment_date', '<=', date("Y-M-D"))
+                ->where('appointment_date', '<=', Carbon::now()->format('Y-m-d'))
                 ->where(DB::raw('DATE_FORMAT(appointment_date, "%Y-%M")'), '>=', "2017-January")
-                ->where(DB::raw('DATE_FORMAT(appointment_date, "%Y-%M")'), '<=', date('Y-M'))
+                //->where(DB::raw('DATE_FORMAT(appointment_date, "%Y-%M")'), '<=', date('Y-M'))
                 ->orderBy('appointment_date', 'ASC')
                 ->groupBy('new_date');
 
@@ -1331,7 +1350,7 @@ class FinalDashboardController extends Controller
                 DB::raw('(SUM(app_kept)+SUM(app_not_kept)+SUM(future)) as total_app'),
                 DB::raw('ROUND(AVG(percent_not_kept),1) AS percent_not_kept ')
             )->whereNotNull('appointment_date')
-                ->where('appointment_date', '<=', date("Y-M-D"))
+            ->where('appointment_date', '<=', Carbon::now()->format('Y-m-d'))
                 ->where(DB::raw('DATE_FORMAT(appointment_date, "%Y-%M")'), '>=', "2017-January")
                 ->orderBy('appointment_date', 'ASC')
                 ->groupBy('new_date');
@@ -1689,7 +1708,7 @@ class FinalDashboardController extends Controller
                 DB::raw('ROUND(AVG(percent_not_kept),1) AS percent_not_kept ')
             )->whereNotNull('appointment_date')
                 ->where('mfl_code', Auth::user()->facility_id)
-                ->where('appointment_date', '<=', date("Y-M-D"))
+                ->where('appointment_date', '<=', Carbon::now()->format('Y-m-d'))
                 ->where(DB::raw('DATE_FORMAT(appointment_date, "%Y-%M")'), '>=', "2017-January")
                 ->orderBy('appointment_date', 'ASC')
                 ->groupBy('new_date');
@@ -2074,7 +2093,7 @@ class FinalDashboardController extends Controller
                 DB::raw('ROUND(AVG(percent_not_kept),1) AS percent_not_kept ')
             )->whereNotNull('appointment_date')
                 ->where('partner_id', Auth::user()->partner_id)
-                ->where('appointment_date', '<=', date("Y-M-D"))
+                ->where('appointment_date', '<=', Carbon::now()->format('Y-m-d'))
                 ->where(DB::raw('DATE_FORMAT(appointment_date, "%Y-%M")'), '>=', "2017-January")
                 ->orderBy('appointment_date', 'ASC')
                 ->groupBy('new_date');
@@ -2457,7 +2476,7 @@ class FinalDashboardController extends Controller
                 DB::raw('ROUND(AVG(percent_not_kept),1) AS percent_not_kept ')
             )->whereNotNull('appointment_date')
                 ->where('subcounty_id', Auth::user()->subcounty_id)
-                ->where('appointment_date', '<=', date("Y-M-D"))
+                ->where('appointment_date', '<=', Carbon::now()->format('Y-m-d'))
                 ->where(DB::raw('DATE_FORMAT(appointment_date, "%Y-%M")'), '>=', "2017-January")
                 ->orderBy('appointment_date', 'ASC')
                 ->groupBy('new_date');
@@ -2843,7 +2862,7 @@ class FinalDashboardController extends Controller
                 DB::raw('ROUND(AVG(percent_not_kept),1) AS percent_not_kept ')
             )->whereNotNull('appointment_date')
                 ->where('county_id', Auth::user()->county_id)
-                ->where('appointment_date', '<=', date("Y-M-D"))
+                ->where('appointment_date', '<=', Carbon::now()->format('Y-m-d'))
                 ->where(DB::raw('DATE_FORMAT(appointment_date, "%Y-%M")'), '>=', "2017-January")
                 ->orderBy('appointment_date', 'ASC')
                 ->groupBy('new_date');
