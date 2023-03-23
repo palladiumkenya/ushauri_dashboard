@@ -9,6 +9,7 @@ use App\Models\LTFUNotifications;
 use App\Models\Appointments;
 use App\Models\ClientOutgoing;
 use App\Models\OutgoingSms;
+use App\Models\Wellness;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
@@ -22,6 +23,91 @@ class ScheduleSMSController extends Controller
     {
         set_time_limit(0);
         $this->current_date = date("Y-m-d");
+    }
+
+    public function wellnessScheduler()
+    {
+        try{
+            //get clients enrolled for the wellness sms as per filter
+            $clients = Wellness::all();
+
+            foreach ($clients as $client) {
+                $cleaned_msg ="";
+                $client_id = $client->client_id;
+                $language = $client->language_name;
+                $group_id = $client->group_id;
+                $language_id = $client->language_id;
+                $registration_date = $client->registration_date;
+                $time = $client->txt_time;
+                $daytime = $client->daytime;
+                $frequency = $client->txt_frequency;
+                $phone_no = $client->phone_no;
+                $wellness_enable = $client->wellness_enable;
+                $motivational_enable = $client->motivational_enable;
+
+                 //Check if the  phone number has country code appended
+                $mobile = substr($phone_no, -9);
+                $len = strlen($mobile);
+                if ($len < 10) {
+                    $phone_no = "254" . $mobile;
+                }
+
+                //check if a wellness message is already sent. If not send it.
+                if (DB::table('tbl_clnt_outgoing')
+                        ->where('message_type_id', 4)
+                        ->where('clnt_usr_id', $client_id)
+                        ->where(function ($query) {
+                            $query->whereDate('created_at',  $this->current_date)
+                                  ->orwhereDate('updated_at',  $this->current_date);
+                        })
+                        ->doesntExist())
+                        {
+                             //get message content
+                                $message_type_id = 4;
+                                $msg_content = DB::table('tbl_content')
+                                ->where('message_type_id', $message_type_id)
+                                ->where('language_id', $language_id)
+                                ->where('group_id', $group_id)
+                                ->get()
+                                ->take(1);
+
+                                foreach($msg_content  as $msg)
+                                {
+                                    $content_id = $msg->id;
+                                    $cleaned_msg = $msg->message;
+                                    $today = date("Y-m-d H:i:s");
+                                    $status = "Not Sent";
+                                    $responded = "No";
+
+                                    if ($wellness_enable == 'Yes' && trim($cleaned_msg) != '') {
+                                            $source = 40149;
+                                            $clnt_outgoing = array(
+                                                'destination' => $phone_no,
+                                                'msg' => $cleaned_msg,
+                                                'responded' => $responded,
+                                                'status' => $status,
+                                                'message_type_id' => $message_type_id,
+                                                'source' => $source,
+                                                'clnt_usr_id' => $client_id,
+                                                'appointment_id' => null,
+                                                'no_of_days' => null,
+                                                'recepient_type' => 'Client',
+                                                'content_id' => $content_id,
+                                                'created_at' => $today,
+                                                'created_by' => '1'
+                                            );
+
+                                            $this->sms_outgoing_insert($clnt_outgoing);
+                                    }
+
+                                }
+
+
+                        }
+            }
+        }catch (Exception $e) {
+            throw $e;
+        }
     }
 
     public function notifiedScheduler()

@@ -5,10 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
+use Watson\Rememberable\Rememberable;
 
 class Client extends Model
 {
     use HasFactory;
+    use Rememberable;
+
     public $table = 'tbl_client';
     public $timestamps = false;
 
