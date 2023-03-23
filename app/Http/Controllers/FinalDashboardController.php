@@ -411,7 +411,6 @@ class FinalDashboardController extends Controller
                 ->whereNotNull('appointment_date')
                 ->where('mfl_code', Auth::user()->facility_id)
                 ->where('appointment_date', '<=', Carbon::now()->format('Y-m-d'))
-                ->where('appointment_date', '<=', Carbon::now()->format('Y-m-d'))
                 ->where(DB::raw('DATE_FORMAT(appointment_date, "%Y-%M")'), '>=', "2017-January")
                 ->orderBy('appointment_date', 'ASC')
                 ->groupBy('new_date')
