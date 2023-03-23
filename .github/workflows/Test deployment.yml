@@ -1,0 +1,39 @@
+name: deploy to test instance
+on:
+  push:
+    branches: [ main ]
+jobs:
+
+  build:
+    name: Deploy
+    runs-on: ubuntu-latest
+    steps:
+    - name: executing remote connection
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.CICD_SECRET }}
+        port: ${{ secrets.PORT }}
+        script: |
+          cd /apps/github-workflows/mhealth-apps/
+          sudo rm -rf ushauri_dashboard
+          sudo mkdir ushauri_dashboard
+          sudo chown -R cicd2:cicd2 ushauri_dashboard
+          git config --global --add safe.directory /apps/github-workflows/mhealth-apps/ushauri_dashboard/      
+          cd ushauri_dashboard
+          git clone -b main https://github.com/palladiumkenya/ushauri_dashboard.git .
+          git status
+          cp /apps/configs/ushauri-dashboard/.env /apps/github-workflows/mhealth-apps/ushauri_dashboard/
+          cp /apps/configs/ushauri-dashboard/docker-compose.yml /apps/github-workflows/mhealth-apps/ushauri_dashboard/
+          cp /apps/configs/ushauri-dashboard/nginx.dockerfile /apps/github-workflows/mhealth-apps/ushauri_dashboard/
+          cp /apps/configs/ushauri-dashboard/php.dockerfile /apps/github-workflows/mhealth-apps/ushauri_dashboard/
+          cp -r /apps/configs/ushauri-dashboard/nginx /apps/github-workflows/mhealth-apps/ushauri_dashboard/
+          docker-compose down
+          docker-compose rm -f
+          docker-compose --env-file .env up -d --build site
+          # execute normal laravel commands
+          docker-compose exec -T php composer install --ignore-platform-reqs --no-dev
+          docker-compose exec -T php php artisan config:cache
+          docker-compose exec -T php php artisan view:cache
+          docker-compose exec -T php chmod -R 777 storage/
