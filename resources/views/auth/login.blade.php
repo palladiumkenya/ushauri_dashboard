@@ -109,7 +109,7 @@
             console.log(endPoint);
             console.log(method);
             Swal.fire({
-                title: "Please wait, Logging In!",
+                title: "Loading inital dashboard...",
                 imageUrl: "/images/Ripple.gif",
                 showConfirmButton: false,
                 allowOutsideClick: false
