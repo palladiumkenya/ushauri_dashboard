@@ -30,7 +30,7 @@ class FinalDashboardController extends Controller
 
     public function __construct()
     {
-        $this->remember_period  = env('REMEMBER_PERIOD', '60 * 60');
+        $this->remember_period  = env('REMEMBER_PERIOD', '60 * 60 * 24');
     }
 
     public function index()
@@ -406,7 +406,9 @@ class FinalDashboardController extends Controller
                 DB::raw('DATE_FORMAT(appointment_date, "%Y-%M") AS new_date'),
                 DB::raw('ROUND(AVG(percent_rtc),1) AS percent_rtc '),
                 DB::raw('(SUM(app_kept)+SUM(app_not_kept)+SUM(future)) as total_app'),
-                DB::raw('ROUND(AVG(percent_not_kept),1) AS percent_not_kept ')
+                DB::raw('ROUND(AVG(percent_not_kept),1) AS percent_not_kept '),
+                DB::raw('ROUND(AVG(days_defaulted),0) AS days_defaulted '),
+                DB::raw('SUM(rtc_no) AS no_rtc')
             )
                 ->whereNotNull('appointment_date')
                 ->where('mfl_code', Auth::user()->facility_id)
@@ -415,6 +417,22 @@ class FinalDashboardController extends Controller
                 ->orderBy('appointment_date', 'ASC')
                 ->groupBy('new_date')
                 ->remember($this->remember_period);
+
+                $app_rate = ETLAppointment::select(
+                    DB::raw('DATE_FORMAT(appointment_date, "%Y-%M") AS new_date'),
+                    DB::raw('SUM(CASE WHEN appointment_status = "Missed" THEN app_not_kept END) AS missed_app'),
+                    DB::raw('SUM(CASE WHEN appointment_status = "Defaulted" THEN app_not_kept END) AS defaulted_app'),
+                    DB::raw('SUM(CASE WHEN appointment_status = "IIT" THEN app_not_kept END) AS iit_app'),
+                    DB::raw('SUM(app_not_kept) AS app_not_kept')
+                )
+                    ->whereNotNull('appointment_date')
+                    ->where('app_not_kept', '=', 1)
+                    ->where('mfl_code', Auth::user()->facility_id)
+                    ->where('appointment_date', '<=', Carbon::now()->format('Y-m-d'))
+                    ->where(DB::raw('DATE_FORMAT(appointment_date, "%Y-%M")'), '>=', "2017-January")
+                    ->orderBy('appointment_date', 'ASC')
+                    ->groupBy('new_date')
+                    ->remember($this->remember_period);
 
             $data["all_appoinments"] = $all_appoinments->get();
             $data["consented_clients"] = $consented_clients->get();
@@ -435,6 +453,7 @@ class FinalDashboardController extends Controller
             $data["missed_facility"] = $missed_facility->get();
             $data["client_app_list"] = $client_app_list->get();
             $data["app_period"] = $app_period->get();
+            $data["app_rate"] = $app_rate->get();
 
             return $data;
         }
@@ -614,7 +633,9 @@ class FinalDashboardController extends Controller
                 'DATE_FORMAT(appointment_date, "%Y-%M") AS new_date,
                 ROUND(AVG(percent_rtc),1) AS percent_rtc ,
                 (SUM(app_kept)+SUM(app_not_kept)+SUM(future)) as total_app,
-                ROUND(AVG(percent_not_kept),1) AS percent_not_kept '
+                ROUND(AVG(percent_not_kept),1) AS percent_not_kept,
+                ROUND(AVG(days_defaulted),0) AS days_defaulted,
+                SUM(rtc_no) AS no_rtc'
             )->whereNotNull('appointment_date')
                 ->where('appointment_date', '<=', Carbon::now()->format('Y-m-d'))
                 ->where(DB::raw('DATE_FORMAT(appointment_date, "%Y-%M")'), '>=', "2017-January")
@@ -622,6 +643,20 @@ class FinalDashboardController extends Controller
                 ->orderBy('appointment_date', 'ASC')
                 ->groupBy('new_date')
                 ->remember($this->remember_period);
+                $app_rate = ETLAppointment::select(
+                    DB::raw('DATE_FORMAT(appointment_date, "%Y-%M") AS new_date'),
+                    DB::raw('SUM(CASE WHEN appointment_status = "Missed" THEN app_not_kept END) AS missed_app'),
+                    DB::raw('SUM(CASE WHEN appointment_status = "Defaulted" THEN app_not_kept END) AS defaulted_app'),
+                    DB::raw('SUM(CASE WHEN appointment_status = "IIT" THEN app_not_kept END) AS iit_app'),
+                    DB::raw('SUM(app_not_kept) AS app_not_kept')
+                )
+                    ->whereNotNull('appointment_date')
+                    ->where('app_not_kept', '=', 1)
+                    ->where('appointment_date', '<=', Carbon::now()->format('Y-m-d'))
+                    ->where(DB::raw('DATE_FORMAT(appointment_date, "%Y-%M")'), '>=', "2017-January")
+                    ->orderBy('appointment_date', 'ASC')
+                    ->groupBy('new_date')
+                    ->remember($this->remember_period);
 
             $data["all_appoinments"] = $all_appoinments->get();
             $data["consented_clients"] = $consented_clients->get();
@@ -638,6 +673,7 @@ class FinalDashboardController extends Controller
             $data["missed_county"] = $missed_county->get();
             $data["missed_partner"] = $missed_partner->get();
             $data["app_period"] = $app_period->get();
+            $data["app_rate"] = $app_period->get();
 
             return $data;
         }
@@ -851,7 +887,9 @@ class FinalDashboardController extends Controller
                 DB::raw('DATE_FORMAT(appointment_date, "%Y-%M") AS new_date'),
                 DB::raw('ROUND(AVG(percent_rtc),1) AS percent_rtc '),
                 DB::raw('(SUM(app_kept)+SUM(app_not_kept)+SUM(future)) as total_app'),
-                DB::raw('ROUND(AVG(percent_not_kept),1) AS percent_not_kept ')
+                DB::raw('ROUND(AVG(percent_not_kept),1) AS percent_not_kept '),
+                DB::raw('ROUND(AVG(days_defaulted),0) AS days_defaulted '),
+                DB::raw('SUM(rtc_no) AS no_rtc')
             )->whereNotNull('appointment_date')
                 ->where('partner_id', Auth::user()->partner_id)
                 ->where('appointment_date', '<=', Carbon::now()->format('Y-m-d'))
@@ -861,6 +899,24 @@ class FinalDashboardController extends Controller
                 ->orderBy('appointment_date', 'ASC')
                 ->groupBy('new_date')
                 ->remember($this->remember_period);
+                $app_rate = ETLAppointment::select(
+                    DB::raw('DATE_FORMAT(appointment_date, "%Y-%M") AS new_date'),
+                    DB::raw('SUM(CASE WHEN appointment_status = "Missed" THEN app_not_kept END) AS missed_app'),
+                    DB::raw('SUM(CASE WHEN appointment_status = "Defaulted" THEN app_not_kept END) AS defaulted_app'),
+                    DB::raw('SUM(CASE WHEN appointment_status = "IIT" THEN app_not_kept END) AS iit_app'),
+                    DB::raw('ROUND(AVG(CASE WHEN appointment_status = "Missed" THEN percent_not_kept END),1) AS pec_missed_app'),
+                    DB::raw('ROUND(AVG(CASE WHEN appointment_status = "Defaulted" THEN percent_not_kept END),1) AS pec_defaulted_app'),
+                    DB::raw('ROUND(AVG(CASE WHEN appointment_status = "IIT" THEN percent_not_kept END),1) AS pec_iit_app'),
+                    DB::raw('SUM(app_not_kept) AS app_not_kept')
+                )
+                    ->whereNotNull('appointment_date')
+                    ->where('app_not_kept', '=', 1)
+                    ->where('partner_id', Auth::user()->partner_id)
+                    ->where('appointment_date', '<=', Carbon::now()->format('Y-m-d'))
+                    ->where(DB::raw('DATE_FORMAT(appointment_date, "%Y-%M")'), '>=', "2017-January")
+                    ->orderBy('appointment_date', 'ASC')
+                    ->groupBy('new_date')
+                    ->remember($this->remember_period);
 
             $data["all_appoinments"] = $all_appoinments->get();
             $data["consented_clients"] = $consented_clients->get();
@@ -881,6 +937,7 @@ class FinalDashboardController extends Controller
             $data["missed_facility"] = $missed_facility->get();
             $data["client_app_list"] = $client_app_list->get();
             $data["app_period"] = $app_period->get();
+            $data["app_rate"] = $app_rate->get();
 
             return $data;
         }
@@ -1097,7 +1154,9 @@ class FinalDashboardController extends Controller
                 DB::raw('DATE_FORMAT(appointment_date, "%Y-%M") AS new_date'),
                 DB::raw('ROUND(AVG(percent_rtc),1) AS percent_rtc '),
                 DB::raw('(SUM(app_kept)+SUM(app_not_kept)+SUM(future)) as total_app'),
-                DB::raw('ROUND(AVG(percent_not_kept),1) AS percent_not_kept ')
+                DB::raw('ROUND(AVG(percent_not_kept),1) AS percent_not_kept '),
+                DB::raw('ROUND(AVG(days_defaulted),0) AS days_defaulted '),
+                DB::raw('SUM(rtc_no) AS no_rtc')
             )->whereNotNull('appointment_date')
                 ->where('subcounty_id', Auth::user()->subcounty_id)
                 ->where('appointment_date', '<=', Carbon::now()->format('Y-m-d'))
@@ -1106,6 +1165,24 @@ class FinalDashboardController extends Controller
                 ->orderBy('appointment_date', 'ASC')
                 ->groupBy('new_date')
                 ->remember($this->remember_period);
+                $app_rate = ETLAppointment::select(
+                    DB::raw('DATE_FORMAT(appointment_date, "%Y-%M") AS new_date'),
+                    DB::raw('SUM(CASE WHEN appointment_status = "Missed" THEN app_not_kept END) AS missed_app'),
+                    DB::raw('SUM(CASE WHEN appointment_status = "Defaulted" THEN app_not_kept END) AS defaulted_app'),
+                    DB::raw('SUM(CASE WHEN appointment_status = "IIT" THEN app_not_kept END) AS iit_app'),
+                    DB::raw('ROUND(AVG(CASE WHEN appointment_status = "Missed" THEN percent_not_kept END),1) AS pec_missed_app'),
+                    DB::raw('ROUND(AVG(CASE WHEN appointment_status = "Defaulted" THEN percent_not_kept END),1) AS pec_defaulted_app'),
+                    DB::raw('ROUND(AVG(CASE WHEN appointment_status = "IIT" THEN percent_not_kept END),1) AS pec_iit_app'),
+                    DB::raw('SUM(app_not_kept) AS app_not_kept')
+                )
+                    ->whereNotNull('appointment_date')
+                    ->where('app_not_kept', '=', 1)
+                    ->where('subcounty_id', Auth::user()->subcounty_id)
+                    ->where('appointment_date', '<=', Carbon::now()->format('Y-m-d'))
+                    ->where(DB::raw('DATE_FORMAT(appointment_date, "%Y-%M")'), '>=', "2017-January")
+                    ->orderBy('appointment_date', 'ASC')
+                    ->groupBy('new_date')
+                    ->remember($this->remember_period);
 
             $data["all_appoinments"] = $all_appoinments->get();
             $data["consented_clients"] = $consented_clients->get();
@@ -1126,6 +1203,7 @@ class FinalDashboardController extends Controller
             $data["missed_facility"] = $missed_facility->get();
             $data["client_app_list"] = $client_app_list->get();
             $data["app_period"] = $app_period->get();
+            $data["app_rate"] = $app_rate->get();
 
             return $data;
         }
@@ -1346,7 +1424,9 @@ class FinalDashboardController extends Controller
                 DB::raw('DATE_FORMAT(appointment_date, "%Y-%M") AS new_date'),
                 DB::raw('ROUND(AVG(percent_rtc),1) AS percent_rtc '),
                 DB::raw('(SUM(app_kept)+SUM(app_not_kept)+SUM(future)) as total_app'),
-                DB::raw('ROUND(AVG(percent_not_kept),1) AS percent_not_kept ')
+                DB::raw('ROUND(AVG(percent_not_kept),1) AS percent_not_kept '),
+                DB::raw('ROUND(AVG(days_defaulted),0) AS days_defaulted '),
+                DB::raw('SUM(rtc_no) AS no_rtc')
             )->whereNotNull('appointment_date')
                 ->where('county_id', Auth::user()->county_id)
                 ->where('appointment_date', '<=', Carbon::now()->format('Y-m-d'))
@@ -1355,6 +1435,24 @@ class FinalDashboardController extends Controller
                 ->orderBy('appointment_date', 'ASC')
                 ->groupBy('new_date')
                 ->remember($this->remember_period);
+                $app_rate = ETLAppointment::select(
+                    DB::raw('DATE_FORMAT(appointment_date, "%Y-%M") AS new_date'),
+                    DB::raw('SUM(CASE WHEN appointment_status = "Missed" THEN app_not_kept END) AS missed_app'),
+                    DB::raw('SUM(CASE WHEN appointment_status = "Defaulted" THEN app_not_kept END) AS defaulted_app'),
+                    DB::raw('SUM(CASE WHEN appointment_status = "IIT" THEN app_not_kept END) AS iit_app'),
+                    DB::raw('ROUND(AVG(CASE WHEN appointment_status = "Missed" THEN percent_not_kept END),1) AS pec_missed_app'),
+                    DB::raw('ROUND(AVG(CASE WHEN appointment_status = "Defaulted" THEN percent_not_kept END),1) AS pec_defaulted_app'),
+                    DB::raw('ROUND(AVG(CASE WHEN appointment_status = "IIT" THEN percent_not_kept END),1) AS pec_iit_app'),
+                    DB::raw('SUM(app_not_kept) AS app_not_kept')
+                )
+                    ->whereNotNull('appointment_date')
+                    ->where('app_not_kept', '=', 1)
+                    ->where('county_id', Auth::user()->county_id)
+                    ->where('appointment_date', '<=', Carbon::now()->format('Y-m-d'))
+                    ->where(DB::raw('DATE_FORMAT(appointment_date, "%Y-%M")'), '>=', "2017-January")
+                    ->orderBy('appointment_date', 'ASC')
+                    ->groupBy('new_date')
+                    ->remember($this->remember_period);
 
             $data["all_appoinments"] = $all_appoinments->get();
             $data["consented_clients"] = $consented_clients->get();
@@ -1375,6 +1473,7 @@ class FinalDashboardController extends Controller
             $data["missed_facility"] = $missed_facility->get();
             $data["client_app_list"] = $client_app_list->get();
             $data["app_period"] = $app_period->get();
+            $data["app_rate"] = $app_rate->get();
 
             return $data;
         }

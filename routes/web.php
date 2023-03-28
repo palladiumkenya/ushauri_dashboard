@@ -276,4 +276,7 @@ Route::group(['middleware' => 'auth'], function () {
   Route::get('/get_partner_facilities/{id}', ['uses' => 'App\Http\Controllers\FinalDashboardController@get_partner_facilities', 'as' => 'get_partner_facilities']);
   Route::get('/get_sitetype_facilities/{id}', ['uses' => 'App\Http\Controllers\FinalDashboardController@get_sitetype_facilities', 'as' => 'get_sitetype_facilities']);
 
+  Route::get('/high_risk_clients', ['uses' => 'App\Http\Controllers\HighRiskController@get_high_risk_clients', 'as' => 'get_high_risk_clients']);
+  Route::get('/high_risk', ['uses' => 'App\Http\Controllers\HighRiskController@getAllData', 'as' => 'high_risk']);
+
 });

@@ -1262,6 +1262,53 @@
 
                 <div class="col-12">
                     <div class="card-body row">
+                        <div id="rate_missed" class="col" style="height:  400px;margin-top:20px;width: 900px"></div> <br />
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+        <div class="col-md-12">
+            <div class="row">
+
+                <div class="col-12">
+                    <div class="card-body row">
+                        <div id="rate_defaulted" class="col" style="height:  400px;margin-top:20px;width: 900px"></div> <br />
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+        <div class="col-md-12">
+            <div class="row">
+
+                <div class="col-12">
+                    <div class="card-body row">
+                        <div id="rate_iit" class="col" style="height:  400px;margin-top:20px;width: 900px"></div> <br />
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <div class="">
+            <div class="row">
+
+                <div class="col-12">
+                    <div class="card-body row">
+                        <div id="return_period" class="col" style="height:  400px;margin-top:20px;width: 900px"></div> <br />
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+        <div class="">
+            <div class="row">
+
+                <div class="col-12">
+                    <div class="card-body row">
                         <div id="missed_rate" class="col" style="height:  400px;margin-top:20px;width: 900px"></div> <br />
                     </div>
                 </div>
@@ -1752,6 +1799,10 @@
             }
             missedPeriod(data.app_period);
             missedRate(data.app_period);
+            returnPeriod(data.app_period);
+            ratePeriod(data.app_rate);
+            ratePeriodDefalted(data.app_rate);
+            ratePeriodIIT(data.app_rate);
 
 
             for (var x = 0; x < consent.length; x++) {
@@ -2900,6 +2951,295 @@
                 tooltip: {
                     valueSuffix: '%'
                 },
+                marker: {
+                    lineWidth: 2,
+                    lineColor: Highcharts.getOptions().colors[3],
+                    fillColor: 'white'
+                }
+            }]
+        });
+    }
+
+    function ratePeriod(data) {
+        let new_date = [];
+        let missed_app = [];
+        let app_not_kept = [];
+        for (let i = 0; i < data.length; i++) {
+            new_date.push(data[i].new_date);
+            missed_app.push(data[i].missed_app);
+            app_not_kept.push(data[i].app_not_kept);
+        }
+        console.log(app_not_kept);
+        // Calculate the total of all values
+        var total = missed_app.reduce(function(a, b) {
+            return a + b;
+        }, 0);
+
+        // Create an array of percentages
+        var miss_perc = missed_app.map(function(value, index) {
+            return ((value / app_not_kept[index]) * 100).toFixed(1);
+        });
+        const percentages = miss_perc.map(item => parseFloat(item));
+        console.log(percentages);
+        Highcharts.chart('rate_missed', {
+            title: {
+                text: 'Missed Appointment Rate over time'
+            },
+            xAxis: {
+                categories: new_date
+            },
+            yAxis: [{
+                title: {
+                    text: 'Missed Appointment'
+                }
+            }, { // Secondary yAxis
+                gridLineWidth: 0,
+                alignTicks: false,
+                min: 0,
+                max: 100,
+                title: {
+                    text: 'Rate',
+                    style: {
+                        color: Highcharts.getOptions().colors[0]
+                    }
+                },
+                labels: {
+                    format: '{value} %',
+                    style: {
+                        color: Highcharts.getOptions().colors[0]
+                    }
+                },
+                opposite: true
+            }],
+            tooltip: {
+                shared: true
+            },
+            series: [{
+                type: 'column',
+                name: 'Missed Appointment',
+                color: '#01058A',
+                data: missed_app
+
+            }, {
+                type: 'spline',
+                yAxis: 1,
+                name: 'Missed Appointment Rate',
+                data: percentages,
+                color: '#97080F',
+                marker: {
+                    lineWidth: 2,
+                    lineColor: Highcharts.getOptions().colors[3],
+                    fillColor: 'white'
+                }
+            }]
+        });
+    }
+    function ratePeriodDefalted(data) {
+        let new_date = [];
+        let defaulted_app = [];
+        let app_not_kept = [];
+        for (let i = 0; i < data.length; i++) {
+            new_date.push(data[i].new_date);
+            defaulted_app.push(data[i].defaulted_app);
+            app_not_kept.push(data[i].app_not_kept);
+        }
+        console.log(app_not_kept);
+        // Calculate the total of all values
+        var total = defaulted_app.reduce(function(a, b) {
+            return a + b;
+        }, 0);
+
+        // Create an array of percentages
+        var miss_perc = defaulted_app.map(function(value, index) {
+            return ((value / app_not_kept[index]) * 100).toFixed(1);
+        });
+        const percentages = miss_perc.map(item => parseFloat(item));
+        console.log(percentages);
+        Highcharts.chart('rate_defaulted', {
+            title: {
+                text: 'Defaulted Appointment Rate over time'
+            },
+            xAxis: {
+                categories: new_date
+            },
+            yAxis: [{
+                // floor: 0,
+                // tickInterval: 1,
+                title: {
+                    text: 'Defaulted Appointment'
+                }
+            }, { // Secondary yAxis
+                gridLineWidth: 0,
+                alignTicks: false,
+                min: 0,
+                max: 100,
+                title: {
+                    text: 'Rate',
+                    style: {
+                        color: Highcharts.getOptions().colors[0]
+                    }
+                },
+                labels: {
+                    format: '{value} %',
+                    style: {
+                        color: Highcharts.getOptions().colors[0]
+                    }
+                },
+                opposite: true
+            }],
+            tooltip: {
+                shared: true
+            },
+            series: [{
+                type: 'column',
+                name: 'Defaulted Appointment',
+                color: '#01058A',
+                data: defaulted_app
+
+            }, {
+                type: 'spline',
+                yAxis: 1,
+                name: 'Defaulted Appointment Rate',
+                data: percentages,
+                color: '#97080F',
+                marker: {
+                    lineWidth: 2,
+                    lineColor: Highcharts.getOptions().colors[3],
+                    fillColor: 'white'
+                }
+            }]
+        });
+    }
+    function ratePeriodIIT(data) {
+        let new_date = [];
+        let iit_app = [];
+        let app_not_kept = [];
+        for (let i = 0; i < data.length; i++) {
+            new_date.push(data[i].new_date);
+            iit_app.push(data[i].iit_app);
+            app_not_kept.push(data[i].app_not_kept);
+        }
+        console.log(app_not_kept);
+        // Calculate the total of all values
+        var total = iit_app.reduce(function(a, b) {
+            return a + b;
+        }, 0);
+
+        // Create an array of percentages
+        var miss_perc = iit_app.map(function(value, index) {
+            return ((value / app_not_kept[index]) * 100).toFixed(1);
+        });
+        const percentages = miss_perc.map(item => parseFloat(item));
+        console.log(percentages);
+        Highcharts.chart('rate_iit', {
+            title: {
+                text: 'LTFU Appointment Rate over time'
+            },
+            xAxis: {
+                categories: new_date
+            },
+            yAxis: [{
+                title: {
+                    text: 'LTFU Appointment'
+                }
+            }, { // Secondary yAxis
+                gridLineWidth: 0,
+                alignTicks: false,
+                min: 0,
+                max: 100,
+                title: {
+                    text: 'Rate',
+                    style: {
+                        color: Highcharts.getOptions().colors[0]
+                    }
+                },
+                labels: {
+                    format: '{value} %',
+                    style: {
+                        color: Highcharts.getOptions().colors[0]
+                    }
+                },
+                opposite: true
+            }],
+            tooltip: {
+                shared: true
+            },
+            series: [{
+                type: 'column',
+                name: 'LTFU Appointment',
+                color: '#01058A',
+                data: iit_app
+
+            }, {
+                type: 'spline',
+                yAxis: 1,
+                name: 'LTFU Appointment Rate',
+                data: percentages,
+                color: '#97080F',
+                marker: {
+                    lineWidth: 2,
+                    lineColor: Highcharts.getOptions().colors[3],
+                    fillColor: 'white'
+                }
+            }]
+        });
+    }
+
+
+
+    function returnPeriod(data) {
+        let new_date = [];
+        let days_defaulted = [];
+        let no_rtc = [];
+        for (let i = 0; i < data.length; i++) {
+            new_date.push(data[i].new_date);
+            no_rtc.push(data[i].no_rtc);
+            days_defaulted.push(data[i].days_defaulted);
+        }
+        Highcharts.chart('return_period', {
+            title: {
+                text: 'Average Days Taken to Return to Care'
+            },
+            xAxis: {
+                categories: new_date
+            },
+            yAxis: [{
+                title: {
+                    text: 'Number of RTC'
+                }
+            }, { // Secondary yAxis
+                gridLineWidth: 0,
+                alignTicks: false,
+                min: 0,
+                title: {
+                    text: 'Average Days Taken to RTC',
+                    style: {
+                        color: Highcharts.getOptions().colors[0]
+                    }
+                },
+                labels: {
+                    format: '{value}',
+                    style: {
+                        color: Highcharts.getOptions().colors[0]
+                    }
+                },
+                opposite: true
+            }],
+            tooltip: {
+                shared: true
+            },
+            series: [{
+                type: 'column',
+                name: 'No. RTC',
+                color: '#01058A',
+                data: no_rtc
+
+            }, {
+                type: 'spline',
+                yAxis: 1,
+                name: 'Average Days Taken to RTC',
+                data: days_defaulted,
+                color: '#97080F',
                 marker: {
                     lineWidth: 2,
                     lineColor: Highcharts.getOptions().colors[3],
