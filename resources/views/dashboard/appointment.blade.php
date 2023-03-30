@@ -1023,25 +1023,8 @@
                                             <th>Appointment Not Kept</th>
                                         </tr>
                                     </thead>
-                                    <tbody id="client">
-                                        @if (count($client_list) > 0)
-                                        @foreach($client_list as $result)
-                                        <tr>
+                                    <tbody id="bodytable">
 
-                                            <td> {{$result->upi_no}}</td>
-                                            <td> {{$result->ccc_number}}</td>
-                                            <td> {{$result->client_name}}</td>
-                                            <td> {{$result->dob}}</td>
-                                            <td> {{$result->phone_no}}</td>
-                                            <td> {{$result->consented}}</td>
-                                            <td> {{$result->dsd_status}}</td>
-                                            <td> {{$result->client_status}}</td>
-                                            <td> {{$result->kept_app}}</td>
-                                            <td> {{$result->not_kept_app}}</td>
-
-                                        </tr>
-                                        @endforeach
-                                        @endif
                                     </tbody>
 
                                 </table>
@@ -1410,24 +1393,7 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @if (count($client_app_list) > 0)
-                                        @foreach($client_app_list as $result)
-                                        <tr>
 
-                                            <td> {{$result->upi_no}}</td>
-                                            <td> {{$result->ccc_number}}</td>
-                                            <td> {{$result->client_name}}</td>
-                                            <td> {{$result->dob}}</td>
-                                            <td> {{$result->phone_no}}</td>
-                                            <td> {{$result->consented}}</td>
-                                            <td> {{$result->dsd_status}}</td>
-                                            <td> {{$result->client_status}}</td>
-                                            <td> {{$result->days_defaulted}}</td>
-                                            <td> {{$result->final_outcome}}</td>
-
-                                        </tr>
-                                        @endforeach
-                                        @endif
                                     </tbody>
 
                                 </table>
@@ -1480,9 +1446,17 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
 
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.24/css/jquery.dataTables.min.css">
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/1.7.0/css/buttons.dataTables.min.css">
+<script type="text/javascript" src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/buttons/1.7.0/js/dataTables.buttons.min.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/buttons/1.7.0/js/buttons.html5.min.js"></script>
 
 
-<script src="{{asset('assets/js/vendor/datatables.min.js')}}"></script>
+<!-- <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.24/css/jquery.dataTables.min.css">
+<script type="text/javascript" src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script> -->
+
+
 
 
 <script type="text/javascript">
@@ -1692,49 +1666,6 @@
         });
     });
 
-    $('#table_client').DataTable({
-        columnDefs: [{
-            targets: [0],
-            orderData: [0, 1]
-        }, {
-            targets: [1],
-            orderData: [1, 0]
-        }, {
-            targets: [4],
-            orderData: [4, 0]
-        }],
-        "paging": true,
-        "responsive": true,
-        "ordering": true,
-        "info": true,
-        dom: 'Bfrtip',
-        buttons: [{
-                extend: 'copy',
-                title: 'Clients List',
-                filename: 'Clients List'
-            },
-            {
-                extend: 'csv',
-                title: 'Clients List',
-                filename: 'Clients List'
-            },
-            {
-                extend: 'excel',
-                title: 'Clients List',
-                filename: 'Clients List'
-            },
-            {
-                extend: 'pdf',
-                title: 'Clients List',
-                filename: 'Clients List'
-            },
-            {
-                extend: 'print',
-                title: 'Clients List',
-                filename: 'Clients List'
-            }
-        ]
-    });
 
     let authenticated = $('#authenticated').val();
     // console.log(authenticated);
@@ -1759,6 +1690,7 @@
             const tx = data.all_tx_curr;
             const missed = data.client_missed;
             console.log(missed);
+            const client_list = data.client_list;
             appGender(data.appointment_gender);
             appAge(data.appointment_age);
             appMarital(data.appointment_marital);
@@ -1768,20 +1700,46 @@
             missedMarital(data.missed_marital);
             if (authenticated == 'Facility') {
 
-                // $.each(data.client_list, function(key, value) {
-                //     $('#client').append("<tr>\
-                // 						<td>" + value.upi_no + "</td>\
-                // 						<td>" + value.ccc_number + "</td>\
-                // 						<td>" + value.client_name + "</td>\
-                //                         <td>" + value.dob + "</td>\
-                //                         <td>" + value.phone_no + "</td>\
-                //                         <td>" + value.consented + "</td>\
-                //                         <td>" + value.dsd_status + "</td>\
-                //                         <td>" + value.client_status + "</td>\
-                //                         <td>" + value.kept_app + "</td>\
-                //                         <td>" + value.not_kept_app + "</td>\
-                // 						</tr>");
-                // })
+                // Parse the JSON data into an array of objects
+                var dataArray = data.client_list;
+
+                // Iterate over the array and add rows to the table
+                var table = $('#table_client').DataTable();
+                $.each(dataArray, function(index, value) {
+                    table.row.add([
+                        value.upi_no,
+                        value.ccc_number,
+                        value.client_name,
+                        value.dob,
+                        value.phone_no,
+                        value.consented,
+                        value.dsd_status,
+                        value.client_status,
+                        value.kept_app,
+                        value.not_kept_app
+                    ]).draw();
+                });
+
+                var applistArray = data.client_app_list;
+
+                // Iterate over the array and add rows to the table
+                var table = $('#table_missed').DataTable();
+                $.each(applistArray, function(index, value) {
+                    table.row.add([
+                        value.upi_no,
+                        value.ccc_number,
+                        value.client_name,
+                        value.dob,
+                        value.phone_no,
+                        value.consented,
+                        value.dsd_status,
+                        value.client_status,
+                        value.days_defaulted,
+                        value.final_outcome
+                    ]).draw();
+                });
+
+
             }
             if (authenticated == 'Admin' || authenticated == 'Donor') {
                 appCounty(data.appointment_county);
@@ -1797,9 +1755,9 @@
                 appFacility(data.appointment_facility)
                 missedFacility(data.missed_facility)
             }
-            missedPeriod(data.app_period);
-            missedRate(data.app_period);
-            returnPeriod(data.app_period);
+            missedPeriod(data.app_rate);
+            missedRate(data.app_rate);
+            returnPeriod(data.app_rate);
             ratePeriod(data.app_rate);
             ratePeriodDefalted(data.app_rate);
             ratePeriodIIT(data.app_rate);
@@ -2025,6 +1983,7 @@
             // $("#dashboard_loader").hide();
         }
     });
+    // var table = document.getElementById("table_client");
 
     $('#dataFilter').on('submit', function(e) {
         e.preventDefault();
@@ -2080,23 +2039,45 @@
                 missedGender(data.missed_gender);
                 missedMarital(data.missed_marital);
                 if (authenticated == 'Facility') {
-                    // $('#table_client')[0].reset();
-                    // $("tbody").html("");
-                    // $.each(data.client_app_list, function(index, value) {
-                    //     var row = $("<tr><td>" +
-                    //         value.upi_no + "</td><td>" +
-                    //         value.ccc_number + "</td><td>" +
-                    //         value.dob + "</td><td>" +
-                    //         value.phone_no + "</td><td>" +
-                    //         value.consented + "</td><td>" +
-                    //         value.dsd_status + "</td><td>" +
-                    //         value.client_status + "</td><td>" +
-                    //         value.kept_app + "</td><td>" +
-                    //         value.not_kept_app + "</td><td>");
+                    
 
-                    //     $("tbody").append(row);
-                    // });
-                    // $("#table_client").html(data.client_app_list);
+                    // Iterate over the array and add rows to the table
+                    var dataArray = data.client_list;
+
+                    var table = $('#table_client').DataTable();
+                    $.each(dataArray, function(index, value) {
+                        table.row.add([
+                            value.upi_no,
+                            value.ccc_number,
+                            value.client_name,
+                            value.dob,
+                            value.phone_no,
+                            value.consented,
+                            value.dsd_status,
+                            value.client_status,
+                            value.kept_app,
+                            value.not_kept_app
+                        ]).draw();
+                    });
+
+                    var applistArray = data.client_app_list;
+
+                    // Iterate over the array and add rows to the table
+                    var table = $('#table_missed').DataTable();
+                    $.each(applistArray, function(index, value) {
+                        table.row.add([
+                            value.upi_no,
+                            value.ccc_number,
+                            value.client_name,
+                            value.dob,
+                            value.phone_no,
+                            value.consented,
+                            value.dsd_status,
+                            value.client_status,
+                            value.days_defaulted,
+                            value.final_outcome
+                        ]).draw();
+                    });
                 }
                 if (authenticated == 'Admin' || authenticated == 'Donor') {
                     appCounty(data.appointment_county);
@@ -2112,9 +2093,9 @@
                     appFacility(data.appointment_facility)
                     missedFacility(data.missed_facility)
                 }
-                missedPeriod(data.app_period);
-                const tests = data.app_period;
-                missedRate(data.app_period);
+                missedPeriod(data.app_rate);
+                const tests = data.app_rate;
+                missedRate(data.app_rate);
                 console.log(tests);
 
                 for (var x = 0; x < consent.length; x++) {
@@ -2347,7 +2328,39 @@
         });
 
     });
+    // $('#table_client').DataTable({
+    //     "order": [
+    //         [1, "asc"]
+    //     ], // Sort by the first column in ascending order
+    //     "paging": true, // Enable pagination
+    //     "pageLength": 10 // Show 10 rows per page
+    // });
 
+
+    $('#table_client').DataTable({
+        columnDefs: [{
+            targets: [0],
+            orderData: [0, 1]
+        }, {
+            targets: [1],
+            orderData: [1, 0]
+        }, {
+            targets: [4],
+            orderData: [4, 0]
+        }],
+        "pageLength": 10,
+        "paging": true,
+        "responsive": true,
+        "ordering": true,
+        "info": true,
+        dom: 'Bfrtip',
+        buttons: [
+            'copyHtml5',
+            'excelHtml5',
+            'csvHtml5',
+            'pdfHtml5'
+        ]
+    });
 
 
     $('#table_missed').DataTable({
@@ -2366,22 +2379,11 @@
         "ordering": true,
         "info": true,
         dom: 'Bfrtip',
-        buttons: [{
-                extend: 'copy',
-                title: 'Missed Appointment List',
-                filename: 'Missed Appointment List'
-            },
-            {
-                extend: 'csv',
-                exportOptions: {
-                    columns: ':visible',
-                    modifier: {
-                        page: 'all'
-                    }
-                },
-                title: 'Missed Appointment List',
-                filename: 'Missed Appointment List'
-            }, 'excel', 'pdf', 'print'
+        buttons: [
+            'copyHtml5',
+            'excelHtml5',
+            'csvHtml5',
+            'pdfHtml5'
         ]
     });
 
@@ -2635,13 +2637,6 @@
                 max: 100,
                 title: {
                     text: 'Percentage '
-                },
-                stackLabels: {
-                    enabled: false,
-                    style: {
-                        fontWeight: 'bold',
-                        textOutline: 'none'
-                    }
                 }
             },
 
@@ -2653,10 +2648,8 @@
             },
             plotOptions: {
                 column: {
-                    stacking: 'normal',
-                    dataLabels: {
-                        enabled: false
-                    }
+                    pointPadding: 0.2,
+                    borderWidth: 0
                 }
             },
             series: [{
@@ -2682,6 +2675,7 @@
             Math.round(percent_rtc.push(data[i].percent_rtc)).toFixed(1);
             Math.round(percent_not_kept.push(data[i].percent_not_kept)).toFixed(1);
         }
+
         Highcharts.chart('missed_age', {
             chart: {
                 type: 'column'
@@ -2708,13 +2702,6 @@
                 max: 100,
                 title: {
                     text: 'Percentage '
-                },
-                stackLabels: {
-                    enabled: false,
-                    style: {
-                        fontWeight: 'bold',
-                        textOutline: 'none'
-                    }
                 }
             },
 
@@ -2726,10 +2713,8 @@
             },
             plotOptions: {
                 column: {
-                    stacking: 'normal',
-                    dataLabels: {
-                        enabled: false
-                    }
+                    pointPadding: 0.2,
+                    borderWidth: 0
                 }
             },
             series: [{
@@ -2781,13 +2766,6 @@
                 max: 100,
                 title: {
                     text: 'Percentage '
-                },
-                stackLabels: {
-                    enabled: false,
-                    style: {
-                        fontWeight: 'bold',
-                        textOutline: 'none'
-                    }
                 }
             },
 
@@ -2799,10 +2777,8 @@
             },
             plotOptions: {
                 column: {
-                    stacking: 'normal',
-                    dataLabels: {
-                        enabled: false
-                    }
+                    pointPadding: 0.2,
+                    borderWidth: 0
                 }
             },
             series: [{
@@ -2854,13 +2830,6 @@
                 max: 100,
                 title: {
                     text: 'Percentage '
-                },
-                stackLabels: {
-                    enabled: false,
-                    style: {
-                        fontWeight: 'bold',
-                        textOutline: 'none'
-                    }
                 }
             },
 
@@ -2872,10 +2841,8 @@
             },
             plotOptions: {
                 column: {
-                    stacking: 'normal',
-                    dataLabels: {
-                        enabled: false
-                    }
+                    pointPadding: 0.2,
+                    borderWidth: 0
                 }
             },
             series: [{
@@ -2948,6 +2915,7 @@
                 name: 'Missed Rate',
                 data: percent_not_kept,
                 color: '#97080F',
+                connectNulls: true,
                 tooltip: {
                     valueSuffix: '%'
                 },
@@ -2969,7 +2937,6 @@
             missed_app.push(data[i].missed_app);
             app_not_kept.push(data[i].app_not_kept);
         }
-        console.log(app_not_kept);
         // Calculate the total of all values
         var total = missed_app.reduce(function(a, b) {
             return a + b;
@@ -2980,7 +2947,7 @@
             return ((value / app_not_kept[index]) * 100).toFixed(1);
         });
         const percentages = miss_perc.map(item => parseFloat(item));
-        console.log(percentages);
+
         Highcharts.chart('rate_missed', {
             title: {
                 text: 'Missed Appointment Rate over time'
@@ -3026,6 +2993,10 @@
                 name: 'Missed Appointment Rate',
                 data: percentages,
                 color: '#97080F',
+                tooltip: {
+                    valueSuffix: '%'
+                },
+                connectNulls: true,
                 marker: {
                     lineWidth: 2,
                     lineColor: Highcharts.getOptions().colors[3],
@@ -3034,6 +3005,7 @@
             }]
         });
     }
+
     function ratePeriodDefalted(data) {
         let new_date = [];
         let defaulted_app = [];
@@ -3102,6 +3074,10 @@
                 name: 'Defaulted Appointment Rate',
                 data: percentages,
                 color: '#97080F',
+                connectNulls: true,
+                tooltip: {
+                    valueSuffix: '%'
+                },
                 marker: {
                     lineWidth: 2,
                     lineColor: Highcharts.getOptions().colors[3],
@@ -3110,6 +3086,7 @@
             }]
         });
     }
+
     function ratePeriodIIT(data) {
         let new_date = [];
         let iit_app = [];
@@ -3176,6 +3153,10 @@
                 name: 'LTFU Appointment Rate',
                 data: percentages,
                 color: '#97080F',
+                connectNulls: true,
+                tooltip: {
+                    valueSuffix: '%'
+                },
                 marker: {
                     lineWidth: 2,
                     lineColor: Highcharts.getOptions().colors[3],
@@ -3184,8 +3165,6 @@
             }]
         });
     }
-
-
 
     function returnPeriod(data) {
         let new_date = [];
@@ -3240,6 +3219,7 @@
                 name: 'Average Days Taken to RTC',
                 data: days_defaulted,
                 color: '#97080F',
+                connectNulls: true,
                 marker: {
                     lineWidth: 2,
                     lineColor: Highcharts.getOptions().colors[3],
@@ -3360,13 +3340,6 @@
                     max: 100,
                     title: {
                         text: 'Percentage '
-                    },
-                    stackLabels: {
-                        enabled: false,
-                        style: {
-                            fontWeight: 'bold',
-                            textOutline: 'none'
-                        }
                     }
                 },
 
@@ -3378,10 +3351,8 @@
                 },
                 plotOptions: {
                     column: {
-                        stacking: 'normal',
-                        dataLabels: {
-                            enabled: false
-                        }
+                        pointPadding: 0.2,
+                        borderWidth: 0
                     }
                 },
                 series: [{
@@ -3433,13 +3404,6 @@
                     max: 100,
                     title: {
                         text: 'Percentage '
-                    },
-                    stackLabels: {
-                        enabled: false,
-                        style: {
-                            fontWeight: 'normal',
-                            textOutline: 'none'
-                        }
                     }
                 },
 
@@ -3451,10 +3415,8 @@
                 },
                 plotOptions: {
                     column: {
-                        stacking: 'normal',
-                        dataLabels: {
-                            enabled: false
-                        }
+                        pointPadding: 0.2,
+                        borderWidth: 0
                     }
                 },
                 series: [{
@@ -3581,13 +3543,6 @@
                     max: 100,
                     title: {
                         text: 'Percentage '
-                    },
-                    stackLabels: {
-                        enabled: false,
-                        style: {
-                            fontWeight: 'normal',
-                            textOutline: 'none'
-                        }
                     }
                 },
 
@@ -3599,10 +3554,8 @@
                 },
                 plotOptions: {
                     column: {
-                        stacking: 'normal',
-                        dataLabels: {
-                            enabled: false
-                        }
+                        pointPadding: 0.2,
+                        borderWidth: 0
                     }
                 },
                 series: [{
