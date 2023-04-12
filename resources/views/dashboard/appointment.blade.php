@@ -1023,13 +1023,14 @@
                                             <th>Appointment Not Kept</th>
                                         </tr>
                                     </thead>
-                                    <tbody id="bodytable">
+                                    <tbody>
 
                                     </tbody>
 
                                 </table>
 
                             </div>
+
 
                         </div>
                         @endif
@@ -1701,43 +1702,63 @@
             if (authenticated == 'Facility') {
 
                 // Parse the JSON data into an array of objects
-                var dataArray = data.client_list;
+                var list = data.client_list;
+                $.each(list, function(index, item) {
+                        $('#table_client tbody').append('<tr><td>' + item.upi_no + '</td><td>' + item.ccc_number + '</td><td>' + item.client_name + '</td><td>' + item.dob + '</td><td>' + item.phone_no + '</td><td>' + item.consented + '</td><td>' + item.dsd_status + '</td><td>' + item.client_status + '</td><td>' + item.kept_app + '</td><td>' + item.not_kept_app + '</td></tr>');
+                    });
+                    $('#table_client').DataTable({
+                        columnDefs: [{
+                            targets: [0],
+                            orderData: [0, 1]
+                        }, {
+                            targets: [1],
+                            orderData: [1, 0]
+                        }, {
+                            targets: [4],
+                            orderData: [4, 0]
+                        }],
+                        "pageLength": 10,
+                        "paging": true,
+                        "responsive": true,
+                        "ordering": true,
+                        "info": true,
+                        dom: 'Bfrtip',
+                        buttons: [
+                            'copyHtml5',
+                            'excelHtml5',
+                            'csvHtml5',
+                            'pdfHtml5'
+                        ]
+                    });
 
-                // Iterate over the array and add rows to the table
-                var table = $('#table_client').DataTable();
-                $.each(dataArray, function(index, value) {
-                    table.row.add([
-                        value.upi_no,
-                        value.ccc_number,
-                        value.client_name,
-                        value.dob,
-                        value.phone_no,
-                        value.consented,
-                        value.dsd_status,
-                        value.client_status,
-                        value.kept_app,
-                        value.not_kept_app
-                    ]).draw();
-                });
-
-                var applistArray = data.client_app_list;
-
-                // Iterate over the array and add rows to the table
-                var table = $('#table_missed').DataTable();
-                $.each(applistArray, function(index, value) {
-                    table.row.add([
-                        value.upi_no,
-                        value.ccc_number,
-                        value.client_name,
-                        value.dob,
-                        value.phone_no,
-                        value.consented,
-                        value.dsd_status,
-                        value.client_status,
-                        value.days_defaulted,
-                        value.final_outcome
-                    ]).draw();
-                });
+                    var list_app = data.client_app_list;
+                $.each(list_app, function(index, item) {
+                        $('#table_missed tbody').append('<tr><td>' + item.upi_no + '</td><td>' + item.ccc_number + '</td><td>' + item.client_name + '</td><td>' + item.dob + '</td><td>' + item.phone_no + '</td><td>' + item.consented + '</td><td>' + item.dsd_status + '</td><td>' + item.client_status + '</td><td>' + item.days_defaulted + '</td><td>' + item.final_outcome + '</td></tr>');
+                    });
+                    $('#table_missed').DataTable({
+                        columnDefs: [{
+                            targets: [0],
+                            orderData: [0, 1]
+                        }, {
+                            targets: [1],
+                            orderData: [1, 0]
+                        }, {
+                            targets: [4],
+                            orderData: [4, 0]
+                        }],
+                        "pageLength": 10,
+                        "paging": true,
+                        "responsive": true,
+                        "ordering": true,
+                        "info": true,
+                        dom: 'Bfrtip',
+                        buttons: [
+                            'copyHtml5',
+                            'excelHtml5',
+                            'csvHtml5',
+                            'pdfHtml5'
+                        ]
+                    });
 
 
             }
@@ -1983,7 +2004,26 @@
             // $("#dashboard_loader").hide();
         }
     });
-    // var table = document.getElementById("table_client");
+
+    function clearTable() {
+        $("#table_missed").empty(); // Replace #table with the ID of your table
+    }
+
+    function populateTable(newData) {
+        clearTableData();
+
+        // Loop through the data and generate table rows
+        $.each(newData, function(index, item) {
+            var row = '<tr><td>' + item.upi_no + '</td><td>' + item.ccc_number + '</td><td>' + item.client_name + '</td><td>' + item.dob + '</td><td>' + item.phone_no + '</td><td>' + item.consented + '</td><td>' + item.dsd_status + '</td><td>' + item.client_status + '</td><td>' + item.kept_app + '</td><td>' + item.not_kept_app + '</td></tr>'; // Replace column3 with your column name
+            // Add more columns as needed
+            $("#table_missed").append(row);
+        });
+
+        // Append the rows to the table body
+        // Replace #table with the ID of your table
+    }
+    const $table = $('#table_missed');
+
 
     $('#dataFilter').on('submit', function(e) {
         e.preventDefault();
@@ -1997,6 +2037,7 @@
         let clinics = $('#clinics').val();
         let appointments = $('#appointments').val();
         let sites = $('#sites').val();
+
 
         $.ajaxSetup({
             headers: {
@@ -2029,6 +2070,7 @@
                 const apps = data.all_appoinments;
                 const tx = data.all_tx_curr;
                 const client_app = data.client_app_list;
+                const list = data.client_list;
                 console.log(client_app);
                 const missed = data.client_missed;
                 appGender(data.appointment_gender);
@@ -2039,45 +2081,79 @@
                 missedGender(data.missed_gender);
                 missedMarital(data.missed_marital);
                 if (authenticated == 'Facility') {
-                    
-
-                    // Iterate over the array and add rows to the table
-                    var dataArray = data.client_list;
-
                     var table = $('#table_client').DataTable();
-                    $.each(dataArray, function(index, value) {
-                        table.row.add([
-                            value.upi_no,
-                            value.ccc_number,
-                            value.client_name,
-                            value.dob,
-                            value.phone_no,
-                            value.consented,
-                            value.dsd_status,
-                            value.client_status,
-                            value.kept_app,
-                            value.not_kept_app
-                        ]).draw();
+
+                    // Destroy the DataTable instance
+                    table.destroy();
+
+                    $('#table_client tbody').empty();
+                    $.each(list, function(index, item) {
+                        $('#table_client tbody').append('<tr><td>' + item.upi_no + '</td><td>' + item.ccc_number + '</td><td>' + item.client_name + '</td><td>' + item.dob + '</td><td>' + item.phone_no + '</td><td>' + item.consented + '</td><td>' + item.dsd_status + '</td><td>' + item.client_status + '</td><td>' + item.kept_app + '</td><td>' + item.not_kept_app + '</td></tr>');
                     });
 
-                    var applistArray = data.client_app_list;
-
-                    // Iterate over the array and add rows to the table
-                    var table = $('#table_missed').DataTable();
-                    $.each(applistArray, function(index, value) {
-                        table.row.add([
-                            value.upi_no,
-                            value.ccc_number,
-                            value.client_name,
-                            value.dob,
-                            value.phone_no,
-                            value.consented,
-                            value.dsd_status,
-                            value.client_status,
-                            value.days_defaulted,
-                            value.final_outcome
-                        ]).draw();
+                    // Re-initialize the paging control with the updated data count
+                    $('#table_client').DataTable({
+                        columnDefs: [{
+                            targets: [0],
+                            orderData: [0, 1]
+                        }, {
+                            targets: [1],
+                            orderData: [1, 0]
+                        }, {
+                            targets: [4],
+                            orderData: [4, 0]
+                        }],
+                        "pageLength": 10,
+                        "paging": true,
+                        "responsive": true,
+                        "ordering": true,
+                        "info": true,
+                        dom: 'Bfrtip',
+                        buttons: [
+                            'copyHtml5',
+                            'excelHtml5',
+                            'csvHtml5',
+                            'pdfHtml5'
+                        ]
                     });
+                    var table2 = $('#table_missed').DataTable();
+
+                    // Destroy the DataTable instance
+                    table2.destroy();
+
+                    $('#table_missed tbody').empty();
+
+                    var list_app = data.client_app_list;
+                $.each(list_app, function(index, item) {
+                        $('#table_missed tbody').append('<tr><td>' + item.upi_no + '</td><td>' + item.ccc_number + '</td><td>' + item.client_name + '</td><td>' + item.dob + '</td><td>' + item.phone_no + '</td><td>' + item.consented + '</td><td>' + item.dsd_status + '</td><td>' + item.client_status + '</td><td>' + item.days_defaulted + '</td><td>' + item.final_outcome + '</td></tr>');
+                    });
+                    $('#table_missed').DataTable({
+                        columnDefs: [{
+                            targets: [0],
+                            orderData: [0, 1]
+                        }, {
+                            targets: [1],
+                            orderData: [1, 0]
+                        }, {
+                            targets: [4],
+                            orderData: [4, 0]
+                        }],
+                        "pageLength": 10,
+                        "paging": true,
+                        "responsive": true,
+                        "ordering": true,
+                        "info": true,
+                        dom: 'Bfrtip',
+                        buttons: [
+                            'copyHtml5',
+                            'excelHtml5',
+                            'csvHtml5',
+                            'pdfHtml5'
+                        ]
+                    });
+
+
+
                 }
                 if (authenticated == 'Admin' || authenticated == 'Donor') {
                     appCounty(data.appointment_county);
@@ -2093,10 +2169,16 @@
                     appFacility(data.appointment_facility)
                     missedFacility(data.missed_facility)
                 }
+                // missedPeriod(data.app_rate);
+                // const tests = data.app_rate;
+                // missedRate(data.app_rate);
+                // console.log(tests);
                 missedPeriod(data.app_rate);
-                const tests = data.app_rate;
                 missedRate(data.app_rate);
-                console.log(tests);
+                returnPeriod(data.app_rate);
+                ratePeriod(data.app_rate);
+                ratePeriodDefalted(data.app_rate);
+                ratePeriodIIT(data.app_rate);
 
                 for (var x = 0; x < consent.length; x++) {
                     consented = consent[x].consented;
@@ -2328,64 +2410,35 @@
         });
 
     });
+
+
+
     // $('#table_client').DataTable({
-    //     "order": [
-    //         [1, "asc"]
-    //     ], // Sort by the first column in ascending order
-    //     "paging": true, // Enable pagination
-    //     "pageLength": 10 // Show 10 rows per page
+    //     columnDefs: [{
+    //         targets: [0],
+    //         orderData: [0, 1]
+    //     }, {
+    //         targets: [1],
+    //         orderData: [1, 0]
+    //     }, {
+    //         targets: [4],
+    //         orderData: [4, 0]
+    //     }],
+    //     "pageLength": 10,
+    //     "paging": true,
+    //     "responsive": true,
+    //     "ordering": true,
+    //     "info": true,
+    //     dom: 'Bfrtip',
+    //     buttons: [
+    //         'copyHtml5',
+    //         'excelHtml5',
+    //         'csvHtml5',
+    //         'pdfHtml5'
+    //     ]
     // });
 
 
-    $('#table_client').DataTable({
-        columnDefs: [{
-            targets: [0],
-            orderData: [0, 1]
-        }, {
-            targets: [1],
-            orderData: [1, 0]
-        }, {
-            targets: [4],
-            orderData: [4, 0]
-        }],
-        "pageLength": 10,
-        "paging": true,
-        "responsive": true,
-        "ordering": true,
-        "info": true,
-        dom: 'Bfrtip',
-        buttons: [
-            'copyHtml5',
-            'excelHtml5',
-            'csvHtml5',
-            'pdfHtml5'
-        ]
-    });
-
-
-    $('#table_missed').DataTable({
-        columnDefs: [{
-            targets: [0],
-            orderData: [0, 1]
-        }, {
-            targets: [1],
-            orderData: [1, 0]
-        }, {
-            targets: [4],
-            orderData: [4, 0]
-        }],
-        "paging": true,
-        "responsive": true,
-        "ordering": true,
-        "info": true,
-        dom: 'Bfrtip',
-        buttons: [
-            'copyHtml5',
-            'excelHtml5',
-            'csvHtml5',
-            'pdfHtml5'
-        ]
-    });
 
     function appAge(data) {
         let age_group = [];
@@ -3110,14 +3163,14 @@
         console.log(percentages);
         Highcharts.chart('rate_iit', {
             title: {
-                text: 'LTFU Appointment Rate over time'
+                text: 'IIT Appointment Rate over time'
             },
             xAxis: {
                 categories: new_date
             },
             yAxis: [{
                 title: {
-                    text: 'LTFU Appointment'
+                    text: 'IIT Appointment'
                 }
             }, { // Secondary yAxis
                 gridLineWidth: 0,
@@ -3143,14 +3196,14 @@
             },
             series: [{
                 type: 'column',
-                name: 'LTFU Appointment',
+                name: 'IIT Appointment',
                 color: '#01058A',
                 data: iit_app
 
             }, {
                 type: 'spline',
                 yAxis: 1,
-                name: 'LTFU Appointment Rate',
+                name: 'IIT Appointment Rate',
                 data: percentages,
                 color: '#97080F',
                 connectNulls: true,

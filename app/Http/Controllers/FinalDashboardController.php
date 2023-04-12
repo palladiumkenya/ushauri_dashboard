@@ -2142,14 +2142,14 @@ class FinalDashboardController extends Controller
                 $appointment_county = $appointment_county->where('appointment_date', '>=', date($request->from))->where('appointment_date', '<=', date($request->to));
                 $appointment_partner = $appointment_partner->where('appointment_date', '>=', date($request->from))->where('appointment_date', '<=', date($request->to));
                 $appointment_facility = $appointment_facility->where('appointment_date', '>=', date($request->from))->where('appointment_date', '<=', date($request->to));
-                $client_list = $client_list;
+                $client_list = $client_list->where('appointment_date', '>=', date($request->from))->where('appointment_date', '<=', date($request->to));
                 $client_missed = $client_missed->where('appointment_date', '>=', date($request->from))->where('appointment_date', '<=', date($request->to));
                 $missed_age = $missed_age->where('appointment_date', '>=', date($request->from))->where('appointment_date', '<=', date($request->to));
                 $missed_gender = $missed_gender->where('appointment_date', '>=', date($request->from))->where('appointment_date', '<=', date($request->to));
                 $missed_marital = $missed_marital->where('appointment_date', '>=', date($request->from))->where('appointment_date', '<=', date($request->to));
                 $missed_county = $missed_county->where('appointment_date', '>=', date($request->from))->where('appointment_date', '<=', date($request->to));
                 $missed_partner = $missed_partner->where('appointment_date', '>=', date($request->from))->where('appointment_date', '<=', date($request->to));
-                $client_app_list = $client_app_list;
+                $client_app_list = $client_app_list->where('appointment_date', '>=', date($request->from))->where('appointment_date', '<=', date($request->to));
                 $app_rate = $app_rate->where('appointment_date', '>=', date($request->from))->where('appointment_date', '<=', date($request->to));
             }
 

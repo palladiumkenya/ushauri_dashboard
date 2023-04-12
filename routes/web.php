@@ -54,6 +54,12 @@ Route::get('/pull/todays/appointment', ['uses' => 'App\Http\Controllers\Migratio
 Route::get('/pull/past/appointment', ['uses' => 'App\Http\Controllers\MigrationController@pull_past_appointment_new', 'as' => 'pull-past-appointment']);
 Route::get('/sync_tracing_outcome', ['uses' => 'App\Http\Controllers\MigrationController@sync_tracing_outcome', 'as' => 'sync_tracing_outcome']);
 
+// high risk
+Route::get('/high_risk_clients', ['uses' => 'App\Http\Controllers\HighRiskController@get_high_risk_clients', 'as' => 'get_high_risk_clients']);
+Route::get('/high_risk', ['uses' => 'App\Http\Controllers\HighRiskController@getAllData', 'as' => 'high_risk']);
+Route::get('/high/risk/task', ['uses' => 'App\Http\Controllers\HighRiskController@task', 'as' => 'task']);
+Route::get('/high/risk/sender', ['uses' => 'App\Http\Controllers\HighRiskController@sender', 'as' => 'sender']);
+
 
 Auth::routes();
 
@@ -110,7 +116,7 @@ Route::group(['middleware' => 'auth'], function () {
   Route::post('/clients/assign/tracer', ['uses' => 'App\Http\Controllers\TracerController@assign_client', 'as' => 'assign-tracer']);
   Route::get('/check/client', ['uses' => 'App\Http\Controllers\ClientController@check_client_form', 'as' => 'check_client']);
   Route::post('/edit/client', ['uses' => 'App\Http\Controllers\NewReportController@edit_client', 'as' => 'edit_client']);
- // Route::get('/edit/client_search', ['uses' => 'App\Http\Controllers\ClientController@client_search', 'as' => 'client_search']);
+  // Route::get('/edit/client_search', ['uses' => 'App\Http\Controllers\ClientController@client_search', 'as' => 'client_search']);
   //Route::get('/check_client', ['uses' => 'App\Http\Controllers\ClientController@check_client', 'as' => 'check_client']);
 
   // DCM routes
@@ -275,8 +281,4 @@ Route::group(['middleware' => 'auth'], function () {
   Route::get('/get_partner_sub_counties/{id}', ['uses' => 'App\Http\Controllers\FinalDashboardController@get_partner_sub_counties', 'as' => 'get_partner_sub_counties']);
   Route::get('/get_partner_facilities/{id}', ['uses' => 'App\Http\Controllers\FinalDashboardController@get_partner_facilities', 'as' => 'get_partner_facilities']);
   Route::get('/get_sitetype_facilities/{id}', ['uses' => 'App\Http\Controllers\FinalDashboardController@get_sitetype_facilities', 'as' => 'get_sitetype_facilities']);
-
-  Route::get('/high_risk_clients', ['uses' => 'App\Http\Controllers\HighRiskController@get_high_risk_clients', 'as' => 'get_high_risk_clients']);
-  Route::get('/high_risk', ['uses' => 'App\Http\Controllers\HighRiskController@getAllData', 'as' => 'high_risk']);
-
 });

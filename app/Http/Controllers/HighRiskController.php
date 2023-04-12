@@ -1,81 +1,323 @@
 <?php
 
 namespace App\Http\Controllers;
+
 date_default_timezone_set('Africa/Nairobi');
+
 use Illuminate\Http\Request;
 use App\Models\HighRisk;
 use GuzzleHttp\Client;
 use App\Models\PartnerFacility;
+use App\Models\Content;
+use App\Models\ClientOutgoing;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 
 class HighRiskController extends Controller
 {
-    public function get_high_risk_clients(Request $request)
+    public function get_high_risk_clients()
     {
+        // Set the endpoint URL
+        $url = 'https://data.kenyahmis.org:9783/api/Dataset';
 
+        // Set the query parameters
+        $params = [
+            'code' => 'FND',
+            'name' => 'predictions',
+            'pageNumber' => 1,
+            'pageSize' => 50,
+            'siteCode' => '13738',
+        ];
+
+        // Set the authorization header
+        $token = 'eyJhbGciOiJSUzI1NiIsImtpZCI6IjZDMjBBQTk4MEMyRUNEQjNCQkVCMjUzNzZCNjVCRURDRDkxNDMwODgiLCJ0eXAiOiJhdCtqd3QiLCJ4NXQiOiJiQ0NxbUF3dXpiTzc2eVUzYTJXLTNOa1VNSWcifQ.eyJuYmYiOjE2ODAyMDA0MTgsImV4cCI6MTY4MDIwNDAxOCwiaXNzIjoiaHR0cHM6Ly9hdXRoMi5rZW55YWhtaXMub3JnOjg0NDMiLCJhdWQiOiJwZGFwaXYxIiwiY2xpZW50X2lkIjoiY2RjIiwic2NvcGUiOlsicGRhcGl2MSJdfQ.HMUtm4eXVuHhfHVMcjokIId-nmzhEkcLtsUCFgmw9fUoNqXlEixvt7Wx-n52s11OyB3tEOJKmXcKByHnWGE4if0UW_C4ouHKV5NVw4rDl5OstYT27BkWYsPIUULxt0NhDEQjzwHi-KFNVjXf3PUf5pOn-qIYWTt5bEoKc-IVE_gcSpnLHavT0u-FbBMQwxCtZD9i5ZfQMMaVz3o2oa4qfGSgH3BzXb9mZjifvFmSl23IU7pHCEoNbozJCc9kDU9SFuy9QqputrRBwdTOACytawYQ83qd4nvZZUM-O4SYwOVwKBXLZYbM3xG9GT6A3erUvM8HjLn71_WD2es47eaiBg';
+        $headers = [
+            'Authorization: Bearer ' . $token,
+        ];
+
+        // Initialize the cURL session
+        $ch = curl_init();
+
+        // Set the cURL options
+        curl_setopt($ch, CURLOPT_URL, $url . '?' . http_build_query($params));
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+        // Send the request and get the response
+        $response = curl_exec($ch);
+        //   dd($ch);
+        // Close the cURL session
+        curl_close($ch);
+
+
+        // Decode the response JSON
+        $data = json_decode($response, true);
+        // Loop over the records and insert them into the database
+        foreach ($data['extract'] as $record) {
+            $res = new HighRisk;
+            $res->ccc_number = $record['PatientCccNumber'];
+            $res->mfl_code = $record['code'];
+            $res->risk_score = $record['risk_score'];
+            $res->evaluation_date = $record['EvaluationDate'];
+            $res->risk_description = $record['Description'];
+            $res->save();
+        }
     }
 
     public function getAllData()
     {
-        $siteCode = PartnerFacility::select('mfl_code')->get();
-        $facilities = array();
+        // Define the API endpoint URL
+        $url = 'https://data.kenyahmis.org:9783/api/Dataset';
 
-        foreach($siteCode as $code) {
-            $site = $code->mfl_code;
-            array_push($facilities, $site);
-        }
-        $results= array_unique($facilities);
+        // Define the parameters to send to the API
+        $params = [
+            'code' => 'FND',
+            'name' => 'predictions',
+            'siteCode' => '13738',
+            // add more parameters as needed
+        ];
 
-        //$a =  implode(',', $results);
-        $a = 14063;
-
-
-        $pageCount = 1;
+        // Define the page number and page size
         $pageNumber = 1;
         $pageSize = 50;
-        $totalItemCount = 0;
 
-        $token = 'eyJhbGciOiJSUzI1NiIsImtpZCI6IjZDMjBBQTk4MEMyRUNEQjNCQkVCMjUzNzZCNjVCRURDRDkxNDMwODgiLCJ0eXAiOiJhdCtqd3QiLCJ4NXQiOiJiQ0NxbUF3dXpiTzc2eVUzYTJXLTNOa1VNSWcifQ.eyJuYmYiOjE2Nzk5NDc5NDgsImV4cCI6MTY3OTk1MTU0OCwiaXNzIjoiaHR0cHM6Ly9hdXRoMi5rZW55YWhtaXMub3JnOjg0NDMiLCJhdWQiOiJwZGFwaXYxIiwiY2xpZW50X2lkIjoiY2RjIiwic2NvcGUiOlsicGRhcGl2MSJdfQ.x-4y_YaiwwY0hNX0lvUw9cB5CRZ-JT71-4RZFTCeJQlljYXup8usnzVr8Fxe-acGDXTdf1tJHadVH00Fp4EZphQwwuuAGZarJozWGFB_PTm4DMeNzMZhpGafmK0WhTvA6-w-cFkkyx6BF_En7JS-52fKw3gGGxJXhwqXcz638vRb31epunmp9BIh3HGNh2a_O13_p1aeRaadvKWWK3a796qzsopipBARHJ7_jvAtAYI6tU6yyCRcdi3EHhvatH5sj-4z6iPOgvzB_g5HYEmP_NbL6ejL7CNaC08U1hTvs6pAxBRH_hg5JicbEEW7u1LqZBSqJttew6gaK_iWWuq7Bg';
+        // Define the authorization token
+        $token = 'eyJhbGciOiJSUzI1NiIsImtpZCI6IjZDMjBBQTk4MEMyRUNEQjNCQkVCMjUzNzZCNjVCRURDRDkxNDMwODgiLCJ0eXAiOiJhdCtqd3QiLCJ4NXQiOiJiQ0NxbUF3dXpiTzc2eVUzYTJXLTNOa1VNSWcifQ.eyJuYmYiOjE2ODAyMzkwNDksImV4cCI6MTY4MDI0MjY0OSwiaXNzIjoiaHR0cHM6Ly9hdXRoMi5rZW55YWhtaXMub3JnOjg0NDMiLCJhdWQiOiJwZGFwaXYxIiwiY2xpZW50X2lkIjoiY2RjIiwic2NvcGUiOlsicGRhcGl2MSJdfQ.CaKSOqjkbqIyC6WwP1Gor8weuYP7DrT70YIxiajwZs_ZnOi26StZY64vhQlTK1zCo3Wo-MGEQyqD4qLr86bh1HS_IJu8ObAP_XxjvE_9zxgsEZYCCB8pvIcvjrQp-JuSpKHJhbqNQqGWI6VkpSkWP-bAC6x5fkc3uLQw-IOc3tJXxG2bozALY9VrfdQDmsBLRyYxpZ_tBaz9o1qKpoNC2CAGKrLt4OkY9FEaw4xiZXxkOqYTgH5TfXtvNhHuYGsxQ86bMzk0V2OhzEkWTF5LO-bU3UAr2lCCpCWkqj9HL_FHT0vOR5YP0SI7xHnSm8xC9edrXF1f4XVpGlYD0rvHZw';
 
-        // Loop through the pages until all data is retrieved
+        // Loop through all the pages of data and insert them into the database
         do {
+            // Add the page number and page size to the parameters
+            $params['pageNumber'] = $pageNumber;
+            $params['pageSize'] = $pageSize;
 
-            $url = "https://data.kenyahmis.org:9783/api/Dataset?code=FND&name=predictions&pageNumber=$pageNumber&pageSize=$pageSize&siteCode=$a ";
+            // Build the query string
+            $queryString = http_build_query($params);
 
+            $fullUrl = $url . '?' . $queryString;
+
+            // Make the curl request
             $ch = curl_init();
-
-            // Set CURL options
-            curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_URL, $fullUrl);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                'Authorization: Bearer ' . $token,
+            ]);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-                'Authorization: Bearer ' . $token
-            ));
-
-            // Execute the CURL request and get the response
             $response = curl_exec($ch);
             curl_close($ch);
 
             // Decode the JSON response
-            $responseData = json_decode($response, true);
-            $totalItemCount = $responseData['totalItemCount'];
-            $pageNumber++;
-            $pageCount = ceil($totalItemCount / $pageSize);
+            $data = json_decode($response, true);
 
-            // Process the data retrieved from the API
-            foreach ($responseData['extract'] as $item) {
-               // dd($item['PatientCccNumber']);
-                $res = new HighRisk;
-                $res->ccc_number = $item['PatientCccNumber'];
-                $res->mfl_code = $item['code'];
-                $res->risk_score = $item['risk_score'];
-                $res->evaluation_date = $item['EvaluationDate'];
-                $res->risk_description = $item['Description'];
+            // Loop through the data and insert it into the database
+            foreach ($data['extract'] as $record) {
+                $respon = HighRisk::where('ccc_number', $record['PatientCccNumber'])->first();
 
-                if ($res->save()) {
-                    return response(['status' => 'Success']);
-                } else {
-                    return response(['status' => 'Error']);
+                if ($respon) {
+                    $respon->mfl_code = $record['code'];
+                    $respon->risk_score = $record['risk_score'];
+                    $respon->evaluation_date = $record['EvaluationDate'];
+                    $respon->risk_description = $record['Description'];
+                    $respon->save();
+                } elseif ($record['Description'] == 'High Risk') {
+                    $res = new HighRisk;
+                    $res->ccc_number = $record['PatientCccNumber'];
+                    $res->mfl_code = $record['code'];
+                    $res->risk_score = $record['risk_score'];
+                    $res->evaluation_date = $record['EvaluationDate'];
+                    $res->risk_description = $record['Description'];
+                    $res->save();
                 }
             }
-        } while ($pageNumber <= $pageCount);
+
+            // Increment the page number
+            $pageNumber++;
+
+            // Continue looping while there are more pages of data
+        } while ($data['pageNumber'] < $data['pageCount']);
+    }
+    private function send_message($source, $destination, $msg)
+    {
+        $key = env('SMS_SERVICE_KEY', '');
+        $host = env('SMS_SERVICE_HOST', '');
+
+        $this->httpresponse = Http::withoutVerifying()
+            ->withHeaders(['api-token' => "$key"])
+            ->post("$host", [
+                'destination' => $destination,
+                'msg' => $msg,
+                'sender_id' => $destination,
+                'gateway' => $source,
+
+            ]);
+
+        return json_decode($this->httpresponse->getBody(), true);
+    }
+
+    public function task()
+    {
+        $client = HighRisk::join('tbl_client', 'tbl_high_risk.ccc_number', '=', 'tbl_client.clinic_number')
+            ->join('tbl_appointment', 'tbl_client.id', '=', 'tbl_appointment.client_id')
+            ->select('tbl_client.f_name as client_name', 'tbl_client.id as client_id',  'tbl_appointment.id as appointment_id', 'tbl_high_risk.risk_description', 'tbl_client.language_id', 'tbl_client.phone_no', 'tbl_client.txt_time', 'tbl_client.smsenable', 'tbl_appointment.appntmnt_date', 'tbl_appointment.consented')
+            ->where('tbl_high_risk.risk_description', '=', 'High Risk')
+            ->groupBy('tbl_appointment.client_id')
+            ->get();
+
+
+        foreach ($client as $value) {
+            $client_name = $value->client_name;
+            $risk_description = $value->risk_description;
+            $risk_description = $value->language_id;
+            $phone_no = $value->phone_no;
+            $txt_time = $value->txt_time;
+            $smsenable = $value->smsenable;
+            $appntmnt_date = $value->appntmnt_date;
+            $consented = $value->consented;
+            $appointment_id = $value->appointment_id;
+            $client_id = $value->client_id;
+
+
+            $TwoDaysBefore = Carbon::parse($appntmnt_date)->subDays(2)->format('Y-m-d');
+            $message = Content::select('*')->where('message_type_id', 9)->get();
+
+            if ($TwoDaysBefore) {
+                foreach ($message as $sms) {
+                    $content = $sms->content;
+                    $content_id = $sms->id;
+
+                    $today = date("Y-m-d H:i:s");
+                    $new_msg = str_replace("XXX", $client_name, $content);
+                    $appointment_date = date("d-m-Y", strtotime($appntmnt_date));
+                    $cleaned_msg = str_replace("YYY", $appointment_date, $new_msg);
+
+                    $status = "Not Sent";
+                    $responded = "No";
+
+                    if ($smsenable == 'Yes' && trim($cleaned_msg) != '') {
+                        $source = 40149;
+                        $outgoing = array(
+                            'destination' => $phone_no,
+                            'msg' => $cleaned_msg,
+                            'responded' => $responded,
+                            'status' => $status,
+                            'message_type_id' => 9,
+                            'source' => $source,
+                            'clnt_usr_id' => $client_id,
+                            'appointment_id' => $appointment_id,
+                            'no_of_days' => 2,
+                            'recepient_type' => 'Client',
+                            'content_id' => $content_id,
+                            'created_at' => $today,
+                            'created_by' => '1'
+                        );
+                        $this->sms_outgoing_insert($outgoing);
+                    }
+                }
+            } else {
+                echo 'No client found';
+            }
+        }
+    }
+    private function sms_outgoing_insert($record)
+    {
+        try {
+            $sms = new ClientOutgoing;
+            $sms->destination = $record['destination'];
+            $sms->msg = $record['msg'];
+            $sms->responded = $record['responded'];
+            $sms->status = $record['status'];
+            $sms->message_type_id = $record['message_type_id'];
+            $sms->source = $record['source'];
+            $sms->clnt_usr_id = $record['clnt_usr_id'];
+            $sms->appointment_id = $record['appointment_id'];
+            $sms->no_of_days = $record['no_of_days'];
+            $sms->recepient_type = $record['recepient_type'];
+            $sms->content_id = $record['content_id'];
+            $sms->created_by = $record['created_by'];
+            $sms->save();
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
+
+    public function sender()
+    {
+        try{
+            //get all outgoing smses
+            $messages = ClientOutgoing::where('message_type_id', 9)->get();
+
+            foreach($messages as $message)
+            {
+                $clnt_outgoing_id = $message->id;
+                $source = $message->source;
+                $destination = $message->destination;
+                $msg = $message->msg;
+                $status = $message->status;
+                $responded = $message->responded;
+                $content_id = $message->content_id;
+                $message_type_id = $message->message_type_id;
+                $clnt_usr_id = $message->clnt_usr_id;
+                $created_at = $message->created_at;
+                $recepient_type = $message->recepient_type;
+
+                if ($status == "Not Sent")
+                {
+
+                    //check if a similar message already sent.
+                    if (DB::table('tbl_clnt_outgoing')
+                    ->where('msg','like', '%'.$msg.'%')
+                    ->where('destination', $destination)
+                    ->where('status', 'Sent')
+                    ->whereRaw('created_at between (CURDATE() - INTERVAL 1 DAY) AND (CURDATE() + INTERVAL 1 DAY) ')
+                    ->doesntExist()) //Message has not been sent, send the  current message
+                    {
+
+                        //Number process , Append conutry code prefix on the  phone no if its not appended e.g 0712345678 => 254712345678
+                        $mobile = substr($destination, -9);
+                        $len = strlen($mobile);
+                        if ($len < 10) {
+                            $destination = "254" . $mobile;
+                        }
+
+                        //call sms service
+                        $result = $this->send_message($source,$destination , $msg);
+
+                        $status = $result['status'];
+                        $messageid = '';
+                        $cost = 0;
+
+                        foreach($result as $row)
+                        {
+                            if($status == 'success')
+                            {
+                                foreach($result['data'] as $data)
+                                {
+                                    foreach($data['Recipients'] as $Recipient)
+                                    {
+                                        $messageid = $Recipient['messageId'];
+                                        $cost = $Recipient['cost'];
+                                    }
+                                }
+                            }
+
+                            //update the sent message with the sms cost and send status
+                            $sms = ClientOutgoing::find($clnt_outgoing_id);
+                            $sms->status = $status;
+                            $sms->cost = $cost;
+                            $sms->message_id = $messageid;
+                            $sms->save();
+                            //dd($result);
+
+                        }
+                    }
+                    else //delete the current duplicate message
+                    {
+                        ClientOutgoing::destroy($clnt_outgoing_id);
+                    }
+                }
+            }
+        }catch (Exception $e) {
+            throw $e;
+        }
     }
 }
