@@ -13,9 +13,18 @@ use App\Models\ClientOutgoing;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Cache;
 
 class HighRiskController extends Controller
 {
+    protected  $current_date;
+    protected $httpresponse;
+
+    public function __construct()
+    {
+        set_time_limit(0);
+        $this->current_date = date("Y-m-d");
+    }
     public function get_high_risk_clients()
     {
         // Set the endpoint URL
@@ -67,75 +76,114 @@ class HighRiskController extends Controller
 
     public function getAllData()
     {
+        $client = new \GuzzleHttp\Client();
+        $response = $client->post('https://auth2.kenyahmis.org:8443/connect/token', [
+            'form_params' => [
+                'grant_type' => 'client_credentials',
+                'client_id' => 'cdc',
+                'client_secret' => '7f11e3b4-5741-11ec-bf63-0242ac130002',
+                'scope' => 'pdapiv1'
+            ]
+        ]);
+
+        if ($response->getStatusCode() == 401) {
+            $response = $client->post('https://auth2.kenyahmis.org:8443/connect/token', [
+                'form_params' => [
+                    'grant_type' => 'client_credentials',
+                    'client_id' => 'cdc',
+                    'client_secret' => '7f11e3b4-5741-11ec-bf63-0242ac130002',
+                    'scope' => 'pdapiv1'
+                ]
+            ]);
+        }
+        // Get the new access token from the response
+        $access_token = json_decode($response->getBody())->access_token;
+
+        $facilities = PartnerFacility::select('mfl_code')->get();
+
+        $get_facilities = array();
+
+        foreach ($facilities as $facility) {
+            $code = $facility->mfl_code;
+
+            array_push($get_facilities, $code);
+        }
+        $results = array_unique($get_facilities);
+        $final_facilities =  implode(',', $get_facilities);
+
         // Define the API endpoint URL
         $url = 'https://data.kenyahmis.org:9783/api/Dataset';
 
-        // Define the parameters to send to the API
-        $params = [
-            'code' => 'FND',
-            'name' => 'predictions',
-            'siteCode' => '13738',
-            // add more parameters as needed
-        ];
+        foreach ($get_facilities as $final_facility) {
+            // Define the parameters to send to the API
+            $params = [
+                'code' => 'FND',
+                'name' => 'predictions',
+                'siteCode' => $final_facility,
 
-        // Define the page number and page size
-        $pageNumber = 1;
-        $pageSize = 50;
+            ];
 
-        // Define the authorization token
-        $token = 'eyJhbGciOiJSUzI1NiIsImtpZCI6IjZDMjBBQTk4MEMyRUNEQjNCQkVCMjUzNzZCNjVCRURDRDkxNDMwODgiLCJ0eXAiOiJhdCtqd3QiLCJ4NXQiOiJiQ0NxbUF3dXpiTzc2eVUzYTJXLTNOa1VNSWcifQ.eyJuYmYiOjE2ODAyMzkwNDksImV4cCI6MTY4MDI0MjY0OSwiaXNzIjoiaHR0cHM6Ly9hdXRoMi5rZW55YWhtaXMub3JnOjg0NDMiLCJhdWQiOiJwZGFwaXYxIiwiY2xpZW50X2lkIjoiY2RjIiwic2NvcGUiOlsicGRhcGl2MSJdfQ.CaKSOqjkbqIyC6WwP1Gor8weuYP7DrT70YIxiajwZs_ZnOi26StZY64vhQlTK1zCo3Wo-MGEQyqD4qLr86bh1HS_IJu8ObAP_XxjvE_9zxgsEZYCCB8pvIcvjrQp-JuSpKHJhbqNQqGWI6VkpSkWP-bAC6x5fkc3uLQw-IOc3tJXxG2bozALY9VrfdQDmsBLRyYxpZ_tBaz9o1qKpoNC2CAGKrLt4OkY9FEaw4xiZXxkOqYTgH5TfXtvNhHuYGsxQ86bMzk0V2OhzEkWTF5LO-bU3UAr2lCCpCWkqj9HL_FHT0vOR5YP0SI7xHnSm8xC9edrXF1f4XVpGlYD0rvHZw';
 
-        // Loop through all the pages of data and insert them into the database
-        do {
-            // Add the page number and page size to the parameters
-            $params['pageNumber'] = $pageNumber;
-            $params['pageSize'] = $pageSize;
+            // Define the page number and page size
+            $pageNumber = 1;
+            $pageSize = 50;
 
-            // Build the query string
-            $queryString = http_build_query($params);
+            do {
+                // Add the page number and page size to the parameters
+                $params['pageNumber'] = $pageNumber;
+                $params['pageSize'] = $pageSize;
 
-            $fullUrl = $url . '?' . $queryString;
+                // Build the query string
+                $queryString = http_build_query($params);
 
-            // Make the curl request
-            $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, $fullUrl);
-            curl_setopt($ch, CURLOPT_HTTPHEADER, [
-                'Authorization: Bearer ' . $token,
-            ]);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            $response = curl_exec($ch);
-            curl_close($ch);
+                $fullUrl = $url . '?' . $queryString;
 
-            // Decode the JSON response
-            $data = json_decode($response, true);
+                // Make the curl request
+                $ch = curl_init();
+                curl_setopt($ch, CURLOPT_URL, $fullUrl);
+                curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                    'Authorization: Bearer ' . $access_token,
+                ]);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                $response = curl_exec($ch);
+                curl_close($ch);
 
-            // Loop through the data and insert it into the database
-            foreach ($data['extract'] as $record) {
-                $respon = HighRisk::where('ccc_number', $record['PatientCccNumber'])->first();
+                // Decode the JSON response
+                $data = json_decode($response, true);
 
-                if ($respon) {
-                    $respon->mfl_code = $record['code'];
-                    $respon->risk_score = $record['risk_score'];
-                    $respon->evaluation_date = $record['EvaluationDate'];
-                    $respon->risk_description = $record['Description'];
-                    $respon->save();
-                } elseif ($record['Description'] == 'High Risk') {
-                    $res = new HighRisk;
-                    $res->ccc_number = $record['PatientCccNumber'];
-                    $res->mfl_code = $record['code'];
-                    $res->risk_score = $record['risk_score'];
-                    $res->evaluation_date = $record['EvaluationDate'];
-                    $res->risk_description = $record['Description'];
-                    $res->save();
+                // Loop through the extract and insert
+                foreach ($data['extract'] as $record) {
+                    $respon = HighRisk::where('ccc_number', $record['PatientCccNumber'])->first();
+
+                    if ($respon) {
+                        $respon->update([
+                            'mfl_code' => $record['code'],
+                            'risk_score' => $record['risk_score'],
+                            'evaluation_date' => $record['EvaluationDate'],
+                            'risk_description' => $record['Description'],
+
+                          ]);
+
+                    } elseif ($record['Description'] == 'High Risk') {
+                        $res = new HighRisk;
+                        $res->ccc_number = $record['PatientCccNumber'];
+                        $res->mfl_code = $record['code'];
+                        $res->risk_score = $record['risk_score'];
+                        $res->evaluation_date = $record['EvaluationDate'];
+                        $res->risk_description = $record['Description'];
+                        $res->save();
+                    }
                 }
-            }
 
-            // Increment the page number
-            $pageNumber++;
+                // Increment the page number
+                $pageNumber++;
 
-            // Continue looping while there are more pages of data
-        } while ($data['pageNumber'] < $data['pageCount']);
+                // Continue looping while there are more pages of data
+            } while ($data['pageNumber'] < $data['pageCount']);
+        }
     }
+
+
     private function send_message($source, $destination, $msg)
     {
         $key = env('SMS_SERVICE_KEY', '');
@@ -167,7 +215,7 @@ class HighRiskController extends Controller
         foreach ($client as $value) {
             $client_name = $value->client_name;
             $risk_description = $value->risk_description;
-            $risk_description = $value->language_id;
+            $language_client = $value->language_id;
             $phone_no = $value->phone_no;
             $txt_time = $value->txt_time;
             $smsenable = $value->smsenable;
@@ -176,45 +224,133 @@ class HighRiskController extends Controller
             $appointment_id = $value->appointment_id;
             $client_id = $value->client_id;
 
+            $TwoWeeksBefore = Carbon::parse($appntmnt_date)->subWeeks(2)->format('Y-m-d');
+            $OneMonthBefore = Carbon::parse($appntmnt_date)->subMonth()->format('Y-m-d');
+            $ThreeWeeksBefore = Carbon::parse($appntmnt_date)->subWeeks(3)->format('Y-m-d');
+            $message = Content::join('tbl_notification_flow', 'tbl_notification_flow.id', '=', 'tbl_content.identifier')->select('tbl_content.content', 'tbl_content.message_type_id', 'tbl_content.language_id', 'tbl_content.identifier', 'tbl_notification_flow.days')->where('tbl_content.message_type_id', 9)->where('tbl_content.language_id', $language_client)->get();
 
-            $TwoDaysBefore = Carbon::parse($appntmnt_date)->subDays(2)->format('Y-m-d');
-            $message = Content::select('*')->where('message_type_id', 9)->get();
+            //check if a notification is already sent. If not send it.
+            $client_exist = DB::table('tbl_clnt_outgoing')
+                ->where('message_type_id', 9)
+                ->where('clnt_usr_id', $client_id)
+                ->whereDate('created_at',  $this->current_date)
+                ->orwhereDate('updated_at',  $this->current_date)
+                ->get();
 
-            if ($TwoDaysBefore) {
-                foreach ($message as $sms) {
-                    $content = $sms->content;
-                    $content_id = $sms->id;
-
-                    $today = date("Y-m-d H:i:s");
-                    $new_msg = str_replace("XXX", $client_name, $content);
-                    $appointment_date = date("d-m-Y", strtotime($appntmnt_date));
-                    $cleaned_msg = str_replace("YYY", $appointment_date, $new_msg);
-
-                    $status = "Not Sent";
-                    $responded = "No";
-
-                    if ($smsenable == 'Yes' && trim($cleaned_msg) != '') {
-                        $source = 40149;
-                        $outgoing = array(
-                            'destination' => $phone_no,
-                            'msg' => $cleaned_msg,
-                            'responded' => $responded,
-                            'status' => $status,
-                            'message_type_id' => 9,
-                            'source' => $source,
-                            'clnt_usr_id' => $client_id,
-                            'appointment_id' => $appointment_id,
-                            'no_of_days' => 2,
-                            'recepient_type' => 'Client',
-                            'content_id' => $content_id,
-                            'created_at' => $today,
-                            'created_by' => '1'
-                        );
-                        $this->sms_outgoing_insert($outgoing);
-                    }
-                }
+            if ($client_exist) {
+                echo 'Message already sent to client';
             } else {
-                echo 'No client found';
+
+
+                if ($TwoWeeksBefore) {
+                    foreach ($message as $sms) {
+
+                        if ($sms->days == 14) {
+
+                            $content = $sms->content;
+                            $content_id = $sms->id;
+
+                            $today = date("Y-m-d H:i:s");
+                            $new_msg = str_replace("XXX", $client_name, $content);
+                            //$appointment_date = date("d-m-Y", strtotime($appntmnt_date));
+                            // $cleaned_msg = str_replace("YYY", $appointment_date, $new_msg);
+
+                            $status = "Not Sent";
+                            $responded = "No";
+
+                            if ($smsenable == 'Yes' || $consented == 'YES' && trim($new_msg) != '') {
+                                $source = 40149;
+                                $outgoing = array(
+                                    'destination' => $phone_no,
+                                    'msg' => $new_msg,
+                                    'responded' => $responded,
+                                    'status' => $status,
+                                    'message_type_id' => 9,
+                                    'source' => $source,
+                                    'clnt_usr_id' => $client_id,
+                                    'appointment_id' => $appointment_id,
+                                    'no_of_days' => 14,
+                                    'recepient_type' => 'Client',
+                                    'content_id' => $content_id,
+                                    'created_at' => $today,
+                                    'created_by' => '1'
+                                );
+                                $this->sms_outgoing_insert($outgoing);
+                            }
+                        }
+                    }
+                } elseif ($OneMonthBefore) {
+                    foreach ($message as $sms) {
+                        if ($sms->days == 30) {
+                            $content = $sms->content;
+                            $content_id = $sms->id;
+
+                            $today = date("Y-m-d H:i:s");
+                            $new_msg = str_replace("XXX", $client_name, $content);
+
+                            $status = "Not Sent";
+                            $responded = "No";
+
+                            if ($smsenable == 'Yes' || $consented == 'YES' && trim($new_msg) != '') {
+                                $source = 40149;
+                                $outgoing = array(
+                                    'destination' => $phone_no,
+                                    'msg' => $new_msg,
+                                    'responded' => $responded,
+                                    'status' => $status,
+                                    'message_type_id' => 9,
+                                    'source' => $source,
+                                    'clnt_usr_id' => $client_id,
+                                    'appointment_id' => $appointment_id,
+                                    'no_of_days' => 14,
+                                    'recepient_type' => 'Client',
+                                    'content_id' => $content_id,
+                                    'created_at' => $today,
+                                    'created_by' => '1'
+                                );
+                                $this->sms_outgoing_insert($outgoing);
+                            }
+                        }
+                    }
+                } elseif ($ThreeWeeksBefore) {
+
+                    foreach ($message as $sms) {
+
+                        if ($sms->days == 30) {
+                            $content = $sms->content;
+                            $content_id = $sms->id;
+
+
+                            $today = date("Y-m-d H:i:s");
+                            $new_msg = str_replace("XXX", $client_name, $content);
+
+                            $status = "Not Sent";
+                            $responded = "No";
+
+                            if ($smsenable == 'Yes' || $consented == 'YES' && trim($new_msg) != '') {
+                                $source = 40149;
+                                $outgoing = array(
+                                    'destination' => $phone_no,
+                                    'msg' => $new_msg,
+                                    'responded' => $responded,
+                                    'status' => $status,
+                                    'message_type_id' => 9,
+                                    'source' => $source,
+                                    'clnt_usr_id' => $client_id,
+                                    'appointment_id' => $appointment_id,
+                                    'no_of_days' => 14,
+                                    'recepient_type' => 'Client',
+                                    'content_id' => $content_id,
+                                    'created_at' => $today,
+                                    'created_by' => '1'
+                                );
+                                $this->sms_outgoing_insert($outgoing);
+                            }
+                        }
+                    }
+                } else {
+                    echo 'No client found';
+                }
             }
         }
     }
@@ -242,12 +378,11 @@ class HighRiskController extends Controller
 
     public function sender()
     {
-        try{
+        try {
             //get all outgoing smses
             $messages = ClientOutgoing::where('message_type_id', 9)->get();
 
-            foreach($messages as $message)
-            {
+            foreach ($messages as $message) {
                 $clnt_outgoing_id = $message->id;
                 $source = $message->source;
                 $destination = $message->destination;
@@ -260,16 +395,16 @@ class HighRiskController extends Controller
                 $created_at = $message->created_at;
                 $recepient_type = $message->recepient_type;
 
-                if ($status == "Not Sent")
-                {
+                if ($status == "Not Sent") {
 
                     //check if a similar message already sent.
                     if (DB::table('tbl_clnt_outgoing')
-                    ->where('msg','like', '%'.$msg.'%')
-                    ->where('destination', $destination)
-                    ->where('status', 'Sent')
-                    ->whereRaw('created_at between (CURDATE() - INTERVAL 1 DAY) AND (CURDATE() + INTERVAL 1 DAY) ')
-                    ->doesntExist()) //Message has not been sent, send the  current message
+                        ->where('msg', 'like', '%' . $msg . '%')
+                        ->where('destination', $destination)
+                        ->where('status', 'Sent')
+                        ->whereRaw('created_at between (CURDATE() - INTERVAL 1 DAY) AND (CURDATE() + INTERVAL 1 DAY) ')
+                        ->doesntExist()
+                    ) //Message has not been sent, send the  current message
                     {
 
                         //Number process , Append conutry code prefix on the  phone no if its not appended e.g 0712345678 => 254712345678
@@ -280,20 +415,16 @@ class HighRiskController extends Controller
                         }
 
                         //call sms service
-                        $result = $this->send_message($source,$destination , $msg);
+                        $result = $this->send_message($source, $destination, $msg);
 
                         $status = $result['status'];
                         $messageid = '';
                         $cost = 0;
 
-                        foreach($result as $row)
-                        {
-                            if($status == 'success')
-                            {
-                                foreach($result['data'] as $data)
-                                {
-                                    foreach($data['Recipients'] as $Recipient)
-                                    {
+                        foreach ($result as $row) {
+                            if ($status == 'success') {
+                                foreach ($result['data'] as $data) {
+                                    foreach ($data['Recipients'] as $Recipient) {
                                         $messageid = $Recipient['messageId'];
                                         $cost = $Recipient['cost'];
                                     }
@@ -309,14 +440,13 @@ class HighRiskController extends Controller
                             //dd($result);
 
                         }
-                    }
-                    else //delete the current duplicate message
+                    } else //delete the current duplicate message
                     {
                         ClientOutgoing::destroy($clnt_outgoing_id);
                     }
                 }
             }
-        }catch (Exception $e) {
+        } catch (Exception $e) {
             throw $e;
         }
     }
