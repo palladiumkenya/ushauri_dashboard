@@ -26,11 +26,11 @@ use Illuminate\Support\Facades\Auth as FacadesAuth;
 
 class FinalDashboardController extends Controller
 {
-    protected  $remember_period ;
+    protected  $remember_period;
 
     public function __construct()
     {
-        $this->remember_period  = env('REMEMBER_PERIOD', '60 * 60');
+        $this->remember_period  = env('REMEMBER_PERIOD', '60 * 60 * 24');
     }
 
     public function index()
@@ -54,57 +54,57 @@ class FinalDashboardController extends Controller
 
         if (Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Donor') {
             $partners = Partner::where("status", "=", "Active")
-            ->remember($this->remember_period)
-            ->get();
+                ->remember($this->remember_period)
+                ->get();
 
             $counties = County::where("status", "=", "Active")
-            ->remember($this->remember_period)
-            ->get(['id', 'name']);
+                ->remember($this->remember_period)
+                ->get(['id', 'name']);
 
             $sub_counties = SubCounty::where("status", "=", "Active")
-            ->remember($this->remember_period)
-            ->get(['id', 'name']);
+                ->remember($this->remember_period)
+                ->get(['id', 'name']);
 
             $facilities = Facility::join('tbl_partner_facility', 'tbl_master_facility.code', '=', 'tbl_partner_facility.mfl_code')
-            ->remember($this->remember_period)
-            ->get(['tbl_master_facility.code', 'tbl_master_facility.name']);
+                ->remember($this->remember_period)
+                ->get(['tbl_master_facility.code', 'tbl_master_facility.name']);
 
             return view('dashboard.appointment', compact('partners', 'counties', 'sub_counties', 'facilities', 'clinics', 'indicator_k', 'indicator_m'));
         }
         if (Auth::user()->access_level == 'Facility') {
 
-            $client_list = ETLClient::join('etl_appointment_detail', 'etl_client_detail.client_id', '=', 'etl_appointment_detail.client_id')
-                        ->where('etl_client_detail.mfl_code', Auth::user()->facility_id)
-                        ->groupBy('etl_appointment_detail.client_id')
-                        ->remember($this->remember_period)
-                        ->get(['etl_client_detail.upi_no',
-                        'etl_client_detail.ccc_number',
-                        'etl_client_detail.dob',
-                        'etl_client_detail.consented',
-                        'etl_client_detail.client_status',
-                        'etl_client_detail.client_name',
-                        'etl_client_detail.dsd_status',
-                        'etl_client_detail.phone_no',
-                        DB::raw('COUNT(etl_appointment_detail.app_kept) AS kept_app '),
-                        DB::raw('SUM(etl_appointment_detail.app_not_kept) AS not_kept_app ')]);
+            // $client_list = ETLClient::join('etl_appointment_detail', 'etl_client_detail.client_id', '=', 'etl_appointment_detail.client_id')
+            //             ->where('etl_client_detail.mfl_code', Auth::user()->facility_id)
+            //             ->groupBy('etl_appointment_detail.client_id')
+            //             ->remember($this->remember_period)
+            //             ->get(['etl_client_detail.upi_no',
+            //             'etl_client_detail.ccc_number',
+            //             'etl_client_detail.dob',
+            //             'etl_client_detail.consented',
+            //             'etl_client_detail.client_status',
+            //             'etl_client_detail.client_name',
+            //             'etl_client_detail.dsd_status',
+            //             'etl_client_detail.phone_no',
+            //             DB::raw('COUNT(etl_appointment_detail.app_kept) AS kept_app '),
+            //             DB::raw('SUM(etl_appointment_detail.app_not_kept) AS not_kept_app ')]);
 
-            $client_app_list = ETLClient::join('etl_appointment_detail', 'etl_client_detail.client_id', '=', 'etl_appointment_detail.client_id')
-            ->where('etl_client_detail.mfl_code', Auth::user()->facility_id)
-            ->whereNotNull('etl_appointment_detail.final_outcome')
-            ->groupBy('etl_appointment_detail.client_id')
-            ->remember($this->remember_period)
-            ->get(['etl_client_detail.upi_no',
-            'etl_client_detail.ccc_number',
-            'etl_client_detail.dob',
-            'etl_client_detail.consented',
-            'etl_client_detail.client_status',
-            'etl_client_detail.client_name',
-            'etl_client_detail.phone_no',
-            'etl_client_detail.dsd_status',
-            'etl_appointment_detail.days_defaulted',
-            'etl_appointment_detail.final_outcome']);
+            // $client_app_list = ETLClient::join('etl_appointment_detail', 'etl_client_detail.client_id', '=', 'etl_appointment_detail.client_id')
+            // ->where('etl_client_detail.mfl_code', Auth::user()->facility_id)
+            // ->whereNotNull('etl_appointment_detail.final_outcome')
+            // ->groupBy('etl_appointment_detail.client_id')
+            // ->remember($this->remember_period)
+            // ->get(['etl_client_detail.upi_no',
+            // 'etl_client_detail.ccc_number',
+            // 'etl_client_detail.dob',
+            // 'etl_client_detail.consented',
+            // 'etl_client_detail.client_status',
+            // 'etl_client_detail.client_name',
+            // 'etl_client_detail.phone_no',
+            // 'etl_client_detail.dsd_status',
+            // 'etl_appointment_detail.days_defaulted',
+            // 'etl_appointment_detail.final_outcome']);
 
-            return view('dashboard.appointment', compact('clinics', 'client_list', 'client_app_list', 'indicator_k', 'indicator_m'));
+            return view('dashboard.appointment', compact('clinics', 'indicator_k', 'indicator_m'));
         }
         if (Auth::user()->access_level == 'County') {
 
@@ -134,7 +134,7 @@ class FinalDashboardController extends Controller
                 ->remember($this->remember_period)
                 ->get();
 
-            return view('dashboard.appointment', compact('partners','counties', 'sub_counties', 'facilities', 'clinics', 'indicator_k', 'indicator_m'));
+            return view('dashboard.appointment', compact('partners', 'counties', 'sub_counties', 'facilities', 'clinics', 'indicator_k', 'indicator_m'));
         }
         if (Auth::user()->access_level == 'Sub County') {
 
@@ -239,22 +239,23 @@ class FinalDashboardController extends Controller
                 ->groupBy('marital')
                 ->remember($this->remember_period);
 
-                $client_list = ETLClient::select(
-                    'etl_client_detail.upi_no',
-                    'etl_client_detail.ccc_number',
-                    'etl_client_detail.dob',
-                    'etl_client_detail.consented',
-                    'etl_client_detail.client_status',
-                    'etl_client_detail.client_name',
-                    'etl_client_detail.dsd_status',
-                    'etl_client_detail.phone_no',
-                    DB::raw('COUNT(etl_appointment_detail.app_kept) AS kept_app '),
-                    DB::raw('SUM(etl_appointment_detail.app_not_kept) AS not_kept_app ')
-                )
-                    ->join('etl_appointment_detail', 'etl_client_detail.client_id', '=', 'etl_appointment_detail.client_id')
-                    ->where('etl_client_detail.mfl_code', Auth::user()->facility_id)
-                    ->groupBy('etl_appointment_detail.client_id')
-                    ->remember($this->remember_period);
+            $client_list = ETLClient::select(
+                'etl_client_detail.upi_no',
+                'etl_client_detail.ccc_number',
+                'etl_client_detail.dob',
+                'etl_client_detail.consented',
+                'etl_client_detail.client_status',
+                'etl_client_detail.client_name',
+                'etl_client_detail.dsd_status',
+                'etl_client_detail.phone_no',
+                DB::raw('COUNT(etl_appointment_detail.app_kept) AS kept_app '),
+                DB::raw('COUNT(etl_appointment_detail.id) AS total_app '),
+                DB::raw('SUM(etl_appointment_detail.app_not_kept) AS not_kept_app ')
+            )
+                ->join('etl_appointment_detail', 'etl_client_detail.client_id', '=', 'etl_appointment_detail.client_id')
+                ->where('etl_client_detail.mfl_code', Auth::user()->facility_id)
+                ->groupBy('etl_client_detail.ccc_number')
+                ->remember($this->remember_period);
 
             $appointment_county = ETLAppointment::select(
                 'county',
@@ -290,7 +291,8 @@ class FinalDashboardController extends Controller
                 ->remember($this->remember_period);
 
             // missed appointment
-            $client_missed = ETLAppointment::selectRaw('
+            $client_missed = ETLAppointment::selectRaw(
+                '
             SUM(CASE WHEN app_not_kept = 1 THEN 1 ELSE 0 END) AS not_kept_app,
             SUM(CASE WHEN appointment_status = "Missed" OR appointment_status = "Defaulted" OR appointment_status = "IIT" THEN received_sms END) AS messages,
             SUM(CASE WHEN received_sms = 1 AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_messages,
@@ -320,7 +322,8 @@ class FinalDashboardController extends Controller
             $missed_age = ETLAppointment::select(
                 'age_group',
                 DB::raw('SUM(app_not_kept) AS not_kept_app '),
-                DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" THEN 1 ELSE 0 END) AS final_outcome'),
+                // DB::raw('COUNT(id) AS total_app '),
+                DB::raw('SUM(CASE WHEN final_outcome = "Client returned to care" THEN rtc_no END) AS final_outcome'),
                 DB::raw('ROUND(AVG(percent_rtc),1) AS percent_rtc '),
                 DB::raw('ROUND(AVG(percent_not_kept),1) AS percent_not_kept ')
             )
@@ -391,6 +394,7 @@ class FinalDashboardController extends Controller
                 'etl_client_detail.dob',
                 'etl_client_detail.consented',
                 'etl_client_detail.client_status',
+                'etl_client_detail.dsd_status',
                 'etl_appointment_detail.days_defaulted',
                 'etl_appointment_detail.final_outcome',
                 'etl_client_detail.client_name',
@@ -402,11 +406,17 @@ class FinalDashboardController extends Controller
                 ->groupBy('etl_appointment_detail.client_id')
                 ->remember($this->remember_period);
 
-            $app_period = ETLAppointment::select(
+            $app_rate = ETLAppointment::select(
                 DB::raw('DATE_FORMAT(appointment_date, "%Y-%M") AS new_date'),
+                DB::raw('SUM(CASE WHEN appointment_status = "Missed" THEN app_not_kept END) AS missed_app'),
+                DB::raw('SUM(CASE WHEN appointment_status = "Defaulted" THEN app_not_kept END) AS defaulted_app'),
+                DB::raw('SUM(CASE WHEN appointment_status = "IIT" THEN app_not_kept END) AS iit_app'),
+                DB::raw('SUM(app_not_kept) AS app_not_kept'),
                 DB::raw('ROUND(AVG(percent_rtc),1) AS percent_rtc '),
                 DB::raw('(SUM(app_kept)+SUM(app_not_kept)+SUM(future)) as total_app'),
-                DB::raw('ROUND(AVG(percent_not_kept),1) AS percent_not_kept ')
+                DB::raw('ROUND(AVG(percent_not_kept),1) AS percent_not_kept '),
+                DB::raw('ROUND(AVG(days_defaulted),0) AS days_defaulted '),
+                DB::raw('SUM(rtc_no) AS no_rtc')
             )
                 ->whereNotNull('appointment_date')
                 ->where('mfl_code', Auth::user()->facility_id)
@@ -434,7 +444,7 @@ class FinalDashboardController extends Controller
             $data["missed_partner"] = $missed_partner->get();
             $data["missed_facility"] = $missed_facility->get();
             $data["client_app_list"] = $client_app_list->get();
-            $data["app_period"] = $app_period->get();
+            $data["app_rate"] = $app_rate->get();
 
             return $data;
         }
@@ -442,7 +452,8 @@ class FinalDashboardController extends Controller
 
             $data = [];
 
-            $all_appoinments = ETLAppointment::selectRaw('
+            $all_appoinments = ETLAppointment::selectRaw(
+                '
                 (SUM(app_kept)+SUM(app_not_kept)+SUM(future)) as total_app,
                 SUM(app_kept) AS kept_app,
                 SUM(app_not_kept) AS not_kept_app,
@@ -452,13 +463,13 @@ class FinalDashboardController extends Controller
                 AVG(percent_not_kept) AS percent_not_kept,
                 AVG(percent_future) AS percent_future '
             )
-            ->remember($this->remember_period);
+                ->remember($this->remember_period);
 
             $consented_clients = ETLClient::selectRaw(
                 'SUM(CASE WHEN consented = "Yes" THEN 1 ELSE 0 END) AS consented,
                  AVG(percent_consented) AS percent_consented '
             )
-            ->remember($this->remember_period);
+                ->remember($this->remember_period);
 
             $all_tx_curr = Txcurr::select(DB::raw('SUM(tbl_tx_cur.tx_cur) as tx_cur'))
                 ->join('tbl_partner_facility', 'tbl_tx_cur.mfl_code', '=', 'tbl_partner_facility.mfl_code')
@@ -525,7 +536,8 @@ class FinalDashboardController extends Controller
 
 
             // missed appointment
-            $client_missed = ETLAppointment::selectRaw('
+            $client_missed = ETLAppointment::selectRaw(
+                '
                 SUM(CASE WHEN app_not_kept = 1 THEN 1 ELSE 0 END) AS not_kept_app,
                 SUM(CASE WHEN appointment_status = "Missed" OR appointment_status = "Defaulted" OR appointment_status = "IIT" THEN received_sms END) AS messages,
                 SUM(CASE WHEN received_sms = 1 AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_messages,
@@ -548,8 +560,8 @@ class FinalDashboardController extends Controller
                 SUM(CASE WHEN consent = "Yes" AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_consent,
                 SUM(CASE WHEN consent = "Yes" AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_consent '
             )
-            ->groupBy('client_id')
-            ->remember($this->remember_period);
+                ->groupBy('client_id')
+                ->remember($this->remember_period);
 
             $missed_age = ETLAppointment::selectRaw(
                 'age_group,
@@ -610,15 +622,21 @@ class FinalDashboardController extends Controller
                 ->groupBy('partner')
                 ->remember($this->remember_period);
 
-            $app_period = ETLAppointment::selectRaw(
+            $app_rate = ETLAppointment::selectRaw(
                 'DATE_FORMAT(appointment_date, "%Y-%M") AS new_date,
+                SUM(CASE WHEN appointment_status = "Missed" THEN app_not_kept END) AS missed_app,
+                SUM(CASE WHEN appointment_status = "Defaulted" THEN app_not_kept END) AS defaulted_app,
+                SUM(CASE WHEN appointment_status = "IIT" THEN app_not_kept END) AS iit_app,
+                SUM(app_not_kept) AS app_not_kept,
                 ROUND(AVG(percent_rtc),1) AS percent_rtc ,
                 (SUM(app_kept)+SUM(app_not_kept)+SUM(future)) as total_app,
-                ROUND(AVG(percent_not_kept),1) AS percent_not_kept '
-            )->whereNotNull('appointment_date')
+                ROUND(AVG(percent_not_kept),1) AS percent_not_kept,
+                ROUND(AVG(days_defaulted),0) AS days_defaulted,
+                SUM(rtc_no) AS no_rtc'
+            )
+                ->whereNotNull('appointment_date')
                 ->where('appointment_date', '<=', Carbon::now()->format('Y-m-d'))
                 ->where(DB::raw('DATE_FORMAT(appointment_date, "%Y-%M")'), '>=', "2017-January")
-               // ->where(DB::raw('DATE_FORMAT(appointment_date, "%Y-%M")'), '<=', date('Y-M'))
                 ->orderBy('appointment_date', 'ASC')
                 ->groupBy('new_date')
                 ->remember($this->remember_period);
@@ -637,7 +655,7 @@ class FinalDashboardController extends Controller
             $data["missed_marital"] = $missed_marital->get();
             $data["missed_county"] = $missed_county->get();
             $data["missed_partner"] = $missed_partner->get();
-            $data["app_period"] = $app_period->get();
+            $data["app_rate"] = $app_rate->get();
 
             return $data;
         }
@@ -747,7 +765,8 @@ class FinalDashboardController extends Controller
                 ->remember($this->remember_period);
 
             // missed appointment
-            $client_missed = ETLAppointment::selectRaw('
+            $client_missed = ETLAppointment::selectRaw(
+                '
             SUM(CASE WHEN app_not_kept = 1 THEN 1 ELSE 0 END) AS not_kept_app,
             SUM(CASE WHEN appointment_status = "Missed" OR appointment_status = "Defaulted" OR appointment_status = "IIT" THEN received_sms END) AS messages,
             SUM(CASE WHEN received_sms = 1 AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_messages,
@@ -847,17 +866,22 @@ class FinalDashboardController extends Controller
                 DB::raw('COUNT(ccc_number) AS ccc_number ')
             )->remember($this->remember_period);
 
-            $app_period = ETLAppointment::select(
-                DB::raw('DATE_FORMAT(appointment_date, "%Y-%M") AS new_date'),
-                DB::raw('ROUND(AVG(percent_rtc),1) AS percent_rtc '),
-                DB::raw('(SUM(app_kept)+SUM(app_not_kept)+SUM(future)) as total_app'),
-                DB::raw('ROUND(AVG(percent_not_kept),1) AS percent_not_kept ')
-            )->whereNotNull('appointment_date')
+            $app_rate = ETLAppointment::selectRaw(
+                'DATE_FORMAT(appointment_date, "%Y-%M") AS new_date,
+                SUM(CASE WHEN appointment_status = "Missed" THEN app_not_kept END) AS missed_app,
+                SUM(CASE WHEN appointment_status = "Defaulted" THEN app_not_kept END) AS defaulted_app,
+                SUM(CASE WHEN appointment_status = "IIT" THEN app_not_kept END) AS iit_app,
+                SUM(app_not_kept) AS app_not_kept,
+                ROUND(AVG(percent_rtc),1) AS percent_rtc ,
+                (SUM(app_kept)+SUM(app_not_kept)+SUM(future)) as total_app,
+                ROUND(AVG(percent_not_kept),1) AS percent_not_kept,
+                ROUND(AVG(days_defaulted),0) AS days_defaulted,
+                SUM(rtc_no) AS no_rtc'
+            )
+                ->whereNotNull('appointment_date')
                 ->where('partner_id', Auth::user()->partner_id)
                 ->where('appointment_date', '<=', Carbon::now()->format('Y-m-d'))
-                ->where('appointment_date', '<=', Carbon::now()->format('Y-m-d'))
                 ->where(DB::raw('DATE_FORMAT(appointment_date, "%Y-%M")'), '>=', "2017-January")
-                //->where(DB::raw('DATE_FORMAT(appointment_date, "%Y-%M")'), '<=', date('Y-M'))
                 ->orderBy('appointment_date', 'ASC')
                 ->groupBy('new_date')
                 ->remember($this->remember_period);
@@ -880,7 +904,7 @@ class FinalDashboardController extends Controller
             $data["missed_partner"] = $missed_partner->get();
             $data["missed_facility"] = $missed_facility->get();
             $data["client_app_list"] = $client_app_list->get();
-            $data["app_period"] = $app_period->get();
+            $data["app_rate"] = $app_rate->get();
 
             return $data;
         }
@@ -990,7 +1014,8 @@ class FinalDashboardController extends Controller
                 ->remember($this->remember_period);
 
             // missed appointment
-            $client_missed = ETLAppointment::selectRaw('
+            $client_missed = ETLAppointment::selectRaw(
+                '
             SUM(CASE WHEN app_not_kept = 1 THEN 1 ELSE 0 END) AS not_kept_app,
             SUM(CASE WHEN appointment_status = "Missed" OR appointment_status = "Defaulted" OR appointment_status = "IIT" THEN received_sms END) AS messages,
             SUM(CASE WHEN received_sms = 1 AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_messages,
@@ -1093,16 +1118,22 @@ class FinalDashboardController extends Controller
                 DB::raw('COUNT(ccc_number) AS ccc_number ')
             )->remember($this->remember_period);
 
-            $app_period = ETLAppointment::select(
-                DB::raw('DATE_FORMAT(appointment_date, "%Y-%M") AS new_date'),
-                DB::raw('ROUND(AVG(percent_rtc),1) AS percent_rtc '),
-                DB::raw('(SUM(app_kept)+SUM(app_not_kept)+SUM(future)) as total_app'),
-                DB::raw('ROUND(AVG(percent_not_kept),1) AS percent_not_kept ')
-            )->whereNotNull('appointment_date')
+            $app_rate = ETLAppointment::selectRaw(
+                'DATE_FORMAT(appointment_date, "%Y-%M") AS new_date,
+                SUM(CASE WHEN appointment_status = "Missed" THEN app_not_kept END) AS missed_app,
+                SUM(CASE WHEN appointment_status = "Defaulted" THEN app_not_kept END) AS defaulted_app,
+                SUM(CASE WHEN appointment_status = "IIT" THEN app_not_kept END) AS iit_app,
+                SUM(app_not_kept) AS app_not_kept,
+                ROUND(AVG(percent_rtc),1) AS percent_rtc ,
+                (SUM(app_kept)+SUM(app_not_kept)+SUM(future)) as total_app,
+                ROUND(AVG(percent_not_kept),1) AS percent_not_kept,
+                ROUND(AVG(days_defaulted),0) AS days_defaulted,
+                SUM(rtc_no) AS no_rtc'
+            )
+                ->whereNotNull('appointment_date')
                 ->where('subcounty_id', Auth::user()->subcounty_id)
                 ->where('appointment_date', '<=', Carbon::now()->format('Y-m-d'))
                 ->where(DB::raw('DATE_FORMAT(appointment_date, "%Y-%M")'), '>=', "2017-January")
-                //->where(DB::raw('DATE_FORMAT(appointment_date, "%Y-%M")'), '<=', date('Y-M'))
                 ->orderBy('appointment_date', 'ASC')
                 ->groupBy('new_date')
                 ->remember($this->remember_period);
@@ -1125,7 +1156,7 @@ class FinalDashboardController extends Controller
             $data["missed_partner"] = $missed_partner->get();
             $data["missed_facility"] = $missed_facility->get();
             $data["client_app_list"] = $client_app_list->get();
-            $data["app_period"] = $app_period->get();
+            $data["app_rate"] = $app_rate->get();
 
             return $data;
         }
@@ -1237,7 +1268,8 @@ class FinalDashboardController extends Controller
                 ->remember($this->remember_period);
 
             // missed appointment
-            $client_missed = ETLAppointment::selectRaw('
+            $client_missed = ETLAppointment::selectRaw(
+                '
             SUM(CASE WHEN app_not_kept = 1 THEN 1 ELSE 0 END) AS not_kept_app,
             SUM(CASE WHEN appointment_status = "Missed" OR appointment_status = "Defaulted" OR appointment_status = "IIT" THEN received_sms END) AS messages,
             SUM(CASE WHEN received_sms = 1 AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_messages,
@@ -1342,16 +1374,22 @@ class FinalDashboardController extends Controller
                 DB::raw('COUNT(ccc_number) AS ccc_number ')
             )->remember($this->remember_period);
 
-            $app_period = ETLAppointment::select(
-                DB::raw('DATE_FORMAT(appointment_date, "%Y-%M") AS new_date'),
-                DB::raw('ROUND(AVG(percent_rtc),1) AS percent_rtc '),
-                DB::raw('(SUM(app_kept)+SUM(app_not_kept)+SUM(future)) as total_app'),
-                DB::raw('ROUND(AVG(percent_not_kept),1) AS percent_not_kept ')
-            )->whereNotNull('appointment_date')
+            $app_rate = ETLAppointment::selectRaw(
+                'DATE_FORMAT(appointment_date, "%Y-%M") AS new_date,
+                SUM(CASE WHEN appointment_status = "Missed" THEN app_not_kept END) AS missed_app,
+                SUM(CASE WHEN appointment_status = "Defaulted" THEN app_not_kept END) AS defaulted_app,
+                SUM(CASE WHEN appointment_status = "IIT" THEN app_not_kept END) AS iit_app,
+                SUM(app_not_kept) AS app_not_kept,
+                ROUND(AVG(percent_rtc),1) AS percent_rtc ,
+                (SUM(app_kept)+SUM(app_not_kept)+SUM(future)) as total_app,
+                ROUND(AVG(percent_not_kept),1) AS percent_not_kept,
+                ROUND(AVG(days_defaulted),0) AS days_defaulted,
+                SUM(rtc_no) AS no_rtc'
+            )
+                ->whereNotNull('appointment_date')
                 ->where('county_id', Auth::user()->county_id)
                 ->where('appointment_date', '<=', Carbon::now()->format('Y-m-d'))
                 ->where(DB::raw('DATE_FORMAT(appointment_date, "%Y-%M")'), '>=', "2017-January")
-                //->where(DB::raw('DATE_FORMAT(appointment_date, "%Y-%M")'), '<=', date('Y-M'))
                 ->orderBy('appointment_date', 'ASC')
                 ->groupBy('new_date')
                 ->remember($this->remember_period);
@@ -1374,7 +1412,7 @@ class FinalDashboardController extends Controller
             $data["missed_partner"] = $missed_partner->get();
             $data["missed_facility"] = $missed_facility->get();
             $data["client_app_list"] = $client_app_list->get();
-            $data["app_period"] = $app_period->get();
+            $data["app_rate"] = $app_rate->get();
 
             return $data;
         }
@@ -1469,7 +1507,8 @@ class FinalDashboardController extends Controller
                 ->remember($this->remember_period);
 
             // missed appointment
-            $client_missed = ETLAppointment::selectRaw('
+            $client_missed = ETLAppointment::selectRaw(
+                '
             SUM(CASE WHEN app_not_kept = 1 THEN 1 ELSE 0 END) AS not_kept_app,
             SUM(CASE WHEN appointment_status = "Missed" OR appointment_status = "Defaulted" OR appointment_status = "IIT" THEN received_sms END) AS messages,
             SUM(CASE WHEN received_sms = 1 AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_messages,
@@ -1492,7 +1531,7 @@ class FinalDashboardController extends Controller
             SUM(CASE WHEN consent = "Yes" AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_consent,
             SUM(CASE WHEN consent = "Yes" AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_consent '
             )->groupBy('client_id')
-            ->remember($this->remember_period);
+                ->remember($this->remember_period);
 
             $missed_age = ETLAppointment::select(
                 'age_group',
@@ -1549,12 +1588,20 @@ class FinalDashboardController extends Controller
                 ->groupBy('partner')
                 ->remember($this->remember_period);
 
-            $app_period = ETLAppointment::select(
-                DB::raw('DATE_FORMAT(appointment_date, "%Y-%M") AS new_date'),
-                DB::raw('ROUND(AVG(percent_rtc),1) AS percent_rtc '),
-                DB::raw('(SUM(app_kept)+SUM(app_not_kept)+SUM(future)) as total_app'),
-                DB::raw('ROUND(AVG(percent_not_kept),1) AS percent_not_kept ')
-            )->whereNotNull('appointment_date')
+
+            $app_rate = ETLAppointment::selectRaw(
+                'DATE_FORMAT(appointment_date, "%Y-%M") AS new_date,
+                SUM(CASE WHEN appointment_status = "Missed" THEN app_not_kept END) AS missed_app,
+                SUM(CASE WHEN appointment_status = "Defaulted" THEN app_not_kept END) AS defaulted_app,
+                SUM(CASE WHEN appointment_status = "IIT" THEN app_not_kept END) AS iit_app,
+                SUM(app_not_kept) AS app_not_kept,
+                ROUND(AVG(percent_rtc),1) AS percent_rtc ,
+                (SUM(app_kept)+SUM(app_not_kept)+SUM(future)) as total_app,
+                ROUND(AVG(percent_not_kept),1) AS percent_not_kept,
+                ROUND(AVG(days_defaulted),0) AS days_defaulted,
+                SUM(rtc_no) AS no_rtc'
+            )
+                ->whereNotNull('appointment_date')
                 ->where('appointment_date', '<=', Carbon::now()->format('Y-m-d'))
                 ->where(DB::raw('DATE_FORMAT(appointment_date, "%Y-%M")'), '>=', "2017-January")
                 ->orderBy('appointment_date', 'ASC')
@@ -1576,7 +1623,7 @@ class FinalDashboardController extends Controller
                 $missed_marital = $missed_marital->where('partner_id', $selected_partners);
                 $missed_county = $missed_county->where('partner_id', $selected_partners);
                 $missed_partner = $missed_partner->where('partner_id', $selected_partners);
-                $app_period = $app_period->where('partner_id', $selected_partners);
+                $app_rate = $app_rate->where('partner_id', $selected_partners);
             }
             if (!empty($selected_counties)) {
                 $all_appoinments = $all_appoinments->where('county_id', $selected_counties);
@@ -1593,7 +1640,7 @@ class FinalDashboardController extends Controller
                 $missed_marital = $missed_marital->where('county_id', $selected_counties);
                 $missed_county = $missed_county->where('county_id', $selected_counties);
                 $missed_partner = $missed_partner->where('county_id', $selected_counties);
-                $app_period = $app_period->where('county_id', $selected_counties);
+                $app_rate = $app_rate->where('county_id', $selected_counties);
             }
             if (!empty($selected_subcounties)) {
                 $all_appoinments = $all_appoinments->where('subcounty_id', $selected_subcounties);
@@ -1610,7 +1657,7 @@ class FinalDashboardController extends Controller
                 $missed_marital = $missed_marital->where('subcounty_id', $selected_subcounties);
                 $missed_county = $missed_county->where('subcounty_id', $selected_subcounties);
                 $missed_partner = $missed_partner->where('subcounty_id', $selected_subcounties);
-                $app_period = $app_period->where('subcounty_id', $selected_subcounties);
+                $app_rate = $app_rate->where('subcounty_id', $selected_subcounties);
             }
             if (!empty($selected_facilites)) {
                 $all_appoinments = $all_appoinments->where('mfl_code', $selected_facilites);
@@ -1627,7 +1674,7 @@ class FinalDashboardController extends Controller
                 $missed_marital = $missed_marital->where('mfl_code', $selected_facilites);
                 $missed_county = $missed_county->where('mfl_code', $selected_facilites);
                 $missed_partner = $missed_partner->where('mfl_code', $selected_facilites);
-                $app_period = $app_period->where('mfl_code', $selected_facilites);
+                $app_rate = $app_rate->where('mfl_code', $selected_facilites);
             }
 
             if (!empty($selected_clinics)) {
@@ -1645,7 +1692,7 @@ class FinalDashboardController extends Controller
                 $missed_marital = $missed_marital->where('clinic_type', $selected_clinics);
                 $missed_county = $missed_county->where('clinic_type', $selected_clinics);
                 $missed_partner = $missed_partner->where('clinic_type', $selected_clinics);
-                $app_period = $app_period->where('clinic_type', $selected_clinics);
+                $app_rate = $app_rate->where('clinic_type', $selected_clinics);
             }
             if (!empty($selected_appointments)) {
                 $all_appoinments = $all_appoinments;
@@ -1662,7 +1709,7 @@ class FinalDashboardController extends Controller
                 $missed_marital = $missed_marital->where('appointment_status', $selected_appointments);
                 $missed_county = $missed_county->where('appointment_status', $selected_appointments);
                 $missed_partner = $missed_partner->where('appointment_status', $selected_appointments);
-                $app_period = $app_period->where('appointment_status', $selected_appointments);
+                $app_rate = $app_rate->where('appointment_status', $selected_appointments);
             }
             if (!empty($selected_from || $selected_to)) {
                 $all_appoinments = $all_appoinments->where('appointment_date', '>=', date($request->from))->where('appointment_date', '<=', date($request->to));
@@ -1679,7 +1726,7 @@ class FinalDashboardController extends Controller
                 $missed_marital = $missed_marital->where('appointment_date', '>=', date($request->from))->where('appointment_date', '<=', date($request->to));
                 $missed_county = $missed_county->where('appointment_date', '>=', date($request->from))->where('appointment_date', '<=', date($request->to));
                 $missed_partner = $missed_partner->where('appointment_date', '>=', date($request->from))->where('appointment_date', '<=', date($request->to));
-                $app_period = $app_period->where('appointment_date', '>=', date($request->from))->where('appointment_date', '<=', date($request->to));
+                $app_rate = $app_rate->where('appointment_date', '>=', date($request->from))->where('appointment_date', '<=', date($request->to));
             }
 
             if (!empty($selected_site)) {
@@ -1697,7 +1744,7 @@ class FinalDashboardController extends Controller
                 $missed_marital = $missed_marital->where('facility_type', $selected_site);
                 $missed_county = $missed_county->where('facility_type', $selected_site);
                 $missed_partner = $missed_partner->where('facility_type', $selected_site);
-                $app_period = $app_period->where('facility_type', $selected_site);
+                $app_rate = $app_rate->where('facility_type', $selected_site);
             }
 
             $data["all_appoinments"] = $all_appoinments->get();
@@ -1714,7 +1761,8 @@ class FinalDashboardController extends Controller
             $data["missed_marital"] = $missed_marital->get();
             $data["missed_county"] = $missed_county->get();
             $data["missed_partner"] = $missed_partner->get();
-            $data["app_period"] = $app_period->get();
+            $data["app_rate"] = $app_rate->get();
+
 
             return $data;
         }
@@ -1791,22 +1839,22 @@ class FinalDashboardController extends Controller
                 ->groupBy('marital')
                 ->remember($this->remember_period);
 
-                $client_list = ETLClient::select(
-                    'etl_client_detail.upi_no',
-                    'etl_client_detail.ccc_number',
-                    'etl_client_detail.dob',
-                    'etl_client_detail.consented',
-                    'etl_client_detail.client_status',
-                    'etl_client_detail.client_name',
-                    'etl_client_detail.dsd_status',
-                    'etl_client_detail.phone_no',
-                    DB::raw('COUNT(etl_appointment_detail.app_kept) AS kept_app '),
-                    DB::raw('SUM(etl_appointment_detail.app_not_kept) AS not_kept_app ')
-                )
-                    ->join('etl_appointment_detail', 'etl_client_detail.client_id', '=', 'etl_appointment_detail.client_id')
-                    ->where('etl_client_detail.mfl_code', Auth::user()->facility_id)
-                    ->groupBy('etl_appointment_detail.client_id')
-                    ->remember($this->remember_period);
+            $client_list = ETLClient::select(
+                'etl_client_detail.upi_no',
+                'etl_client_detail.ccc_number',
+                'etl_client_detail.dob',
+                'etl_client_detail.consented',
+                'etl_client_detail.client_status',
+                'etl_client_detail.client_name',
+                'etl_client_detail.dsd_status',
+                'etl_client_detail.phone_no',
+                DB::raw('COUNT(etl_appointment_detail.app_kept) AS kept_app '),
+                DB::raw('SUM(etl_appointment_detail.app_not_kept) AS not_kept_app ')
+            )
+                ->join('etl_appointment_detail', 'etl_client_detail.client_id', '=', 'etl_appointment_detail.client_id')
+                ->where('etl_client_detail.mfl_code', Auth::user()->facility_id)
+                ->groupBy('etl_client_detail.ccc_number')
+                ->remember($this->remember_period);
 
             $appointment_county = ETLAppointment::select(
                 'county',
@@ -1842,7 +1890,8 @@ class FinalDashboardController extends Controller
                 ->remember($this->remember_period);
 
             // missed appointment
-            $client_missed = ETLAppointment::selectRaw('
+            $client_missed = ETLAppointment::selectRaw(
+                '
             SUM(CASE WHEN app_not_kept = 1 THEN 1 ELSE 0 END) AS not_kept_app,
             SUM(CASE WHEN appointment_status = "Missed" OR appointment_status = "Defaulted" OR appointment_status = "IIT" THEN received_sms END) AS messages,
             SUM(CASE WHEN received_sms = 1 AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_messages,
@@ -1930,6 +1979,7 @@ class FinalDashboardController extends Controller
                 'etl_client_detail.consented',
                 'etl_client_detail.client_status',
                 'etl_appointment_detail.days_defaulted',
+                'etl_client_detail.dsd_status',
                 'etl_appointment_detail.final_outcome',
                 'etl_client_detail.client_name',
                 'etl_client_detail.phone_no'
@@ -1940,12 +1990,19 @@ class FinalDashboardController extends Controller
                 ->groupBy('etl_appointment_detail.client_id')
                 ->remember($this->remember_period);
 
-            $app_period = ETLAppointment::select(
-                DB::raw('DATE_FORMAT(appointment_date, "%Y-%M") AS new_date'),
-                DB::raw('ROUND(AVG(percent_rtc),1) AS percent_rtc '),
-                DB::raw('(SUM(app_kept)+SUM(app_not_kept)+SUM(future)) as total_app'),
-                DB::raw('ROUND(AVG(percent_not_kept),1) AS percent_not_kept ')
-            )->whereNotNull('appointment_date')
+            $app_rate = ETLAppointment::selectRaw(
+                'DATE_FORMAT(appointment_date, "%Y-%M") AS new_date,
+                SUM(CASE WHEN appointment_status = "Missed" THEN app_not_kept END) AS missed_app,
+                SUM(CASE WHEN appointment_status = "Defaulted" THEN app_not_kept END) AS defaulted_app,
+                SUM(CASE WHEN appointment_status = "IIT" THEN app_not_kept END) AS iit_app,
+                SUM(app_not_kept) AS app_not_kept,
+                ROUND(AVG(percent_rtc),1) AS percent_rtc ,
+                (SUM(app_kept)+SUM(app_not_kept)+SUM(future)) as total_app,
+                ROUND(AVG(percent_not_kept),1) AS percent_not_kept,
+                ROUND(AVG(days_defaulted),0) AS days_defaulted,
+                SUM(rtc_no) AS no_rtc'
+            )
+                ->whereNotNull('appointment_date')
                 ->where('mfl_code', Auth::user()->facility_id)
                 ->where('appointment_date', '<=', Carbon::now()->format('Y-m-d'))
                 ->where(DB::raw('DATE_FORMAT(appointment_date, "%Y-%M")'), '>=', "2017-January")
@@ -1953,19 +2010,6 @@ class FinalDashboardController extends Controller
                 ->groupBy('new_date')
                 ->remember($this->remember_period);
 
-                // if ($selected_appointments == 'Missed') {
-                //     $app_period = DB::table('etl_appointment_detail')->select(
-                //         DB::raw('DATE_FORMAT(appointment_date, "%Y-%M") AS new_date'),
-                //         DB::raw('ROUND((( COUNT(CASE WHEN appointment_status = "Missed" THEN app_not_kept END)/(COUNT(appointment_id)) ) * 100 ), 1 ) AS percent_not_kept'),
-                //         DB::raw('ROUND(AVG(percent_rtc),1) AS percent_rtc '),
-                //         // DB::raw('ROUND(AVG(percent_not_kept),1) AS percent_not_kept ')
-                //     )->whereNotNull('appointment_date')
-                //         ->where('mfl_code', Auth::user()->facility_id)
-                //         ->where('appointment_date', '<=', date("Y-M-D"))
-                //         ->where(DB::raw('DATE_FORMAT(appointment_date, "%Y-%M")'), '>=', "2017-January")
-                //         ->orderBy('appointment_date', 'ASC')
-                //         ->groupBy('new_date');
-                // }
 
             if (!empty($selected_partners)) {
                 $all_appoinments = $all_appoinments->where('partner_id', $selected_partners);
@@ -1985,7 +2029,7 @@ class FinalDashboardController extends Controller
                 $missed_county = $missed_county->where('partner_id', $selected_partners);
                 $missed_partner = $missed_partner->where('partner_id', $selected_partners);
                 $client_app_list = $client_app_list->where('partner_id', $selected_partners);
-                $app_period = $app_period->where('partner_id', $selected_partners);
+                $app_rate = $app_rate->where('partner_id', $selected_partners);
             }
             if (!empty($selected_counties)) {
                 $all_appoinments = $all_appoinments->where('county_id', $selected_counties);
@@ -2005,7 +2049,7 @@ class FinalDashboardController extends Controller
                 $missed_county = $missed_county->where('county_id', $selected_counties);
                 $missed_partner = $missed_partner->where('county_id', $selected_counties);
                 $client_app_list = $client_app_list->where('county_id', $selected_counties);
-                $app_period = $app_period->where('county_id', $selected_counties);
+                $app_rate = $app_rate->where('county_id', $selected_counties);
             }
             if (!empty($selected_subcounties)) {
                 $all_appoinments = $all_appoinments->where('subcounty_id', $selected_subcounties);
@@ -2025,7 +2069,7 @@ class FinalDashboardController extends Controller
                 $missed_county = $missed_county->where('subcounty_id', $selected_subcounties);
                 $missed_partner = $missed_partner->where('subcounty_id', $selected_subcounties);
                 $client_app_list = $client_app_list->where('subcounty_id', $selected_subcounties);
-                $app_period = $app_period->where('subcounty_id', $selected_subcounties);
+                $app_rate = $app_rate->where('subcounty_id', $selected_subcounties);
             }
             if (!empty($selected_facilites)) {
                 $all_appoinments = $all_appoinments->where('mfl_code', $selected_facilites);
@@ -2045,7 +2089,7 @@ class FinalDashboardController extends Controller
                 $missed_county = $missed_county->where('mfl_code', $selected_facilites);
                 $missed_partner = $missed_partner->where('mfl_code', $selected_facilites);
                 $client_app_list = $client_app_list->where('mfl_code', $selected_facilites);
-                $app_period = $app_period->where('mfl_code', $selected_facilites);
+                $app_rate = $app_rate->where('mfl_code', $selected_facilites);
             }
 
             if (!empty($selected_clinics)) {
@@ -2066,7 +2110,7 @@ class FinalDashboardController extends Controller
                 $missed_county = $missed_county->where('clinic_type', $selected_clinics);
                 $missed_partner = $missed_partner->where('clinic_type', $selected_clinics);
                 $client_app_list = $client_app_list->where('etl_client_detail.clinic_type', $selected_clinics);
-                $app_period = $app_period->where('clinic_type', $selected_clinics);
+                $app_rate = $app_rate->where('clinic_type', $selected_clinics);
             }
             if (!empty($selected_appointments)) {
                 $all_appoinments = $all_appoinments;
@@ -2078,15 +2122,15 @@ class FinalDashboardController extends Controller
                 $appointment_county = $appointment_county;
                 $appointment_partner = $appointment_partner;
                 $appointment_facility = $appointment_facility;
-                $client_list = $client_list;
+                $client_list = $client_list->where('appointment_status', $selected_appointments);
                 $client_missed = $client_missed->where('appointment_status', $selected_appointments);
-                $missed_age = $missed_age->where('appointment_status', $selected_appointments);
-                $missed_gender = $missed_gender->where('appointment_status', $selected_appointments);
-                $missed_marital = $missed_marital->where('appointment_status', $selected_appointments);
-                $missed_county = $missed_county->where('appointment_status', $selected_appointments);
-                $missed_partner = $missed_partner->where('appointment_status', $selected_appointments);
-                $client_app_list = $client_app_list;
-                $app_period = $app_period->where('appointment_status', $selected_appointments);
+                $missed_age = $missed_age;
+                $missed_gender = $missed_gender;
+                $missed_marital = $missed_marital;
+                $missed_county = $missed_county;
+                $missed_partner = $missed_partner;
+                $client_app_list = $client_app_list->where('appointment_status', $selected_appointments);
+                $app_rate = $app_rate;
             }
             if (!empty($selected_from || $selected_to)) {
                 $all_appoinments = $all_appoinments->where('appointment_date', '>=', date($request->from))->where('appointment_date', '<=', date($request->to));
@@ -2098,15 +2142,15 @@ class FinalDashboardController extends Controller
                 $appointment_county = $appointment_county->where('appointment_date', '>=', date($request->from))->where('appointment_date', '<=', date($request->to));
                 $appointment_partner = $appointment_partner->where('appointment_date', '>=', date($request->from))->where('appointment_date', '<=', date($request->to));
                 $appointment_facility = $appointment_facility->where('appointment_date', '>=', date($request->from))->where('appointment_date', '<=', date($request->to));
-                $client_list = $client_list;
+                $client_list = $client_list->where('appointment_date', '>=', date($request->from))->where('appointment_date', '<=', date($request->to));
                 $client_missed = $client_missed->where('appointment_date', '>=', date($request->from))->where('appointment_date', '<=', date($request->to));
                 $missed_age = $missed_age->where('appointment_date', '>=', date($request->from))->where('appointment_date', '<=', date($request->to));
                 $missed_gender = $missed_gender->where('appointment_date', '>=', date($request->from))->where('appointment_date', '<=', date($request->to));
                 $missed_marital = $missed_marital->where('appointment_date', '>=', date($request->from))->where('appointment_date', '<=', date($request->to));
                 $missed_county = $missed_county->where('appointment_date', '>=', date($request->from))->where('appointment_date', '<=', date($request->to));
                 $missed_partner = $missed_partner->where('appointment_date', '>=', date($request->from))->where('appointment_date', '<=', date($request->to));
-                $client_app_list = $client_app_list;
-                $app_period = $app_period->where('appointment_date', '>=', date($request->from))->where('appointment_date', '<=', date($request->to));
+                $client_app_list = $client_app_list->where('appointment_date', '>=', date($request->from))->where('appointment_date', '<=', date($request->to));
+                $app_rate = $app_rate->where('appointment_date', '>=', date($request->from))->where('appointment_date', '<=', date($request->to));
             }
 
             if (!empty($selected_sites)) {
@@ -2127,7 +2171,7 @@ class FinalDashboardController extends Controller
                 $missed_county = $missed_county->where('facility_type', $selected_sites);
                 $missed_partner = $missed_partner->where('facility_type', $selected_sites);
                 $client_app_list = $client_app_list->where('facility_type', $selected_sites);
-                $app_period = $app_period->where('facility_type', $selected_sites);
+                $app_rate = $app_rate->where('facility_type', $selected_sites);
             }
 
             $data["all_appoinments"] = $all_appoinments->get();
@@ -2139,7 +2183,7 @@ class FinalDashboardController extends Controller
             $data["appointment_county"] = $appointment_county->get();
             $data["appointment_partner"] = $appointment_partner->get();
             $data["appointment_facility"] = $appointment_facility->get();
-            $data["client_list"] = $client_list->get();
+            $data["client_list"] = $client_list->groupBy('etl_appointment_detail.client_id')->get();
             $data["client_missed"] = $client_missed->get();
             $data["missed_age"] = $missed_age->get();
             $data["missed_gender"] = $missed_gender->get();
@@ -2147,7 +2191,7 @@ class FinalDashboardController extends Controller
             $data["missed_county"] = $missed_county->get();
             $data["missed_partner"] = $missed_partner->get();
             $data["client_app_list"] = $client_app_list->get();
-            $data["app_period"] = $app_period->get();
+            $data["app_rate"] = $app_rate->get();
 
             return $data;
         }
@@ -2262,7 +2306,8 @@ class FinalDashboardController extends Controller
                 ->remember($this->remember_period);
 
             // missed appointment
-            $client_missed = ETLAppointment::selectRaw('
+            $client_missed = ETLAppointment::selectRaw(
+                '
             SUM(CASE WHEN app_not_kept = 1 THEN 1 ELSE 0 END) AS not_kept_app,
             SUM(CASE WHEN appointment_status = "Missed" OR appointment_status = "Defaulted" OR appointment_status = "IIT" THEN received_sms END) AS messages,
             SUM(CASE WHEN received_sms = 1 AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_messages,
@@ -2359,12 +2404,19 @@ class FinalDashboardController extends Controller
                 DB::raw('COUNT(ccc_number) AS ccc_number ')
             )->remember($this->remember_period);
 
-            $app_period = ETLAppointment::select(
-                DB::raw('DATE_FORMAT(appointment_date, "%Y-%M") AS new_date'),
-                DB::raw('ROUND(AVG(percent_rtc),1) AS percent_rtc '),
-                DB::raw('(SUM(app_kept)+SUM(app_not_kept)+SUM(future)) as total_app'),
-                DB::raw('ROUND(AVG(percent_not_kept),1) AS percent_not_kept ')
-            )->whereNotNull('appointment_date')
+            $app_rate = ETLAppointment::selectRaw(
+                'DATE_FORMAT(appointment_date, "%Y-%M") AS new_date,
+                SUM(CASE WHEN appointment_status = "Missed" THEN app_not_kept END) AS missed_app,
+                SUM(CASE WHEN appointment_status = "Defaulted" THEN app_not_kept END) AS defaulted_app,
+                SUM(CASE WHEN appointment_status = "IIT" THEN app_not_kept END) AS iit_app,
+                SUM(app_not_kept) AS app_not_kept,
+                ROUND(AVG(percent_rtc),1) AS percent_rtc ,
+                (SUM(app_kept)+SUM(app_not_kept)+SUM(future)) as total_app,
+                ROUND(AVG(percent_not_kept),1) AS percent_not_kept,
+                ROUND(AVG(days_defaulted),0) AS days_defaulted,
+                SUM(rtc_no) AS no_rtc'
+            )
+                ->whereNotNull('appointment_date')
                 ->where('partner_id', Auth::user()->partner_id)
                 ->where('appointment_date', '<=', Carbon::now()->format('Y-m-d'))
                 ->where(DB::raw('DATE_FORMAT(appointment_date, "%Y-%M")'), '>=', "2017-January")
@@ -2391,7 +2443,7 @@ class FinalDashboardController extends Controller
                 $missed_partner = $missed_partner->where('partner_id', $selected_partners);
                 $missed_facility = $missed_facility->where('partner_id', $selected_partners);
                 $client_app_list = $client_app_list->where('partner_id', $selected_partners);
-                $app_period = $app_period->where('partner_id', $selected_partners);
+                $app_rate = $app_rate->where('partner_id', $selected_partners);
             }
             if (!empty($selected_counties)) {
                 $all_appoinments = $all_appoinments->where('county_id', $selected_counties);
@@ -2412,7 +2464,7 @@ class FinalDashboardController extends Controller
                 $missed_partner = $missed_partner->where('county_id', $selected_counties);
                 $missed_facility = $missed_facility->where('county_id', $selected_counties);
                 $client_app_list = $client_app_list->where('county_id', $selected_counties);
-                $app_period = $app_period->where('county_id', $selected_counties);
+                $app_rate = $app_rate->where('county_id', $selected_counties);
             }
             if (!empty($selected_subcounties)) {
                 $all_appoinments = $all_appoinments->where('subcounty_id', $selected_subcounties);
@@ -2433,7 +2485,7 @@ class FinalDashboardController extends Controller
                 $missed_partner = $missed_partner->where('subcounty_id', $selected_subcounties);
                 $missed_facility = $missed_facility->where('subcounty_id', $selected_subcounties);
                 $client_app_list = $client_app_list->where('subcounty_id', $selected_subcounties);
-                $app_period = $app_period->where('subcounty_id', $selected_subcounties);
+                $app_rate = $app_rate->where('subcounty_id', $selected_subcounties);
             }
             if (!empty($selected_facilites)) {
                 $all_appoinments = $all_appoinments->where('mfl_code', $selected_facilites);
@@ -2454,7 +2506,7 @@ class FinalDashboardController extends Controller
                 $missed_partner = $missed_partner->where('mfl_code', $selected_facilites);
                 $missed_facility = $missed_facility->where('mfl_code', $selected_facilites);
                 $client_app_list = $client_app_list->where('mfl_code', $selected_facilites);
-                $app_period = $app_period->where('mfl_code', $selected_facilites);
+                $app_rate = $app_rate->where('mfl_code', $selected_facilites);
             }
 
             if (!empty($selected_clinics)) {
@@ -2476,7 +2528,7 @@ class FinalDashboardController extends Controller
                 $missed_partner = $missed_partner->where('clinic_type', $selected_clinics);
                 $missed_facility = $missed_facility->where('clinic_type', $selected_clinics);
                 $client_app_list = $client_app_list->where('etl_client_detail.clinic_type', $selected_clinics);
-                $app_period = $app_period->where('clinic_type', $selected_clinics);
+                $app_rate = $app_rate->where('clinic_type', $selected_clinics);
             }
             if (!empty($selected_appointments)) {
                 $all_appoinments = $all_appoinments;
@@ -2490,14 +2542,14 @@ class FinalDashboardController extends Controller
                 $appointment_facility = $appointment_facility;
                 $client_list = $client_list;
                 $client_missed = $client_missed->where('appointment_status', $selected_appointments);
-                $missed_age = $missed_age->where('appointment_status', $selected_appointments);
-                $missed_gender = $missed_gender->where('appointment_status', $selected_appointments);
-                $missed_marital = $missed_marital->where('appointment_status', $selected_appointments);
-                $missed_county = $missed_county->where('appointment_status', $selected_appointments);
-                $missed_partner = $missed_partner->where('appointment_status', $selected_appointments);
-                $missed_facility = $missed_facility->where('appointment_status', $selected_appointments);
+                $missed_age = $missed_age;
+                $missed_gender = $missed_gender;
+                $missed_marital = $missed_marital;
+                $missed_county = $missed_county;
+                $missed_partner = $missed_partner;
+                $missed_facility = $missed_facility;
                 $client_app_list = $client_app_list;
-                $app_period = $app_period->where('appointment_status', $selected_appointments);
+                $app_rate = $app_rate;
             }
             if (!empty($selected_from || $selected_to)) {
                 $all_appoinments = $all_appoinments->where('appointment_date', '>=', date($request->from))->where('appointment_date', '<=', date($request->to));
@@ -2518,7 +2570,7 @@ class FinalDashboardController extends Controller
                 $missed_partner = $missed_partner->where('appointment_date', '>=', date($request->from))->where('appointment_date', '<=', date($request->to));
                 $missed_facility = $missed_facility->where('appointment_date', '>=', date($request->from))->where('appointment_date', '<=', date($request->to));
                 $client_app_list = $client_app_list;
-                $app_period = $app_period->where('appointment_date', '>=', date($request->from))->where('appointment_date', '<=', date($request->to));
+                $app_rate = $app_rate->where('appointment_date', '>=', date($request->from))->where('appointment_date', '<=', date($request->to));
             }
 
             if (!empty($selected_site)) {
@@ -2540,7 +2592,7 @@ class FinalDashboardController extends Controller
                 $missed_partner = $missed_partner->where('facility_type', $selected_site);
                 $missed_facility = $missed_facility->where('facility_type', $selected_site);
                 $client_app_list = $client_app_list->where('facility_type', $selected_site);
-                $app_period = $app_period->where('facility_type', $selected_site);
+                $app_rate = $app_rate->where('facility_type', $selected_site);
             }
 
             $data["all_appoinments"] = $all_appoinments->get();
@@ -2561,7 +2613,7 @@ class FinalDashboardController extends Controller
             $data["missed_partner"] = $missed_partner->get();
             $data["missed_facility"] = $missed_facility->get();
             $data["client_app_list"] = $client_app_list->get();
-            $data["app_period"] = $app_period->get();
+            $data["app_rate"] = $app_rate->get();
 
             return $data;
         }
@@ -2677,7 +2729,8 @@ class FinalDashboardController extends Controller
                 ->remember($this->remember_period);
 
             // missed appointment
-            $client_missed = ETLAppointment::selectRaw('
+            $client_missed = ETLAppointment::selectRaw(
+                '
             SUM(CASE WHEN app_not_kept = 1 THEN 1 ELSE 0 END) AS not_kept_app,
             SUM(CASE WHEN appointment_status = "Missed" OR appointment_status = "Defaulted" OR appointment_status = "IIT" THEN received_sms END) AS messages,
             SUM(CASE WHEN received_sms = 1 AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_messages,
@@ -2776,12 +2829,19 @@ class FinalDashboardController extends Controller
                 DB::raw('COUNT(ccc_number) AS ccc_number ')
             )->remember($this->remember_period);
 
-            $app_period = ETLAppointment::select(
-                DB::raw('DATE_FORMAT(appointment_date, "%Y-%M") AS new_date'),
-                DB::raw('ROUND(AVG(percent_rtc),1) AS percent_rtc '),
-                DB::raw('(SUM(app_kept)+SUM(app_not_kept)+SUM(future)) as total_app'),
-                DB::raw('ROUND(AVG(percent_not_kept),1) AS percent_not_kept ')
-            )->whereNotNull('appointment_date')
+            $app_rate = ETLAppointment::selectRaw(
+                'DATE_FORMAT(appointment_date, "%Y-%M") AS new_date,
+                SUM(CASE WHEN appointment_status = "Missed" THEN app_not_kept END) AS missed_app,
+                SUM(CASE WHEN appointment_status = "Defaulted" THEN app_not_kept END) AS defaulted_app,
+                SUM(CASE WHEN appointment_status = "IIT" THEN app_not_kept END) AS iit_app,
+                SUM(app_not_kept) AS app_not_kept,
+                ROUND(AVG(percent_rtc),1) AS percent_rtc ,
+                (SUM(app_kept)+SUM(app_not_kept)+SUM(future)) as total_app,
+                ROUND(AVG(percent_not_kept),1) AS percent_not_kept,
+                ROUND(AVG(days_defaulted),0) AS days_defaulted,
+                SUM(rtc_no) AS no_rtc'
+            )
+                ->whereNotNull('appointment_date')
                 ->where('subcounty_id', Auth::user()->subcounty_id)
                 ->where('appointment_date', '<=', Carbon::now()->format('Y-m-d'))
                 ->where(DB::raw('DATE_FORMAT(appointment_date, "%Y-%M")'), '>=', "2017-January")
@@ -2808,7 +2868,7 @@ class FinalDashboardController extends Controller
                 $missed_partner = $missed_partner->where('partner_id', $selected_partners);
                 $missed_facility = $missed_facility->where('partner_id', $selected_partners);
                 $client_app_list = $client_app_list->where('partner_id', $selected_partners);
-                $app_period = $app_period->where('partner_id', $selected_partners);
+                $app_rate = $app_rate->where('partner_id', $selected_partners);
             }
             if (!empty($selected_counties)) {
                 $all_appoinments = $all_appoinments->where('county_id', $selected_counties);
@@ -2829,7 +2889,7 @@ class FinalDashboardController extends Controller
                 $missed_partner = $missed_partner->where('county_id', $selected_counties);
                 $missed_facility = $missed_facility->where('county_id', $selected_counties);
                 $client_app_list = $client_app_list->where('county_id', $selected_counties);
-                $app_period = $app_period->where('county_id', $selected_counties);
+                $app_rate = $app_rate->where('county_id', $selected_counties);
             }
             if (!empty($selected_subcounties)) {
                 $all_appoinments = $all_appoinments->where('subcounty_id', $selected_subcounties);
@@ -2850,7 +2910,7 @@ class FinalDashboardController extends Controller
                 $missed_partner = $missed_partner->where('subcounty_id', $selected_subcounties);
                 $missed_facility = $missed_facility->where('subcounty_id', $selected_subcounties);
                 $client_app_list = $client_app_list->where('subcounty_id', $selected_subcounties);
-                $app_period = $app_period->where('subcounty_id', $selected_subcounties);
+                $app_rate = $app_rate->where('subcounty_id', $selected_subcounties);
             }
             if (!empty($selected_facilites)) {
                 $all_appoinments = $all_appoinments->where('mfl_code', $selected_facilites);
@@ -2871,7 +2931,7 @@ class FinalDashboardController extends Controller
                 $missed_partner = $missed_partner->where('mfl_code', $selected_facilites);
                 $missed_facility = $missed_facility->where('mfl_code', $selected_facilites);
                 $client_app_list = $client_app_list->where('mfl_code', $selected_facilites);
-                $app_period = $app_period->where('mfl_code', $selected_facilites);
+                $app_rate = $app_rate->where('mfl_code', $selected_facilites);
             }
 
             if (!empty($selected_clinics)) {
@@ -2893,7 +2953,7 @@ class FinalDashboardController extends Controller
                 $missed_partner = $missed_partner->where('clinic_type', $selected_clinics);
                 $missed_facility = $missed_facility->where('clinic_type', $selected_clinics);
                 $client_app_list = $client_app_list->where('etl_client_detail.clinic_type', $selected_clinics);
-                $app_period = $app_period->where('clinic_type', $selected_clinics);
+                $app_rate = $app_rate->where('clinic_type', $selected_clinics);
             }
             if (!empty($selected_appointments)) {
                 $all_appoinments = $all_appoinments;
@@ -2907,14 +2967,14 @@ class FinalDashboardController extends Controller
                 $appointment_facility = $appointment_facility;
                 $client_list = $client_list;
                 $client_missed = $client_missed->where('appointment_status', $selected_appointments);
-                $missed_age = $missed_age->where('appointment_status', $selected_appointments);
-                $missed_gender = $missed_gender->where('appointment_status', $selected_appointments);
-                $missed_marital = $missed_marital->where('appointment_status', $selected_appointments);
-                $missed_county = $missed_county->where('appointment_status', $selected_appointments);
-                $missed_partner = $missed_partner->where('appointment_status', $selected_appointments);
-                $missed_facility = $missed_facility->where('appointment_status', $selected_appointments);
+                $missed_age = $missed_age;
+                $missed_gender = $missed_gender;
+                $missed_marital = $missed_marital;
+                $missed_county = $missed_county;
+                $missed_partner = $missed_partner;
+                $missed_facility = $missed_facility;
                 $client_app_list = $client_app_list;
-                $app_period = $app_period->where('appointment_status', $selected_appointments);
+                $app_rate = $app_rate;
             }
             if (!empty($selected_from || $selected_to)) {
                 $all_appoinments = $all_appoinments->where('appointment_date', '>=', date($request->from))->where('appointment_date', '<=', date($request->to));
@@ -2935,7 +2995,7 @@ class FinalDashboardController extends Controller
                 $missed_partner = $missed_partner->where('appointment_date', '>=', date($request->from))->where('appointment_date', '<=', date($request->to));
                 $missed_facility = $missed_facility->where('appointment_date', '>=', date($request->from))->where('appointment_date', '<=', date($request->to));
                 $client_app_list = $client_app_list;
-                $app_period = $app_period->where('appointment_date', '>=', date($request->from))->where('appointment_date', '<=', date($request->to));
+                $app_rate = $app_rate->where('appointment_date', '>=', date($request->from))->where('appointment_date', '<=', date($request->to));
             }
 
             if (!empty($selected_sites)) {
@@ -2957,7 +3017,7 @@ class FinalDashboardController extends Controller
                 $missed_partner = $missed_partner->where('facility_type', $selected_sites);
                 $missed_facility = $missed_facility->where('facility_type', $selected_sites);
                 $client_app_list = $client_app_list->where('facility_type', $selected_sites);
-                $app_period = $app_period->where('facility_type', $selected_sites);
+                $app_rate = $app_rate->where('facility_type', $selected_sites);
             }
 
             $data["all_appoinments"] = $all_appoinments->get();
@@ -2978,7 +3038,7 @@ class FinalDashboardController extends Controller
             $data["missed_partner"] = $missed_partner->get();
             $data["missed_facility"] = $missed_facility->get();
             $data["client_app_list"] = $client_app_list->get();
-            $data["app_period"] = $app_period->get();
+            $data["app_rate"] = $app_rate->get();
 
             return $data;
         }
@@ -3096,7 +3156,8 @@ class FinalDashboardController extends Controller
                 ->remember($this->remember_period);
 
             // missed appointment
-            $client_missed = ETLAppointment::selectRaw('
+            $client_missed = ETLAppointment::selectRaw(
+                '
             SUM(CASE WHEN app_not_kept = 1 THEN 1 ELSE 0 END) AS not_kept_app,
             SUM(CASE WHEN appointment_status = "Missed" OR appointment_status = "Defaulted" OR appointment_status = "IIT" THEN received_sms END) AS messages,
             SUM(CASE WHEN received_sms = 1 AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_messages,
@@ -3196,12 +3257,19 @@ class FinalDashboardController extends Controller
                 DB::raw('COUNT(ccc_number) AS ccc_number ')
             )->remember($this->remember_period);
 
-            $app_period = ETLAppointment::select(
-                DB::raw('DATE_FORMAT(appointment_date, "%Y-%M") AS new_date'),
-                DB::raw('ROUND(AVG(percent_rtc),1) AS percent_rtc '),
-                DB::raw('(SUM(app_kept)+SUM(app_not_kept)+SUM(future)) as total_app'),
-                DB::raw('ROUND(AVG(percent_not_kept),1) AS percent_not_kept ')
-            )->whereNotNull('appointment_date')
+            $app_rate = ETLAppointment::selectRaw(
+                'DATE_FORMAT(appointment_date, "%Y-%M") AS new_date,
+                SUM(CASE WHEN appointment_status = "Missed" THEN app_not_kept END) AS missed_app,
+                SUM(CASE WHEN appointment_status = "Defaulted" THEN app_not_kept END) AS defaulted_app,
+                SUM(CASE WHEN appointment_status = "IIT" THEN app_not_kept END) AS iit_app,
+                SUM(app_not_kept) AS app_not_kept,
+                ROUND(AVG(percent_rtc),1) AS percent_rtc ,
+                (SUM(app_kept)+SUM(app_not_kept)+SUM(future)) as total_app,
+                ROUND(AVG(percent_not_kept),1) AS percent_not_kept,
+                ROUND(AVG(days_defaulted),0) AS days_defaulted,
+                SUM(rtc_no) AS no_rtc'
+            )
+                ->whereNotNull('appointment_date')
                 ->where('county_id', Auth::user()->county_id)
                 ->where('appointment_date', '<=', Carbon::now()->format('Y-m-d'))
                 ->where(DB::raw('DATE_FORMAT(appointment_date, "%Y-%M")'), '>=', "2017-January")
@@ -3228,7 +3296,7 @@ class FinalDashboardController extends Controller
                 $missed_partner = $missed_partner->where('partner_id', $selected_partners);
                 $missed_facility = $missed_facility->where('partner_id', $selected_partners);
                 $client_app_list = $client_app_list->where('partner_id', $selected_partners);
-                $app_period = $app_period->where('partner_id', $selected_partners);
+                $app_rate = $app_rate->where('partner_id', $selected_partners);
             }
             if (!empty($selected_counties)) {
                 $all_appoinments = $all_appoinments->where('county_id', $selected_counties);
@@ -3249,7 +3317,7 @@ class FinalDashboardController extends Controller
                 $missed_partner = $missed_partner->where('county_id', $selected_counties);
                 $missed_facility = $missed_facility->where('county_id', $selected_counties);
                 $client_app_list = $client_app_list->where('county_id', $selected_counties);
-                $app_period = $app_period->where('county_id', $selected_counties);
+                $app_rate = $app_rate->where('county_id', $selected_counties);
             }
             if (!empty($selected_subcounties)) {
                 $all_appoinments = $all_appoinments->where('subcounty_id', $selected_subcounties);
@@ -3270,7 +3338,7 @@ class FinalDashboardController extends Controller
                 $missed_partner = $missed_partner->where('subcounty_id', $selected_subcounties);
                 $missed_facility = $missed_facility->where('subcounty_id', $selected_subcounties);
                 $client_app_list = $client_app_list->where('subcounty_id', $selected_subcounties);
-                $app_period = $app_period->where('subcounty_id', $selected_subcounties);
+                $app_rate = $app_rate->where('subcounty_id', $selected_subcounties);
             }
             if (!empty($selected_facilites)) {
                 $all_appoinments = $all_appoinments->where('mfl_code', $selected_facilites);
@@ -3291,7 +3359,7 @@ class FinalDashboardController extends Controller
                 $missed_partner = $missed_partner->where('mfl_code', $selected_facilites);
                 $missed_facility = $missed_facility->where('mfl_code', $selected_facilites);
                 $client_app_list = $client_app_list->where('mfl_code', $selected_facilites);
-                $app_period = $app_period->where('mfl_code', $selected_facilites);
+                $app_rate = $app_rate->where('mfl_code', $selected_facilites);
             }
 
             if (!empty($selected_clinics)) {
@@ -3313,7 +3381,7 @@ class FinalDashboardController extends Controller
                 $missed_partner = $missed_partner->where('clinic_type', $selected_clinics);
                 $missed_facility = $missed_facility->where('clinic_type', $selected_clinics);
                 $client_app_list = $client_app_list->where('etl_client_detail.clinic_type', $selected_clinics);
-                $app_period = $app_period->where('clinic_type', $selected_clinics);
+                $app_rate = $app_rate->where('clinic_type', $selected_clinics);
             }
             if (!empty($selected_appointments)) {
                 $all_appoinments = $all_appoinments;
@@ -3327,14 +3395,14 @@ class FinalDashboardController extends Controller
                 $appointment_facility = $appointment_facility;
                 $client_list = $client_list;
                 $client_missed = $client_missed->where('appointment_status', $selected_appointments);
-                $missed_age = $missed_age->where('appointment_status', $selected_appointments);
-                $missed_gender = $missed_gender->where('appointment_status', $selected_appointments);
-                $missed_marital = $missed_marital->where('appointment_status', $selected_appointments);
-                $missed_county = $missed_county->where('appointment_status', $selected_appointments);
-                $missed_partner = $missed_partner->where('appointment_status', $selected_appointments);
-                $missed_facility = $missed_facility->where('appointment_status', $selected_appointments);
+                $missed_age = $missed_age;
+                $missed_gender = $missed_gender;
+                $missed_marital = $missed_marital;
+                $missed_county = $missed_county;
+                $missed_partner = $missed_partner;
+                $missed_facility = $missed_facility;
                 $client_app_list = $client_app_list;
-                $app_period = $app_period->where('appointment_status', $selected_appointments);
+                $app_rate = $app_rate;
             }
             if (!empty($selected_from || $selected_to)) {
                 $all_appoinments = $all_appoinments->where('appointment_date', '>=', date($request->from))->where('appointment_date', '<=', date($request->to));
@@ -3355,7 +3423,7 @@ class FinalDashboardController extends Controller
                 $missed_partner = $missed_partner->where('appointment_date', '>=', date($request->from))->where('appointment_date', '<=', date($request->to));
                 $missed_facility = $missed_facility->where('appointment_date', '>=', date($request->from))->where('appointment_date', '<=', date($request->to));
                 $client_app_list = $client_app_list;
-                $app_period = $app_period->where('appointment_date', '>=', date($request->from))->where('appointment_date', '<=', date($request->to));
+                $app_rate = $app_rate->where('appointment_date', '>=', date($request->from))->where('appointment_date', '<=', date($request->to));
             }
 
             if (!empty($selected_sites)) {
@@ -3377,7 +3445,7 @@ class FinalDashboardController extends Controller
                 $missed_partner = $missed_partner->where('facility_type', $selected_sites);
                 $missed_facility = $missed_facility->where('facility_type', $selected_sites);
                 $client_app_list = $client_app_list->where('facility_type', $selected_sites);
-                $app_period = $app_period->where('facility_type', $selected_sites);
+                $app_rate = $app_rate->where('facility_type', $selected_sites);
             }
 
             $data["all_appoinments"] = $all_appoinments->get();
@@ -3398,7 +3466,7 @@ class FinalDashboardController extends Controller
             $data["missed_partner"] = $missed_partner->get();
             $data["missed_facility"] = $missed_facility->get();
             $data["client_app_list"] = $client_app_list->get();
-            $data["app_period"] = $app_period->get();
+            $data["app_rate"] = $app_rate->get();
 
             return $data;
         }

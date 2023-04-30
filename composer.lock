@@ -6,57 +6,7 @@
     ],
     "content-hash": "fdafe59de6b54ebb2812a0a8f7686070",
     "packages": [
-        {
-            "name": "acaronlex/laravel-calendar",
-            "version": "1.6",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/acaronlex/laravel-calendar.git",
-                "reference": "03490c4990187b1191e2d6686a881502b8cb7439"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/acaronlex/laravel-calendar/zipball/03490c4990187b1191e2d6686a881502b8cb7439",
-                "reference": "03490c4990187b1191e2d6686a881502b8cb7439",
-                "shasum": ""
-            },
-            "require": {
-                "illuminate/support": "~7.0|~8.0",
-                "php": ">=7.2.5"
-            },
-            "type": "package",
-            "extra": {
-                "laravel": {
-                    "providers": [
-                        "Acaronlex\\LaravelCalendar\\ServiceProvider"
-                    ],
-                    "aliases": {
-                        "Calendar": "Acaronlex\\LaravelCalendar\\Facades\\Calendar"
-                    }
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Acaronlex\\LaravelCalendar\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "acaronlex",
-                    "email": "acaronlex@outlook.com"
-                }
-            ],
-            "description": "Laravel helper for FullCalendar.io",
-            "support": {
-                "issues": "https://github.com/acaronlex/laravel-calendar/issues",
-                "source": "https://github.com/acaronlex/laravel-calendar/tree/1.6"
-            },
-            "time": "2021-11-14T19:32:18+00:00"
-        },
+
         {
             "name": "africastalking/africastalking",
             "version": "v3.0.0",
