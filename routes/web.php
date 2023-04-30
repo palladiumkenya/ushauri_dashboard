@@ -56,9 +56,9 @@ Route::get('/sync_tracing_outcome', ['uses' => 'App\Http\Controllers\MigrationCo
 
 // high risk
 Route::get('/high_risk_clients', ['uses' => 'App\Http\Controllers\HighRiskController@get_high_risk_clients', 'as' => 'get_high_risk_clients']);
-Route::get('/high_risk', ['uses' => 'App\Http\Controllers\HighRiskController@getAllData', 'as' => 'high_risk']);
+//Route::get('/high_risk', ['uses' => 'App\Http\Controllers\HighRiskController@getAllData', 'as' => 'high_risk']);
 Route::get('/high/risk/task', ['uses' => 'App\Http\Controllers\HighRiskController@task', 'as' => 'task']);
-Route::get('/high/risk/sender', ['uses' => 'App\Http\Controllers\HighRiskController@sender', 'as' => 'sender']);
+//Route::get('/high/risk/sender', ['uses' => 'App\Http\Controllers\HighRiskController@sender', 'as' => 'sender']);
 
 
 Auth::routes();
