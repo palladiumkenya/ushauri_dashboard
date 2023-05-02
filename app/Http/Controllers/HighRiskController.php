@@ -94,6 +94,7 @@ class HighRiskController extends Controller
                     'headers' => [
                         'Authorization' => 'Bearer ' . $this->getAccessToken(),
                     ],
+                    'timeout' => 0,
                 ]);
 
                 // Decode the JSON response
@@ -150,6 +151,8 @@ class HighRiskController extends Controller
 
     // public function getAllData()
     // {
+    //     // Set the endpoint URL
+    //     // Create a GuzzleHttp client
     //     $client = new \GuzzleHttp\Client();
 
 
@@ -177,7 +180,7 @@ class HighRiskController extends Controller
     //             $params = [
     //                 'code' => 'FND',
     //                 'name' => 'predictions',
-    //                 'siteCode' => $final_facility,
+    //                 'siteCode' => '27408',
     //                 'pageNumber' => $pageNumber,
     //                 'pageSize' => $pageSize,
     //             ];
@@ -191,11 +194,11 @@ class HighRiskController extends Controller
     //                 'headers' => [
     //                     'Authorization' => 'Bearer ' . $this->getAccessToken(),
     //                 ],
+    //                 'timeout' => 0,
     //             ]);
 
     //             // Decode the JSON response
     //             $data = json_decode($response->getBody(), true);
-
     //             // Loop through the extract and insert into the database
     //             // $records = array_filter($data['extract'], function ($record) {
     //             //     return $record['Description'] == 'High Risk';
@@ -203,10 +206,7 @@ class HighRiskController extends Controller
     //             $all = array_filter($data['extract'], function ($record) {
     //                 return true;
     //             });
-
-    //             //$chunks = array_chunk($all, 1000);
-
-    //             $dataToInsert =  array_map(function ($record) use ($final_facility) {
+    //             $dataToInsert = array_map(function ($record) use ($final_facility) {
     //                 return [
     //                     'ccc_number' => $record['PatientCccNumber'],
     //                     'mfl_code' => $record['code'],
@@ -218,26 +218,33 @@ class HighRiskController extends Controller
     //                 ];
     //             }, $all);
 
-    //             $chunks = array_chunk($dataToInsert, 1000); // chunk data to process in batches of 1000 records
+
+
+    //             $chunks = array_chunk($dataToInsert, 2000);
 
     //             foreach ($chunks as $chunk) {
-    //                 $ccNumbers = array_column($chunk, 'PatientCccNumber'); // get an array of CCC numbers to check for existing records
+    //                 $ccNumbers = array_column($chunk, 'ccc_number');
 
-    //                 // check if any existing records exist for the current batch
     //                 $existingRecords = DB::table('tbl_high_risk')->whereIn('ccc_number', $ccNumbers)->get();
 
-    //                 foreach ($chunk as $data) {
-    //                     $existingRecord = $existingRecords->firstWhere('ccc_number', $data['ccc_number']);
+    //                 foreach ($chunk as $insert) {
+    //                     $existingRecord = $existingRecords->firstWhere('ccc_number', $insert['ccc_number']);
 
     //                     if ($existingRecord) {
-    //                         // update existing record
-    //                         DB::table('tbl_high_risk')->where('id', $existingRecord->id)->update($data);
+    //                         DB::table('tbl_high_risk')->where('id', $existingRecord->id)->update($insert);
     //                     } else {
-    //                         // insert new record
-    //                         DB::table('tbl_high_risk')->insert($data);
+    //                         if ($insert['risk_description'] == 'High Risk') {
+
+    //                             if (DB::table('tbl_high_risk')->insert($insert)) {
+    //                                 echo 'success';
+    //                             } else {
+    //                                 echo 'tired';
+    //                             }
+    //                         }
     //                     }
     //                 }
     //             }
+
 
     //             $pageNumber++;
 
@@ -284,31 +291,28 @@ class HighRiskController extends Controller
                 $client_id = $value->client_id;
                 $no_of_days = $value->no_of_days;
 
-
-                if ($no_of_days == 30 || $no_of_days == 21) {
-                    $logic_flow_id = 23;
-                } else {
-                    $logic_flow_id = 22;
-                }
-                $message = DB::table('tbl_content')
-                    ->where('message_type_id', 9)
-                    ->where('identifier', $logic_flow_id)
-                    ->where('language_id', $language_id)
-                    ->get()
-                    ->take(1);
-
-                //check if a notification is already sent. If not send it.
-                $client_exist = DB::table('tbl_clnt_outgoing')
+                if (DB::table('tbl_clnt_outgoing')
                     ->where('message_type_id', 9)
                     ->where('clnt_usr_id', $client_id)
-                    ->whereDate('created_at',  $this->current_date)
-                    ->orwhereDate('updated_at',  $this->current_date)
-                    ->get();
+                    ->where(function ($query) {
+                        $query->whereDate('created_at',  $this->current_date)
+                            ->orwhereDate('updated_at',  $this->current_date);
+                    })
+                    ->doesntExist()
+                ) {
+                    if ($no_of_days == 30 || $no_of_days == 21) {
+                        $logic_flow_id = 23;
+                    } else {
+                        $logic_flow_id = 22;
+                    }
+                    $message = DB::table('tbl_content')
+                        ->where('message_type_id', 9)
+                        ->where('identifier', $logic_flow_id)
+                        ->where('language_id', $language_id)
+                        ->get()
+                        ->take(1);
 
-                if ($client_exist) {
-                    echo 'Message already sent to client';
-                } else {
-
+                    //check if a notification is already sent. If not send it.
 
                     foreach ($message as $sms) {
 
@@ -323,7 +327,7 @@ class HighRiskController extends Controller
                         $responded = "No";
 
 
-                        if ($smsenable == 'Yes' && trim($new_msg) != '') {
+                        if ($smsenable === 'Yes' || $smsenable === 'YES' && trim($new_msg) != '') {
                             $source = 40149;
                             $outgoing = array(
                                 'destination' => $phone_no,
@@ -340,6 +344,7 @@ class HighRiskController extends Controller
                                 'created_at' => $today,
                                 'created_by' => '1'
                             );
+
                             $this->sms_outgoing_insert($outgoing);
                         }
                     }
