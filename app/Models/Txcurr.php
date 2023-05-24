@@ -12,5 +12,9 @@ class Txcurr extends Model
     use Rememberable;
 
     public $table = 'tbl_tx_cur';
-    public $timestamps = false;
+    protected $fillable = [
+        "period",
+        "mfl_code",
+        "tx_curr"
+    ];
 }
