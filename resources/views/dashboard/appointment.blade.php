@@ -359,7 +359,7 @@
                 <div class="form-group">
                     <div class="input-group">
                         <div class="col-md-12">
-                            <input type="text" id="from" class="form-control" placeholder="From" name="from" max="{{date("Y-m-d")}}" onfocus="(this.type='date')" onkeydown="return false" />
+                            <input type="text" id="from" class="form-control" placeholder="From" name="from" max="{{date("Y-m-d")}}" onfocus="(this.type='date')" onkeydown="return false" onchange="setToDate()"/>
                         </div>
                         <div class="input-group-append">
 
@@ -485,7 +485,7 @@
                 <div class="form-group">
                     <div class="input-group">
                         <div class="col-md-14">
-                            <input type="text" id="from" class="form-control" placeholder="From" name="from" max="{{date("Y-m-d")}}" onfocus="(this.type='date')" onkeydown="return false" />
+                            <input type="text" id="from" class="form-control" placeholder="From" name="from" max="{{date("Y-m-d")}}" onfocus="(this.type='date')" onkeydown="return false" onchange="setToDate()"/>
                         </div>
                         <div class="input-group-append">
 
@@ -598,7 +598,7 @@
                 <div class="form-group">
                     <div class="input-group">
                         <div class="col-md-12">
-                            <input type="text" id="from" class="form-control" placeholder="From" name="from" max="{{date("Y-m-d")}}" onfocus="(this.type='date')" onkeydown="return false" />
+                            <input type="text" id="from" class="form-control" placeholder="From" name="from" max="{{date("Y-m-d")}}" onfocus="(this.type='date')" onkeydown="return false" onchange="setToDate()" />
                         </div>
                         <div class="input-group-append">
 
@@ -686,7 +686,7 @@
                 <div class="form-group">
                     <div class="input-group">
                         <div class="col-md-12">
-                            <input type="text" id="from" class="form-control" placeholder="From" name="from" max="{{date("Y-m-d")}}" onfocus="(this.type='date')" onkeydown="return false" />
+                            <input type="text" id="from" class="form-control" placeholder="From" name="from" max="{{date("Y-m-d")}}" onfocus="(this.type='date')" onkeydown="return false" onchange="setToDate()" />
                         </div>
                         <div class="input-group-append">
 
@@ -751,7 +751,8 @@
                 <div class="form-group">
                     <div class="input-group">
                         <div class="col-md-12">
-                            <input type="text" id="from" class="form-control" placeholder="From" name="from" max="{{date("Y-m-d")}}" onfocus="(this.type='date')" onkeydown="return false" />
+                            <input type="text" id="from" class="form-control" placeholder="From" name="from" max="{{date("Y-m-d")}}" onfocus="(this.type='date')" onkeydown="return false" pattern="\d{4}/\d{2}/\d{2}" onchange="setToDate()"/>
+
                         </div>
                         <div class="input-group-append">
 
@@ -763,7 +764,9 @@
                 <div class="form-group">
                     <div class="input-group">
                         <div class="col-md-12">
-                            <input type="text" id="to" class="form-control" placeholder="To" name="to" max="{{date("Y-m-d")}}" onfocus="(this.type='date')" onkeydown="return false" />
+                            <input type="text" id="to" class="form-control" placeholder="To" name="to" max="{{date("Y-m-d")}}" onfocus="(this.type='date')" pattern="\d{4}/\d{2}/\d{2}" onkeydown="return false" />
+
+                            <!-- <input type="text" id="to" class="form-control" placeholder="To" name="to" max="{{date("Y-m-d")}}" onfocus="(this.type='date')" onkeydown="return false" /> -->
                         </div>
                         <div class="input-group-append">
 
@@ -1453,6 +1456,8 @@
 <script type="text/javascript" src="https://cdn.datatables.net/buttons/1.7.0/js/dataTables.buttons.min.js"></script>
 <script type="text/javascript" src="https://cdn.datatables.net/buttons/1.7.0/js/buttons.html5.min.js"></script>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+
 
 <!-- <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.24/css/jquery.dataTables.min.css">
 <script type="text/javascript" src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script> -->
@@ -1461,28 +1466,48 @@
 
 
 <script type="text/javascript">
+
+function setToDate() {
+    var fromDateInput = document.getElementById("from");
+    var toDateInput = document.getElementById("to");
+    if (toDateInput.value == "" && fromDateInput.value != "") {
+      var today = new Date();
+      var year = today.getFullYear();
+      var month = (today.getMonth() + 1).toString().padStart(2, '0');
+      var day = today.getDate().toString().padStart(2, '0');
+      toDateInput.value = `${month}/${day}/${year}`;
+    }
+  }
+
     $("select").select2();
     $("#partners").select2({
         width: 'element',
-        placeholder: "Select Partner"
+        placeholder: "Select Partner",
+        allowClear: true
     });
     $("#counties").select2({
-        placeholder: "Select County"
+        placeholder: "Select County",
+        allowClear: true
     });
     $("#subcounties").select2({
-        placeholder: "Select SubCounty"
+        placeholder: "Select SubCounty",
+        allowClear: true
     });
     $("#facilities").select2({
-        placeholder: "Select Facility"
+        placeholder: "Select Facility",
+        allowClear: true
     });
     $("#clinics").select2({
-        placeholder: "Select Clinic"
+        placeholder: "Select Clinic",
+        allowClear: true
     });
     $("#appointments").select2({
-        placeholder: "Appointment Status"
+        placeholder: "Appointment Status",
+        allowClear: true
     });
     $("#sites").select2({
-        placeholder: "Site Type"
+        placeholder: "Site Type",
+        allowClear: true
     });
 
 
@@ -1704,61 +1729,61 @@
                 // Parse the JSON data into an array of objects
                 var list = data.client_list;
                 $.each(list, function(index, item) {
-                        $('#table_client tbody').append('<tr><td>' + item.upi_no + '</td><td>' + item.ccc_number + '</td><td>' + item.client_name + '</td><td>' + item.dob + '</td><td>' + item.phone_no + '</td><td>' + item.consented + '</td><td>' + item.dsd_status + '</td><td>' + item.client_status + '</td><td>' + item.kept_app + '</td><td>' + item.not_kept_app + '</td></tr>');
-                    });
-                    $('#table_client').DataTable({
-                        columnDefs: [{
-                            targets: [0],
-                            orderData: [0, 1]
-                        }, {
-                            targets: [1],
-                            orderData: [1, 0]
-                        }, {
-                            targets: [4],
-                            orderData: [4, 0]
-                        }],
-                        "pageLength": 10,
-                        "paging": true,
-                        "responsive": true,
-                        "ordering": true,
-                        "info": true,
-                        dom: 'Bfrtip',
-                        buttons: [
-                            'copyHtml5',
-                            'excelHtml5',
-                            'csvHtml5',
-                            'pdfHtml5'
-                        ]
-                    });
+                    $('#table_client tbody').append('<tr><td>' + item.upi_no + '</td><td>' + item.ccc_number + '</td><td>' + item.client_name + '</td><td>' + item.dob + '</td><td>' + item.phone_no + '</td><td>' + item.consented + '</td><td>' + item.dsd_status + '</td><td>' + item.client_status + '</td><td>' + item.kept_app + '</td><td>' + item.not_kept_app + '</td></tr>');
+                });
+                $('#table_client').DataTable({
+                    columnDefs: [{
+                        targets: [0],
+                        orderData: [0, 1]
+                    }, {
+                        targets: [1],
+                        orderData: [1, 0]
+                    }, {
+                        targets: [4],
+                        orderData: [4, 0]
+                    }],
+                    "pageLength": 10,
+                    "paging": true,
+                    "responsive": true,
+                    "ordering": true,
+                    "info": true,
+                    dom: 'Bfrtip',
+                    buttons: [
+                        'copyHtml5',
+                        'excelHtml5',
+                        'csvHtml5',
+                        'pdfHtml5'
+                    ]
+                });
 
-                    var list_app = data.client_app_list;
+                var list_app = data.client_app_list;
                 $.each(list_app, function(index, item) {
-                        $('#table_missed tbody').append('<tr><td>' + item.upi_no + '</td><td>' + item.ccc_number + '</td><td>' + item.client_name + '</td><td>' + item.dob + '</td><td>' + item.phone_no + '</td><td>' + item.consented + '</td><td>' + item.dsd_status + '</td><td>' + item.client_status + '</td><td>' + item.days_defaulted + '</td><td>' + item.final_outcome + '</td></tr>');
-                    });
-                    $('#table_missed').DataTable({
-                        columnDefs: [{
-                            targets: [0],
-                            orderData: [0, 1]
-                        }, {
-                            targets: [1],
-                            orderData: [1, 0]
-                        }, {
-                            targets: [4],
-                            orderData: [4, 0]
-                        }],
-                        "pageLength": 10,
-                        "paging": true,
-                        "responsive": true,
-                        "ordering": true,
-                        "info": true,
-                        dom: 'Bfrtip',
-                        buttons: [
-                            'copyHtml5',
-                            'excelHtml5',
-                            'csvHtml5',
-                            'pdfHtml5'
-                        ]
-                    });
+                    $('#table_missed tbody').append('<tr><td>' + item.upi_no + '</td><td>' + item.ccc_number + '</td><td>' + item.client_name + '</td><td>' + item.dob + '</td><td>' + item.phone_no + '</td><td>' + item.consented + '</td><td>' + item.dsd_status + '</td><td>' + item.client_status + '</td><td>' + item.days_defaulted + '</td><td>' + item.final_outcome + '</td></tr>');
+                });
+                $('#table_missed').DataTable({
+                    columnDefs: [{
+                        targets: [0],
+                        orderData: [0, 1]
+                    }, {
+                        targets: [1],
+                        orderData: [1, 0]
+                    }, {
+                        targets: [4],
+                        orderData: [4, 0]
+                    }],
+                    "pageLength": 10,
+                    "paging": true,
+                    "responsive": true,
+                    "ordering": true,
+                    "info": true,
+                    dom: 'Bfrtip',
+                    buttons: [
+                        'copyHtml5',
+                        'excelHtml5',
+                        'csvHtml5',
+                        'pdfHtml5'
+                    ]
+                });
 
 
             }
@@ -2124,7 +2149,7 @@
                     $('#table_missed tbody').empty();
 
                     var list_app = data.client_app_list;
-                $.each(list_app, function(index, item) {
+                    $.each(list_app, function(index, item) {
                         $('#table_missed tbody').append('<tr><td>' + item.upi_no + '</td><td>' + item.ccc_number + '</td><td>' + item.client_name + '</td><td>' + item.dob + '</td><td>' + item.phone_no + '</td><td>' + item.consented + '</td><td>' + item.dsd_status + '</td><td>' + item.client_status + '</td><td>' + item.days_defaulted + '</td><td>' + item.final_outcome + '</td></tr>');
                     });
                     $('#table_missed').DataTable({
