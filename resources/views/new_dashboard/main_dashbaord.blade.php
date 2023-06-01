@@ -239,7 +239,7 @@
                 <div class="card card-icon-bg card-icon-bg-primary o-hidden mb-4 h-75">
                     <div class="card-body text-center">
                         <div class="content">
-                            <p class="text-muted mt-2 mb-0"> Active Clients</p>
+                            <p class="text-muted mt-2 mb-0"> TX CURR</p>
                             <a class="has-arrow" href="{{route('client_dashboard')}}">
                                 <p id="client" class="text-primary text-20 line-height-1 mb-2">{{number_format($client)}}</p>
                             </a>
@@ -266,7 +266,7 @@
                 <div class="card card-icon-bg card-icon-bg-primary o-hidden mb-4 h-75">
                     <div class="card-body text-center">
                         <div class="content">
-                            <p class="text-muted mt-2 mb-0">Active Clients</p>
+                            <p class="text-muted mt-2 mb-0">TX CURR</p>
 
                             <p id="client" class="text-primary text-20 line-height-1 mb-2">{{number_format($client)}}</p>
                         </div>

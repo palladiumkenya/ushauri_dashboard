@@ -16,7 +16,8 @@ use App\Models\SubCounty;
 use App\Models\PartnerFacility;
 use Auth;
 use DB;
-use Session;
+//use Session;
+use RealRashid\SweetAlert\Facades\Alert;
 
 class UserController extends Controller
 {
@@ -53,7 +54,8 @@ class UserController extends Controller
             $data  = [];
 
             $user_info = DB::table('tbl_users')->select(
-                'tbl_master_facility.name as facility', 'tbl_master_facility.code'
+                'tbl_master_facility.name as facility',
+                'tbl_master_facility.code'
             )->join('tbl_partner_facility', 'tbl_users.facility_id', '=', 'tbl_partner_facility.mfl_code')
                 ->join('tbl_master_facility', 'tbl_partner_facility.mfl_code', '=', 'tbl_master_facility.code')
                 ->where('tbl_master_facility.code', '=', Auth::user()->facility_id)
@@ -352,14 +354,14 @@ class UserController extends Controller
                 ->first();
 
             if ($validate) {
-                Session::flash('statuscode', 'error');
+                Alert::error('Failed', 'Phone Number is already used in the system!');
 
-                return redirect('admin/users/form')->with('status', 'Phone Number is already used in the system!');
+                return redirect('admin/users/form');
             }
             if ($validate_email) {
-                Session::flash('statuscode', 'error');
+                Alert::error('Failed', 'Email is already used in the system!');
 
-                return redirect('admin/users/form')->with('status', 'Email is already used in the system!');
+                return redirect('admin/users/form');
             }
 
             $user->f_name = $request->fname;
@@ -412,12 +414,12 @@ class UserController extends Controller
 
 
             if ($user->save()) {
-                Session::flash('statuscode', 'success');
+                Alert::success('Success', 'User has been saved successfully!');
 
-                return redirect('admin/users')->with('status', 'User has been saved successfully!');
+                return redirect('admin/users');
             } else {
-                Session::flash('statuscode', 'error');
-                return back()->with('error', 'An error has occurred please try again later.');
+                Alert::error('Failed', 'An error has occurred please try again later.');
+                return back();
             }
         } catch (Exception $e) {
             toastr()->error('An error has occurred please try again later.');

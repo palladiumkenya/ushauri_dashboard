@@ -359,7 +359,7 @@
                 <div class="form-group">
                     <div class="input-group">
                         <div class="col-md-12">
-                            <input type="text" id="from" class="form-control" placeholder="From" name="from" max="{{date("Y-m-d")}}" onfocus="(this.type='date')" onkeydown="return false" onchange="setToDate()"/>
+                            <input type="text" id="from" class="form-control" placeholder="From" name="from" max="{{date("Y-m-d")}}" onfocus="(this.type='date')" onkeydown="return false" onchange="setToDate()" />
                         </div>
                         <div class="input-group-append">
 
@@ -485,7 +485,7 @@
                 <div class="form-group">
                     <div class="input-group">
                         <div class="col-md-14">
-                            <input type="text" id="from" class="form-control" placeholder="From" name="from" max="{{date("Y-m-d")}}" onfocus="(this.type='date')" onkeydown="return false" onchange="setToDate()"/>
+                            <input type="text" id="from" class="form-control" placeholder="From" name="from" max="{{date("Y-m-d")}}" onfocus="(this.type='date')" onkeydown="return false" onchange="setToDate()" />
                         </div>
                         <div class="input-group-append">
 
@@ -751,7 +751,7 @@
                 <div class="form-group">
                     <div class="input-group">
                         <div class="col-md-12">
-                            <input type="text" id="from" class="form-control" placeholder="From" name="from" max="{{date("Y-m-d")}}" onfocus="(this.type='date')" onkeydown="return false" pattern="\d{4}/\d{2}/\d{2}" onchange="setToDate()"/>
+                            <input type="text" id="from" class="form-control" placeholder="From" name="from" max="{{date("Y-m-d")}}" onfocus="(this.type='date')" onkeydown="return false" pattern="\d{4}/\d{2}/\d{2}" onchange="setToDate()" />
 
                         </div>
                         <div class="input-group-append">
@@ -1466,18 +1466,17 @@
 
 
 <script type="text/javascript">
-
-function setToDate() {
-    var fromDateInput = document.getElementById("from");
-    var toDateInput = document.getElementById("to");
-    if (toDateInput.value == "" && fromDateInput.value != "") {
-      var today = new Date();
-      var year = today.getFullYear();
-      var month = (today.getMonth() + 1).toString().padStart(2, '0');
-      var day = today.getDate().toString().padStart(2, '0');
-      toDateInput.value = `${month}/${day}/${year}`;
+    function setToDate() {
+        var fromDateInput = document.getElementById("from");
+        var toDateInput = document.getElementById("to");
+        if (toDateInput.value == "" && fromDateInput.value != "") {
+            var today = new Date();
+            var year = today.getFullYear();
+            var month = (today.getMonth() + 1).toString().padStart(2, '0');
+            var day = today.getDate().toString().padStart(2, '0');
+            toDateInput.value = `${month}/${day}/${year}`;
+        }
     }
-  }
 
     $("select").select2();
     $("#partners").select2({
@@ -1713,9 +1712,10 @@ function setToDate() {
         success: function(data) {
             const consent = data.consented_clients;
             const apps = data.all_appoinments;
-            const tx = data.all_tx_curr;
+            //const tx = data.all_tx_curr;
             const missed = data.client_missed;
-            console.log(missed);
+            $("#tx_curr").html(data.all_tx_curr);
+            //console.log(tx);
             const client_list = data.client_list;
             appGender(data.appointment_gender);
             appAge(data.appointment_age);
@@ -1855,10 +1855,10 @@ function setToDate() {
                 percnt_not_kept = Math.round(apps[x].percent_not_kept).toFixed(1) + '%';
                 percnt_future = Math.round(apps[x].percent_future).toFixed(1) + '%';
             }
-            for (var x = 0; x < tx.length; x++) {
-                tx_curr = parseInt(tx[x].tx_cur).toLocaleString();
+            // for (var x = 0; x < tx.length; x++) {
+            //     tx_curr = parseInt(tx[x].tx_cur).toLocaleString();
 
-            }
+            // }
             let app_missed = 0;
             let consent_app = 0;
             let consent_missed = 0;
@@ -1988,7 +1988,9 @@ function setToDate() {
                 }
 
             }
-            $("#tx_curr").html(tx_curr);
+            // $("#tx_curr").html(tx_curr);
+            var formattedTx_curr = Number(data.all_tx_curr).toLocaleString();
+            $("#tx_curr").html(formattedTx_curr);
             $("#consented").html(consented);
             $("#percnt_consented").html(percnt_consented);
             $("#all_appointments").html(all_appointments);
@@ -2251,15 +2253,7 @@ function setToDate() {
                     percnt_not_kept = Math.round(apps[x].percent_not_kept).toFixed(1) + '%';
                     percnt_future = Math.round(apps[x].percent_future).toFixed(1) + '%';
                 }
-                for (var x = 0; x < tx.length; x++) {
-                    tx_curr = tx[x].tx_cur
-                    if (tx_curr == undefined || tx_curr == null || isNaN(tx_curr)) {
-                        tx_curr = 0;
-                    } else {
-                        tx_curr = tx_curr.toLocaleString();
-                    }
 
-                }
                 let app_missed = 0;
                 let consent_app = 0;
                 let consent_missed = 0;
@@ -2389,7 +2383,8 @@ function setToDate() {
                     }
 
                 }
-                $("#tx_curr").html(tx_curr);
+                var formattedTx_curr = Number(data.all_tx_curr).toLocaleString();
+                $("#tx_curr").html(formattedTx_curr);
                 $("#consented").html(consented);
                 $("#percnt_consented").html(percnt_consented);
                 $("#all_appointments").html(all_appointments);
