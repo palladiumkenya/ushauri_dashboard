@@ -15,6 +15,6 @@ class Txcurr extends Model
     protected $fillable = [
         "period",
         "mfl_code",
-        "tx_curr"
+        "tx_cur"
     ];
 }

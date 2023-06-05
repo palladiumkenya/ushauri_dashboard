@@ -48,7 +48,7 @@ Route::get('/schedule/ltfu', ['uses' => 'App\Http\Controllers\ScheduleSMSControl
 Route::get('/sms/sender', ['uses' => 'App\Http\Controllers\ScheduleSMSController@sender', 'as' => 'sms-sender']);
 
 //get KHIS TxCurr
-Route::get('/txcurr/{period}', ['uses' => 'App\Http\Controllers\TxCurrController@txcurr', 'as' => 'txcurr']);
+Route::get('/txcurr', ['uses' => 'App\Http\Controllers\TxCurrController@txcurr', 'as' => 'txcurr']);
 
 // Today's appointment
 Route::get('/pull/todays/appointment', ['uses' => 'App\Http\Controllers\MigrationController@pull_todays_appointments', 'as' => 'pull-todays-appointment']);
