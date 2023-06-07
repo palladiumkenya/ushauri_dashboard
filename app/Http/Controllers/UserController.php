@@ -459,11 +459,11 @@ class UserController extends Controller
                     'status' => $request->status,
                 ]);
             if ($user) {
-                Session::flash('statuscode', 'success');
-                return redirect('admin/users')->with('status', 'User was successfully Updated in the system!');
+                Alert::success('Success', 'User was successfully Updated in the system!');
+                return redirect('admin/users');
             } else {
-                Session::flash('statuscode', 'error');
-                return back()->with('error', 'Could not update user please try again later.');
+                Alert::error('Failed', 'Could not update user please try again later.');
+                return back();
             }
         } catch (Exception $e) {
             return back();
@@ -480,15 +480,15 @@ class UserController extends Controller
             $user->updated_by = Auth::user()->id;
 
             if ($user->save()) {
-                Session::flash('statuscode', 'success');
-                return redirect('admin/users')->with('status', 'User has been reset successfull');
+                Alert::success('Success', 'User has been reset successfull');
+                return redirect('admin/users');
             } else {
-                Session::flash('statuscode', 'error');
-                return redirect('admin/users')->with('status', 'An error has occurred please try again later');
+                Alert::error('Failed', 'An error has occurred please try again later');
+                return redirect('admin/users');
             }
         } catch (Exception $e) {
-            Session::flash('statuscode', 'error');
-            return redirect('admin/users')->with('status', 'An error has occurred please try again later');
+            Alert::error('Failed', 'An error has occurred please try again later');
+            return redirect('admin/users');
         }
     }
 
@@ -510,12 +510,11 @@ class UserController extends Controller
             $user->first_access = 'No';
 
             if ($user->save()) {
-                Session::flash('statuscode', 'success');
-                return redirect('/')->with('status', 'Password has been changed successfully!');
+                Alert::success('Success', 'Password has been changed successfully!');
+                return redirect('/');
             } else {
-
-                Session::flash('statuscode', 'error');
-                return back()->with('error', 'An error has occurred please try again later.');
+                Alert::error('Failed', 'An error has occurred please try again later.');
+                return back();
             }
         } catch (Exception $e) {
 

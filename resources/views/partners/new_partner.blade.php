@@ -5,6 +5,7 @@
 @endsection
 
 @section('main-content')
+@include('sweetalert::alert')
 
 <div class="col-md-12 mb-4">
     <div class="card text-left">

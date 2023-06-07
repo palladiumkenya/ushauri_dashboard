@@ -5,6 +5,7 @@
 @endsection
 
 @section('main-content')
+@include('sweetalert::alert')
 <div class="breadcrumb">
                 <ul>
                     <li><a href="">Facilities Activation</a></li>

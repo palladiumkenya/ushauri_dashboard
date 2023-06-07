@@ -7,6 +7,7 @@ use App\Models\Donor;
 use Auth;
 use PhpParser\Node\Stmt\TryCatch;
 use Session;
+use RealRashid\SweetAlert\Facades\Alert;
 
 class DonorController extends Controller
 {
@@ -30,9 +31,9 @@ class DonorController extends Controller
                 ->first();
 
             if ($validate) {
-                Session::flash('statuscode', 'error');
+                Alert::error('Failed', 'Phone Number is already used in the system!');
 
-                return redirect('admin/donors/form')->with('status', 'Phone Number is already used in the system!');
+                return redirect('admin/donors/form');
             }
 
             $donor->name = $request->name;
@@ -45,17 +46,16 @@ class DonorController extends Controller
             // $donor->created_by = Auth::;
 
             if ($donor->save()) {
-                Session::flash('statuscode', 'success');
-
-                return redirect('admin/donors')->with('status', 'Donor has been saved successfully!');
+                Alert::success('Success', 'Donor has been saved successfully!');
+                return redirect('admin/donors');
             } else {
 
-                Session::flash('statuscode', 'error');
-                return back()->with('error', 'An error has occurred please try again later.');
+                Alert::error('Failed', 'An error has occurred please try again later.');
+                return back();
             }
         } catch (Exception $e) {
-            Session::flash('statuscode', 'error');
-            return back()->with('error', 'An error has occurred please try again later.');
+            Alert::error('Failed', 'An error has occurred please try again later.');
+            return back();
         }
     }
     public function editdonor(Request $request)
@@ -70,11 +70,11 @@ class DonorController extends Controller
                     'status' => $request->status,
                 ]);
             if ($donor) {
-                Session::flash('statuscode', 'success');
-                return redirect('admin/donors')->with('status', 'Donor was successfully Updated in the system!');
+                Alert::success('Success', 'Donor was successfully Updated in the system!');
+                return redirect('admin/donors');
             } else {
-                Session::flash('statuscode', 'error');
-                return back()->with('error', 'Could not update donor please try again later.');
+                Alert::error('Failed', 'An error has occurred please try again later.');
+                return back();
             }
         } catch (Exception $e) {
             return back();
@@ -87,11 +87,11 @@ class DonorController extends Controller
             $donor = Donor::find($request->id);
             // $donor->update_at = date('Y-m-d H:i:s');
             if ($donor->save()) {
-                Session::flash('statuscode', 'success');
-                return redirect('admin/donors')->with('status', 'Donor has been deleted successfully');
+                Alert::success('Success', 'Donor has been deleted successfully');
+                return redirect('admin/donors');
             } else {
-                Session::flash('statuscode', 'error');
-                return back()->with('error', 'An error has occurred please try again later.');
+                Alert::error('Failed', 'An error has occurred please try again later.');
+                return back();
             }
         } catch (Exception $e) {
         }

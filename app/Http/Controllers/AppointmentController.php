@@ -15,6 +15,7 @@ use Session;
 use Redirect, Response;
 use Auth;
 use Carbon\Carbon;
+use RealRashid\SweetAlert\Facades\Alert;
 
 class AppointmentController extends Controller
 {
@@ -46,11 +47,11 @@ class AppointmentController extends Controller
                 ]);
 
             if ($appointment) {
-                Session::flash('statuscode', 'success');
-                return redirect('report/future/appointments')->with('status', 'Appointment was updated successfully!');
+                Alert::success('Success', 'Appointment was updated successfully!');
+                return redirect('report/future/appointments');
             } else {
-                Session::flash('statuscode', 'error');
-                return back()->with('error', 'Could not consent client please try again later.');
+                Alert::error('Failed', 'Could not consent client please try again later.');
+                return back();
             }
         } catch (Exception $e) {
             return back();

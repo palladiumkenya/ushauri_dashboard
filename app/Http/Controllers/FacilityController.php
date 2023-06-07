@@ -10,6 +10,7 @@ use App\Models\SubCounty;
 use App\Models\PartnerFacility;
 use Session;
 use Auth;
+use RealRashid\SweetAlert\Facades\Alert;
 
 class FacilityController extends Controller
 {
@@ -57,13 +58,11 @@ class FacilityController extends Controller
                 ]);
 
             if ($facility->save() && $master_update) {
-                Session::flash('statuscode', 'success');
-
-                return redirect('admin/facilities')->with('status', 'Facility added successfully!');
+                Alert::success('Success', 'Facility added successfully!');
+                return redirect('admin/facilities');
             } else {
-
-                Session::flash('statuscode', 'error');
-                return back()->with('error', 'An error has occurred please try again later.');
+                Alert::error('Failed', 'An error has occurred please try again later');
+                return back();
             }
         } catch (Exception $e) {
             return back();
@@ -231,13 +230,12 @@ class FacilityController extends Controller
                     'updated_by' => Auth::user()->id,
                 ]);
             if ($approve) {
-                Session::flash('statuscode', 'success');
-
-                return redirect('admin/my_facilities')->with('status', 'Facility has been approved successfully!');
+                Alert::success('Success', 'Facility has been approved successfully!');
+                return redirect('admin/my_facilities');
             } else {
 
-                Session::flash('statuscode', 'error');
-                return back()->with('error', 'An error has occurred please try again later.');
+                Alert::error('Failed', 'An error has occurred please try again later.');
+                return back();
             }
         } catch (Exception $e) {
             return back();
@@ -252,13 +250,11 @@ class FacilityController extends Controller
                     'partner_id' => $request->partnername,
                 ]);
             if ($facility) {
-                Session::flash('statuscode', 'success');
-
-                return redirect('admin/my_facilities')->with('status', 'Facility updated successfully!');
+                Alert::success('Success', 'Facility updated successfully!');
+                return redirect('admin/my_facilities');
             } else {
-
-                Session::flash('statuscode', 'error');
-                return back()->with('error', 'An error has occurred please try again later.');
+                Alert::error('Failed', 'An error has occurred please try again later.');
+                return back();
             }
         } catch (Exception $e) {
             return back();

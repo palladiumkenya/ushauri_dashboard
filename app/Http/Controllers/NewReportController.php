@@ -390,7 +390,7 @@ class NewReportController extends Controller
         $selected_to = $request->date_to;
         if (Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Donor') {
             $client_messages = Appointments::join('tbl_client', 'tbl_appointment.client_id', 'tbl_client.id')
-            ->join('tbl_clnt_outgoing', 'tbl_appointment.id', 'tbl_clnt_outgoing.appointment_id')
+                ->join('tbl_clnt_outgoing', 'tbl_appointment.id', 'tbl_clnt_outgoing.appointment_id')
                 ->join('tbl_gender', 'tbl_client.gender', 'tbl_gender.id')
                 ->join('tbl_language', 'tbl_client.language_id', 'tbl_language.id')
                 ->join('tbl_appointment_types', 'tbl_appointment.app_type_1', 'tbl_appointment_types.id')
@@ -408,8 +408,8 @@ class NewReportController extends Controller
                     'tbl_language.name as language',
                     'tbl_client.phone_no',
                     'tbl_clnt_outgoing.msg',
-                    'tbl_clnt_outgoing.callback_status',
-                    'tbl_clnt_outgoing.failure_reason',
+                    DB::raw('CASE WHEN tbl_clnt_outgoing.message_id IS NULL OR tbl_clnt_outgoing.callback_status = "Failed" OR tbl_clnt_outgoing.callback_status = "Expired" THEN "Failed" ELSE "Success" END AS callback_status'),
+                    DB::raw('CASE WHEN tbl_clnt_outgoing.message_id IS NULL OR tbl_clnt_outgoing.callback_status = "Expired" THEN "DeliveryFailure" ELSE tbl_clnt_outgoing.failure_reason END AS failure_reason'),
                     'tbl_clnt_outgoing.updated_at',
                     'tbl_appointment.appntmnt_date as appointment_date',
                     'tbl_appointment_types.name as app_type',
@@ -427,7 +427,7 @@ class NewReportController extends Controller
         }
         if (Auth::user()->access_level == 'Partner') {
             $client_messages = Appointments::join('tbl_client', 'tbl_appointment.client_id', 'tbl_client.id')
-            ->join('tbl_clnt_outgoing', 'tbl_appointment.id', 'tbl_clnt_outgoing.appointment_id')
+                ->join('tbl_clnt_outgoing', 'tbl_appointment.id', 'tbl_clnt_outgoing.appointment_id')
                 ->join('tbl_gender', 'tbl_client.gender', 'tbl_gender.id')
                 ->join('tbl_language', 'tbl_client.language_id', 'tbl_language.id')
                 ->join('tbl_appointment_types', 'tbl_appointment.app_type_1', 'tbl_appointment_types.id')
@@ -445,8 +445,8 @@ class NewReportController extends Controller
                     'tbl_language.name as language',
                     'tbl_client.phone_no',
                     'tbl_clnt_outgoing.msg',
-                    'tbl_clnt_outgoing.callback_status',
-                    'tbl_clnt_outgoing.failure_reason',
+                    DB::raw('CASE WHEN tbl_clnt_outgoing.message_id IS NULL OR tbl_clnt_outgoing.callback_status = "Failed" OR tbl_clnt_outgoing.callback_status = "Expired" THEN "Failed" ELSE "Success" END AS callback_status'),
+                    DB::raw('CASE WHEN tbl_clnt_outgoing.message_id IS NULL OR tbl_clnt_outgoing.callback_status = "Expired" THEN "DeliveryFailure" ELSE tbl_clnt_outgoing.failure_reason END AS failure_reason'),
                     'tbl_clnt_outgoing.updated_at',
                     'tbl_appointment.appntmnt_date as appointment_date',
                     'tbl_appointment_types.name as app_type',
@@ -483,8 +483,9 @@ class NewReportController extends Controller
                     'tbl_language.name as language',
                     'tbl_client.phone_no',
                     'tbl_clnt_outgoing.msg',
-                    'tbl_clnt_outgoing.callback_status',
-                    'tbl_clnt_outgoing.failure_reason',
+                    DB::raw('CASE WHEN tbl_clnt_outgoing.message_id IS NULL OR tbl_clnt_outgoing.callback_status = "Failed" OR tbl_clnt_outgoing.callback_status = "Expired" THEN "Failed" ELSE "Success" END AS callback_status'),
+                    DB::raw('CASE WHEN tbl_clnt_outgoing.message_id IS NULL OR tbl_clnt_outgoing.callback_status = "Expired" THEN "DeliveryFailure" ELSE tbl_clnt_outgoing.failure_reason END AS failure_reason'),
+                    'tbl_clnt_outgoing.no_of_days',
                     'tbl_clnt_outgoing.updated_at',
                     'tbl_appointment.appntmnt_date as appointment_date',
                     'tbl_appointment_types.name as app_type',

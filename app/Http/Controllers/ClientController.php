@@ -13,6 +13,7 @@ use App\Models\Gender;
 use App\Models\Marital;
 use Session;
 use Auth;
+use RealRashid\SweetAlert\Facades\Alert;
 
 class ClientController extends Controller
 {
@@ -81,17 +82,15 @@ class ClientController extends Controller
                 ->first();
 
             if ($validate_ccc) {
-                Session::flash('statuscode', 'error');
-
-                return redirect('add/clients')->with('status', 'Clinic Number already exist in the system!');
+                Alert::error('Failed', 'Clinic Number already exist in the system!');
+                return redirect('add/clients');
             }
             if ($new_client->save()) {
-                Session::flash('statuscode', 'success');
-
-                return redirect('/Reports/facility_home')->with('status', 'Client has been registered successfully!');
+                Alert::success('Success', 'Client has been registered successfully!');
+                return redirect('/Reports/facility_home');
             } else {
-                Session::flash('statuscode', 'error');
-                return back()->with('error', 'An error has occurred please try again later.');
+                Alert::error('Failed', 'An error has occurred please try again later.');
+                return back();
             }
         } catch (Exception $e) {
 

@@ -8,6 +8,7 @@ use App\Models\PartnerType;
 use Session;
 use Exception;
 use Auth;
+use RealRashid\SweetAlert\Facades\Alert;
 
 class PartnerController extends Controller
 {
@@ -68,13 +69,12 @@ class PartnerController extends Controller
             $partner->status = $request->status;
 
             if ($partner->save()) {
-                Session::flash('statuscode', 'success');
-
-                return redirect('admin/partners')->with('status', 'Partner has been saved successfully!');
+                Alert::success('Success', 'Partner has been saved successfully!');
+                return redirect('admin/partners');
             } else {
 
-                Session::flash('statuscode', 'error');
-                return back()->with('error', 'An error has occurred please try again later.');
+                Alert::error('Failed', 'An error has occurred please try again later.');
+                return back();
             }
         } catch (Exception $e) {
             return back();
@@ -94,11 +94,11 @@ class PartnerController extends Controller
                     'location' => $request->location,
                 ]);
             if ($partner) {
-                Session::flash('statuscode', 'success');
-                return redirect('admin/partners')->with('status', 'Partner was successfully Updated in the system!');
+                Alert::success('Success', 'Partner was successfully Updated in the system!');
+                return redirect('admin/partners');
             } else {
-                Session::flash('statuscode', 'error');
-                return back()->with('error', 'Could not update partner please try again later.');
+                Alert::error('Failed', 'Could not update partner please try again later.');
+                return back();
             }
         } catch (Exception $e) {
             return back();

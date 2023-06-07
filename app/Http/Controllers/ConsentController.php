@@ -9,6 +9,7 @@ use Session;
 use Illuminate\Http\Request;
 use Auth;
 use DB;
+use RealRashid\SweetAlert\Facades\Alert;
 
 class ConsentController extends Controller
 {
@@ -51,11 +52,11 @@ class ConsentController extends Controller
             $client->save();
             //  console.log($client->save());
             if ($client) {
-                Session::flash('statuscode', 'success');
-                return redirect('consent/clients')->with('status', 'Client was successfully consented in the system!');
+                Alert::success('Success', 'Client was successfully consented in the system!');
+                return redirect('consent/clients');
             } else {
-                Session::flash('statuscode', 'error');
-                return back()->with('error', 'Could not consent client please try again later.');
+                Alert::error('Failed', 'Could not consent client please try again later.');
+                return back();
             }
         } catch (Exception $e) {
             return back();
