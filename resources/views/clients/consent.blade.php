@@ -6,6 +6,7 @@
 @endsection
 
 @section('main-content')
+@include('sweetalert::alert')
 <div class="breadcrumb">
                 <ul>
                     <li><a href="">Client Consent</a></li>

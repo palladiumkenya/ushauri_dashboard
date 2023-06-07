@@ -5,6 +5,7 @@
 @endsection
 
 @section('main-content')
+@include('sweetalert::alert')
 <div class="breadcrumb">
     <ul>
         <li><a href="">Edit Client</a></li>
@@ -302,7 +303,7 @@
         $('#first_name').val(client.f_name);
         $('#id').val(client.id);
 
-       
+
     }
 
     $(document).ready(function() {

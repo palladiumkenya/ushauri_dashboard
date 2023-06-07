@@ -88,6 +88,7 @@
                             <th>Message</th>
                             <th>Message Status</th>
                             <th>Failed Reason</th>
+                            <th>Days To Appointment</th>
                             <th>Date Created</th>
                             <th>Appointment Date</th>
                             <th>Appointment Type</th>
@@ -113,6 +114,7 @@
                             <td> {{$client->msg}}</td>
                             <td> {{$client->callback_status}}</td>
                             <td> {{$client->failure_reason}}</td>
+                            <td> {{$client->no_of_days}}</td>
                             <td> {{date('d-m-Y', strtotime($client->updated_at))}}</td>
                             <td> {{$client->appointment_date}}</td>
                             <td> {{$client->app_type}}</td>

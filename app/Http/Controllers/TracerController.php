@@ -12,6 +12,7 @@ use App\Models\Clinic;
 use Session;
 use Auth;
 use DB;
+use RealRashid\SweetAlert\Facades\Alert;
 
 class TracerController extends Controller
 {
@@ -123,11 +124,11 @@ class TracerController extends Controller
       $tracer->created_by = Auth::user()->id;
 
       if ($tracer->save()) {
-        Session::flash('statuscode', 'success');
-        return redirect('clients/booked')->with('status', 'Client was successfully Assigned to a Tracer!');
+        Alert::success('Success', 'Client was successfully Assigned to a Tracer!');
+        return redirect('clients/booked');
       } else {
-        Session::flash('statuscode', 'error');
-        return back()->with('error', 'Could not assign client please try again later.');
+        Alert::error('Failed', 'Could not assign client please try again later.');
+        return back();
       }
     } catch (Exception $e) {
       return back();

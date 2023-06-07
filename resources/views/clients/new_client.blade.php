@@ -5,6 +5,7 @@
 @endsection
 
 @section('main-content')
+@include('sweetalert::alert')
 <div class="breadcrumb">
     <ul>
         <li><a href="">New Client</a></li>
@@ -47,7 +48,7 @@
                                         <input type="date" required="" id="birth" class="form-control" data-width="100%" placeholder="YYYY-mm-dd" name="birth">
                                     </div>
                                     <div class="input-group-append">
-                                        
+
                                     </div>
                                 </div>
                             </div>

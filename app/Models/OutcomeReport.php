@@ -9,11 +9,9 @@ class OutcomeReport extends Model
 {
     use HasFactory;
 
-    public $table = 'tbl_outcome_report_raw';
+    public $table = 'partner_outcome_report';
     public $timestamps = false;
     public $incrementing = false;
 
-    protected $fillable = [
-
-    ];
+    protected $fillable = [];
 }
