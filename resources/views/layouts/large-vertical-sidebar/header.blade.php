@@ -1,7 +1,7 @@
 <div class="main-header">
     <input id="authenticated" type="hidden" value="{{ auth()->user()->access_level }}">
     <style>
-        .text-dark:hover {
+        .reschedule-nishauri:hover {
             cursor: pointer;
         }
     </style>
@@ -57,8 +57,8 @@
 
         @if (Auth::user()->access_level == 'Facility')
         <!-- Full screen toggle -->
-        <div class="text-dark" style="position: relative;">
-            <span id="reschedule" class="badge rounded-pill badge-notification bg-danger" style="position: absolute; top: -10px; right: -10px;" title="Appointment Reschedule Requests"></span>
+        <div class="reschedule-nishauri" style="position: relative;">
+            <span id="reschedule" class="badge rounded-pill badge-notification bg-danger" style="position: absolute; top: -10px; right: -10px; color: white;" title="Appointment Reschedule Requests"></span>
             <a href="{{route('reschedule_list')}}"><i class="fas fa-envelope fa-2x"></i></a>
         </div>
 
@@ -100,16 +100,16 @@
 
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" crossorigin="anonymous"> <!-- Font Awesome CSS -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" crossorigin="anonymous"> <!-- Bootstrap CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" crossorigin="anonymous">
+<!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" crossorigin="anonymous"> -->
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/js/all.min.js" crossorigin="anonymous"></script> <!-- Font Awesome JavaScript -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/js/all.min.js" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 
 
 
 <script type="text/javascript">
-    let authenticated = $('#authenticated').val();
+    let auth = $('#authenticated').val();
     $.ajaxSetup({
         headers: {
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -121,7 +121,7 @@
         success: function(data) {
             // console.log(data.reschedule);
 
-            if (authenticated == 'Facility') {
+            if (auth == 'Facility') {
                 $("#reschedule").html(data.reschedule);
 
             }
