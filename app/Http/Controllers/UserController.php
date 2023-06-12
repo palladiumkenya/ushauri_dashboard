@@ -107,7 +107,8 @@ class UserController extends Controller
                     'tbl_users.status',
                     'tbl_users.id as id',
                     'tbl_users.facility_id',
-                    'tbl_clinic.id as clinic_id'
+                    'tbl_clinic.id as clinic_id',
+                    'tbl_users.partner_id'
                 )
                 ->where('tbl_users.status', '=', 'Active')
                 ->where('tbl_users.partner_id', '=', Auth::user()->partner_id)

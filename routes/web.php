@@ -284,4 +284,10 @@ Route::group(['middleware' => 'auth'], function () {
   Route::get('/get_partner_sub_counties/{id}', ['uses' => 'App\Http\Controllers\FinalDashboardController@get_partner_sub_counties', 'as' => 'get_partner_sub_counties']);
   Route::get('/get_partner_facilities/{id}', ['uses' => 'App\Http\Controllers\FinalDashboardController@get_partner_facilities', 'as' => 'get_partner_facilities']);
   Route::get('/get_sitetype_facilities/{id}', ['uses' => 'App\Http\Controllers\FinalDashboardController@get_sitetype_facilities', 'as' => 'get_sitetype_facilities']);
+
+  //nishauri
+  Route::get('/reschedule', ['uses' => 'App\Http\Controllers\NishauriController@reschedule', 'as' => 'reschedule']);
+  Route::get('/reschedule/list', ['uses' => 'App\Http\Controllers\NishauriController@reschedule_list', 'as' => 'reschedule_list']);
+  Route::post('/approve/reschedule', ['uses' => 'App\Http\Controllers\NishauriController@approve', 'as' => 'approve-reschedule']);
+  Route::post('/reject/reschedule', ['uses' => 'App\Http\Controllers\NishauriController@reject', 'as' => 'reject-reschedule']);
 });
