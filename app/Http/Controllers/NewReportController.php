@@ -22,6 +22,7 @@ use Auth;
 use Carbon\Carbon;
 use Exception;
 use Session;
+use RealRashid\SweetAlert\Facades\Alert;
 
 
 class NewReportController extends Controller
@@ -236,19 +237,18 @@ class NewReportController extends Controller
                 ]);
 
             if ($client) {
-                Session::flash('statuscode', 'success');
-                return redirect('new/clients/list')->with('status', 'Client' . ' ' . $request->clinic_number . ' ' . 'details was successfully updated!');
+                Alert::success('Success', 'Client' . ' ' . $request->clinic_number . ' ' . 'details was successfully updated!');
+                return redirect('new/clients/list');
             } else {
-                Session::flash('statuscode', 'error');
-                return back()->with('error', 'Could not update client details please try again later.');
+                Alert::error('Failed', 'Could not update client details please try again later.');
+                return back();
             }
         } catch (Exception $e) {
             $code = $e->getCode();
 
             if ((string)$code === (string)"23000") {
-
-                Session::flash('statuscode', 'success');
-                return back()->with('status', 'Clinic Number' . ' ' . $request->clinic_number . ' ' . 'belongs to another client! ');
+                Alert::success('Success', 'Clinic Number' . ' ' . $request->clinic_number . ' ' . 'belongs to another client! ');
+                return back();;
             } else {
                 return back();
             }
