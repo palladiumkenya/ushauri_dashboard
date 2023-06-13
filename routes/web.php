@@ -63,7 +63,7 @@ Route::get('/high_risk_clients', ['uses' => 'App\Http\Controllers\HighRiskContro
 Route::get('/high/risk/task', ['uses' => 'App\Http\Controllers\HighRiskController@task', 'as' => 'task']);
 //Route::get('/high/risk/sender', ['uses' => 'App\Http\Controllers\HighRiskController@sender', 'as' => 'sender']);
 
-
+Route::post('/tet', ['uses' => 'App\Http\Controllers\NishauriController@tet', 'as' => 'tet']);
 Auth::routes();
 
 Route::group(['middleware' => 'admin'], function () {

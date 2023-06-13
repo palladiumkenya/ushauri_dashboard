@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Appointments;
 use App\Models\Reschedule;
+use App\Models\Txcurr;
 use RealRashid\SweetAlert\Facades\Alert;
 use Illuminate\Support\Facades\Auth;
 
@@ -79,5 +80,12 @@ class NishauriController extends Controller
             }
         } catch (Exception $e) {
         }
+    }
+    public function tet()
+    {
+        $client = Txcurr::where('mfl_code', '12345')->where('period', '202302')
+                ->update([
+                    'tx_cur' => '202305',
+                ]);
     }
 }
