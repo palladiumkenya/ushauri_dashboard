@@ -1082,7 +1082,7 @@
                                 </div>
                                 <div class="" style="margin-right: 10px; border-left: 1px solid;"></div>
                                 <div class="" style="margin-right: 20px;">
-                                    <span class="card_sub_title">LTFU</span>
+                                    <span class="card_sub_title">IIT</span>
                                     <p class="sub_missed" id="consent_iit"></p>
                                 </div>
                             </div>
@@ -1110,7 +1110,7 @@
                                 </div>
                                 <div class="" style="margin-right: 10px; border-left: 1px solid;"></div>
                                 <div style="margin-right: 20px;">
-                                    <span class="card_sub_title">LTFU</span>
+                                    <span class="card_sub_title">IIT</span>
                                     <p class="sub_missed" id="sms_iit"></p>
                                 </div>
                             </div>
@@ -1142,7 +1142,7 @@
                                 </div>
                                 <div class="" style="margin-right: 10px; border-left: 1px solid;"></div>
                                 <div class="" style="margin-right: 20px;">
-                                    <span class="card_sub_title">LTFU</span>
+                                    <span class="card_sub_title">IIT</span>
                                     <p class="sub_missed" id="contacted_iit"></p>
                                 </div>
                             </div>
@@ -1170,7 +1170,7 @@
                                 </div>
                                 <div class="" style="margin-right: 10px; border-left: 1px solid;"></div>
                                 <div class="" style="margin-right: 20px;">
-                                    <span class="card_sub_title">LTFU</span>
+                                    <span class="card_sub_title">IIT</span>
                                     <p id="traced_iit" class="sub_missed" style="margin-top: 5px;"></p>
                                 </div>
                             </div>
@@ -1199,7 +1199,7 @@
                                 </div>
                                 <div class="" style="margin-right: 10px; border-left: 1px solid;"></div>
                                 <div class="" style="margin-right: 20px;">
-                                    <span class="card_sub_title">LTFU</span>
+                                    <span class="card_sub_title">IIT</span>
                                     <p class="sub_missed" id="outcome_iit"></p>
                                 </div>
                             </div>

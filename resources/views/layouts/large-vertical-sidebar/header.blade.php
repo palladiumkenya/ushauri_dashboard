@@ -1,4 +1,10 @@
 <div class="main-header">
+    <input id="authenticated" type="hidden" value="{{ auth()->user()->access_level }}">
+    <style>
+        .reschedule-nishauri:hover {
+            cursor: pointer;
+        }
+    </style>
     <div class="logo">
         <!-- <img src="{{ asset('assets/images/Ushauri_big.png') }}" alt="ushauri"> -->
         <img src="{{ asset('/assets/images/Ushauri_big.png') }}" style="margin-left: 30px;" height="40">
@@ -27,7 +33,7 @@
     </div>
 
     <div style="margin: auto">
-        <!-- <input id="authenticated" type="hidden" value="{{ auth()->user()->access_level }}">
+<!--
         @if (Auth::user()->access_level == 'Sub County')
         <h6 id="user"></h6>
         <h6 style="text-align:right;float:right; padding-left: 5px;">Sub County</h6>
@@ -46,8 +52,23 @@
 
 
     <div class="header-part-right">
+
+
+
+        @if (Auth::user()->access_level == 'Facility')
         <!-- Full screen toggle -->
-        <img class=" pl-3" src="{{ asset('assets/images/NASCOP_Logo.png') }}" alt="ushauri">
+        <div class="reschedule-nishauri" style="position: relative;">
+            <span id="reschedule" class="badge rounded-pill badge-notification bg-danger" style="position: absolute; top: -10px; right: -10px; color: white;" title="Appointment Reschedule Requests"></span>
+            <a href="{{route('reschedule_list')}}"><i class="fas fa-envelope fa-2x"></i></a>
+        </div>
+
+        @endif
+
+        <div>
+            <img class=" pl-3" src="{{ asset('assets/images/NASCOP_Logo.png') }}" alt="ushauri">
+
+        </div>
+
 
         <!-- Grid menu Dropdown -->
         <div class="dropdown widget_dropdown">
@@ -79,47 +100,32 @@
 
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-<script type="text/javascript">
-    // $.ajaxSetup({
-    //     headers: {
-    //         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-    //     }
-    // });
-    // $.ajax({
-    //     type: 'GET',
-    //     url: "{{ route('user_info') }}",
-    //     success: function(data) {
-    //         if (authenticated == 'Sub County') {
-    //             const user = data.user_info;
-    //             for (var x = 0; x < user.length; x++) {
-    //                 users = user[x].sub_county;
-    //             }
-    //             $("#user").html(users);
-    //         }
-    //         if (authenticated == 'County') {
-    //             const user = data.user_info;
-    //             for (var x = 0; x < user.length; x++) {
-    //                 users = user[x].county;
-    //             }
-    //             $("#user").html(users);
-    //         }
-    //         if (authenticated == 'Facility') {
-    //             const user = data.user_info;
-    //             for (var x = 0; x < user.length; x++) {
-    //                 users = user[x].facility;
-    //             }
-    //             $("#user").html(users);
-    //         }
-    //         if (authenticated == 'Partner') {
-    //             const user = data.user_info;
-    //             for (var x = 0; x < user.length; x++) {
-    //                 users = user[x].partner;
-    //                 console.log(users);
-    //             }
-    //             $("#user").html(users);
-    //         }
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" crossorigin="anonymous">
+<!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" crossorigin="anonymous"> -->
 
-    //     }
-    // });
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/js/all.min.js" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript">
+    let auth = $('#authenticated').val();
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        }
+    });
+    $.ajax({
+        type: 'GET',
+        url: "{{ route('reschedule') }}",
+        success: function(data) {
+            // console.log(data.reschedule);
+
+            if (auth == 'Facility') {
+                $("#reschedule").html(data.reschedule);
+
+            }
+        }
+    });
 </script>
 <!-- header top menu end -->
