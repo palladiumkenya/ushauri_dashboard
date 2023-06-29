@@ -227,7 +227,7 @@
                         <div class="content">
                             <span class="card_tittle">Registered Facilities </span>
 
-                            <p id="facilities_ever_enrolled" class="no_count">{{$facilities_ever_enrolled}}</p>
+                            <p id="facilities_ever_enrolled" class="no_count">{{number_format($facilities_ever_enrolled)}}</p>
                         </div>
                     </div>
                 </div>
@@ -238,7 +238,7 @@
                         <div class="content">
                             <span class="card_tittle">Active Facilities </span>
 
-                            <p id="active_facilities" class="no_count">{{count($active_facilities)}}</p>
+                            <p id="active_facilities" class="no_count">{{number_format(count($active_facilities))}}</p>
                         </div>
                     </div>
                 </div>
@@ -523,7 +523,7 @@
             type: 'column'
         },
         title: {
-            text: 'Active Client By Gender',
+            text: 'Registered Clients By Gender',
             style: {
                 fontFamily: 'Inter',
                 fontSize: '14px'
@@ -575,7 +575,7 @@
             type: 'column'
         },
         title: {
-            text: 'Active Client By Age',
+            text: 'Registered Clients By Age',
             style: {
                 fontFamily: 'Inter',
                 fontSize: '14px'
