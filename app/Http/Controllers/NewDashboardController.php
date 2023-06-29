@@ -6041,9 +6041,8 @@ class NewDashboardController extends Controller
                 ->join('tbl_appointment', 'tbl_client.id', '=', 'tbl_appointment.client_id')
                 ->selectRaw('tbl_partner_facility.mfl_code, MAX(DATE(tbl_appointment.created_at)) as max_date')
                 ->where(DB::raw('(SELECT MAX(DATE(tbl_appointment.created_at)) from tbl_appointment)'), '>=', Carbon::now()->subMonths(6))
-                ->where(DB::raw('(SELECT MAX(DATE(tbl_appointment.created_at)) from tbl_appointment)'), '>=', date($request->from))
-                ->where(DB::raw('(SELECT MAX(DATE(tbl_appointment.created_at)) from tbl_appointment)'), '>=', date($request->to))
-                // ->whereRaw('tbl_appointment.created_at', '>=', date($request->from))->whereDate('tbl_appointment.created_at', '>=', date($request->to))
+                ->whereDate('tbl_appointment.created_at', '>=', $request->from)
+                ->whereDate('tbl_appointment.created_at', '<=', $request->to)
                 ->orderBy('tbl_appointment.created_at', 'DESC')
                 ->groupBy('tbl_partner_facility.mfl_code')
                 ->remember($this->remember_period);

@@ -490,8 +490,8 @@
             url: "{{ route('filter_dashboard_charts') }}",
             success: function(data) {
 
-                $("#client").html(data.client);
-                $("#client_ever_enrolled").html(data.client_ever_enrolled);
+                $("#client").html(data.client.toLocaleString());
+                $("#client_ever_enrolled").html(data.client_ever_enrolled.toLocaleString());
                 $("#facilities_ever_enrolled").html(data.facilities_ever_enrolled);
                 $("#active_facilities").html(data.active_facilities);
                 Clients_male = parseInt(data.clients_male)
