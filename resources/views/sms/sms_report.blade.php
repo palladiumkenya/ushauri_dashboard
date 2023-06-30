@@ -251,10 +251,10 @@
         let subcounties = $('#subcounties').val();
         let facilities = $('#facilities').val();
         Swal.fire({
-                title: "Please wait, Loading Charts!",
-                showConfirmButton: false,
-                allowOutsideClick: false
-            });
+            title: "Please wait, Loading Charts!",
+            showConfirmButton: false,
+            allowOutsideClick: false
+        });
         $.ajaxSetup({
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -316,7 +316,14 @@
             type: 'column'
         },
         title: {
-            text: 'SMS Delivery Status Analytics'
+            text: 'SMS Delivery Status Analytics',
+            style: {
+                fontFamily: 'Inter',
+                fontSize: '14px'
+            }
+        },
+        style: {
+            fontFamily: 'Inter'
         },
         xAxis: {
             categories: ['Delivered', 'Service Blacklisted', 'Phone off >48 Hours', 'Failure at Telco', 'Phone No. Inactive']
@@ -353,6 +360,7 @@
         },
         series: [{
                 name: 'SMS Count',
+                color: '#01058A',
                 data: [Success, Failed_blacklist, Failed_absent, Failed_deliveryfailure, Failed_inactive]
             }
             // {
@@ -370,7 +378,7 @@
 
 
 
-       // }],
+        // }],
     });
 
     var costAnalytics = Highcharts.chart('cost_analytics', {
@@ -378,7 +386,14 @@
             type: 'column'
         },
         title: {
-            text: 'SMS Cost Analytics'
+            text: 'SMS Cost Analytics',
+            style: {
+                fontFamily: 'Inter',
+                fontSize: '14px'
+            }
+        },
+        style: {
+            fontFamily: 'Inter'
         },
         xAxis: {
             categories: ['Delivered', 'Service Blacklisted', 'Phone off >48 Hours', 'Failure at Telco', 'Phone No. Inactive']
@@ -415,6 +430,7 @@
         },
         series: [{
                 name: 'Cost(Ksh)',
+                color: '#01058A',
                 data: [Success_cost, Failed_backlist_cost, Failed_absent_cost, Failed_delivery_cost, Failed_inactive_cost]
             }
 
@@ -471,7 +487,14 @@
 
             },
             title: {
-                text: 'Numbers of Delivered SMS By Partners'
+                text: 'Numbers of Delivered SMS By Partners',
+                style: {
+                    fontFamily: 'Inter',
+                    fontSize: '14px'
+                }
+            },
+            style: {
+                fontFamily: 'Inter'
             },
             xAxis: {
                 type: 'category'
@@ -508,7 +531,7 @@
 
             series: [{
                 name: 'Delivered Sms Count',
-                colorByPoint: false,
+                color: '#01058A',
                 data: partner_delivered_array,
                 dataSorting: {
                     enabled: true,
@@ -528,7 +551,14 @@
 
             },
             title: {
-                text: 'Number of Failed SMS By Partner '
+                text: 'Number of Failed SMS By Partner ',
+                style: {
+                    fontFamily: 'Inter',
+                    fontSize: '14px'
+                }
+            },
+            style: {
+                fontFamily: 'Inter'
             },
             xAxis: {
                 type: 'category'
@@ -565,7 +595,7 @@
 
             series: [{
                 name: 'Failed Sms Count',
-                colorByPoint: false,
+                color: '#97080F',
                 data: partner_failed_array,
                 dataSorting: {
                     enabled: true,
@@ -585,7 +615,14 @@
 
             },
             title: {
-                text: 'SMS Cost Distribution By Partners'
+                text: 'SMS Cost Distribution By Partners',
+                style: {
+                    fontFamily: 'Inter',
+                    fontSize: '14px'
+                }
+            },
+            style: {
+                fontFamily: 'Inter'
             },
             xAxis: {
                 type: 'category'
@@ -622,7 +659,8 @@
 
             series: [{
                 name: 'SMS Cost(Ksh)',
-                colorByPoint: false,
+                // colorByPoint: false,
+                color: '#01058A',
                 data: partner_cost_array,
                 dataSorting: {
                     enabled: true,
@@ -643,7 +681,14 @@
             },
             title: {
 
-                text: 'SMS Cost Distribution By Counties'
+                text: 'SMS Cost Distribution By Counties',
+                style: {
+                    fontFamily: 'Inter',
+                    fontSize: '14px'
+                }
+            },
+            style: {
+                fontFamily: 'Inter'
             },
             xAxis: {
                 type: 'category'
@@ -680,7 +725,8 @@
 
             series: [{
                 name: 'SMS Cost(Ksh)',
-                colorByPoint: false,
+                // colorByPoint: false,
+                color: '#01058A',
                 data: county_cost_array,
                 dataSorting: {
                     enabled: true,

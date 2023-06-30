@@ -1,6 +1,20 @@
 @extends('layouts.master')
 @section('page-css')
 
+<style rel="stylesheet" type="text/css">
+    .no_count {
+        font-weight: 700;
+        font-size: 24px;
+    }
+
+    .Clients {
+
+        background: #FFFFFF;
+        border-radius: 10px;
+
+    }
+</style>
+
 @endsection
 
 @section('main-content')
@@ -132,7 +146,7 @@
             <div class='col-lg-3'>
                 <div class="form-group">
                     <div class="input-group">
-                    <div class="col-md-2">
+                        <div class="col-md-2">
                             <label for="firstName1">From</label>
                         </div>
                         <div class="col-md-10">
@@ -149,7 +163,7 @@
             <div class='col-lg-3'>
                 <div class="form-group">
                     <div class="input-group">
-                    <div class="col-md-2">
+                        <div class="col-md-2">
                             <label for="firstName1">To</label>
                         </div>
                         <div class="col-md-10">
@@ -186,37 +200,36 @@
     <div class="tab-pane fade show active" id="nav-client" role="tabpanel" aria-labelledby="nav-client-tab">
 
         <div class="row">
-            <div class="col-lg-4 ">
-                <div class="card card-icon-bg card-icon-bg-primary o-hidden mb-4 h-75">
-                    <div class="card-body text-center">
+            <div class="col-sm-4 ">
+                <div class="Clients card o-hidden mb-0 h-75">
+                    <div class="card-body">
                         <div class="content">
-                            <p class="text-muted mt-2 mb-0">Clients</p>
-
-                            <p id="client" class="text-primary text-20 line-height-1 mb-2">{{number_format($client)}}</p>
+                            <span class="card_tittle">Clients</span>
+                            <p id="client" class="no_count">{{number_format($client)}}</p>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="col-lg-4">
-                <div class="card card-icon-bg card-icon-bg-primary o-hidden mb-4 h-75">
-                    <div class="card-body text-center">
+            <div class="col-sm-4">
+                <div class="Clients card o-hidden mb-0 h-75">
+                    <div class="card-body">
                         <div class="content">
-                            <p class="text-muted mt-2 mb-0">Consented</p>
+                            <span class="card_tittle">Consented</span>
 
-                            <p id="client_consented" class="text-primary text-20 line-height-1 mb-2">{{number_format($client_consented)}}</p>
+                            <p id="client_consented" class="no_count">{{number_format($client_consented)}}</p>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="col-lg-4">
-                <div class="card card-icon-bg card-icon-bg-primary o-hidden mb-4 h-75">
-                    <div class="card-body text-center">
+            <div class="col-sm-4">
+                <div class="Clients card o-hidden mb-0 h-75">
+                    <div class="card-body">
                         <div class="content">
-                            <p class="text-muted mt-2 mb-0">Non Consented</p>
+                            <span class="card_tittle">Non Consented</span>
 
-                            <p id="client_nonconsented" class="text-primary text-20 line-height-1 mb-2">{{number_format($client_nonconsented)}}</p>
+                            <p id="client_nonconsented" class="no_count">{{number_format($client_nonconsented)}}</p>
                         </div>
                     </div>
                 </div>
@@ -401,10 +414,10 @@
         let to = $('#to').val();
         let module = $('#module').val();
         Swal.fire({
-                title: "Please wait, Loading Charts!",
-                showConfirmButton: false,
-                allowOutsideClick: false
-            });
+            title: "Please wait, Loading Charts!",
+            showConfirmButton: false,
+            allowOutsideClick: false
+        });
         $.ajaxSetup({
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -476,7 +489,14 @@
         yAxis: {
             min: 0,
             title: {
-                text: 'No of Consented Clients'
+                text: 'No of Consented Clients',
+                style: {
+                    fontFamily: 'Inter',
+                    fontSize: '14px'
+                }
+            },
+            style: {
+                fontFamily: 'Inter'
             },
             stackLabels: {
                 enabled: true,
@@ -502,6 +522,7 @@
         },
         series: [{
             name: 'Gender',
+            color: '#01058A',
             data: [Client_consented_male, Client_consented_female, Client_consented_uknown_gender]
         }],
 
@@ -512,7 +533,14 @@
             type: 'column'
         },
         title: {
-            text: 'Consented Clients By Age'
+            text: 'Consented Clients By Age',
+            style: {
+                fontFamily: 'Inter',
+                fontSize: '14px'
+            }
+        },
+        style: {
+            fontFamily: 'Inter'
         },
         xAxis: {
             categories: ['0-9 YRS', '10-14 YRS', '15-19 YRS', '20-24 YRS', '25+ YRS', 'UKNOWN AGE']
@@ -546,6 +574,7 @@
         },
         series: [{
             name: 'Age',
+            color: '#01058A',
             data: [Client_consented_to_nine, Client_consented_to_fourteen, Client_consented_to_nineteen, Client_consented_to_twentyfour, Client_consented_to_twentyfive_above, Client_consented_uknown_age]
         }],
 
@@ -557,7 +586,14 @@
             type: 'column'
         },
         title: {
-            text: 'Non Consented Clients By Gender'
+            text: 'Non Consented Clients By Gender',
+            style: {
+                fontFamily: 'Inter',
+                fontSize: '14px'
+            }
+        },
+        style: {
+            fontFamily: 'Inter'
         },
         xAxis: {
             categories: ['Male', 'Female', 'UKNOWN Gender']
@@ -591,6 +627,7 @@
         },
         series: [{
             name: 'Gender',
+            color: '#01058A',
             data: [Client_nonconsented_male, Client_nonconsented_female, Client_nonconsented_uknown_gender]
         }],
 
@@ -601,7 +638,14 @@
             type: 'column'
         },
         title: {
-            text: 'Non Consented Clients By Age'
+            text: 'Non Consented Clients By Age',
+            style: {
+                fontFamily: 'Inter',
+                fontSize: '14px'
+            }
+        },
+        style: {
+            fontFamily: 'Inter'
         },
         xAxis: {
             categories: ['0-9 YRS', '10-14 YRS', '15-19 YRS', '20-24 YRS', '25+ YRS', 'UKNOWN AGE']
@@ -635,6 +679,7 @@
         },
         series: [{
             name: 'Age',
+            color: '#01058A',
             data: [Client_nonconsented_to_nine, Client_nonconsented_to_fourteen, Client_nonconsented_to_nineteen, Client_nonconsented_to_twentyfour, Client_nonconsented_to_twentyfive_above, Client_nonconsented_uknown_age]
         }],
 
