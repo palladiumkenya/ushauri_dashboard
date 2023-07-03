@@ -1,5 +1,24 @@
 @extends('layouts.master')
 @section('page-css')
+<style rel="stylesheet" type="text/css">
+    .no_count {
+        font-weight: 700;
+        font-size: 24px;
+    }
+
+    .Clients {
+
+        background: #FFFFFF;
+        border-radius: 10px;
+
+    }
+
+    .Txcurr {
+        background: #FFFFFF;
+        border-radius: 10px;
+    }
+</style>
+
 
 @endsection
 
@@ -144,7 +163,7 @@
             <div class='col-lg-3'>
                 <div class="form-group">
                     <div class="input-group">
-                    <div class="col-md-2">
+                        <div class="col-md-2">
                             <label for="firstName1">From</label>
                         </div>
                         <div class="col-md-10">
@@ -160,7 +179,7 @@
             <div class="col-lg-3">
                 <div class="form-group">
                     <div class="input-group">
-                    <div class="col-md-2">
+                        <div class="col-md-2">
                             <label for="firstName1">To</label>
                         </div>
                         <div class="col-md-10">
@@ -202,47 +221,45 @@
         <div class="row">
             @if (Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Partner' || Auth::user()->access_level == 'Donor' || Auth::user()->access_level == 'County' || Auth::user()->access_level == 'Sub County')
 
-            <div class="col-lg-3">
-                <div class="card card-icon-bg card-icon-bg-primary o-hidden mb-4 h-75">
-                    <div class="card-body text-center">
+            <div class="col-sm-3">
+                <div class="Clients card o-hidden mb-0 h-75">
+                    <div class="card-body">
                         <div class="content">
-                            <p class="text-muted mt-2 mb-0">Registered Facilities </p>
+                            <span class="card_tittle">Registered Facilities </span>
 
-                            <p id="facilities_ever_enrolled" class="text-primary text-20 line-height-1 mb-1">{{$facilities_ever_enrolled}}</p>
+                            <p id="facilities_ever_enrolled" class="no_count">{{number_format($facilities_ever_enrolled)}}</p>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col-lg-3">
-                <div class="card card-icon-bg card-icon-bg-primary o-hidden mb-4 h-75">
-                    <div class="card-body text-center">
+            <div class="col-sm-3">
+                <div class="Clients card o-hidden mb-0 h-75">
+                    <div class="card-body">
                         <div class="content">
-                            <p class="text-muted mt-2 mb-0">Active Facilities </p>
+                            <span class="card_tittle">Active Facilities </span>
 
-                            <p id="active_facilities" class="text-primary text-20 line-height-1 mb-1">{{count($active_facilities)}}</p>
+                            <p id="active_facilities" class="no_count">{{number_format(count($active_facilities))}}</p>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col-lg-3">
-                <div class="card card-icon-bg card-icon-bg-primary o-hidden mb-4 h-75">
-                    <div class="card-body text-center">
+            <div class="col-sm-3">
+                <div class="Clients card o-hidden mb-0 h-75">
+                    <div class="card-body">
                         <div class="content">
-                            <p class="text-muted mt-2 mb-0">Clients Registered</p>
+                            <span class="card_tittle">Clients Registered</span>
 
-                            <p id="client_ever_enrolled" class="text-primary text-20 line-height-1 mb-2">{{number_format($client_ever_enrolled)}}</p>
+                            <p id="client_ever_enrolled" class="no_count">{{number_format($client_ever_enrolled)}}</p>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col-lg-3 ">
-                <div class="card card-icon-bg card-icon-bg-primary o-hidden mb-4 h-75">
-                    <div class="card-body text-center">
+            <div class="col-sm-3 ">
+                <div class="Txcurr card o-hidden mb-0 h-75">
+                    <div class="card-body">
                         <div class="content">
-                            <p class="text-muted mt-2 mb-0"> TX CURR</p>
-                            <a class="has-arrow" href="{{route('client_dashboard')}}">
-                                <p id="client" class="text-primary text-20 line-height-1 mb-2">{{number_format($client)}}</p>
-                            </a>
+                            <span class="card_tittle"> TX CURR</span>
+                                <p id="client" class="no_count">{{number_format($client)}}</p>
 
                         </div>
                     </div>
@@ -251,24 +268,23 @@
 
             @endif
             @if (Auth::user()->access_level == 'Facility')
-            <div class="col-lg-6">
-                <div class="card card-icon-bg card-icon-bg-primary o-hidden mb-4 h-75">
-                    <div class="card-body text-center">
+            <div class="col-sm-6">
+                <div class="Clients card o-hidden mb-0 h-75">
+                    <div class="card-body">
                         <div class="content">
-                            <p class="text-muted mt-2 mb-0">Clients Registered</p>
-
-                            <p id="client_ever_enrolled" class="text-primary text-20 line-height-1 mb-2">{{number_format($client_ever_enrolled)}}</p>
+                            <span class="card_tittle">Clients Registered</span>
+                            <p id="client_ever_enrolled" class="no_count" style="margin-top:2px;">{{number_format($client_ever_enrolled)}}</p>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col-lg-6">
-                <div class="card card-icon-bg card-icon-bg-primary o-hidden mb-4 h-75">
-                    <div class="card-body text-center">
+            <div class="col-sm-6">
+                <div class="Txcurr card o-hidden mb-0 h-75">
+                    <div class="card-body ">
                         <div class="content">
-                            <p class="text-muted mt-2 mb-0">TX CURR</p>
+                            <span class="card_tittle">TX CURR</span>
 
-                            <p id="client" class="text-primary text-20 line-height-1 mb-2">{{number_format($client)}}</p>
+                            <p id="client" class="no_count" style="margin-top:2px;">{{number_format($client)}}</p>
                         </div>
                     </div>
                 </div>
@@ -450,10 +466,10 @@
         let module = $('#module').val();
 
         Swal.fire({
-                title: "Please wait, Loading Charts!",
-                showConfirmButton: false,
-                allowOutsideClick: false
-            });
+            title: "Please wait, Loading Charts!",
+            showConfirmButton: false,
+            allowOutsideClick: false
+        });
         $.ajaxSetup({
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -474,8 +490,8 @@
             url: "{{ route('filter_dashboard_charts') }}",
             success: function(data) {
 
-                $("#client").html(data.client);
-                $("#client_ever_enrolled").html(data.client_ever_enrolled);
+                $("#client").html(data.client.toLocaleString());
+                $("#client_ever_enrolled").html(data.client_ever_enrolled.toLocaleString());
                 $("#facilities_ever_enrolled").html(data.facilities_ever_enrolled);
                 $("#active_facilities").html(data.active_facilities);
                 Clients_male = parseInt(data.clients_male)
@@ -507,7 +523,14 @@
             type: 'column'
         },
         title: {
-            text: 'Active Client By Gender'
+            text: 'Registered Clients By Gender',
+            style: {
+                fontFamily: 'Inter',
+                fontSize: '14px'
+            }
+        },
+        style: {
+            fontFamily: 'Inter'
         },
         xAxis: {
             categories: ['Male', 'Female', 'Uknown Gender']
@@ -541,6 +564,7 @@
         },
         series: [{
             name: 'Gender',
+            color: '#01058A',
             data: [Clients_male, Clients_female, Unknown_gender]
         }],
 
@@ -551,7 +575,14 @@
             type: 'column'
         },
         title: {
-            text: 'Active Client By Age'
+            text: 'Registered Clients By Age',
+            style: {
+                fontFamily: 'Inter',
+                fontSize: '14px'
+            }
+        },
+        style: {
+            fontFamily: 'Inter'
         },
         xAxis: {
             categories: ['0-9 YRS', '10-14 YRS', '15-19 YRS', '20-24 YRS', '25+ YRS', 'UKNOWN AGE']
@@ -585,6 +616,7 @@
         },
         series: [{
             name: 'Age',
+            color: '#01058A',
             data: [Client_to_nine, Client_to_fourteen, Client_to_nineteen, Client_to_twentyfour, Client_to_twentyfive_above, Client_unknown_age]
         }],
 

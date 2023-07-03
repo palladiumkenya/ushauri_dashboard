@@ -69,22 +69,24 @@ class NewDashboardController extends Controller
 
             //  dd($active_facilities);
             // active clients by gender
-            $clients_male = Client::select('id')->where([['gender', '=', '2'], ['status', '=', 'Active'],])
+            $clients_male = Client::select('id')->where('gender', '=', '2')
                 ->whereNull('hei_no')
                 ->where('mfl_code', Auth::user()->facility_id)
                 ->remember($this->remember_period)
                 ->count();
 
             $clients_female = Client::where('gender', '=', '1')
-                ->where('status', '=', 'Active')
                 ->whereNull('hei_no')
                 ->where('mfl_code', Auth::user()->facility_id)
                 ->remember($this->remember_period)
                 ->count();
 
-            $unknown_gender = Client::where('gender', '!=', '1')
-                ->where('gender', '!=', '2')
-                ->where('status', '=', 'Active')
+            $unknown_gender = Client::where(function ($query) {
+                $query->where('gender', '!=', '1')
+                    ->where('gender', '!=', '2')
+                    ->orWhereNull('gender')
+                    ->orWhere('gender', '');
+            })
                 ->whereNull('hei_no')
                 ->where('mfl_code', Auth::user()->facility_id)
                 ->remember($this->remember_period)
@@ -95,7 +97,6 @@ class NewDashboardController extends Controller
                 date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
                 WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
             date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) > 0) and ((year(curdate()) - year(`dob`)) <= 9)) then `dob` end)) AS count"))
-                ->where('status', '=', 'Active')
                 ->whereNull('hei_no')
                 ->where('mfl_code', Auth::user()->facility_id)
                 ->remember($this->remember_period)
@@ -107,7 +108,6 @@ class NewDashboardController extends Controller
                 date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
                 WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
             date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 10) and ((year(curdate()) - year(`dob`)) <= 14)) then `dob` end)) AS count"))
-                ->where('status', '=', 'Active')
                 ->whereNull('hei_no')
                 ->where('mfl_code', Auth::user()->facility_id)
                 ->remember($this->remember_period)
@@ -118,7 +118,6 @@ class NewDashboardController extends Controller
                 date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
                 WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
             date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 15) and ((year(curdate()) - year(`dob`)) <= 19)) then `dob` end)) AS count"))
-                ->where('status', '=', 'Active')
                 ->whereNull('hei_no')
                 ->where('mfl_code', Auth::user()->facility_id)
                 ->remember($this->remember_period)
@@ -130,7 +129,6 @@ class NewDashboardController extends Controller
                 date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
                 WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
             date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 20) and ((year(curdate()) - year(`dob`)) <= 24)) then `id` end)) AS count"))
-                ->where('status', '=', 'Active')
                 ->whereNull('hei_no')
                 ->where('mfl_code', Auth::user()->facility_id)
                 ->remember($this->remember_period)
@@ -142,7 +140,6 @@ class NewDashboardController extends Controller
                 date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
                 WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
             date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 25)) then `id` end)) AS count"))
-                ->where('status', '=', 'Active')
                 ->whereNull('hei_no')
                 ->where('mfl_code', Auth::user()->facility_id)
                 ->remember($this->remember_period)
@@ -158,7 +155,6 @@ class NewDashboardController extends Controller
             date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
             WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
             date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"))
-                ->where('status', '=', 'Active')
                 ->whereNull('hei_no')
                 ->where('mfl_code', Auth::user()->facility_id)
                 ->remember($this->remember_period)
@@ -166,7 +162,7 @@ class NewDashboardController extends Controller
         }
         if (Auth::user()->access_level == 'Partner') {
             $all_partners = Partner::where('status', '=', 'Active')->where('id', Auth::user()->partner_id)->remember($this->remember_period)->pluck('name', 'id');
-
+            $currentYear = date('Y');
             // $client = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
             //     ->where('tbl_client.status', '=', 'Active')
             //     ->whereNull('tbl_client.hei_no')
@@ -188,15 +184,26 @@ class NewDashboardController extends Controller
                 ->remember($this->remember_period)
                 ->count('tbl_client.clinic_number');
 
+            // $active_facilities = PartnerFacility::join('tbl_client', 'tbl_partner_facility.mfl_code', '=', 'tbl_client.mfl_code')
+            //     ->join('tbl_appointment', 'tbl_client.id', '=', 'tbl_appointment.client_id')
+            //     ->select(\DB::raw('COUNT(tbl_partner_facility.mfl_code) as facilities'))
+            //     ->where(DB::raw('(SELECT MAX(DATE(tbl_appointment.created_at)) from tbl_appointment)'), '>=', Carbon::now()->subMonths(6))
+            //     ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
+            //     ->orderBy('tbl_appointment.created_at', 'DESC')
+            //     ->groupBy('tbl_partner_facility.mfl_code')
+            //     ->remember($this->remember_period)
+            //     ->get();
             $active_facilities = PartnerFacility::join('tbl_client', 'tbl_partner_facility.mfl_code', '=', 'tbl_client.mfl_code')
                 ->join('tbl_appointment', 'tbl_client.id', '=', 'tbl_appointment.client_id')
-                ->select(\DB::raw('COUNT(tbl_partner_facility.mfl_code) as facilities'))
-                ->where(DB::raw('(SELECT MAX(DATE(tbl_appointment.created_at)) from tbl_appointment)'), '>=', Carbon::now()->subMonths(6))
+                ->select('tbl_partner_facility.mfl_code')
+                ->whereDate('tbl_appointment.created_at', '>=', Carbon::now()->subMonths(6)->toDateString())
                 ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
                 ->orderBy('tbl_appointment.created_at', 'DESC')
                 ->groupBy('tbl_partner_facility.mfl_code')
                 ->remember($this->remember_period)
                 ->get();
+
+
 
             $facilities_ever_enrolled = PartnerFacility::where('partner_id', Auth::user()->partner_id)
                 ->remember($this->remember_period)
@@ -205,7 +212,7 @@ class NewDashboardController extends Controller
             //  dd($active_facilities);
             // active clients by gender
             $clients_male = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select('id')->where([['tbl_client.gender', '=', '2'], ['tbl_client.status', '=', 'Active'],])
+                ->select('id')->where('tbl_client.gender', '=', '2')
                 ->whereNull('tbl_client.hei_no')
                 ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
                 ->remember($this->remember_period)
@@ -213,20 +220,23 @@ class NewDashboardController extends Controller
 
             $clients_female = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
                 ->where('tbl_client.gender', '=', '1')
-                ->where('tbl_client.status', '=', 'Active')
                 ->whereNull('tbl_client.hei_no')
                 ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
                 ->remember($this->remember_period)
                 ->count();
 
             $unknown_gender = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->where('tbl_client.gender', '!=', '1')
-                ->where('tbl_client.gender', '!=', '2')
-                ->where('tbl_client.status', '=', 'Active')
+                ->where(function ($query) {
+                    $query->where('tbl_client.gender', '!=', '1')
+                        ->where('tbl_client.gender', '!=', '2')
+                        ->orWhereNull('tbl_client.gender')
+                        ->orWhere('tbl_client.gender', '');
+                })
                 ->whereNull('tbl_client.hei_no')
                 ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
                 ->remember($this->remember_period)
                 ->count();
+
 
             $client_to_nine = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
                 ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
@@ -234,7 +244,6 @@ class NewDashboardController extends Controller
                     date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
                     WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
                 date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) > 0) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 9)) then `tbl_client`.`dob` end)) AS count"))
-                ->where('tbl_client.status', '=', 'Active')
                 ->whereNull('tbl_client.hei_no')
                 ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
                 ->remember($this->remember_period)
@@ -246,7 +255,6 @@ class NewDashboardController extends Controller
                     date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
                     WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
                 date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 10) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 14)) then `tbl_client`.`dob` end)) AS count"))
-                ->where('tbl_client.status', '=', 'Active')
                 ->whereNull('tbl_client.hei_no')
                 ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
                 ->remember($this->remember_period)
@@ -258,7 +266,6 @@ class NewDashboardController extends Controller
                     date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
                     WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
                 date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 15) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 19)) then `tbl_client`.`dob` end)) AS count"))
-                ->where('tbl_client.status', '=', 'Active')
                 ->whereNull('tbl_client.hei_no')
                 ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
                 ->remember($this->remember_period)
@@ -270,40 +277,64 @@ class NewDashboardController extends Controller
                     date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
                     WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
                 date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 20) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 24)) then `tbl_client`.`dob` end)) AS count"))
-                ->where('tbl_client.status', '=', 'Active')
                 ->whereNull('tbl_client.hei_no')
                 ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
                 ->remember($this->remember_period)
                 ->pluck('count');
 
             $client_to_twentyfive_above = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
-                    WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
-                    date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
-                    WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 25)) then `tbl_client`.`dob` end)) AS count"))
-                ->where('tbl_client.status', '=', 'Active')
+                ->select(\DB::raw("count(IF(((YEAR(CURRENT_DATE) - YEAR(str_to_date(tbl_client.dob, IF(LOCATE('/', tbl_client.dob) > 0, '%m/%d/%Y', '%Y-%m-%d')))) >= 25), tbl_client.dob, NULL)) AS count"))
                 ->whereNull('tbl_client.hei_no')
                 ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
                 ->remember($this->remember_period)
                 ->pluck('count');
 
+            // $client_to_twentyfive_above = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+            //     ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
+            //         WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+            //         date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+            //         WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+            //     date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 25)) then `tbl_client`.`dob` end)) AS count"))
+            //     ->where('tbl_client.status', '=', 'Active')
+            //     ->whereNull('tbl_client.hei_no')
+            //     ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
+            //     ->remember($this->remember_period)
+            //     ->pluck('count');
+
             $client_unknown_age = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->where(\DB::raw("CASE
-                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
-                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"), '=', '')
-                ->orWhereNull(\DB::raw("CASE
-                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
-                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"))
+                ->where(function ($query) {
+                    $query->where(function ($subquery) {
+                        $subquery->whereRaw("locate('/', `tbl_client`.`dob`) > 0")
+                            ->whereRaw("date_format(str_to_date(`tbl_client`.`dob`, '%m/%d/%Y'), '%Y-%m-%d') IS NULL");
+                    })->orWhere(function ($subquery) {
+                        $subquery->whereRaw("locate('-', `tbl_client`.`dob`) > 0")
+                            ->whereRaw("date_format(str_to_date(`tbl_client`.`dob`, '%Y-%m-%d'), '%Y-%m-%d') IS NULL");
+                    });
+                })
                 ->where('tbl_client.status', '=', 'Active')
                 ->whereNull('tbl_client.hei_no')
                 ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
                 ->remember($this->remember_period)
                 ->count();
+
+
+
+            // $client_unknown_age = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+            //     ->where(\DB::raw("CASE
+            //     WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+            //     date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+            //     WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+            //     date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"), '=', '')
+            //     ->orWhereNull(\DB::raw("CASE
+            //     WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+            //     date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+            //     WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+            //     date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"))
+            //     ->where('tbl_client.status', '=', 'Active')
+            //     ->whereNull('tbl_client.hei_no')
+            //     ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
+            //     ->remember($this->remember_period)
+            //     ->count();
         }
         if (Auth::user()->access_level == 'County') {
             $all_partners = Partner::join('tbl_partner_facility', 'tbl_partner.id', '=', 'tbl_partner_facility.partner_id')->where('tbl_partner.status', '=', 'Active')->where('tbl_partner_facility.county_id', Auth::user()->county_id)->remember($this->remember_period)->pluck('tbl_partner.name', 'tbl_partner.id');
@@ -326,8 +357,8 @@ class NewDashboardController extends Controller
 
             $active_facilities = PartnerFacility::join('tbl_client', 'tbl_partner_facility.mfl_code', '=', 'tbl_client.mfl_code')
                 ->join('tbl_appointment', 'tbl_client.id', '=', 'tbl_appointment.client_id')
-                ->select(\DB::raw('COUNT(tbl_partner_facility.mfl_code) as facilities'))
-                ->where(DB::raw('(SELECT MAX(DATE(tbl_appointment.created_at)) from tbl_appointment)'), '>=', Carbon::now()->subMonths(6))
+                ->select('tbl_partner_facility.mfl_code')
+                ->whereDate('tbl_appointment.created_at', '>=', Carbon::now()->subMonths(6)->toDateString())
                 ->where('tbl_partner_facility.county_id', Auth::user()->county_id)
                 ->orderBy('tbl_appointment.created_at', 'DESC')
                 ->groupBy('tbl_partner_facility.mfl_code')
@@ -341,7 +372,7 @@ class NewDashboardController extends Controller
             //  dd($active_facilities);
             // active clients by gender
             $clients_male = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select('id')->where([['tbl_client.gender', '=', '2'], ['tbl_client.status', '=', 'Active'],])
+                ->select('id')->where('tbl_client.gender', '=', '2')
                 ->whereNull('tbl_client.hei_no')
                 ->where('tbl_partner_facility.county_id', Auth::user()->county_id)
                 ->remember($this->remember_period)
@@ -349,16 +380,18 @@ class NewDashboardController extends Controller
 
             $clients_female = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
                 ->where('tbl_client.gender', '=', '1')
-                ->where('tbl_client.status', '=', 'Active')
                 ->whereNull('tbl_client.hei_no')
                 ->where('tbl_partner_facility.county_id', Auth::user()->county_id)
                 ->remember($this->remember_period)
                 ->count();
 
             $unknown_gender = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->where('tbl_client.gender', '!=', '1')
-                ->where('tbl_client.gender', '!=', '2')
-                ->where('tbl_client.status', '=', 'Active')
+                ->where(function ($query) {
+                    $query->where('tbl_client.gender', '!=', '1')
+                        ->where('tbl_client.gender', '!=', '2')
+                        ->orWhereNull('tbl_client.gender')
+                        ->orWhere('tbl_client.gender', '');
+                })
                 ->whereNull('tbl_client.hei_no')
                 ->where('tbl_partner_facility.county_id', Auth::user()->county_id)
                 ->remember($this->remember_period)
@@ -370,7 +403,6 @@ class NewDashboardController extends Controller
                     date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
                     WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
                 date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) > 0) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 9)) then `tbl_client`.`dob` end)) AS count"))
-                ->where('tbl_client.status', '=', 'Active')
                 ->whereNull('tbl_client.hei_no')
                 ->where('tbl_partner_facility.county_id', Auth::user()->county_id)
                 ->remember($this->remember_period)
@@ -382,7 +414,6 @@ class NewDashboardController extends Controller
                     date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
                     WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
                 date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 10) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 14)) then `tbl_client`.`dob` end)) AS count"))
-                ->where('tbl_client.status', '=', 'Active')
                 ->whereNull('tbl_client.hei_no')
                 ->where('tbl_partner_facility.county_id', Auth::user()->county_id)
                 ->remember($this->remember_period)
@@ -394,7 +425,6 @@ class NewDashboardController extends Controller
                     date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
                     WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
                 date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 15) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 19)) then `tbl_client`.`dob` end)) AS count"))
-                ->where('tbl_client.status', '=', 'Active')
                 ->whereNull('tbl_client.hei_no')
                 ->where('tbl_partner_facility.county_id', Auth::user()->county_id)
                 ->remember($this->remember_period)
@@ -406,7 +436,6 @@ class NewDashboardController extends Controller
                     date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
                     WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
                 date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 20) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 24)) then `tbl_client`.`dob` end)) AS count"))
-                ->where('tbl_client.status', '=', 'Active')
                 ->whereNull('tbl_client.hei_no')
                 ->where('tbl_partner_facility.county_id', Auth::user()->county_id)
                 ->remember($this->remember_period)
@@ -418,7 +447,6 @@ class NewDashboardController extends Controller
                     date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
                     WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
                 date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 25)) then `tbl_client`.`dob` end)) AS count"))
-                ->where('tbl_client.status', '=', 'Active')
                 ->whereNull('tbl_client.hei_no')
                 ->where('tbl_partner_facility.county_id', Auth::user()->county_id)
                 ->remember($this->remember_period)
@@ -435,7 +463,6 @@ class NewDashboardController extends Controller
                 date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
                 WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
                 date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"))
-                ->where('tbl_client.status', '=', 'Active')
                 ->whereNull('tbl_client.hei_no')
                 ->where('tbl_partner_facility.county_id', Auth::user()->county_id)
                 ->remember($this->remember_period)
@@ -463,8 +490,8 @@ class NewDashboardController extends Controller
 
             $active_facilities = PartnerFacility::join('tbl_client', 'tbl_partner_facility.mfl_code', '=', 'tbl_client.mfl_code')
                 ->join('tbl_appointment', 'tbl_client.id', '=', 'tbl_appointment.client_id')
-                ->select(\DB::raw('COUNT(tbl_partner_facility.mfl_code) as facilities'))
-                ->where(DB::raw('(SELECT MAX(DATE(tbl_appointment.created_at)) from tbl_appointment)'), '>=', Carbon::now()->subMonths(6))
+                ->select('tbl_partner_facility.mfl_code')
+                ->whereDate('tbl_appointment.created_at', '>=', Carbon::now()->subMonths(6)->toDateString())
                 ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id)
                 ->orderBy('tbl_appointment.created_at', 'DESC')
                 ->groupBy('tbl_partner_facility.mfl_code')
@@ -478,7 +505,7 @@ class NewDashboardController extends Controller
             //  dd($active_facilities);
             // active clients by gender
             $clients_male = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select('id')->where([['tbl_client.gender', '=', '2'], ['tbl_client.status', '=', 'Active'],])
+                ->select('id')->where('tbl_client.gender', '=', '2')
                 ->whereNull('tbl_client.hei_no')
                 ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id)
                 ->remember($this->remember_period)
@@ -486,16 +513,18 @@ class NewDashboardController extends Controller
 
             $clients_female = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
                 ->where('tbl_client.gender', '=', '1')
-                ->where('tbl_client.status', '=', 'Active')
                 ->whereNull('tbl_client.hei_no')
                 ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id)
                 ->remember($this->remember_period)
                 ->count();
 
             $unknown_gender = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->where('tbl_client.gender', '!=', '1')
-                ->where('tbl_client.gender', '!=', '2')
-                ->where('tbl_client.status', '=', 'Active')
+                ->where(function ($query) {
+                    $query->where('tbl_client.gender', '!=', '1')
+                        ->where('tbl_client.gender', '!=', '2')
+                        ->orWhereNull('tbl_client.gender')
+                        ->orWhere('tbl_client.gender', '');
+                })
                 ->whereNull('tbl_client.hei_no')
                 ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id)
                 ->remember($this->remember_period)
@@ -599,37 +628,50 @@ class NewDashboardController extends Controller
                 ->count('id');
 
             // $missed_appointment = Appointments::select('id')->whereIn('app_status', ['Defaulted', 'LTFU', 'Missed'])->count();
+            // $active_facilities = PartnerFacility::join('tbl_client', 'tbl_partner_facility.mfl_code', '=', 'tbl_client.mfl_code')
+            //     ->join('tbl_appointment', 'tbl_client.id', '=', 'tbl_appointment.client_id')
+            //     ->selectRaw('tbl_partner_facility.mfl_code, MAX(DATE(tbl_appointment.created_at)) as max_date')
+            //     ->where(DB::raw('(SELECT MAX(DATE(tbl_appointment.created_at)) from tbl_appointment)'), '>=', Carbon::now()->subMonths(6))
+            //     ->orderBy('tbl_appointment.created_at', 'DESC')
+            //     ->groupBy('tbl_partner_facility.mfl_code')
+            //     ->remember($this->remember_period)
+            //     ->get();
+
             $active_facilities = PartnerFacility::join('tbl_client', 'tbl_partner_facility.mfl_code', '=', 'tbl_client.mfl_code')
                 ->join('tbl_appointment', 'tbl_client.id', '=', 'tbl_appointment.client_id')
-                ->selectRaw('tbl_partner_facility.mfl_code, MAX(DATE(tbl_appointment.created_at)) as max_date')
-                ->where(DB::raw('(SELECT MAX(DATE(tbl_appointment.created_at)) from tbl_appointment)'), '>=', Carbon::now()->subMonths(6))
+                ->select('tbl_partner_facility.mfl_code')
+                ->whereDate('tbl_appointment.created_at', '>=', Carbon::now()->subMonths(6)->toDateString())
                 ->orderBy('tbl_appointment.created_at', 'DESC')
                 ->groupBy('tbl_partner_facility.mfl_code')
                 ->remember($this->remember_period)
                 ->get();
             $facilities_ever_enrolled = PartnerFacility::remember($this->remember_period)->count('mfl_code');
 
-            $clients_male = Client::where([['gender', '=', '2'], ['status', '=', 'Active'],])
+            $clients_male = Client::where('gender', '=', '2')
                 ->whereNull('hei_no')
                 ->remember($this->remember_period)
-                ->count('id');
+                ->count();
 
-            $clients_female = Client::where([['gender', '=', '1'], ['status', '=', 'Active'],])
+            $clients_female = Client::where('gender', '=', '1')
                 ->whereNull('hei_no')
                 ->remember($this->remember_period)
-                ->count('id');
+                ->count();
 
-            $unknown_gender = Client::where([['gender', '!=', '1'], ['gender', '!=', '2'], ['status', '=', 'Active'],])
+            $unknown_gender = Client::where(function ($query) {
+                $query->where('gender', '!=', '1')
+                    ->where('gender', '!=', '2')
+                    ->orWhereNull('gender')
+                    ->orWhere('gender', '');
+            })
                 ->whereNull('hei_no')
                 ->remember($this->remember_period)
-                ->count('id');
+                ->count();
 
             $client_to_nine = Client::select(\DB::raw("count((case when (((year(curdate()) - year(CASE
 			WHEN ( locate( '/', `dob` ) > 0 ) THEN
 			date_format( str_to_date( `dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
 			WHEN ( locate( '-', `dob` ) > 0 ) THEN
 		    date_format( str_to_date( `dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) > 0) and ((year(curdate()) - year(`dob`)) <= 9)) then `dob` end)) AS count"))
-                ->where('status', '=', 'Active')
                 ->whereNull('hei_no')
                 ->remember($this->remember_period)
                 ->pluck('count');
@@ -639,7 +681,6 @@ class NewDashboardController extends Controller
 			date_format( str_to_date( `dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
 			WHEN ( locate( '-', `dob` ) > 0 ) THEN
 		    date_format( str_to_date( `dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 10) and ((year(curdate()) - year(`dob`)) <= 14)) then `dob` end)) AS count"))
-                ->where('status', '=', 'Active')
                 ->whereNull('hei_no')
                 ->remember($this->remember_period)
                 ->pluck('count');
@@ -649,7 +690,6 @@ class NewDashboardController extends Controller
 			date_format( str_to_date( `dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
 			WHEN ( locate( '-', `dob` ) > 0 ) THEN
 		    date_format( str_to_date( `dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 15) and ((year(curdate()) - year(`dob`)) <= 19)) then `dob` end)) AS count"))
-                ->where('status', '=', 'Active')
                 ->whereNull('hei_no')
                 ->remember($this->remember_period)
                 ->pluck('count');
@@ -659,7 +699,6 @@ class NewDashboardController extends Controller
 			date_format( str_to_date( `dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
 			WHEN ( locate( '-', `dob` ) > 0 ) THEN
 		    date_format( str_to_date( `dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END )) <= 24)) then `id` end)) AS count"))
-                ->where('status', '=', 'Active')
                 ->whereNull('hei_no')
                 ->remember($this->remember_period)
                 ->pluck('count');
@@ -669,19 +708,22 @@ class NewDashboardController extends Controller
 			date_format( str_to_date( `dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
 			WHEN ( locate( '-', `dob` ) > 0 ) THEN
 		    date_format( str_to_date( `dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 25)) then `id` end)) AS count"))
-                ->where('status', '=', 'Active')
                 ->whereNull('hei_no')
                 ->remember($this->remember_period)
                 ->pluck('count');
 
             $client_unknown_age = Client::select('id')
-                ->where('dob', '=', '')
-                ->orWhereNull(\DB::raw("CASE
-                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
-                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"))
-                ->where('status', '=', 'Active')
+                ->where(function ($query) {
+                    $query->where('dob', '=', '')
+                        ->orWhere(function ($subquery) {
+                            $subquery->whereRaw("locate('/', `tbl_client`.`dob`) > 0")
+                                ->whereRaw("date_format(str_to_date(`tbl_client`.`dob`, '%m/%d/%Y'), '%Y-%m-%d') IS NULL");
+                        })
+                        ->orWhere(function ($subquery) {
+                            $subquery->whereRaw("locate('-', `tbl_client`.`dob`) > 0")
+                                ->whereRaw("date_format(str_to_date(`tbl_client`.`dob`, '%Y-%m-%d'), '%Y-%m-%d') IS NULL");
+                        });
+                })
                 ->whereNull('hei_no')
                 ->remember($this->remember_period)
                 ->count('id');
@@ -714,25 +756,25 @@ class NewDashboardController extends Controller
         if (Auth::user()->access_level == 'Facility') {
             $all_partners = Partner::where('status', '=', 'Active')->remember($this->remember_period)->pluck('name', 'id');
 
-            $client = Client::where('status', '=', 'Active')
-                ->whereNull('hei_no')
+            $client = Client::whereNull('hei_no')
                 ->where('mfl_code', Auth::user()->facility_id)
                 ->remember($this->remember_period)
-                ->count('clinic_number');
+                ->count();
 
             // client charts
             $client_consented =  Client::select('smsenable')
-                ->where('status', '=', 'Active')
                 ->whereNull('hei_no')
                 ->where('smsenable', '=', 'Yes')
                 ->where('mfl_code', Auth::user()->facility_id)
                 ->remember($this->remember_period)
                 ->count();
 
-            $client_nonconsented =  Client::select('smsenable')
-                ->where('status', '=', 'Active')
+            $client_nonconsented = Client::where(function ($query) {
+                $query->where('smsenable', '!=', 'Yes')
+                    ->orWhereNull('smsenable')
+                    ->orWhere('smsenable', '');
+            })
                 ->whereNull('hei_no')
-                ->where('smsenable', '!=', 'Yes')
                 ->where('mfl_code', Auth::user()->facility_id)
                 ->remember($this->remember_period)
                 ->count();
@@ -740,7 +782,6 @@ class NewDashboardController extends Controller
             // consented clients by gender
 
             $client_consented_male = Client::where('smsenable', '=', 'Yes')
-                ->where('status', '=', 'Active')
                 ->whereNull('hei_no')
                 ->where('gender', '=', '2')
                 ->where('mfl_code', Auth::user()->facility_id)
@@ -748,7 +789,6 @@ class NewDashboardController extends Controller
                 ->count();
 
             $client_consented_female = Client::where('smsenable', '=', 'Yes')
-                ->where('status', '=', 'Active')
                 ->whereNull('hei_no')
                 ->where('gender', '=', '1')
                 ->where('mfl_code', Auth::user()->facility_id)
@@ -756,7 +796,6 @@ class NewDashboardController extends Controller
                 ->count();
 
             $client_consented_uknown_gender = Client::where('smsenable', '=', 'Yes')
-                ->where('status', '=', 'Active')
                 ->whereNull('hei_no')
                 ->where('gender', '!=', '1')
                 ->where('gender', '!=', '2')
@@ -911,7 +950,6 @@ class NewDashboardController extends Controller
             $all_partners = Partner::where('status', '=', 'Active')->where('id', Auth::user()->partner_id)->remember($this->remember_period)->pluck('name', 'id');
 
             $client = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->where('tbl_client.status', '=', 'Active')
                 ->whereNull('tbl_client.hei_no')
                 ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
                 ->remember($this->remember_period)
@@ -920,18 +958,17 @@ class NewDashboardController extends Controller
             // client charts
             $client_consented = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
                 ->select('tbl_clientsmsenable')
-                ->where('tbl_client.status', '=', 'Active')
                 ->whereNull('tbl_client.hei_no')
                 ->where('tbl_client.smsenable', '=', 'Yes')
                 ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
                 ->remember($this->remember_period)
                 ->count();
-
-            $client_nonconsented = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select('smsenable')
-                ->where('tbl_client.status', '=', 'Active')
+            $client_nonconsented = Client::oin('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')->where(function ($query) {
+                $query->where('tbl_client.smsenable', '!=', 'Yes')
+                    ->orWhereNull('tbl_client.smsenable')
+                    ->orWhere('tbl_client.smsenable', '');
+            })
                 ->whereNull('tbl_client.hei_no')
-                ->where('tbl_client.smsenable', '!=', 'Yes')
                 ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
                 ->remember($this->remember_period)
                 ->count();
@@ -940,7 +977,6 @@ class NewDashboardController extends Controller
 
             $client_consented_male = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
                 ->where('tbl_client.smsenable', '=', 'Yes')
-                ->where('tbl_client.status', '=', 'Active')
                 ->whereNull('tbl_client.hei_no')
                 ->where('tbl_client.gender', '=', '2')
                 ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
@@ -949,7 +985,6 @@ class NewDashboardController extends Controller
 
             $client_consented_female = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
                 ->where('tbl_client.smsenable', '=', 'Yes')
-                ->where('tbl_client.status', '=', 'Active')
                 ->whereNull('tbl_client.hei_no')
                 ->where('tbl_client.gender', '=', '1')
                 ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
@@ -958,7 +993,6 @@ class NewDashboardController extends Controller
 
             $client_consented_uknown_gender = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
                 ->where('tbl_client.smsenable', '=', 'Yes')
-                ->where('tbl_client.status', '=', 'Active')
                 ->whereNull('tbl_client.hei_no')
                 ->where('tbl_client.gender', '!=', '1')
                 ->where('tbl_client.gender', '!=', '2')
@@ -969,7 +1003,6 @@ class NewDashboardController extends Controller
             // non consented clients by gender
             $client_nonconsented_male = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
                 ->where('tbl_client.smsenable', '!=', 'Yes')
-                ->where('tbl_client.status', '=', 'Active')
                 ->whereNull('tbl_client.hei_no')
                 ->where('tbl_client.gender', '=', '2')
                 ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
@@ -978,7 +1011,6 @@ class NewDashboardController extends Controller
 
             $client_nonconsented_female = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
                 ->where('tbl_client.smsenable', '!=', 'Yes')
-                ->where('tbl_client.status', '=', 'Active')
                 ->whereNull('tbl_client.hei_no')
                 ->where('tbl_client.gender', '=', '1')
                 ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
@@ -997,7 +1029,6 @@ class NewDashboardController extends Controller
             $client_consented_to_nine = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
                 ->select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) > 0) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 9)) then `tbl_client`.`id` end)) AS count"))
                 ->where('tbl_client.smsenable', '=', 'Yes')
-                ->where('tbl_client.status', '=', 'Active')
                 ->whereNull('tbl_client.hei_no')
                 ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
                 ->remember($this->remember_period)
@@ -1006,7 +1037,6 @@ class NewDashboardController extends Controller
             $client_consented_to_fourteen = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
                 ->select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 10) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 14)) then `tbl_client`.`id` end)) AS count"))
                 ->where('tbl_client.smsenable', '=', 'Yes')
-                ->where('tbl_client.status', '=', 'Active')
                 ->whereNull('tbl_client.hei_no')
                 ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
                 ->remember($this->remember_period)
@@ -1015,7 +1045,6 @@ class NewDashboardController extends Controller
             $client_consented_to_nineteen = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
                 ->select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 15) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 19)) then `tbl_client`.`id` end)) AS count"))
                 ->where('tbl_client.smsenable', '=', 'Yes')
-                ->where('tbl_client.status', '=', 'Active')
                 ->whereNull('tbl_client.hei_no')
                 ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
                 ->remember($this->remember_period)
@@ -1024,7 +1053,6 @@ class NewDashboardController extends Controller
             $client_consented_to_twentyfour = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
                 ->select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 20) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 24)) then `tbl_client`.`id` end)) AS count"))
                 ->where('tbl_client.smsenable', '=', 'Yes')
-                ->where('tbl_client.status', '=', 'Active')
                 ->whereNull('tbl_client.hei_no')
                 ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
                 ->remember($this->remember_period)
@@ -1033,7 +1061,6 @@ class NewDashboardController extends Controller
             $client_consented_to_twentyfive_above = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
                 ->select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 25)) then `tbl_client`.`id` end)) AS count"))
                 ->where('tbl_client.smsenable', '=', 'Yes')
-                ->where('tbl_client.status', '=', 'Active')
                 ->whereNull('tbl_client.hei_no')
                 ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
                 ->remember($this->remember_period)
@@ -1051,7 +1078,6 @@ class NewDashboardController extends Controller
                 date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
                 WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
                 date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"))
-                ->where('tbl_client.status', '=', 'Active')
                 ->whereNull('tbl_client.hei_no')
                 ->where('tbl_client.smsenable', '=', 'Yes')
                 ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
@@ -1559,100 +1585,108 @@ class NewDashboardController extends Controller
 
             $all_partners = Partner::where('status', '=', 'Active')->orderBy('name', 'ASC')->remember($this->remember_period)->pluck('name', 'id');
 
-            $client = Client::where('status', '=', 'Active')->whereNull('hei_no')->remember($this->remember_period)->count('clinic_number');
+            $client = Client::whereNull('hei_no')->remember($this->remember_period)->count();
 
             // client charts
             $client_consented = Client::select('smsenable')
-                ->where('status', '=', 'Active')
                 ->whereNull('hei_no')
                 ->where('smsenable', '=', 'Yes')
                 ->remember($this->remember_period)
                 ->count();
 
-            $client_nonconsented = Client::select('smsenable')
-                ->where('status', '=', 'Active')
+            // $client_nonconsented = Client::select('smsenable')
+            //     ->whereNull('hei_no')
+            //     ->where('smsenable', '!=', 'Yes')
+            //     ->remember($this->remember_period)
+            //     ->count();
+            $client_nonconsented = Client::where(function ($query) {
+                $query->where('smsenable', '!=', 'Yes')
+                    ->orWhereNull('smsenable')
+                    ->orWhere('smsenable', '');
+            })
                 ->whereNull('hei_no')
-                ->where('smsenable', '!=', 'Yes')
                 ->remember($this->remember_period)
                 ->count();
 
             // consented clients by gender
 
             $client_consented_male = Client::where('smsenable', '=', 'Yes')
-                ->where('status', '=', 'Active')
                 ->whereNull('hei_no')
                 ->where('gender', '=', '2')
                 ->remember($this->remember_period)
                 ->count();
 
             $client_consented_female = Client::where('smsenable', '=', 'Yes')
-                ->where('status', '=', 'Active')
                 ->whereNull('hei_no')
                 ->where('gender', '=', '1')
                 ->remember($this->remember_period)
                 ->count();
 
             $client_consented_uknown_gender = Client::where('smsenable', '=', 'Yes')
-                ->where('status', '=', 'Active')
                 ->whereNull('hei_no')
                 ->where('gender', '!=', '1')
                 ->where('gender', '!=', '2')
                 ->remember($this->remember_period)
                 ->count();
 
-            // non consented clients by gender
-            $client_nonconsented_male = Client::where('smsenable', '!=', 'Yes')
-                ->where('status', '=', 'Active')
+            // non consxented clients by gender
+            $client_nonconsented_male = Client::where(function ($query) {
+                $query->where('smsenable', '!=', 'Yes')
+                    ->orWhereNull('smsenable')
+                    ->orWhere('smsenable', '');
+            })
                 ->whereNull('hei_no')
                 ->where('gender', '=', '2')
                 ->remember($this->remember_period)
                 ->count();
 
-            $client_nonconsented_female = Client::where('smsenable', '!=', 'Yes')
-                ->where('status', '=', 'Active')
+            $client_nonconsented_female = Client::where(function ($query) {
+                $query->where('smsenable', '!=', 'Yes')
+                    ->orWhereNull('smsenable')
+                    ->orWhere('smsenable', '');
+            })
                 ->whereNull('hei_no')
                 ->where('gender', '=', '1')
                 ->remember($this->remember_period)
                 ->count();
 
-            $client_nonconsented_uknown_gender = Client::where('smsenable', '!=', 'Yes')
-                ->where('gender', '!=', '1')
-                ->where('gender', '!=', '2')
+            $client_nonconsented_uknown_gender = Client::where(function ($query) {
+                $query->where('gender', '!=', '1')
+                    ->orWhereNull('gender')
+                    ->orWhere('gender', '')
+                    ->orWhere('gender', '!=', '2');
+            })
+                ->whereNull('hei_no')
                 ->remember($this->remember_period)
                 ->count();
 
             // consented clients by age distribution
             $client_consented_to_nine = Client::select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) > 0) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 9)) then `tbl_client`.`id` end)) AS count"))
                 ->where('smsenable', '=', 'Yes')
-                ->where('status', '=', 'Active')
                 ->whereNull('hei_no')
                 ->remember($this->remember_period)
                 ->pluck('count');
 
             $client_consented_to_fourteen = Client::select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 10) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 14)) then `tbl_client`.`id` end)) AS count"))
                 ->where('smsenable', '=', 'Yes')
-                ->where('status', '=', 'Active')
                 ->whereNull('hei_no')
                 ->remember($this->remember_period)
                 ->pluck('count');
 
             $client_consented_to_nineteen = Client::select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 15) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 19)) then `tbl_client`.`id` end)) AS count"))
                 ->where('smsenable', '=', 'Yes')
-                ->where('status', '=', 'Active')
                 ->whereNull('hei_no')
                 ->remember($this->remember_period)
                 ->pluck('count');
 
             $client_consented_to_twentyfour = Client::select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 20) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 24)) then `tbl_client`.`id` end)) AS count"))
                 ->where('smsenable', '=', 'Yes')
-                ->where('status', '=', 'Active')
                 ->whereNull('hei_no')
                 ->remember($this->remember_period)
                 ->pluck('count');
 
             $client_consented_to_twentyfive_above = Client::select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 25)) then `tbl_client`.`id` end)) AS count"))
                 ->where('smsenable', '=', 'Yes')
-                ->where('status', '=', 'Active')
                 ->whereNull('hei_no')
                 ->remember($this->remember_period)
                 ->pluck('count');
@@ -1670,48 +1704,41 @@ class NewDashboardController extends Controller
                 date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"))
                 ->where('status', '=', 'Active')
                 ->whereNull('hei_no')
-                ->where('smsenable', '=', 'Yes')
                 ->remember($this->remember_period)
                 ->count();
 
             // non consented clients by age distribution
             $client_nonconsented_to_nine = Client::select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) > 0) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 9)) then `tbl_client`.`id` end)) AS count"))
                 ->where('smsenable', '!=', 'Yes')
-                ->where('status', '=', 'Active')
                 ->whereNull('hei_no')
                 ->remember($this->remember_period)
                 ->pluck('count');
 
             $client_nonconsented_to_fourteen = Client::select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 10) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 14)) then `tbl_client`.`id` end)) AS count"))
                 ->where('smsenable', '!=', 'Yes')
-                ->where('status', '=', 'Active')
                 ->whereNull('hei_no')
                 ->remember($this->remember_period)
                 ->pluck('count');
 
             $client_nonconsented_to_nineteen = Client::select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 15) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 19)) then `tbl_client`.`id` end)) AS count"))
                 ->where('smsenable', '!=', 'Yes')
-                ->where('status', '=', 'Active')
                 ->whereNull('hei_no')
                 ->remember($this->remember_period)
                 ->pluck('count');
 
             $client_nonconsented_to_twentyfour = Client::select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 20) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 24)) then `tbl_client`.`id` end)) AS count"))
                 ->where('smsenable', '!=', 'Yes')
-                ->where('status', '=', 'Active')
                 ->whereNull('hei_no')
                 ->remember($this->remember_period)
                 ->pluck('count');
 
             $client_nonconsented_to_twentyfive_above = Client::select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 25)) then `tbl_client`.`id` end)) AS count"))
                 ->where('smsenable', '!=', 'Yes')
-                ->where('status', '=', 'Active')
                 ->whereNull('hei_no')
                 ->remember($this->remember_period)
                 ->pluck('count');
 
             $client_nonconsented_uknown_age = Client::select('smsenable')
-                ->where('status', '=', 'Active')
                 ->whereNull('hei_no')
                 ->where(\DB::raw("CASE
                 WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
@@ -5336,8 +5363,7 @@ class NewDashboardController extends Controller
         $selected_module = $request->module;
 
         if (Auth::user()->access_level == 'Facility') {
-            $facilities_ever_enrolled = PartnerFacility::join('tbl_client', 'tbl_partner_facility.mfl_code', '=', 'tbl_client.mfl_code')
-                ->select('tbl_partner_facility.mfl_code')->where('tbl_partner_facility.mfl_code', Auth::user()->facility_id)->remember($this->remember_period);
+            $facilities_ever_enrolled = PartnerFacility::select('tbl_partner_facility.mfl_code')->where('tbl_partner_facility.mfl_code', Auth::user()->facility_id)->remember($this->remember_period);
 
             $active_facilities = PartnerFacility::join('tbl_client', 'tbl_partner_facility.mfl_code', '=', 'tbl_client.mfl_code')
                 ->join('tbl_appointment', 'tbl_client.id', '=', 'tbl_appointment.client_id')
@@ -5361,20 +5387,25 @@ class NewDashboardController extends Controller
             // active clients by gender
             $clients_male = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
                 ->select('tbl_client.id')
-                ->where([['tbl_client.gender', '=', '2'], ['tbl_client.status', '=', 'Active'],])
+                ->where('tbl_client.gender', '=', '2')
                 ->whereNull('tbl_client.hei_no')
                 ->where('tbl_client.mfl_code', Auth::user()->facility_id)
                 ->remember($this->remember_period);
 
 
             $clients_female = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->where([['tbl_client.gender', '=', '1'], ['tbl_client.status', '=', 'Active'],])
+                ->where('tbl_client.gender', '=', '1')
                 ->whereNull('tbl_client.hei_no')
                 ->where('tbl_client.mfl_code', Auth::user()->facility_id)
                 ->remember($this->remember_period);
 
             $unknown_gender = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->where([['tbl_client.gender', '!=', '1'], ['tbl_client.gender', '!=', '2'], ['tbl_client.status', '=', 'Active'],])
+                ->where(function ($query) {
+                    $query->where('tbl_client.gender', '!=', '1')
+                        ->where('tbl_client.gender', '!=', '2')
+                        ->orWhereNull('tbl_client.gender')
+                        ->orWhere('tbl_client.gender', '');
+                })
                 ->whereNull('tbl_client.hei_no')
                 ->where('tbl_client.mfl_code', Auth::user()->facility_id)
                 ->remember($this->remember_period);
@@ -5386,7 +5417,6 @@ class NewDashboardController extends Controller
                 date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
                 WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
                 date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) > 0) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 9)) then `tbl_client`.`dob` end)) AS count"))
-                ->where('tbl_client.status', '=', 'Active')
                 ->whereNull('tbl_client.hei_no')
                 ->where('tbl_client.mfl_code', Auth::user()->facility_id)
                 ->remember($this->remember_period);
@@ -5398,7 +5428,6 @@ class NewDashboardController extends Controller
                 date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
                 WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
                 date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 10) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 14)) then `tbl_client`.`dob` end)) AS count"))
-                ->where('tbl_client.status', '=', 'Active')
                 ->whereNull('tbl_client.hei_no')
                 ->where('tbl_client.mfl_code', Auth::user()->facility_id)
                 ->remember($this->remember_period);
@@ -5410,7 +5439,6 @@ class NewDashboardController extends Controller
                 date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
                 WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
                 date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 15) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 19)) then `tbl_client`.`dob` end)) AS count"))
-                ->where('tbl_client.status', '=', 'Active')
                 ->whereNull('tbl_client.hei_no')
                 ->where('tbl_client.mfl_code', Auth::user()->facility_id)
                 ->remember($this->remember_period);
@@ -5421,7 +5449,6 @@ class NewDashboardController extends Controller
                 date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
                 WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
                 date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 20) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 24)) then `tbl_client`.`dob` end)) AS count"))
-                ->where('tbl_client.status', '=', 'Active')
                 ->whereNull('tbl_client.hei_no')
                 ->where('tbl_client.mfl_code', Auth::user()->facility_id)
                 ->remember($this->remember_period);
@@ -5432,7 +5459,6 @@ class NewDashboardController extends Controller
                 date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
                 WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
                 date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 25)) then `tbl_client`.`dob` end)) AS count"))
-                ->where('tbl_client.status', '=', 'Active')
                 ->whereNull('tbl_client.hei_no')
                 ->where('tbl_client.mfl_code', Auth::user()->facility_id)
                 ->remember($this->remember_period);
@@ -5449,7 +5475,6 @@ class NewDashboardController extends Controller
                 date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
                 WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
                 date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"))
-                ->where('tbl_client.status', '=', 'Active')
                 ->whereNull('tbl_client.hei_no')
                 ->where('tbl_client.mfl_code', Auth::user()->facility_id)
                 ->remember($this->remember_period);
@@ -5472,11 +5497,11 @@ class NewDashboardController extends Controller
 
             $active_facilities = PartnerFacility::join('tbl_client', 'tbl_partner_facility.mfl_code', '=', 'tbl_client.mfl_code')
                 ->join('tbl_appointment', 'tbl_client.id', '=', 'tbl_appointment.client_id')
-                ->selectRaw('tbl_partner_facility.mfl_code, MAX(DATE(tbl_appointment.created_at)) as max_date')
-                ->where(DB::raw('(SELECT MAX(DATE(tbl_appointment.created_at)) from tbl_appointment)'), '>=', Carbon::now()->subMonths(6))
+                ->select('tbl_partner_facility.mfl_code')
+                ->whereDate('tbl_appointment.created_at', '>=', Carbon::now()->subMonths(6)->toDateString())
+                ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
                 ->orderBy('tbl_appointment.created_at', 'DESC')
                 ->groupBy('tbl_partner_facility.mfl_code')
-                ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
                 ->remember($this->remember_period);
 
             $facilities_ever_enrolled =  PartnerFacility::select('tbl_partner_facility.mfl_code')->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)->remember($this->remember_period);
@@ -5484,19 +5509,24 @@ class NewDashboardController extends Controller
             // active clients by gender
             $clients_male = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
                 ->select('tbl_client.id')
-                ->where([['tbl_client.gender', '=', '2'], ['tbl_client.status', '=', 'Active'],])
+                ->where('tbl_client.gender', '=', '2')
                 ->whereNull('tbl_client.hei_no')
                 ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
                 ->remember($this->remember_period);
 
             $clients_female = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->where([['tbl_client.gender', '=', '1'], ['tbl_client.status', '=', 'Active'],])
+                ->where('tbl_client.gender', '=', '1')
                 ->whereNull('tbl_client.hei_no')
                 ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
                 ->remember($this->remember_period);
 
             $unknown_gender = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->where([['tbl_client.gender', '!=', '1'], ['tbl_client.gender', '!=', '2'], ['tbl_client.status', '=', 'Active'],])
+                ->where(function ($query) {
+                    $query->where('tbl_client.gender', '!=', '1')
+                        ->where('tbl_client.gender', '!=', '2')
+                        ->orWhereNull('tbl_client.gender')
+                        ->orWhere('tbl_client.gender', '');
+                })
                 ->whereNull('tbl_client.hei_no')
                 ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
                 ->remember($this->remember_period);
@@ -5508,7 +5538,6 @@ class NewDashboardController extends Controller
                 date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
                 WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
                 date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) > 0) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 9)) then `tbl_client`.`dob` end)) AS count"))
-                ->where('tbl_client.status', '=', 'Active')
                 ->whereNull('tbl_client.hei_no')
                 ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
                 ->remember($this->remember_period);
@@ -5520,7 +5549,6 @@ class NewDashboardController extends Controller
                 date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
                 WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
                 date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 10) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 14)) then `tbl_client`.`dob` end)) AS count"))
-                ->where('tbl_client.status', '=', 'Active')
                 ->whereNull('tbl_client.hei_no')
                 ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
                 ->remember($this->remember_period);
@@ -5532,7 +5560,6 @@ class NewDashboardController extends Controller
                 date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
                 WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
                 date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 15) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 19)) then `tbl_client`.`dob` end)) AS count"))
-                ->where('tbl_client.status', '=', 'Active')
                 ->whereNull('tbl_client.hei_no')
                 ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
                 ->remember($this->remember_period);
@@ -5543,7 +5570,6 @@ class NewDashboardController extends Controller
                 date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
                 WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
                 date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 20) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 24)) then `tbl_client`.`dob` end)) AS count"))
-                ->where('tbl_client.status', '=', 'Active')
                 ->whereNull('tbl_client.hei_no')
                 ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
                 ->remember($this->remember_period);
@@ -5554,7 +5580,6 @@ class NewDashboardController extends Controller
                 date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
                 WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
                 date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 25)) then `tbl_client`.`dob` end)) AS count"))
-                ->where('tbl_client.status', '=', 'Active')
                 ->whereNull('tbl_client.hei_no')
                 ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
                 ->remember($this->remember_period);
@@ -5571,7 +5596,6 @@ class NewDashboardController extends Controller
                 date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
                 WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
                 date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"))
-                ->where('tbl_client.status', '=', 'Active')
                 ->whereNull('tbl_client.hei_no')
                 ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
                 ->remember($this->remember_period);
@@ -5606,19 +5630,24 @@ class NewDashboardController extends Controller
             // active clients by gender
             $clients_male = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
                 ->select('tbl_client.id')
-                ->where([['tbl_client.gender', '=', '2'], ['tbl_client.status', '=', 'Active'],])
+                ->where('tbl_client.gender', '=', '2')
                 ->whereNull('tbl_client.hei_no')
                 ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id)
                 ->remember($this->remember_period);
 
             $clients_female = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->where([['tbl_client.gender', '=', '1'], ['tbl_client.status', '=', 'Active'],])
+                ->where('tbl_client.gender', '=', '1')
                 ->whereNull('tbl_client.hei_no')
                 ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id)
                 ->remember($this->remember_period);
 
             $unknown_gender = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->where([['tbl_client.gender', '!=', '1'], ['tbl_client.gender', '!=', '2'], ['tbl_client.status', '=', 'Active'],])
+                ->where(function ($query) {
+                    $query->where('tbl_client.gender', '!=', '1')
+                        ->where('tbl_client.gender', '!=', '2')
+                        ->orWhereNull('tbl_client.gender')
+                        ->orWhere('tbl_client.gender', '');
+                })
                 ->whereNull('tbl_client.hei_no')
                 ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id)
                 ->remember($this->remember_period);
@@ -5630,7 +5659,6 @@ class NewDashboardController extends Controller
                 date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
                 WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
                 date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) > 0) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 9)) then `tbl_client`.`dob` end)) AS count"))
-                ->where('tbl_client.status', '=', 'Active')
                 ->whereNull('tbl_client.hei_no')
                 ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id)
                 ->remember($this->remember_period);
@@ -5642,7 +5670,6 @@ class NewDashboardController extends Controller
                 date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
                 WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
                 date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 10) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 14)) then `tbl_client`.`dob` end)) AS count"))
-                ->where('tbl_client.status', '=', 'Active')
                 ->whereNull('tbl_client.hei_no')
                 ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id)
                 ->remember($this->remember_period);
@@ -5654,7 +5681,6 @@ class NewDashboardController extends Controller
                 date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
                 WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
                 date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 15) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 19)) then `tbl_client`.`dob` end)) AS count"))
-                ->where('tbl_client.status', '=', 'Active')
                 ->whereNull('tbl_client.hei_no')
                 ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id)
                 ->remember($this->remember_period);
@@ -5665,7 +5691,6 @@ class NewDashboardController extends Controller
                 date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
                 WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
                 date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 20) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 24)) then `tbl_client`.`dob` end)) AS count"))
-                ->where('tbl_client.status', '=', 'Active')
                 ->whereNull('tbl_client.hei_no')
                 ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id)
                 ->remember($this->remember_period);
@@ -5676,7 +5701,6 @@ class NewDashboardController extends Controller
                 date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
                 WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
                 date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 25)) then `tbl_client`.`dob` end)) AS count"))
-                ->where('tbl_client.status', '=', 'Active')
                 ->whereNull('tbl_client.hei_no')
                 ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id)
                 ->remember($this->remember_period);
@@ -5693,7 +5717,6 @@ class NewDashboardController extends Controller
                 date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
                 WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
                 date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"))
-                ->where('tbl_client.status', '=', 'Active')
                 ->whereNull('tbl_client.hei_no')
                 ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id)
                 ->remember($this->remember_period);
@@ -5728,19 +5751,24 @@ class NewDashboardController extends Controller
             // active clients by gender
             $clients_male = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
                 ->select('tbl_client.id')
-                ->where([['tbl_client.gender', '=', '2'], ['tbl_client.status', '=', 'Active'],])
+                ->where('tbl_client.gender', '=', '2')
                 ->whereNull('tbl_client.hei_no')
                 ->where('tbl_partner_facility.county_id', Auth::user()->county_id)
                 ->remember($this->remember_period);
 
             $clients_female = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->where([['tbl_client.gender', '=', '1'], ['tbl_client.status', '=', 'Active'],])
+                ->where('tbl_client.gender', '=', '1')
                 ->whereNull('tbl_client.hei_no')
                 ->where('tbl_partner_facility.county_id', Auth::user()->county_id)
                 ->remember($this->remember_period);
 
             $unknown_gender = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->where([['tbl_client.gender', '!=', '1'], ['tbl_client.gender', '!=', '2'], ['tbl_client.status', '=', 'Active'],])
+                ->where(function ($query) {
+                    $query->where('tbl_client.gender', '!=', '1')
+                        ->where('tbl_client.gender', '!=', '2')
+                        ->orWhereNull('tbl_client.gender')
+                        ->orWhere('tbl_client.gender', '');
+                })
                 ->whereNull('tbl_client.hei_no')
                 ->where('tbl_partner_facility.county_id', Auth::user()->county_id)
                 ->remember($this->remember_period);
@@ -5752,7 +5780,6 @@ class NewDashboardController extends Controller
                 date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
                 WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
                 date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) > 0) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 9)) then `tbl_client`.`dob` end)) AS count"))
-                ->where('tbl_client.status', '=', 'Active')
                 ->whereNull('tbl_client.hei_no')
                 ->where('tbl_partner_facility.county_id', Auth::user()->county_id)
                 ->remember($this->remember_period);
@@ -5764,7 +5791,6 @@ class NewDashboardController extends Controller
                 date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
                 WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
                 date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 10) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 14)) then `tbl_client`.`dob` end)) AS count"))
-                ->where('tbl_client.status', '=', 'Active')
                 ->whereNull('tbl_client.hei_no')
                 ->where('tbl_partner_facility.county_id', Auth::user()->county_id)
                 ->remember($this->remember_period);
@@ -5776,7 +5802,6 @@ class NewDashboardController extends Controller
                 date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
                 WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
                 date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 15) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 19)) then `tbl_client`.`dob` end)) AS count"))
-                ->where('tbl_client.status', '=', 'Active')
                 ->whereNull('tbl_client.hei_no')
                 ->where('tbl_partner_facility.county_id', Auth::user()->county_id)
                 ->remember($this->remember_period);
@@ -5787,7 +5812,6 @@ class NewDashboardController extends Controller
                 date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
                 WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
                 date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 20) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 24)) then `tbl_client`.`dob` end)) AS count"))
-                ->where('tbl_client.status', '=', 'Active')
                 ->whereNull('tbl_client.hei_no')
                 ->where('tbl_partner_facility.county_id', Auth::user()->county_id)
                 ->remember($this->remember_period);
@@ -5798,7 +5822,6 @@ class NewDashboardController extends Controller
                 date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
                 WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
                 date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 25)) then `tbl_client`.`dob` end)) AS count"))
-                ->where('tbl_client.status', '=', 'Active')
                 ->whereNull('tbl_client.hei_no')
                 ->where('tbl_partner_facility.county_id', Auth::user()->county_id)
                 ->remember($this->remember_period);
@@ -5815,7 +5838,6 @@ class NewDashboardController extends Controller
                 date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
                 WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
                 date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"))
-                ->where('tbl_client.status', '=', 'Active')
                 ->whereNull('tbl_client.hei_no')
                 ->where('tbl_partner_facility.county_id', Auth::user()->county_id)
                 ->remember($this->remember_period);
@@ -5838,9 +5860,9 @@ class NewDashboardController extends Controller
 
             $active_facilities = PartnerFacility::join('tbl_client', 'tbl_partner_facility.mfl_code', '=', 'tbl_client.mfl_code')
                 ->join('tbl_appointment', 'tbl_client.id', '=', 'tbl_appointment.client_id')
-                ->selectRaw('tbl_partner_facility.mfl_code, MAX(DATE(tbl_appointment.created_at)) as max_date')
-                ->where(DB::raw('(SELECT MAX(DATE(tbl_appointment.created_at)) from tbl_appointment)'), '>=', Carbon::now()->subMonths(6))
-                ->orderBy('tbl_appointment.id', 'DESC')
+                ->select('tbl_partner_facility.mfl_code')
+                ->whereDate('tbl_appointment.created_at', '>=', Carbon::now()->subMonths(6)->toDateString())
+                ->orderBy('tbl_appointment.created_at', 'DESC')
                 ->groupBy('tbl_partner_facility.mfl_code')
                 ->remember($this->remember_period);
 
@@ -5849,17 +5871,22 @@ class NewDashboardController extends Controller
             // active clients by gender
             $clients_male = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
                 ->select('tbl_client.id')
-                ->where([['tbl_client.gender', '=', '2'], ['tbl_client.status', '=', 'Active'],])
+                ->where('tbl_client.gender', '=', '2')
                 ->whereNull('tbl_client.hei_no')
                 ->remember($this->remember_period);
 
             $clients_female = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->where([['tbl_client.gender', '=', '1'], ['tbl_client.status', '=', 'Active'],])
+                ->where('tbl_client.gender', '=', '1')
                 ->whereNull('tbl_client.hei_no')
                 ->remember($this->remember_period);
 
             $unknown_gender = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->where([['tbl_client.gender', '!=', '1'], ['tbl_client.gender', '!=', '2'], ['tbl_client.status', '=', 'Active'],])
+                ->where(function ($query) {
+                    $query->where('tbl_client.gender', '!=', '1')
+                        ->where('tbl_client.gender', '!=', '2')
+                        ->orWhereNull('tbl_client.gender')
+                        ->orWhere('tbl_client.gender', '');
+                })
                 ->whereNull('tbl_client.hei_no')
                 ->remember($this->remember_period);
 
@@ -5869,7 +5896,6 @@ class NewDashboardController extends Controller
                 date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
                 WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
                 date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) > 0) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 9)) then `tbl_client`.`dob` end)) AS count"))
-                ->where('tbl_client.status', '=', 'Active')
                 ->whereNull('tbl_client.hei_no')
                 ->remember($this->remember_period);
 
@@ -5879,7 +5905,6 @@ class NewDashboardController extends Controller
                 date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
                 WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
                 date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 10) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 14)) then `tbl_client`.`dob` end)) AS count"))
-                ->where('tbl_client.status', '=', 'Active')
                 ->whereNull('tbl_client.hei_no')
                 ->remember($this->remember_period);
 
@@ -5890,7 +5915,6 @@ class NewDashboardController extends Controller
                 date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
                 WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
                 date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 15) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 19)) then `tbl_client`.`dob` end)) AS count"))
-                ->where('tbl_client.status', '=', 'Active')
                 ->whereNull('tbl_client.hei_no')
                 ->remember($this->remember_period);
 
@@ -5900,7 +5924,6 @@ class NewDashboardController extends Controller
                 date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
                 WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
                 date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 20) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 24)) then `tbl_client`.`dob` end)) AS count"))
-                ->where('tbl_client.status', '=', 'Active')
                 ->whereNull('tbl_client.hei_no')
                 ->remember($this->remember_period);
 
@@ -5910,7 +5933,6 @@ class NewDashboardController extends Controller
                 date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
                 WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
                 date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 25)) then `tbl_client`.`dob` end)) AS count"))
-                ->where('tbl_client.status', '=', 'Active')
                 ->whereNull('tbl_client.hei_no')
                 ->remember($this->remember_period);
 
@@ -5926,7 +5948,6 @@ class NewDashboardController extends Controller
                 date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
                 WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
                 date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"))
-                ->where('tbl_client.status', '=', 'Active')
                 ->whereNull('tbl_client.hei_no')
                 ->remember($this->remember_period);
         }
@@ -6005,9 +6026,8 @@ class NewDashboardController extends Controller
                 ->join('tbl_appointment', 'tbl_client.id', '=', 'tbl_appointment.client_id')
                 ->selectRaw('tbl_partner_facility.mfl_code, MAX(DATE(tbl_appointment.created_at)) as max_date')
                 ->where(DB::raw('(SELECT MAX(DATE(tbl_appointment.created_at)) from tbl_appointment)'), '>=', Carbon::now()->subMonths(6))
-                ->where(DB::raw('(SELECT MAX(DATE(tbl_appointment.created_at)) from tbl_appointment)'), '>=', date($request->from))
-                ->where(DB::raw('(SELECT MAX(DATE(tbl_appointment.created_at)) from tbl_appointment)'), '>=', date($request->to))
-                // ->whereRaw('tbl_appointment.created_at', '>=', date($request->from))->whereDate('tbl_appointment.created_at', '>=', date($request->to))
+                ->whereDate('tbl_appointment.created_at', '>=', $request->from)
+                ->whereDate('tbl_appointment.created_at', '<=', $request->to)
                 ->orderBy('tbl_appointment.created_at', 'DESC')
                 ->groupBy('tbl_partner_facility.mfl_code')
                 ->remember($this->remember_period);
@@ -6027,7 +6047,7 @@ class NewDashboardController extends Controller
             $client = $client;
             $client_ever_enrolled = $client_ever_enrolled->join('tbl_dfc_module', 'tbl_client.id', '=', 'tbl_dfc_module.client_id');
             $active_facilities = $active_facilities->join('tbl_dfc_module', 'tbl_client.id', '=', 'tbl_dfc_module.client_id');
-            $facilities_ever_enrolled = $facilities_ever_enrolled->join('tbl_client', 'tbl_partner_facility.mfl_code', '=', 'tbl_client.mfl_code')->join('tbl_dfc_module', 'tbl_client.id', '=', 'tbl_dfc_module.client_id')->groupBy('tbl_partner_facility.mfl_code')->having(DB::raw('count(tbl_client.mfl_code)'), '>', 0);
+            $facilities_ever_enrolled = $facilities_ever_enrolled->join('tbl_client', 'tbl_partner_facility.mfl_code', '=', 'tbl_client.mfl_code')->join('tbl_dfc_module', 'tbl_client.id', '=', 'tbl_dfc_module.client_id')->groupBy('tbl_partner_facility.mfl_code')->having(DB::raw('count(tbl_client.mfl_code)'), '>', 0)->get();
             $clients_male = $clients_male->join('tbl_dfc_module', 'tbl_client.id', '=', 'tbl_dfc_module.client_id');
             $clients_female = $clients_female->join('tbl_dfc_module', 'tbl_client.id', '=', 'tbl_dfc_module.client_id');
             $unknown_gender = $unknown_gender->join('tbl_dfc_module', 'tbl_client.id', '=', 'tbl_dfc_module.client_id');
@@ -6039,10 +6059,10 @@ class NewDashboardController extends Controller
             $client_unknown_age = $client_unknown_age->join('tbl_dfc_module', 'tbl_client.id', '=', 'tbl_dfc_module.client_id');
         }
         if (!empty($selected_module == 'PMTCT')) {
-            $client = $client->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id');
+            $client = $client;
             $client_ever_enrolled = $client_ever_enrolled->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id');
             $active_facilities = $active_facilities->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id');
-            $facilities_ever_enrolled = $facilities_ever_enrolled->join('tbl_client', 'tbl_partner_facility.mfl_code', '=', 'tbl_client.mfl_code')->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id')->groupBy('tbl_partner_facility.mfl_code')->having(DB::raw('count(tbl_client.mfl_code)'), '>', 0);
+            $facilities_ever_enrolled = $facilities_ever_enrolled->join('tbl_client', 'tbl_partner_facility.mfl_code', '=', 'tbl_client.mfl_code')->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id')->groupBy('tbl_partner_facility.mfl_code')->having(DB::raw('count(tbl_client.mfl_code)'), '>', 0)->get();;
             $clients_male = $clients_male->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id');
             $clients_female = $clients_female->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id');
             $unknown_gender = $unknown_gender->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id');
