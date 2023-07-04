@@ -196,13 +196,27 @@ class FinalDashboardController extends Controller
                 ->where('mfl_code', Auth::user()->facility_id)
                 ->remember($this->remember_period);
 
-            $all_tx_curr = Txcurr::select('tx_cur')
-                ->where('period', function ($query) {
-                    $query->select(DB::raw('MAX(period)'))
-                        ->from('tbl_tx_cur');
+            // $all_tx_curr = Txcurr::select('tx_cur')
+            //     ->where('period', function ($query) {
+            //         $query->select(DB::raw('MAX(period)'))
+            //             ->from('tbl_tx_cur');
+            //     })
+            //     ->where('mfl_code', Auth::user()->facility_id)
+            //     ->remember($this->remember_period);
+
+            $all_tx_curr = Txcurr::selectRaw('SUM(tbl_tx_cur.tx_cur) as tx_cur')
+                ->join('tbl_partner_facility', 'tbl_tx_cur.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
+                            FROM tbl_tx_cur t1
+                            GROUP BY t1.mfl_code) latest'), function ($join) {
+                    $join->on('tbl_tx_cur.mfl_code', '=', 'latest.mfl_code')
+                        ->on('tbl_tx_cur.period', '=', 'latest.max_period');
                 })
-                ->where('mfl_code', Auth::user()->facility_id)
-                ->remember($this->remember_period);
+                ->where('tbl_partner_facility.mfl_code', Auth::user()->facility_id)
+                ->groupBy('tbl_tx_cur.mfl_code')
+                ->remember($this->remember_period)
+                ->get();
+            $all_tx_curr = $all_tx_curr->sum('tx_cur');
 
 
             $appointment_gender = ETLAppointment::select(
@@ -432,7 +446,7 @@ class FinalDashboardController extends Controller
 
             $data["all_appoinments"] = $all_appoinments->get();
             $data["consented_clients"] = $consented_clients->get();
-            $data["all_tx_curr"] = $all_tx_curr->sum('tx_cur');
+            $data["all_tx_curr"] = $all_tx_curr;
             $data["appointment_gender"] = $appointment_gender->get();
             $data["appointment_age"] = $appointment_age->get();
             $data["appointment_marital"] = $appointment_marital->get();
@@ -475,11 +489,24 @@ class FinalDashboardController extends Controller
             )
                 ->remember($this->remember_period);
 
-            $all_tx_curr = Txcurr::where('period', function ($query) {
-                $query->select(DB::raw('MAX(period)'))
-                    ->from('tbl_tx_cur');
-            })
-                ->remember($this->remember_period);
+            // $all_tx_curr = Txcurr::where('period', function ($query) {
+            //     $query->select(DB::raw('MAX(period)'))
+            //         ->from('tbl_tx_cur');
+            // })
+            //     ->remember($this->remember_period);
+
+            $all_tx_curr = Txcurr::selectRaw('SUM(tbl_tx_cur.tx_cur) as tx_cur')
+                ->join('tbl_partner_facility', 'tbl_tx_cur.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
+                            FROM tbl_tx_cur t1
+                            GROUP BY t1.mfl_code) latest'), function ($join) {
+                    $join->on('tbl_tx_cur.mfl_code', '=', 'latest.mfl_code')
+                        ->on('tbl_tx_cur.period', '=', 'latest.max_period');
+                })
+                ->groupBy('tbl_tx_cur.mfl_code')
+                ->remember($this->remember_period)
+                ->get();
+            $all_tx_curr = $all_tx_curr->sum('tx_cur');
 
             $appointment_gender = ETLAppointment::selectRaw(
                 'gender,
@@ -649,7 +676,7 @@ class FinalDashboardController extends Controller
 
             $data["all_appoinments"] = $all_appoinments->get();
             $data["consented_clients"] = $consented_clients->get();
-            $data["all_tx_curr"] = $all_tx_curr->sum('tx_cur');
+            $data["all_tx_curr"] = $all_tx_curr;
             $data["appointment_gender"] = $appointment_gender->get();
             $data["appointment_age"] = $appointment_age->get();
             $data["appointment_marital"] = $appointment_marital->get();
@@ -689,13 +716,27 @@ class FinalDashboardController extends Controller
                 ->where('partner_id', Auth::user()->partner_id)
                 ->remember($this->remember_period);
 
-            $all_tx_curr = Txcurr::join('tbl_partner_facility', 'tbl_tx_cur.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->where('tbl_tx_cur.period', function ($query) {
-                    $query->select(DB::raw('MAX(tbl_tx_cur.period)'))
-                        ->from('tbl_tx_cur');
+            // $all_tx_curr = Txcurr::join('tbl_partner_facility', 'tbl_tx_cur.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+            //     ->where('tbl_tx_cur.period', function ($query) {
+            //         $query->select(DB::raw('MAX(tbl_tx_cur.period)'))
+            //             ->from('tbl_tx_cur');
+            //     })
+            //     ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
+            //     ->remember($this->remember_period);
+
+            $all_tx_curr = Txcurr::selectRaw('SUM(tbl_tx_cur.tx_cur) as tx_cur')
+                ->join('tbl_partner_facility', 'tbl_tx_cur.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
+                            FROM tbl_tx_cur t1
+                            GROUP BY t1.mfl_code) latest'), function ($join) {
+                    $join->on('tbl_tx_cur.mfl_code', '=', 'latest.mfl_code')
+                        ->on('tbl_tx_cur.period', '=', 'latest.max_period');
                 })
                 ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
-                ->remember($this->remember_period);
+                ->groupBy('tbl_tx_cur.mfl_code')
+                ->remember($this->remember_period)
+                ->get();
+            $all_tx_curr = $all_tx_curr->sum('tx_cur');
 
             $appointment_gender = ETLAppointment::select(
                 'gender',
@@ -897,7 +938,7 @@ class FinalDashboardController extends Controller
 
             $data["all_appoinments"] = $all_appoinments->get();
             $data["consented_clients"] = $consented_clients->get();
-            $data["all_tx_curr"] = $all_tx_curr->sum('tbl_tx_cur.tx_cur');
+            $data["all_tx_curr"] = $all_tx_curr;
             $data["appointment_gender"] = $appointment_gender->get();
             $data["appointment_age"] = $appointment_age->get();
             $data["appointment_marital"] = $appointment_marital->get();
@@ -941,13 +982,27 @@ class FinalDashboardController extends Controller
                 ->where('subcounty_id', Auth::user()->subcounty_id)
                 ->remember($this->remember_period);
 
-            $all_tx_curr = Txcurr::join('tbl_partner_facility', 'tbl_tx_cur.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->where('tbl_tx_cur.period', function ($query) {
-                    $query->select(DB::raw('MAX(tbl_tx_cur.period)'))
-                        ->from('tbl_tx_cur');
+            // $all_tx_curr = Txcurr::join('tbl_partner_facility', 'tbl_tx_cur.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+            //     ->where('tbl_tx_cur.period', function ($query) {
+            //         $query->select(DB::raw('MAX(tbl_tx_cur.period)'))
+            //             ->from('tbl_tx_cur');
+            //     })
+            //     ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id)
+            //     ->remember($this->remember_period);
+
+            $all_tx_curr = Txcurr::selectRaw('SUM(tbl_tx_cur.tx_cur) as tx_cur')
+                ->join('tbl_partner_facility', 'tbl_tx_cur.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
+                            FROM tbl_tx_cur t1
+                            GROUP BY t1.mfl_code) latest'), function ($join) {
+                    $join->on('tbl_tx_cur.mfl_code', '=', 'latest.mfl_code')
+                        ->on('tbl_tx_cur.period', '=', 'latest.max_period');
                 })
                 ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id)
-                ->remember($this->remember_period);
+                ->groupBy('tbl_tx_cur.mfl_code')
+                ->remember($this->remember_period)
+                ->get();
+            $all_tx_curr = $all_tx_curr->sum('tx_cur');
 
             $appointment_gender = ETLAppointment::select(
                 'gender',
@@ -1152,7 +1207,7 @@ class FinalDashboardController extends Controller
 
             $data["all_appoinments"] = $all_appoinments->get();
             $data["consented_clients"] = $consented_clients->get();
-            $data["all_tx_curr"] = $all_tx_curr->sum('tbl_tx_cur.tx_cur');
+            $data["all_tx_curr"] = $all_tx_curr;
             $data["appointment_gender"] = $appointment_gender->get();
             $data["appointment_age"] = $appointment_age->get();
             $data["appointment_marital"] = $appointment_marital->get();
@@ -1195,13 +1250,27 @@ class FinalDashboardController extends Controller
                 ->where('county_id', Auth::user()->county_id)
                 ->remember($this->remember_period);
 
-            $all_tx_curr = Txcurr::join('tbl_partner_facility', 'tbl_tx_cur.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->where('tbl_tx_cur.period', function ($query) {
-                    $query->select(DB::raw('MAX(tbl_tx_cur.period)'))
-                        ->from('tbl_tx_cur');
+            // $all_tx_curr = Txcurr::join('tbl_partner_facility', 'tbl_tx_cur.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+            //     ->where('tbl_tx_cur.period', function ($query) {
+            //         $query->select(DB::raw('MAX(tbl_tx_cur.period)'))
+            //             ->from('tbl_tx_cur');
+            //     })
+            //     ->where('tbl_partner_facility.county_id', Auth::user()->county_id)
+            //     ->remember($this->remember_period);
+
+            $all_tx_curr = Txcurr::selectRaw('SUM(tbl_tx_cur.tx_cur) as tx_cur')
+                ->join('tbl_partner_facility', 'tbl_tx_cur.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
+                        FROM tbl_tx_cur t1
+                        GROUP BY t1.mfl_code) latest'), function ($join) {
+                    $join->on('tbl_tx_cur.mfl_code', '=', 'latest.mfl_code')
+                        ->on('tbl_tx_cur.period', '=', 'latest.max_period');
                 })
                 ->where('tbl_partner_facility.county_id', Auth::user()->county_id)
-                ->remember($this->remember_period);
+                ->groupBy('tbl_tx_cur.mfl_code')
+                ->remember($this->remember_period)
+                ->get();
+            $all_tx_curr = $all_tx_curr->sum('tx_cur');
 
             $appointment_gender = ETLAppointment::select(
                 'gender',
@@ -1411,7 +1480,7 @@ class FinalDashboardController extends Controller
 
             $data["all_appoinments"] = $all_appoinments->get();
             $data["consented_clients"] = $consented_clients->get();
-            $data["all_tx_curr"] = $all_tx_curr->sum('tbl_tx_cur.tx_cur');
+            $data["all_tx_curr"] = $all_tx_curr;
             $data["appointment_gender"] = $appointment_gender->get();
             $data["appointment_age"] = $appointment_age->get();
             $data["appointment_marital"] = $appointment_marital->get();
@@ -1463,13 +1532,7 @@ class FinalDashboardController extends Controller
                 DB::raw('AVG(percent_consented) AS percent_consented ')
             )->remember($this->remember_period);
 
-            $all_tx_curr = Txcurr::select(DB::raw('SUM(tbl_tx_cur.tx_cur) as tx_cur'))
-                ->join('tbl_partner_facility', 'tbl_tx_cur.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->where('tbl_tx_cur.period', function ($query) {
-                    $query->select(DB::raw('MAX(tbl_tx_cur.period)'))
-                        ->from('tbl_tx_cur');
-                })
-                ->remember($this->remember_period);
+            $query = Txcurr::query()->join('tbl_partner_facility', 'tbl_tx_cur.mfl_code', '=', 'tbl_partner_facility.mfl_code');
 
             $appointment_gender = ETLAppointment::select(
                 'gender',
@@ -1631,7 +1694,16 @@ class FinalDashboardController extends Controller
             if (!empty($selected_partners)) {
                 $all_appoinments = $all_appoinments->where('partner_id', $selected_partners);
                 $consented_clients = $consented_clients->where('partner_id', $selected_partners);
-                $all_tx_curr = $all_tx_curr->where('tbl_partner_facility.partner_id', $selected_partners);
+                $query->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
+                FROM tbl_tx_cur t1
+                GROUP BY t1.mfl_code) latest'), function ($join) {
+                    $join->on('tbl_tx_cur.mfl_code', '=', 'latest.mfl_code')
+                        ->on('tbl_tx_cur.period', '=', 'latest.max_period');
+                })->where('tbl_partner_facility.partner_id', $selected_partners)
+                    ->groupBy('tbl_tx_cur.mfl_code');
+                $all_tx_curr = $query->selectRaw('SUM(tbl_tx_cur.tx_cur) as tx_cur')
+                    ->get()
+                    ->sum('tx_cur');
                 $appointment_gender = $appointment_gender->where('partner_id', $selected_partners);
                 $appointment_age = $appointment_age->where('partner_id', $selected_partners);
                 $appointment_marital = $appointment_marital->where('partner_id', $selected_partners);
@@ -1648,7 +1720,16 @@ class FinalDashboardController extends Controller
             if (!empty($selected_counties)) {
                 $all_appoinments = $all_appoinments->where('county_id', $selected_counties);
                 $consented_clients = $consented_clients->where('county_id', $selected_counties);
-                $all_tx_curr = $all_tx_curr->where('tbl_partner_facility.county_id', $selected_counties);
+                $query->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
+                FROM tbl_tx_cur t1
+                GROUP BY t1.mfl_code) latest_con'), function ($join) {
+                    $join->on('tbl_tx_cur.mfl_code', '=', 'latest_con.mfl_code')
+                        ->on('tbl_tx_cur.period', '=', 'latest_con.max_period');
+                })->where('tbl_partner_facility.county_id', $selected_counties)
+                    ->groupBy('tbl_tx_cur.mfl_code');
+                $all_tx_curr = $query->selectRaw('SUM(tbl_tx_cur.tx_cur) as tx_cur')
+                    ->get()
+                    ->sum('tx_cur');
                 $appointment_gender = $appointment_gender->where('county_id', $selected_counties);
                 $appointment_age = $appointment_age->where('county_id', $selected_counties);
                 $appointment_marital = $appointment_marital->where('county_id', $selected_counties);
@@ -1665,7 +1746,17 @@ class FinalDashboardController extends Controller
             if (!empty($selected_subcounties)) {
                 $all_appoinments = $all_appoinments->where('subcounty_id', $selected_subcounties);
                 $consented_clients = $consented_clients->where('subcounty_id', $selected_subcounties);
-                $all_tx_curr = $all_tx_curr->where('tbl_partner_facility.sub_county_id', $selected_subcounties);
+                $query->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
+                FROM tbl_tx_cur t1
+                GROUP BY t1.mfl_code) latest_sub'), function ($join) {
+                    $join->on('tbl_tx_cur.mfl_code', '=', 'latest_sub.mfl_code')
+                        ->on('tbl_tx_cur.period', '=', 'latest_sub.max_period');
+                })
+                    ->where('sub_county_id', $selected_subcounties)
+                    ->groupBy('tbl_tx_cur.mfl_code');
+                $all_tx_curr = $query->selectRaw('SUM(tbl_tx_cur.tx_cur) as tx_cur')
+                    ->get()
+                    ->sum('tx_cur');
                 $appointment_gender = $appointment_gender->where('subcounty_id', $selected_subcounties);
                 $appointment_age = $appointment_age->where('subcounty_id', $selected_subcounties);
                 $appointment_marital = $appointment_marital->where('subcounty_id', $selected_subcounties);
@@ -1682,7 +1773,17 @@ class FinalDashboardController extends Controller
             if (!empty($selected_facilites)) {
                 $all_appoinments = $all_appoinments->where('mfl_code', $selected_facilites);
                 $consented_clients = $consented_clients->where('mfl_code', $selected_facilites);
-                $all_tx_curr = $all_tx_curr->where('tbl_partner_facility.mfl_code', $selected_facilites)->groupBy('tbl_partner_facility.mfl_code');
+                $query->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
+                FROM tbl_tx_cur t1
+                GROUP BY t1.mfl_code) latest_fac'), function ($join) {
+                    $join->on('tbl_tx_cur.mfl_code', '=', 'latest_fac.mfl_code')
+                        ->on('tbl_tx_cur.period', '=', 'latest_fac.max_period');
+                })
+                    ->where('tbl_partner_facility.mfl_code', $selected_facilites)
+                    ->groupBy('tbl_tx_cur.mfl_code');
+                $all_tx_curr = $query->selectRaw('SUM(tbl_tx_cur.tx_cur) as tx_cur')
+                    ->get()
+                    ->sum('tx_cur');
                 $appointment_gender = $appointment_gender->where('mfl_code', $selected_facilites);
                 $appointment_age = $appointment_age->where('mfl_code', $selected_facilites);
                 $appointment_marital = $appointment_marital->where('mfl_code', $selected_facilites);
@@ -1700,7 +1801,16 @@ class FinalDashboardController extends Controller
             if (!empty($selected_clinics)) {
                 $all_appoinments = $all_appoinments->where('clinic_type', $selected_clinics);
                 $consented_clients = $consented_clients->where('clinic_type', $selected_clinics);
-                $all_tx_curr = $all_tx_curr;
+                $query->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
+              FROM tbl_tx_cur t1
+              GROUP BY t1.mfl_code) latest_clinic'), function ($join) {
+                    $join->on('tbl_tx_cur.mfl_code', '=', 'latest_clinic.mfl_code')
+                        ->on('tbl_tx_cur.period', '=', 'latest_clinic.max_period');
+                })
+                    ->groupBy('tbl_tx_cur.mfl_code');
+                $all_tx_curr = $query->selectRaw('SUM(tbl_tx_cur.tx_cur) as tx_cur')
+                    ->get()
+                    ->sum('tx_cur');
                 $appointment_gender = $appointment_gender->where('clinic_type', $selected_clinics);
                 $appointment_age = $appointment_age->where('clinic_type', $selected_clinics);
                 $appointment_marital = $appointment_marital->where('clinic_type', $selected_clinics);
@@ -1717,7 +1827,16 @@ class FinalDashboardController extends Controller
             if (!empty($selected_appointments)) {
                 $all_appoinments = $all_appoinments;
                 $consented_clients = $consented_clients;
-                $all_tx_curr = $all_tx_curr;
+                $query->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
+              FROM tbl_tx_cur t1
+              GROUP BY t1.mfl_code) latest_app'), function ($join) {
+                    $join->on('tbl_tx_cur.mfl_code', '=', 'latest_app.mfl_code')
+                        ->on('tbl_tx_cur.period', '=', 'latest_app.max_period');
+                })
+                    ->groupBy('tbl_tx_cur.mfl_code');
+                $all_tx_curr = $query->selectRaw('SUM(tbl_tx_cur.tx_cur) as tx_cur')
+                    ->get()
+                    ->sum('tx_cur');
                 $appointment_gender = $appointment_gender;
                 $appointment_age = $appointment_age;
                 $appointment_marital = $appointment_marital;
@@ -1736,11 +1855,21 @@ class FinalDashboardController extends Controller
                 $consented_clients = $consented_clients->where('consented_date', '>=', date($request->from))->where('consented_date', '<=', date($request->to));
                 $selectedFrom = date('Ym', strtotime($request->from));
                 $selectedTo = date('Ym', strtotime($request->to));
-                $all_tx_curr = $all_tx_curr->where('tbl_tx_cur.period', function ($query) use ($selectedFrom, $selectedTo) {
-                    $query->select(DB::raw('MAX(period)'))
-                        ->from('tbl_tx_cur')
-                        ->whereRaw("SUBSTRING(period, 1, 6) BETWEEN ? AND ?", [$selectedFrom, $selectedTo]);
-                });
+
+                $query->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
+                FROM tbl_tx_cur t1
+                GROUP BY t1.mfl_code) latest_date'), function ($join) {
+                    $join->on('tbl_tx_cur.mfl_code', '=', 'latest_date.mfl_code')
+                        ->on('tbl_tx_cur.period', '=', 'latest_date.max_period');
+                })
+                    ->where(function ($query) use ($selectedFrom, $selectedTo) {
+                        $query->whereRaw("SUBSTRING(tbl_tx_cur.period, 1, 6) >= ?", $selectedFrom)
+                            ->whereRaw("SUBSTRING(tbl_tx_cur.period, 1, 6) <= ?", $selectedTo);
+                    })
+                    ->groupBy('tbl_tx_cur.mfl_code');
+                $all_tx_curr = $query->selectRaw('SUM(tbl_tx_cur.tx_cur) as tx_cur')
+                    ->get()
+                    ->sum('tx_cur');
                 $appointment_gender = $appointment_gender->where('appointment_date', '>=', date($request->from))->where('appointment_date', '<=', date($request->to));
                 $appointment_age = $appointment_age->where('appointment_date', '>=', date($request->from))->where('appointment_date', '<=', date($request->to));
                 $appointment_marital = $appointment_marital->where('appointment_date', '>=', date($request->from))->where('appointment_date', '<=', date($request->to));
@@ -1758,7 +1887,16 @@ class FinalDashboardController extends Controller
             if (!empty($selected_site)) {
                 $all_appoinments = $all_appoinments->where('facility_type', $selected_site);
                 $consented_clients = $consented_clients->where('facility_type', $selected_site);
-                $all_tx_curr = $all_tx_curr;
+                $query->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
+              FROM tbl_tx_cur t1
+              GROUP BY t1.mfl_code) latest_site'), function ($join) {
+                    $join->on('tbl_tx_cur.mfl_code', '=', 'latest_site.mfl_code')
+                        ->on('tbl_tx_cur.period', '=', 'latest_site.max_period');
+                })
+                    ->groupBy('tbl_tx_cur.mfl_code');
+                $all_tx_curr = $query->selectRaw('SUM(tbl_tx_cur.tx_cur) as tx_cur')
+                    ->get()
+                    ->sum('tx_cur');
                 $appointment_gender = $appointment_gender->where('facility_type', $selected_site);
                 $appointment_age = $appointment_age->where('facility_type', $selected_site);
                 $appointment_marital = $appointment_marital->where('facility_type', $selected_site);
@@ -1775,7 +1913,7 @@ class FinalDashboardController extends Controller
 
             $data["all_appoinments"] = $all_appoinments->get();
             $data["consented_clients"] = $consented_clients->get();
-            $data["all_tx_curr"] = $all_tx_curr->sum('tbl_tx_cur.tx_cur');
+            $data["all_tx_curr"] = $all_tx_curr;
             $data["appointment_gender"] = $appointment_gender->get();
             $data["appointment_age"] = $appointment_age->get();
             $data["appointment_marital"] = $appointment_marital->get();
@@ -1824,10 +1962,8 @@ class FinalDashboardController extends Controller
                 ->where('mfl_code', Auth::user()->facility_id)
                 ->remember($this->remember_period);
 
-            $all_tx_curr = Txcurr::select('tbl_tx_cur.tx_cur')
-                ->join('tbl_partner_facility', 'tbl_tx_cur.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->where('tbl_tx_cur.mfl_code', Auth::user()->facility_id)
-                ->remember($this->remember_period);
+            $query = Txcurr::query()->join('tbl_partner_facility', 'tbl_tx_cur.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->where('tbl_partner_facility.mfl_code', Auth::user()->facility_id);
 
             $appointment_gender = ETLAppointment::select(
                 'gender',
@@ -2040,7 +2176,16 @@ class FinalDashboardController extends Controller
             if (!empty($selected_partners)) {
                 $all_appoinments = $all_appoinments->where('partner_id', $selected_partners);
                 $consented_clients = $consented_clients->where('partner_id', $selected_partners);
-                $all_tx_curr = $all_tx_curr->where('tbl_partner_facility.partner_id', $selected_partners);
+                $query->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
+                FROM tbl_tx_cur t1
+                GROUP BY t1.mfl_code) latest'), function ($join) {
+                    $join->on('tbl_tx_cur.mfl_code', '=', 'latest.mfl_code')
+                        ->on('tbl_tx_cur.period', '=', 'latest.max_period');
+                })->where('tbl_partner_facility.partner_id', $selected_partners)
+                    ->groupBy('tbl_tx_cur.mfl_code');
+                $all_tx_curr = $query->selectRaw('SUM(tbl_tx_cur.tx_cur) as tx_cur')
+                    ->get()
+                    ->sum('tx_cur');
                 $appointment_gender = $appointment_gender->where('partner_id', $selected_partners);
                 $appointment_age = $appointment_age->where('partner_id', $selected_partners);
                 $appointment_marital = $appointment_marital->where('partner_id', $selected_partners);
@@ -2060,7 +2205,16 @@ class FinalDashboardController extends Controller
             if (!empty($selected_counties)) {
                 $all_appoinments = $all_appoinments->where('county_id', $selected_counties);
                 $consented_clients = $consented_clients->where('county_id', $selected_counties);
-                $all_tx_curr = $all_tx_curr->where('tbl_partner_facility.county_id', $selected_counties);
+                $query->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
+                FROM tbl_tx_cur t1
+                GROUP BY t1.mfl_code) latest_con'), function ($join) {
+                    $join->on('tbl_tx_cur.mfl_code', '=', 'latest_con.mfl_code')
+                        ->on('tbl_tx_cur.period', '=', 'latest_con.max_period');
+                })->where('tbl_partner_facility.county_id', $selected_counties)
+                    ->groupBy('tbl_tx_cur.mfl_code');
+                $all_tx_curr = $query->selectRaw('SUM(tbl_tx_cur.tx_cur) as tx_cur')
+                    ->get()
+                    ->sum('tx_cur');
                 $appointment_gender = $appointment_gender->where('county_id', $selected_counties);
                 $appointment_age = $appointment_age->where('county_id', $selected_counties);
                 $appointment_marital = $appointment_marital->where('county_id', $selected_counties);
@@ -2080,7 +2234,17 @@ class FinalDashboardController extends Controller
             if (!empty($selected_subcounties)) {
                 $all_appoinments = $all_appoinments->where('subcounty_id', $selected_subcounties);
                 $consented_clients = $consented_clients->where('subcounty_id', $selected_subcounties);
-                $all_tx_curr = $all_tx_curr->where('tbl_partner_facility.sub_county_id', $selected_subcounties);
+                $query->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
+                FROM tbl_tx_cur t1
+                GROUP BY t1.mfl_code) latest_sub'), function ($join) {
+                    $join->on('tbl_tx_cur.mfl_code', '=', 'latest_sub.mfl_code')
+                        ->on('tbl_tx_cur.period', '=', 'latest_sub.max_period');
+                })
+                    ->where('sub_county_id', $selected_subcounties)
+                    ->groupBy('tbl_tx_cur.mfl_code');
+                $all_tx_curr = $query->selectRaw('SUM(tbl_tx_cur.tx_cur) as tx_cur')
+                    ->get()
+                    ->sum('tx_cur');
                 $appointment_gender = $appointment_gender->where('subcounty_id', $selected_subcounties);
                 $appointment_age = $appointment_age->where('subcounty_id', $selected_subcounties);
                 $appointment_marital = $appointment_marital->where('subcounty_id', $selected_subcounties);
@@ -2100,7 +2264,17 @@ class FinalDashboardController extends Controller
             if (!empty($selected_facilites)) {
                 $all_appoinments = $all_appoinments->where('mfl_code', $selected_facilites);
                 $consented_clients = $consented_clients->where('mfl_code', $selected_facilites);
-                $all_tx_curr = $all_tx_curr->where('tbl_partner_facility.mfl_code', $selected_facilites);
+                $query->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
+                FROM tbl_tx_cur t1
+                GROUP BY t1.mfl_code) latest_fac'), function ($join) {
+                    $join->on('tbl_tx_cur.mfl_code', '=', 'latest_fac.mfl_code')
+                        ->on('tbl_tx_cur.period', '=', 'latest_fac.max_period');
+                })
+                    ->where('tbl_partner_facility.mfl_code', $selected_facilites)
+                    ->groupBy('tbl_tx_cur.mfl_code');
+                $all_tx_curr = $query->selectRaw('SUM(tbl_tx_cur.tx_cur) as tx_cur')
+                    ->get()
+                    ->sum('tx_cur');
                 $appointment_gender = $appointment_gender->where('mfl_code', $selected_facilites);
                 $appointment_age = $appointment_age->where('mfl_code', $selected_facilites);
                 $appointment_marital = $appointment_marital->where('mfl_code', $selected_facilites);
@@ -2121,7 +2295,16 @@ class FinalDashboardController extends Controller
             if (!empty($selected_clinics)) {
                 $all_appoinments = $all_appoinments->where('clinic_type', $selected_clinics);
                 $consented_clients = $consented_clients->where('clinic_type', $selected_clinics);
-                $all_tx_curr = $all_tx_curr;
+                $query->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
+              FROM tbl_tx_cur t1
+              GROUP BY t1.mfl_code) latest_clinic'), function ($join) {
+                    $join->on('tbl_tx_cur.mfl_code', '=', 'latest_clinic.mfl_code')
+                        ->on('tbl_tx_cur.period', '=', 'latest_clinic.max_period');
+                })
+                    ->groupBy('tbl_tx_cur.mfl_code');
+                $all_tx_curr = $query->selectRaw('SUM(tbl_tx_cur.tx_cur) as tx_cur')
+                    ->get()
+                    ->sum('tx_cur');
                 $appointment_gender = $appointment_gender->where('clinic_type', $selected_clinics);
                 $appointment_age = $appointment_age->where('clinic_type', $selected_clinics);
                 $appointment_marital = $appointment_marital->where('clinic_type', $selected_clinics);
@@ -2141,7 +2324,16 @@ class FinalDashboardController extends Controller
             if (!empty($selected_appointments)) {
                 $all_appoinments = $all_appoinments;
                 $consented_clients = $consented_clients;
-                $all_tx_curr = $all_tx_curr;
+                $query->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
+                FROM tbl_tx_cur t1
+                GROUP BY t1.mfl_code) latest_app'), function ($join) {
+                    $join->on('tbl_tx_cur.mfl_code', '=', 'latest_app.mfl_code')
+                        ->on('tbl_tx_cur.period', '=', 'latest_app.max_period');
+                })
+                    ->groupBy('tbl_tx_cur.mfl_code');
+                $all_tx_curr = $query->selectRaw('SUM(tbl_tx_cur.tx_cur) as tx_cur')
+                    ->get()
+                    ->sum('tx_cur');
                 $appointment_gender = $appointment_gender;
                 $appointment_age = $appointment_age;
                 $appointment_marital = $appointment_marital;
@@ -2163,11 +2355,20 @@ class FinalDashboardController extends Controller
                 $consented_clients = $consented_clients->where('consented_date', '>=', date($request->from))->where('consented_date', '<=', date($request->to));
                 $selectedFrom = date('Ym', strtotime($request->from));
                 $selectedTo = date('Ym', strtotime($request->to));
-                $all_tx_curr = $all_tx_curr->where('tbl_tx_cur.period', function ($query) use ($selectedFrom, $selectedTo) {
-                    $query->select(DB::raw('MAX(period)'))
-                        ->from('tbl_tx_cur')
-                        ->whereRaw("SUBSTRING(period, 1, 6) BETWEEN ? AND ?", [$selectedFrom, $selectedTo]);
-                });
+                $query->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
+                FROM tbl_tx_cur t1
+                GROUP BY t1.mfl_code) latest_date'), function ($join) {
+                    $join->on('tbl_tx_cur.mfl_code', '=', 'latest_date.mfl_code')
+                        ->on('tbl_tx_cur.period', '=', 'latest_date.max_period');
+                })
+                    ->where(function ($query) use ($selectedFrom, $selectedTo) {
+                        $query->whereRaw("SUBSTRING(tbl_tx_cur.period, 1, 6) >= ?", $selectedFrom)
+                            ->whereRaw("SUBSTRING(tbl_tx_cur.period, 1, 6) <= ?", $selectedTo);
+                    })
+                    ->groupBy('tbl_tx_cur.mfl_code');
+                $all_tx_curr = $query->selectRaw('SUM(tbl_tx_cur.tx_cur) as tx_cur')
+                    ->get()
+                    ->sum('tx_cur');
 
                 // $all_tx_curr = $all_tx_curr->whereRaw('tbl_tx_cur.period', '>=', DB::raw("DATE_FORMAT($request->from, '%Y%m')"))->whereRaw('tbl_tx_cur.period', '<=', DB::raw("DATE_FORMAT($request->to, '%Y%m')"));
                 $appointment_gender = $appointment_gender->where('appointment_date', '>=', date($request->from))->where('appointment_date', '<=', date($request->to));
@@ -2190,7 +2391,16 @@ class FinalDashboardController extends Controller
             if (!empty($selected_sites)) {
                 $all_appoinments = $all_appoinments->where('facility_type', $selected_sites);
                 $consented_clients = $consented_clients->where('facility_type', $selected_sites);
-                $all_tx_curr = $all_tx_curr->join('etl_client_detail', 'tbl_tx_cur.mfl_code', '=', 'etl_client_detail.mfl_code')->where('etl_client_detail.facility_type', '=', 'EMR Based')->groupBy('etl_client_detail.mfl_code');
+                $query->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
+              FROM tbl_tx_cur t1
+              GROUP BY t1.mfl_code) latest_sites'), function ($join) {
+                    $join->on('tbl_tx_cur.mfl_code', '=', 'latest_sites.mfl_code')
+                        ->on('tbl_tx_cur.period', '=', 'latest_sites.max_period');
+                })
+                    ->groupBy('tbl_tx_cur.mfl_code');
+                $all_tx_curr = $query->selectRaw('SUM(tbl_tx_cur.tx_cur) as tx_cur')
+                    ->get()
+                    ->sum('tx_cur');
                 $appointment_gender = $appointment_gender->where('facility_type', $selected_sites);
                 $appointment_age = $appointment_age->where('facility_type', $selected_sites);
                 $appointment_marital = $appointment_marital->where('facility_type', $selected_sites);
@@ -2210,7 +2420,7 @@ class FinalDashboardController extends Controller
 
             $data["all_appoinments"] = $all_appoinments->get();
             $data["consented_clients"] = $consented_clients->get();
-            $data["all_tx_curr"] = $all_tx_curr->sum('tbl_tx_cur.tx_cur');
+            $data["all_tx_curr"] = $all_tx_curr;
             $data["appointment_gender"] = $appointment_gender->get();
             $data["appointment_age"] = $appointment_age->get();
             $data["appointment_marital"] = $appointment_marital->get();
@@ -2262,14 +2472,8 @@ class FinalDashboardController extends Controller
                 ->where('partner_id', Auth::user()->partner_id)
                 ->remember($this->remember_period);
 
-            $all_tx_curr = Txcurr::select('tbl_tx_cur.tx_cur')
-                ->join('tbl_partner_facility', 'tbl_tx_cur.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->where('tbl_tx_cur.period', function ($query) {
-                    $query->select(DB::raw('MAX(tbl_tx_cur.period)'))
-                        ->from('tbl_tx_cur');
-                })
-                ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
-                ->remember($this->remember_period);
+            $query = Txcurr::query()->join('tbl_partner_facility', 'tbl_tx_cur.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id);
 
             $appointment_gender = ETLAppointment::select(
                 'gender',
@@ -2465,7 +2669,16 @@ class FinalDashboardController extends Controller
             if (!empty($selected_partners)) {
                 $all_appoinments = $all_appoinments->where('partner_id', $selected_partners);
                 $consented_clients = $consented_clients->where('partner_id', $selected_partners);
-                $all_tx_curr = $all_tx_curr->where('tbl_partner_facility.partner_id', $selected_partners);
+                $query->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
+                FROM tbl_tx_cur t1
+                GROUP BY t1.mfl_code) latest'), function ($join) {
+                    $join->on('tbl_tx_cur.mfl_code', '=', 'latest.mfl_code')
+                        ->on('tbl_tx_cur.period', '=', 'latest.max_period');
+                })->where('tbl_partner_facility.partner_id', $selected_partners)
+                    ->groupBy('tbl_tx_cur.mfl_code');
+                $all_tx_curr = $query->selectRaw('SUM(tbl_tx_cur.tx_cur) as tx_cur')
+                    ->get()
+                    ->sum('tx_cur');
                 $appointment_gender = $appointment_gender->where('partner_id', $selected_partners);
                 $appointment_age = $appointment_age->where('partner_id', $selected_partners);
                 $appointment_marital = $appointment_marital->where('partner_id', $selected_partners);
@@ -2486,7 +2699,16 @@ class FinalDashboardController extends Controller
             if (!empty($selected_counties)) {
                 $all_appoinments = $all_appoinments->where('county_id', $selected_counties);
                 $consented_clients = $consented_clients->where('county_id', $selected_counties);
-                $all_tx_curr = $all_tx_curr->where('tbl_partner_facility.county_id', $selected_counties);
+                $query->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
+                FROM tbl_tx_cur t1
+                GROUP BY t1.mfl_code) latest_con'), function ($join) {
+                    $join->on('tbl_tx_cur.mfl_code', '=', 'latest_con.mfl_code')
+                        ->on('tbl_tx_cur.period', '=', 'latest_con.max_period');
+                })->where('tbl_partner_facility.county_id', $selected_counties)
+                    ->groupBy('tbl_tx_cur.mfl_code');
+                $all_tx_curr = $query->selectRaw('SUM(tbl_tx_cur.tx_cur) as tx_cur')
+                    ->get()
+                    ->sum('tx_cur');
                 $appointment_gender = $appointment_gender->where('county_id', $selected_counties);
                 $appointment_age = $appointment_age->where('county_id', $selected_counties);
                 $appointment_marital = $appointment_marital->where('county_id', $selected_counties);
@@ -2507,7 +2729,17 @@ class FinalDashboardController extends Controller
             if (!empty($selected_subcounties)) {
                 $all_appoinments = $all_appoinments->where('subcounty_id', $selected_subcounties);
                 $consented_clients = $consented_clients->where('subcounty_id', $selected_subcounties);
-                $all_tx_curr = $all_tx_curr->where('tbl_partner_facility.sub_county_id', $selected_subcounties);
+                $query->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
+                FROM tbl_tx_cur t1
+                GROUP BY t1.mfl_code) latest_sub'), function ($join) {
+                    $join->on('tbl_tx_cur.mfl_code', '=', 'latest_sub.mfl_code')
+                        ->on('tbl_tx_cur.period', '=', 'latest_sub.max_period');
+                })
+                    ->where('sub_county_id', $selected_subcounties)
+                    ->groupBy('tbl_tx_cur.mfl_code');
+                $all_tx_curr = $query->selectRaw('SUM(tbl_tx_cur.tx_cur) as tx_cur')
+                    ->get()
+                    ->sum('tx_cur');
                 $appointment_gender = $appointment_gender->where('subcounty_id', $selected_subcounties);
                 $appointment_age = $appointment_age->where('subcounty_id', $selected_subcounties);
                 $appointment_marital = $appointment_marital->where('subcounty_id', $selected_subcounties);
@@ -2528,7 +2760,17 @@ class FinalDashboardController extends Controller
             if (!empty($selected_facilites)) {
                 $all_appoinments = $all_appoinments->where('mfl_code', $selected_facilites);
                 $consented_clients = $consented_clients->where('mfl_code', $selected_facilites);
-                $all_tx_curr = $all_tx_curr->where('tbl_partner_facility.mfl_code', $selected_facilites);
+                $query->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
+                FROM tbl_tx_cur t1
+                GROUP BY t1.mfl_code) latest_fac'), function ($join) {
+                    $join->on('tbl_tx_cur.mfl_code', '=', 'latest_fac.mfl_code')
+                        ->on('tbl_tx_cur.period', '=', 'latest_fac.max_period');
+                })
+                    ->where('tbl_partner_facility.mfl_code', $selected_facilites)
+                    ->groupBy('tbl_tx_cur.mfl_code');
+                $all_tx_curr = $query->selectRaw('SUM(tbl_tx_cur.tx_cur) as tx_cur')
+                    ->get()
+                    ->sum('tx_cur');
                 $appointment_gender = $appointment_gender->where('mfl_code', $selected_facilites);
                 $appointment_age = $appointment_age->where('mfl_code', $selected_facilites);
                 $appointment_marital = $appointment_marital->where('mfl_code', $selected_facilites);
@@ -2550,7 +2792,16 @@ class FinalDashboardController extends Controller
             if (!empty($selected_clinics)) {
                 $all_appoinments = $all_appoinments->where('clinic_type', $selected_clinics);
                 $consented_clients = $consented_clients->where('clinic_type', $selected_clinics);
-                $all_tx_curr = $all_tx_curr;
+                $query->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
+              FROM tbl_tx_cur t1
+              GROUP BY t1.mfl_code) latest_clinic'), function ($join) {
+                    $join->on('tbl_tx_cur.mfl_code', '=', 'latest_clinic.mfl_code')
+                        ->on('tbl_tx_cur.period', '=', 'latest_clinic.max_period');
+                })
+                    ->groupBy('tbl_tx_cur.mfl_code');
+                $all_tx_curr = $query->selectRaw('SUM(tbl_tx_cur.tx_cur) as tx_cur')
+                    ->get()
+                    ->sum('tx_cur');
                 $appointment_gender = $appointment_gender->where('clinic_type', $selected_clinics);
                 $appointment_age = $appointment_age->where('clinic_type', $selected_clinics);
                 $appointment_marital = $appointment_marital->where('clinic_type', $selected_clinics);
@@ -2571,7 +2822,16 @@ class FinalDashboardController extends Controller
             if (!empty($selected_appointments)) {
                 $all_appoinments = $all_appoinments;
                 $consented_clients = $consented_clients;
-                $all_tx_curr = $all_tx_curr;
+                $query->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
+              FROM tbl_tx_cur t1
+              GROUP BY t1.mfl_code) latest_app'), function ($join) {
+                    $join->on('tbl_tx_cur.mfl_code', '=', 'latest_app.mfl_code')
+                        ->on('tbl_tx_cur.period', '=', 'latest_app.max_period');
+                })
+                    ->groupBy('tbl_tx_cur.mfl_code');
+                $all_tx_curr = $query->selectRaw('SUM(tbl_tx_cur.tx_cur) as tx_cur')
+                    ->get()
+                    ->sum('tx_cur');
                 $appointment_gender = $appointment_gender;
                 $appointment_age = $appointment_age;
                 $appointment_marital = $appointment_marital;
@@ -2594,11 +2854,20 @@ class FinalDashboardController extends Controller
                 $consented_clients = $consented_clients->where('consented_date', '>=', date($request->from))->where('consented_date', '<=', date($request->to));
                 $selectedFrom = date('Ym', strtotime($request->from));
                 $selectedTo = date('Ym', strtotime($request->to));
-                $all_tx_curr = $all_tx_curr->where('tbl_tx_cur.period', function ($query) use ($selectedFrom, $selectedTo) {
-                    $query->select(DB::raw('MAX(period)'))
-                        ->from('tbl_tx_cur')
-                        ->whereRaw("SUBSTRING(period, 1, 6) BETWEEN ? AND ?", [$selectedFrom, $selectedTo]);
-                });
+                $query->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
+                FROM tbl_tx_cur t1
+                GROUP BY t1.mfl_code) latest_date'), function ($join) {
+                    $join->on('tbl_tx_cur.mfl_code', '=', 'latest_date.mfl_code')
+                        ->on('tbl_tx_cur.period', '=', 'latest_date.max_period');
+                })
+                    ->where(function ($query) use ($selectedFrom, $selectedTo) {
+                        $query->whereRaw("SUBSTRING(tbl_tx_cur.period, 1, 6) >= ?", $selectedFrom)
+                            ->whereRaw("SUBSTRING(tbl_tx_cur.period, 1, 6) <= ?", $selectedTo);
+                    })
+                    ->groupBy('tbl_tx_cur.mfl_code');
+                $all_tx_curr = $query->selectRaw('SUM(tbl_tx_cur.tx_cur) as tx_cur')
+                    ->get()
+                    ->sum('tx_cur');
                 $appointment_gender = $appointment_gender->where('appointment_date', '>=', date($request->from))->where('appointment_date', '<=', date($request->to));
                 $appointment_age = $appointment_age->where('appointment_date', '>=', date($request->from))->where('appointment_date', '<=', date($request->to));
                 $appointment_marital = $appointment_marital->where('appointment_date', '>=', date($request->from))->where('appointment_date', '<=', date($request->to));
@@ -2620,7 +2889,16 @@ class FinalDashboardController extends Controller
             if (!empty($selected_site)) {
                 $all_appoinments = $all_appoinments->where('facility_type', $selected_site);
                 $consented_clients = $consented_clients->where('facility_type', $selected_site);
-                $all_tx_curr = $all_tx_curr->join('etl_client_detail', 'tbl_tx_cur.mfl_code', '=', 'etl_client_detail.mfl_code')->where('etl_client_detail.facility_type', $selected_site)->groupBy('etl_client_detail.mfl_code');
+                $query->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
+              FROM tbl_tx_cur t1
+              GROUP BY t1.mfl_code) latest_site'), function ($join) {
+                    $join->on('tbl_tx_cur.mfl_code', '=', 'latest_site.mfl_code')
+                        ->on('tbl_tx_cur.period', '=', 'latest_site.max_period');
+                })
+                    ->groupBy('tbl_tx_cur.mfl_code');
+                $all_tx_curr = $query->selectRaw('SUM(tbl_tx_cur.tx_cur) as tx_cur')
+                    ->get()
+                    ->sum('tx_cur');
                 $appointment_gender = $appointment_gender->where('facility_type', $selected_site);
                 $appointment_age = $appointment_age->where('facility_type', $selected_site);
                 $appointment_marital = $appointment_marital->where('facility_type', $selected_site);
@@ -2641,7 +2919,7 @@ class FinalDashboardController extends Controller
 
             $data["all_appoinments"] = $all_appoinments->get();
             $data["consented_clients"] = $consented_clients->get();
-            $data["all_tx_curr"] = $all_tx_curr->sum('tbl_tx_cur.tx_cur');
+            $data["all_tx_curr"] = $all_tx_curr;
             $data["appointment_gender"] = $appointment_gender->get();
             $data["appointment_age"] = $appointment_age->get();
             $data["appointment_marital"] = $appointment_marital->get();
@@ -2694,14 +2972,8 @@ class FinalDashboardController extends Controller
                 ->where('subcounty_id', Auth::user()->subcounty_id)
                 ->remember($this->remember_period);
 
-            $all_tx_curr = Txcurr::select('tbl_tx_cur.tx_cur')
-                ->join('tbl_partner_facility', 'tbl_tx_cur.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->where('tbl_tx_cur.period', function ($query) {
-                    $query->select(DB::raw('MAX(tbl_tx_cur.period)'))
-                        ->from('tbl_tx_cur');
-                })
-                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id)
-                ->remember($this->remember_period);
+            $query = Txcurr::query()->join('tbl_partner_facility', 'tbl_tx_cur.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id);
 
             $appointment_gender = ETLAppointment::select(
                 'gender',
@@ -2900,7 +3172,16 @@ class FinalDashboardController extends Controller
             if (!empty($selected_partners)) {
                 $all_appoinments = $all_appoinments->where('partner_id', $selected_partners);
                 $consented_clients = $consented_clients->where('partner_id', $selected_partners);
-                $all_tx_curr = $all_tx_curr->where('tbl_partner_facility.partner_id', $selected_partners);
+                $query->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
+                FROM tbl_tx_cur t1
+                GROUP BY t1.mfl_code) latest'), function ($join) {
+                    $join->on('tbl_tx_cur.mfl_code', '=', 'latest.mfl_code')
+                        ->on('tbl_tx_cur.period', '=', 'latest.max_period');
+                })->where('tbl_partner_facility.partner_id', $selected_partners)
+                    ->groupBy('tbl_tx_cur.mfl_code');
+                $all_tx_curr = $query->selectRaw('SUM(tbl_tx_cur.tx_cur) as tx_cur')
+                    ->get()
+                    ->sum('tx_cur');
                 $appointment_gender = $appointment_gender->where('partner_id', $selected_partners);
                 $appointment_age = $appointment_age->where('partner_id', $selected_partners);
                 $appointment_marital = $appointment_marital->where('partner_id', $selected_partners);
@@ -2921,7 +3202,16 @@ class FinalDashboardController extends Controller
             if (!empty($selected_counties)) {
                 $all_appoinments = $all_appoinments->where('county_id', $selected_counties);
                 $consented_clients = $consented_clients->where('county_id', $selected_counties);
-                $all_tx_curr = $all_tx_curr->where('tbl_partner_facility.county_id', $selected_counties);
+                $query->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
+                FROM tbl_tx_cur t1
+                GROUP BY t1.mfl_code) latest_con'), function ($join) {
+                    $join->on('tbl_tx_cur.mfl_code', '=', 'latest_con.mfl_code')
+                        ->on('tbl_tx_cur.period', '=', 'latest_con.max_period');
+                })->where('tbl_partner_facility.county_id', $selected_counties)
+                    ->groupBy('tbl_tx_cur.mfl_code');
+                $all_tx_curr = $query->selectRaw('SUM(tbl_tx_cur.tx_cur) as tx_cur')
+                    ->get()
+                    ->sum('tx_cur');
                 $appointment_gender = $appointment_gender->where('county_id', $selected_counties);
                 $appointment_age = $appointment_age->where('county_id', $selected_counties);
                 $appointment_marital = $appointment_marital->where('county_id', $selected_counties);
@@ -2942,7 +3232,17 @@ class FinalDashboardController extends Controller
             if (!empty($selected_subcounties)) {
                 $all_appoinments = $all_appoinments->where('subcounty_id', $selected_subcounties);
                 $consented_clients = $consented_clients->where('subcounty_id', $selected_subcounties);
-                $all_tx_curr = $all_tx_curr->where('tbl_partner_facility.sub_county_id', $selected_subcounties);
+                $query->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
+                FROM tbl_tx_cur t1
+                GROUP BY t1.mfl_code) latest_sub'), function ($join) {
+                    $join->on('tbl_tx_cur.mfl_code', '=', 'latest_sub.mfl_code')
+                        ->on('tbl_tx_cur.period', '=', 'latest_sub.max_period');
+                })
+                    ->where('sub_county_id', $selected_subcounties)
+                    ->groupBy('tbl_tx_cur.mfl_code');
+                $all_tx_curr = $query->selectRaw('SUM(tbl_tx_cur.tx_cur) as tx_cur')
+                    ->get()
+                    ->sum('tx_cur');
                 $appointment_gender = $appointment_gender->where('subcounty_id', $selected_subcounties);
                 $appointment_age = $appointment_age->where('subcounty_id', $selected_subcounties);
                 $appointment_marital = $appointment_marital->where('subcounty_id', $selected_subcounties);
@@ -2963,7 +3263,17 @@ class FinalDashboardController extends Controller
             if (!empty($selected_facilites)) {
                 $all_appoinments = $all_appoinments->where('mfl_code', $selected_facilites);
                 $consented_clients = $consented_clients->where('mfl_code', $selected_facilites);
-                $all_tx_curr = $all_tx_curr->where('tbl_partner_facility.mfl_code', $selected_facilites);
+                $query->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
+                FROM tbl_tx_cur t1
+                GROUP BY t1.mfl_code) latest_fac'), function ($join) {
+                    $join->on('tbl_tx_cur.mfl_code', '=', 'latest_fac.mfl_code')
+                        ->on('tbl_tx_cur.period', '=', 'latest_fac.max_period');
+                })
+                    ->where('tbl_partner_facility.mfl_code', $selected_facilites)
+                    ->groupBy('tbl_tx_cur.mfl_code');
+                $all_tx_curr = $query->selectRaw('SUM(tbl_tx_cur.tx_cur) as tx_cur')
+                    ->get()
+                    ->sum('tx_cur');
                 $appointment_gender = $appointment_gender->where('mfl_code', $selected_facilites);
                 $appointment_age = $appointment_age->where('mfl_code', $selected_facilites);
                 $appointment_marital = $appointment_marital->where('mfl_code', $selected_facilites);
@@ -2985,7 +3295,16 @@ class FinalDashboardController extends Controller
             if (!empty($selected_clinics)) {
                 $all_appoinments = $all_appoinments->where('clinic_type', $selected_clinics);
                 $consented_clients = $consented_clients->where('clinic_type', $selected_clinics);
-                $all_tx_curr = $all_tx_curr;
+                $query->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
+                FROM tbl_tx_cur t1
+                GROUP BY t1.mfl_code) latest_clinic'), function ($join) {
+                    $join->on('tbl_tx_cur.mfl_code', '=', 'latest_clinic.mfl_code')
+                        ->on('tbl_tx_cur.period', '=', 'latest_clinic.max_period');
+                })
+                    ->groupBy('tbl_tx_cur.mfl_code');
+                $all_tx_curr = $query->selectRaw('SUM(tbl_tx_cur.tx_cur) as tx_cur')
+                    ->get()
+                    ->sum('tx_cur');
                 $appointment_gender = $appointment_gender->where('clinic_type', $selected_clinics);
                 $appointment_age = $appointment_age->where('clinic_type', $selected_clinics);
                 $appointment_marital = $appointment_marital->where('clinic_type', $selected_clinics);
@@ -3006,7 +3325,16 @@ class FinalDashboardController extends Controller
             if (!empty($selected_appointments)) {
                 $all_appoinments = $all_appoinments;
                 $consented_clients = $consented_clients;
-                $all_tx_curr = $all_tx_curr;
+                $query->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
+              FROM tbl_tx_cur t1
+              GROUP BY t1.mfl_code) latest_dsd'), function ($join) {
+                    $join->on('tbl_tx_cur.mfl_code', '=', 'latest_dsd.mfl_code')
+                        ->on('tbl_tx_cur.period', '=', 'latest_dsd.max_period');
+                })
+                    ->groupBy('tbl_tx_cur.mfl_code');
+                $all_tx_curr = $query->selectRaw('SUM(tbl_tx_cur.tx_cur) as tx_cur')
+                    ->get()
+                    ->sum('tx_cur');
                 $appointment_gender = $appointment_gender;
                 $appointment_age = $appointment_age;
                 $appointment_marital = $appointment_marital;
@@ -3029,11 +3357,20 @@ class FinalDashboardController extends Controller
                 $consented_clients = $consented_clients->where('consented_date', '>=', date($request->from))->where('consented_date', '<=', date($request->to));
                 $selectedFrom = date('Ym', strtotime($request->from));
                 $selectedTo = date('Ym', strtotime($request->to));
-                $all_tx_curr = $all_tx_curr->where('tbl_tx_cur.period', function ($query) use ($selectedFrom, $selectedTo) {
-                    $query->select(DB::raw('MAX(period)'))
-                        ->from('tbl_tx_cur')
-                        ->whereRaw("SUBSTRING(period, 1, 6) BETWEEN ? AND ?", [$selectedFrom, $selectedTo]);
-                });
+                $query->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
+                FROM tbl_tx_cur t1
+                GROUP BY t1.mfl_code) latest_fac'), function ($join) {
+                    $join->on('tbl_tx_cur.mfl_code', '=', 'latest_fac.mfl_code')
+                        ->on('tbl_tx_cur.period', '=', 'latest_fac.max_period');
+                })
+                    ->where(function ($query) use ($selectedFrom, $selectedTo) {
+                        $query->whereRaw("SUBSTRING(tbl_tx_cur.period, 1, 6) >= ?", $selectedFrom)
+                            ->whereRaw("SUBSTRING(tbl_tx_cur.period, 1, 6) <= ?", $selectedTo);
+                    })
+                    ->groupBy('tbl_tx_cur.mfl_code');
+                $all_tx_curr = $query->selectRaw('SUM(tbl_tx_cur.tx_cur) as tx_cur')
+                    ->get()
+                    ->sum('tx_cur');
                 $appointment_gender = $appointment_gender->where('appointment_date', '>=', date($request->from))->where('appointment_date', '<=', date($request->to));
                 $appointment_age = $appointment_age->where('appointment_date', '>=', date($request->from))->where('appointment_date', '<=', date($request->to));
                 $appointment_marital = $appointment_marital->where('appointment_date', '>=', date($request->from))->where('appointment_date', '<=', date($request->to));
@@ -3055,7 +3392,16 @@ class FinalDashboardController extends Controller
             if (!empty($selected_sites)) {
                 $all_appoinments = $all_appoinments->where('facility_type', $selected_sites);
                 $consented_clients = $consented_clients->where('facility_type', $selected_sites);
-                $all_tx_curr = $all_tx_curr->join('etl_client_detail', 'tbl_tx_cur.mfl_code', '=', 'etl_client_detail.mfl_code')->where('etl_client_detail.facility_type', $selected_sites)->groupBy('etl_client_detail.mfl_code');
+                $query->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
+                FROM tbl_tx_cur t1
+                GROUP BY t1.mfl_code) latest_site'), function ($join) {
+                    $join->on('tbl_tx_cur.mfl_code', '=', 'latest_site.mfl_code')
+                        ->on('tbl_tx_cur.period', '=', 'latest_site.max_period');
+                })
+                    ->groupBy('tbl_tx_cur.mfl_code');
+                $all_tx_curr = $query->selectRaw('SUM(tbl_tx_cur.tx_cur) as tx_cur')
+                    ->get()
+                    ->sum('tx_cur');
                 $appointment_gender = $appointment_gender->where('facility_type', $selected_sites);
                 $appointment_age = $appointment_age->where('facility_type', $selected_sites);
                 $appointment_marital = $appointment_marital->where('facility_type', $selected_sites);
@@ -3076,7 +3422,7 @@ class FinalDashboardController extends Controller
 
             $data["all_appoinments"] = $all_appoinments->get();
             $data["consented_clients"] = $consented_clients->get();
-            $data["all_tx_curr"] = $all_tx_curr->sum('tbl_tx_cur.tx_cur');
+            $data["all_tx_curr"] = $all_tx_curr;
             $data["appointment_gender"] = $appointment_gender->get();
             $data["appointment_age"] = $appointment_age->get();
             $data["appointment_marital"] = $appointment_marital->get();
@@ -3129,14 +3475,8 @@ class FinalDashboardController extends Controller
                 ->where('county_id', Auth::user()->county_id)
                 ->remember($this->remember_period);
 
-            $all_tx_curr = Txcurr::select('tbl_tx_cur.tx_cur')
-                ->join('tbl_partner_facility', 'tbl_tx_cur.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->where('tbl_tx_cur.period', function ($query) {
-                    $query->select(DB::raw('MAX(tbl_tx_cur.period)'))
-                        ->from('tbl_tx_cur');
-                })
-                ->where('tbl_partner_facility.county_id', Auth::user()->county_id)
-                ->remember($this->remember_period);
+            $query = Txcurr::query()->join('tbl_partner_facility', 'tbl_tx_cur.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->where('tbl_partner_facility.county_id', Auth::user()->county_id);
 
             $appointment_gender = ETLAppointment::select(
                 'gender',
@@ -3338,7 +3678,16 @@ class FinalDashboardController extends Controller
             if (!empty($selected_partners)) {
                 $all_appoinments = $all_appoinments->where('partner_id', $selected_partners);
                 $consented_clients = $consented_clients->where('partner_id', $selected_partners);
-                $all_tx_curr = $all_tx_curr->where('tbl_partner_facility.partner_id', $selected_partners);
+                $query->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
+                FROM tbl_tx_cur t1
+                GROUP BY t1.mfl_code) latest'), function ($join) {
+                    $join->on('tbl_tx_cur.mfl_code', '=', 'latest.mfl_code')
+                        ->on('tbl_tx_cur.period', '=', 'latest.max_period');
+                })->where('tbl_partner_facility.partner_id', $selected_partners)
+                    ->groupBy('tbl_tx_cur.mfl_code');
+                $all_tx_curr = $query->selectRaw('SUM(tbl_tx_cur.tx_cur) as tx_cur')
+                    ->get()
+                    ->sum('tx_cur');
                 $appointment_gender = $appointment_gender->where('partner_id', $selected_partners);
                 $appointment_age = $appointment_age->where('partner_id', $selected_partners);
                 $appointment_marital = $appointment_marital->where('partner_id', $selected_partners);
@@ -3359,7 +3708,16 @@ class FinalDashboardController extends Controller
             if (!empty($selected_counties)) {
                 $all_appoinments = $all_appoinments->where('county_id', $selected_counties);
                 $consented_clients = $consented_clients->where('county_id', $selected_counties);
-                $all_tx_curr = $all_tx_curr->where('tbl_partner_facility.county_id', $selected_counties);
+                $query->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
+                FROM tbl_tx_cur t1
+                GROUP BY t1.mfl_code) latest_con'), function ($join) {
+                    $join->on('tbl_tx_cur.mfl_code', '=', 'latest_con.mfl_code')
+                        ->on('tbl_tx_cur.period', '=', 'latest_con.max_period');
+                })->where('tbl_partner_facility.county_id', $selected_counties)
+                    ->groupBy('tbl_tx_cur.mfl_code');
+                $all_tx_curr = $query->selectRaw('SUM(tbl_tx_cur.tx_cur) as tx_cur')
+                    ->get()
+                    ->sum('tx_cur');
                 $appointment_gender = $appointment_gender->where('county_id', $selected_counties);
                 $appointment_age = $appointment_age->where('county_id', $selected_counties);
                 $appointment_marital = $appointment_marital->where('county_id', $selected_counties);
@@ -3380,7 +3738,17 @@ class FinalDashboardController extends Controller
             if (!empty($selected_subcounties)) {
                 $all_appoinments = $all_appoinments->where('subcounty_id', $selected_subcounties);
                 $consented_clients = $consented_clients->where('subcounty_id', $selected_subcounties);
-                $all_tx_curr = $all_tx_curr->where('tbl_partner_facility.sub_county_id', $selected_subcounties);
+                $query->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
+                FROM tbl_tx_cur t1
+                GROUP BY t1.mfl_code) latest_sub'), function ($join) {
+                    $join->on('tbl_tx_cur.mfl_code', '=', 'latest_sub.mfl_code')
+                        ->on('tbl_tx_cur.period', '=', 'latest_sub.max_period');
+                })
+                    ->where('sub_county_id', $selected_subcounties)
+                    ->groupBy('tbl_tx_cur.mfl_code');
+                $all_tx_curr = $query->selectRaw('SUM(tbl_tx_cur.tx_cur) as tx_cur')
+                    ->get()
+                    ->sum('tx_cur');
                 $appointment_gender = $appointment_gender->where('subcounty_id', $selected_subcounties);
                 $appointment_age = $appointment_age->where('subcounty_id', $selected_subcounties);
                 $appointment_marital = $appointment_marital->where('subcounty_id', $selected_subcounties);
@@ -3401,7 +3769,17 @@ class FinalDashboardController extends Controller
             if (!empty($selected_facilites)) {
                 $all_appoinments = $all_appoinments->where('mfl_code', $selected_facilites);
                 $consented_clients = $consented_clients->where('mfl_code', $selected_facilites);
-                $all_tx_curr = $all_tx_curr->where('tbl_partner_facility.mfl_code', $selected_facilites);
+                $query->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
+                FROM tbl_tx_cur t1
+                GROUP BY t1.mfl_code) latest_fac'), function ($join) {
+                    $join->on('tbl_tx_cur.mfl_code', '=', 'latest_fac.mfl_code')
+                        ->on('tbl_tx_cur.period', '=', 'latest_fac.max_period');
+                })
+                    ->where('tbl_partner_facility.mfl_code', $selected_facilites)
+                    ->groupBy('tbl_tx_cur.mfl_code');
+                $all_tx_curr = $query->selectRaw('SUM(tbl_tx_cur.tx_cur) as tx_cur')
+                    ->get()
+                    ->sum('tx_cur');
                 $appointment_gender = $appointment_gender->where('mfl_code', $selected_facilites);
                 $appointment_age = $appointment_age->where('mfl_code', $selected_facilites);
                 $appointment_marital = $appointment_marital->where('mfl_code', $selected_facilites);
@@ -3423,7 +3801,16 @@ class FinalDashboardController extends Controller
             if (!empty($selected_clinics)) {
                 $all_appoinments = $all_appoinments->where('clinic_type', $selected_clinics);
                 $consented_clients = $consented_clients->where('clinic_type', $selected_clinics);
-                $all_tx_curr = $all_tx_curr;
+                $query->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
+                FROM tbl_tx_cur t1
+                GROUP BY t1.mfl_code) latest_clinic'), function ($join) {
+                    $join->on('tbl_tx_cur.mfl_code', '=', 'latest_clinic.mfl_code')
+                        ->on('tbl_tx_cur.period', '=', 'latest_clinic.max_period');
+                })
+                    ->groupBy('tbl_tx_cur.mfl_code');
+                $all_tx_curr = $query->selectRaw('SUM(tbl_tx_cur.tx_cur) as tx_cur')
+                    ->get()
+                    ->sum('tx_cur');
                 $appointment_gender = $appointment_gender->where('clinic_type', $selected_clinics);
                 $appointment_age = $appointment_age->where('clinic_type', $selected_clinics);
                 $appointment_marital = $appointment_marital->where('clinic_type', $selected_clinics);
@@ -3444,7 +3831,16 @@ class FinalDashboardController extends Controller
             if (!empty($selected_appointments)) {
                 $all_appoinments = $all_appoinments;
                 $consented_clients = $consented_clients;
-                $all_tx_curr = $all_tx_curr;
+                $query->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
+              FROM tbl_tx_cur t1
+              GROUP BY t1.mfl_code) latest_dsd'), function ($join) {
+                    $join->on('tbl_tx_cur.mfl_code', '=', 'latest_dsd.mfl_code')
+                        ->on('tbl_tx_cur.period', '=', 'latest_dsd.max_period');
+                })
+                    ->groupBy('tbl_tx_cur.mfl_code');
+                $all_tx_curr = $query->selectRaw('SUM(tbl_tx_cur.tx_cur) as tx_cur')
+                    ->get()
+                    ->sum('tx_cur');
                 $appointment_gender = $appointment_gender;
                 $appointment_age = $appointment_age;
                 $appointment_marital = $appointment_marital;
@@ -3465,7 +3861,22 @@ class FinalDashboardController extends Controller
             if (!empty($selected_from || $selected_to)) {
                 $all_appoinments = $all_appoinments->where('appointment_date', '>=', date($request->from))->where('appointment_date', '<=', date($request->to));
                 $consented_clients = $consented_clients->where('consented_date', '>=', date($request->from))->where('consented_date', '<=', date($request->to));
-                $all_tx_curr = $all_tx_curr->whereRaw("DATE_FORMAT(STR_TO_DATE(tbl_tx_cur.period, '%y%m'), '%y-%m') >= ?", [date('y-m', strtotime($request->from))])->whereRaw("DATE_FORMAT(STR_TO_DATE(tbl_tx_cur.period, '%y%m'), '%y-%m') >= ?", [date('y-m', strtotime($request->to))]);
+                $selectedFrom = date('Ym', strtotime($request->from));
+                $selectedTo = date('Ym', strtotime($request->to));
+                $query->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
+                FROM tbl_tx_cur t1
+                GROUP BY t1.mfl_code) latest_fac'), function ($join) {
+                    $join->on('tbl_tx_cur.mfl_code', '=', 'latest_fac.mfl_code')
+                        ->on('tbl_tx_cur.period', '=', 'latest_fac.max_period');
+                })
+                    ->where(function ($query) use ($selectedFrom, $selectedTo) {
+                        $query->whereRaw("SUBSTRING(tbl_tx_cur.period, 1, 6) >= ?", $selectedFrom)
+                            ->whereRaw("SUBSTRING(tbl_tx_cur.period, 1, 6) <= ?", $selectedTo);
+                    })
+                    ->groupBy('tbl_tx_cur.mfl_code');
+                $all_tx_curr = $query->selectRaw('SUM(tbl_tx_cur.tx_cur) as tx_cur')
+                    ->get()
+                    ->sum('tx_cur');
                 $appointment_gender = $appointment_gender->where('appointment_date', '>=', date($request->from))->where('appointment_date', '<=', date($request->to));
                 $appointment_age = $appointment_age->where('appointment_date', '>=', date($request->from))->where('appointment_date', '<=', date($request->to));
                 $appointment_marital = $appointment_marital->where('appointment_date', '>=', date($request->from))->where('appointment_date', '<=', date($request->to));
@@ -3489,11 +3900,16 @@ class FinalDashboardController extends Controller
                 $consented_clients = $consented_clients->where('facility_type', $selected_sites);
                 $selectedFrom = date('Ym', strtotime($request->from));
                 $selectedTo = date('Ym', strtotime($request->to));
-                $all_tx_curr = $all_tx_curr->where('tbl_tx_cur.period', function ($query) use ($selectedFrom, $selectedTo) {
-                    $query->select(DB::raw('MAX(period)'))
-                        ->from('tbl_tx_cur')
-                        ->whereRaw("SUBSTRING(period, 1, 6) BETWEEN ? AND ?", [$selectedFrom, $selectedTo]);
-                });
+                $query->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
+              FROM tbl_tx_cur t1
+              GROUP BY t1.mfl_code) latest_site'), function ($join) {
+                    $join->on('tbl_tx_cur.mfl_code', '=', 'latest_site.mfl_code')
+                        ->on('tbl_tx_cur.period', '=', 'latest_site.max_period');
+                })
+                    ->groupBy('tbl_tx_cur.mfl_code');
+                $all_tx_curr = $query->selectRaw('SUM(tbl_tx_cur.tx_cur) as tx_cur')
+                    ->get()
+                    ->sum('tx_cur');
                 $appointment_gender = $appointment_gender->where('facility_type', $selected_sites);
                 $appointment_age = $appointment_age->where('facility_type', $selected_sites);
                 $appointment_marital = $appointment_marital->where('facility_type', $selected_sites);
