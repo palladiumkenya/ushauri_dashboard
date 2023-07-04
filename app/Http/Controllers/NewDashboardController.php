@@ -40,15 +40,29 @@ class NewDashboardController extends Controller
                 ->remember($this->remember_period)
                 ->pluck('name', 'id');
 
-            $client = Txcurr::select('tbl_tx_cur.tx_cur')
+            // $client = Txcurr::select('tbl_tx_cur.tx_cur')
+            //     ->join('tbl_partner_facility', 'tbl_tx_cur.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+            //     ->where('tbl_tx_cur.period', function ($query) {
+            //         $query->select(DB::raw('MAX(tbl_tx_cur.period)'))
+            //             ->from('tbl_tx_cur');
+            //     })
+            //     ->where('tbl_partner_facility.mfl_code', Auth::user()->facility_id)
+            //     ->remember($this->remember_period)
+            //     ->sum('tbl_tx_cur.tx_cur');
+
+            $client = Txcurr::selectRaw('SUM(tbl_tx_cur.tx_cur) as tx_cur')
                 ->join('tbl_partner_facility', 'tbl_tx_cur.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->where('tbl_tx_cur.period', function ($query) {
-                    $query->select(DB::raw('MAX(tbl_tx_cur.period)'))
-                        ->from('tbl_tx_cur');
+                ->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
+                            FROM tbl_tx_cur t1
+                            GROUP BY t1.mfl_code) latest'), function ($join) {
+                    $join->on('tbl_tx_cur.mfl_code', '=', 'latest.mfl_code')
+                        ->on('tbl_tx_cur.period', '=', 'latest.max_period');
                 })
                 ->where('tbl_partner_facility.mfl_code', Auth::user()->facility_id)
+                ->groupBy('tbl_tx_cur.mfl_code')
                 ->remember($this->remember_period)
-                ->sum('tbl_tx_cur.tx_cur');
+                ->get();
+            $client = $client->sum('tx_cur');
 
             $client_ever_enrolled = Client::whereNull('hei_no')
                 ->where('mfl_code', Auth::user()->facility_id)
@@ -163,20 +177,29 @@ class NewDashboardController extends Controller
         if (Auth::user()->access_level == 'Partner') {
             $all_partners = Partner::where('status', '=', 'Active')->where('id', Auth::user()->partner_id)->remember($this->remember_period)->pluck('name', 'id');
             $currentYear = date('Y');
-            // $client = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-            //     ->where('tbl_client.status', '=', 'Active')
-            //     ->whereNull('tbl_client.hei_no')
+
+            // $client =  Txcurr::join('tbl_partner_facility', 'tbl_tx_cur.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+            //     ->where('tbl_tx_cur.period', function ($query) {
+            //         $query->select(DB::raw('MAX(tbl_tx_cur.period)'))
+            //             ->from('tbl_tx_cur');
+            //     })
             //     ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
             //     ->remember($this->remember_period)
-            //     ->count('tbl_client.clinic_number');
-            $client =  Txcurr::join('tbl_partner_facility', 'tbl_tx_cur.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->where('tbl_tx_cur.period', function ($query) {
-                    $query->select(DB::raw('MAX(tbl_tx_cur.period)'))
-                        ->from('tbl_tx_cur');
+            //     ->sum('tbl_tx_cur.tx_cur');
+
+            $client = Txcurr::selectRaw('SUM(tbl_tx_cur.tx_cur) as tx_cur')
+                ->join('tbl_partner_facility', 'tbl_tx_cur.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
+                            FROM tbl_tx_cur t1
+                            GROUP BY t1.mfl_code) latest'), function ($join) {
+                    $join->on('tbl_tx_cur.mfl_code', '=', 'latest.mfl_code')
+                        ->on('tbl_tx_cur.period', '=', 'latest.max_period');
                 })
                 ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
+                ->groupBy('tbl_tx_cur.mfl_code')
                 ->remember($this->remember_period)
-                ->sum('tbl_tx_cur.tx_cur');
+                ->get();
+            $client = $client->sum('tx_cur');
 
             $client_ever_enrolled = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
                 ->whereNull('tbl_client.hei_no')
@@ -339,15 +362,29 @@ class NewDashboardController extends Controller
         if (Auth::user()->access_level == 'County') {
             $all_partners = Partner::join('tbl_partner_facility', 'tbl_partner.id', '=', 'tbl_partner_facility.partner_id')->where('tbl_partner.status', '=', 'Active')->where('tbl_partner_facility.county_id', Auth::user()->county_id)->remember($this->remember_period)->pluck('tbl_partner.name', 'tbl_partner.id');
 
-            $client = Txcurr::select('tbl_tx_cur.tx_cur')
+            // $client = Txcurr::select('tbl_tx_cur.tx_cur')
+            //     ->join('tbl_partner_facility', 'tbl_tx_cur.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+            //     ->where('tbl_tx_cur.period', function ($query) {
+            //         $query->select(DB::raw('MAX(tbl_tx_cur.period)'))
+            //             ->from('tbl_tx_cur');
+            //     })
+            //     ->where('tbl_partner_facility.county_id', Auth::user()->county_id)
+            //     ->remember($this->remember_period)
+            //     ->sum('tbl_tx_cur.tx_cur');
+
+            $client = Txcurr::selectRaw('SUM(tbl_tx_cur.tx_cur) as tx_cur')
                 ->join('tbl_partner_facility', 'tbl_tx_cur.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->where('tbl_tx_cur.period', function ($query) {
-                    $query->select(DB::raw('MAX(tbl_tx_cur.period)'))
-                        ->from('tbl_tx_cur');
+                ->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
+                                FROM tbl_tx_cur t1
+                                GROUP BY t1.mfl_code) latest'), function ($join) {
+                    $join->on('tbl_tx_cur.mfl_code', '=', 'latest.mfl_code')
+                        ->on('tbl_tx_cur.period', '=', 'latest.max_period');
                 })
                 ->where('tbl_partner_facility.county_id', Auth::user()->county_id)
+                ->groupBy('tbl_tx_cur.mfl_code')
                 ->remember($this->remember_period)
-                ->sum('tbl_tx_cur.tx_cur');
+                ->get();
+            $client = $client->sum('tx_cur');
 
             $client_ever_enrolled = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
                 ->whereNull('tbl_client.hei_no')
@@ -472,15 +509,29 @@ class NewDashboardController extends Controller
             $all_partners = Partner::join('tbl_partner_facility', 'tbl_partner.id', '=', 'tbl_partner_facility.partner_id')->where('tbl_partner.status', '=', 'Active')->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id)
                 ->remember($this->remember_period)->pluck('tbl_partner.name', 'tbl_partner.id');
 
-            $client = Txcurr::select('tbl_tx_cur.tx_cur')
+            // $client = Txcurr::select('tbl_tx_cur.tx_cur')
+            //     ->join('tbl_partner_facility', 'tbl_tx_cur.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+            //     ->where('tbl_tx_cur.period', function ($query) {
+            //         $query->select(DB::raw('MAX(tbl_tx_cur.period)'))
+            //             ->from('tbl_tx_cur');
+            //     })
+            //     ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id)
+            //     ->remember($this->remember_period)
+            //     ->sum('tbl_tx_cur.tx_cur');
+
+            $client = Txcurr::selectRaw('SUM(tbl_tx_cur.tx_cur) as tx_cur')
                 ->join('tbl_partner_facility', 'tbl_tx_cur.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->where('tbl_tx_cur.period', function ($query) {
-                    $query->select(DB::raw('MAX(tbl_tx_cur.period)'))
-                        ->from('tbl_tx_cur');
+                ->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
+                                FROM tbl_tx_cur t1
+                                GROUP BY t1.mfl_code) latest'), function ($join) {
+                    $join->on('tbl_tx_cur.mfl_code', '=', 'latest.mfl_code')
+                        ->on('tbl_tx_cur.period', '=', 'latest.max_period');
                 })
                 ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id)
+                ->groupBy('tbl_tx_cur.mfl_code')
                 ->remember($this->remember_period)
-                ->sum('tbl_tx_cur.tx_cur');
+                ->get();
+            $client = $client->sum('tx_cur');
 
             $client_ever_enrolled = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
                 ->whereNull('tbl_client.hei_no')
@@ -614,14 +665,29 @@ class NewDashboardController extends Controller
                 ->remember("$this->remember_period")
                 ->pluck('name', 'id');
 
-            $client = Txcurr::select(DB::raw('SUM(tbl_tx_cur.tx_cur) as tx_cur'))
+            $client = Txcurr::selectRaw('SUM(tbl_tx_cur.tx_cur) as tx_cur')
                 ->join('tbl_partner_facility', 'tbl_tx_cur.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->where('tbl_tx_cur.period', function ($query) {
-                    $query->select(DB::raw('MAX(tbl_tx_cur.period)'))
-                        ->from('tbl_tx_cur');
+                ->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
+                                FROM tbl_tx_cur t1
+                                GROUP BY t1.mfl_code) latest'), function ($join) {
+                    $join->on('tbl_tx_cur.mfl_code', '=', 'latest.mfl_code')
+                        ->on('tbl_tx_cur.period', '=', 'latest.max_period');
                 })
-                ->remember($this->remember_period)
-                ->sum('tbl_tx_cur.tx_cur');
+                ->groupBy('tbl_tx_cur.mfl_code')
+                ->get();
+
+
+            $client = $client->sum('tx_cur');
+
+
+            // $client = Txcurr::select(DB::raw('SUM(tbl_tx_cur.tx_cur) as tx_cur'))
+            //     ->join('tbl_partner_facility', 'tbl_tx_cur.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+            //     ->where('tbl_tx_cur.period', function ($query) {
+            //         $query->select(DB::raw('MAX(tbl_tx_cur.period)'))
+            //             ->from('tbl_tx_cur');
+            //     })
+            //     ->remember($this->remember_period)
+            //     ->sum('tbl_tx_cur.tx_cur');
 
             $client_ever_enrolled = Client::whereNull('hei_no')
                 ->remember("$this->remember_period")
@@ -5373,11 +5439,8 @@ class NewDashboardController extends Controller
                 ->groupBy('tbl_partner_facility.mfl_code')
                 ->where('tbl_partner_facility.mfl_code', Auth::user()->facility_id)
                 ->remember($this->remember_period);
-
-            $client = Txcurr::select('tbl_tx_cur.tx_cur')
-                ->join('tbl_partner_facility', 'tbl_tx_cur.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->where('tbl_tx_cur.mfl_code', Auth::user()->facility_id)
-                ->remember($this->remember_period);
+            $query = Txcurr::query()->join('tbl_partner_facility', 'tbl_tx_cur.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->where('tbl_partner_facility.mfl_code', Auth::user()->facility_id);
 
             $client_ever_enrolled = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
                 ->whereNull('tbl_client.hei_no')
@@ -5481,14 +5544,10 @@ class NewDashboardController extends Controller
         }
         if (Auth::user()->access_level == 'Partner') {
 
-            $client = Txcurr::select('tbl_tx_cur.tx_cur')
-                ->join('tbl_partner_facility', 'tbl_tx_cur.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->where('tbl_tx_cur.period', function ($query) {
-                    $query->select(DB::raw('MAX(tbl_tx_cur.period)'))
-                        ->from('tbl_tx_cur');
-                })
-                ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
-                ->remember($this->remember_period);
+            $query = Txcurr::query()->join('tbl_partner_facility', 'tbl_tx_cur.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id);
+
+
 
             $client_ever_enrolled = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
                 ->whereNull('tbl_client.hei_no')
@@ -5602,14 +5661,8 @@ class NewDashboardController extends Controller
         }
         if (Auth::user()->access_level == 'Sub County') {
 
-            $client = Txcurr::select('tbl_tx_cur.tx_cur')
-                ->join('tbl_partner_facility', 'tbl_tx_cur.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->where('tbl_tx_cur.period', function ($query) {
-                    $query->select(DB::raw('MAX(tbl_tx_cur.period)'))
-                        ->from('tbl_tx_cur');
-                })
-                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id)
-                ->remember($this->remember_period);
+            $query = Txcurr::query()->join('tbl_partner_facility', 'tbl_tx_cur.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id);
 
             $client_ever_enrolled = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
                 ->whereNull('tbl_client.hei_no')
@@ -5723,14 +5776,8 @@ class NewDashboardController extends Controller
         }
         if (Auth::user()->access_level == 'County') {
 
-            $client = Txcurr::select('tbl_tx_cur.tx_cur')
-                ->join('tbl_partner_facility', 'tbl_tx_cur.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->where('tbl_tx_cur.period', function ($query) {
-                    $query->select(DB::raw('MAX(tbl_tx_cur.period)'))
-                        ->from('tbl_tx_cur');
-                })
-                ->where('tbl_partner_facility.county_id', Auth::user()->county_id)
-                ->remember($this->remember_period);
+            $query = Txcurr::query()->join('tbl_partner_facility', 'tbl_tx_cur.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->where('tbl_partner_facility.county_id', Auth::user()->county_id);
 
             $client_ever_enrolled = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
                 ->whereNull('tbl_client.hei_no')
@@ -5846,13 +5893,7 @@ class NewDashboardController extends Controller
         if (Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Donor') {
 
 
-            $client = Txcurr::select(DB::raw('SUM(tbl_tx_cur.tx_cur) as tx_cur'))
-                ->join('tbl_partner_facility', 'tbl_tx_cur.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->where('tbl_tx_cur.period', function ($query) {
-                    $query->select(DB::raw('MAX(tbl_tx_cur.period)'))
-                        ->from('tbl_tx_cur');
-                })
-                ->remember($this->remember_period);
+            $query = Txcurr::query()->join('tbl_partner_facility', 'tbl_tx_cur.mfl_code', '=', 'tbl_partner_facility.mfl_code');
 
             $client_ever_enrolled = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
                 ->whereNull('tbl_client.hei_no')
@@ -5953,7 +5994,17 @@ class NewDashboardController extends Controller
         }
 
         if (!empty($selected_partners)) {
-            $client = $client->where('tbl_partner_facility.partner_id', $selected_partners);
+            $query->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
+            FROM tbl_tx_cur t1
+            GROUP BY t1.mfl_code) latest'), function ($join) {
+                $join->on('tbl_tx_cur.mfl_code', '=', 'latest.mfl_code')
+                    ->on('tbl_tx_cur.period', '=', 'latest.max_period');
+            })->where('tbl_partner_facility.partner_id', $selected_partners)
+                ->groupBy('tbl_tx_cur.mfl_code');
+            $client = $query->selectRaw('SUM(tbl_tx_cur.tx_cur) as tx_cur')
+                ->get()
+                ->sum('tx_cur');
+
             $client_ever_enrolled = $client_ever_enrolled->where('tbl_partner_facility.partner_id', $selected_partners);
             $active_facilities = $active_facilities->where('tbl_partner_facility.partner_id', $selected_partners);
             $facilities_ever_enrolled = $facilities_ever_enrolled->where('tbl_partner_facility.partner_id', $selected_partners);
@@ -5968,7 +6019,18 @@ class NewDashboardController extends Controller
             $client_unknown_age = $client_unknown_age->where('tbl_partner_facility.partner_id', $selected_partners);
         }
         if (!empty($selected_counties)) {
-            $client = $client->where('tbl_partner_facility.county_id', $selected_counties);
+            $query->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
+          FROM tbl_tx_cur t1
+          GROUP BY t1.mfl_code) latest_con'), function ($join) {
+                $join->on('tbl_tx_cur.mfl_code', '=', 'latest_con.mfl_code')
+                    ->on('tbl_tx_cur.period', '=', 'latest_con.max_period');
+            })
+                ->where('tbl_partner_facility.county_id', $selected_counties)
+                ->groupBy('tbl_tx_cur.mfl_code');
+            $client = $query->selectRaw('SUM(tbl_tx_cur.tx_cur) as tx_cur')
+                ->get()
+                ->sum('tx_cur');
+
             $client_ever_enrolled = $client_ever_enrolled->where('tbl_partner_facility.county_id', $selected_counties);
             $active_facilities = $active_facilities->where('tbl_partner_facility.county_id', $selected_counties);
             $facilities_ever_enrolled = $facilities_ever_enrolled->where('county_id', $selected_counties);
@@ -5983,7 +6045,17 @@ class NewDashboardController extends Controller
             $client_unknown_age = $client_unknown_age->where('tbl_partner_facility.county_id', $selected_counties);
         }
         if (!empty($selected_subcounties)) {
-            $client = $client->where('tbl_partner_facility.sub_county_id', $selected_subcounties);
+            $query->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
+          FROM tbl_tx_cur t1
+          GROUP BY t1.mfl_code) latest_sub'), function ($join) {
+                $join->on('tbl_tx_cur.mfl_code', '=', 'latest_sub.mfl_code')
+                    ->on('tbl_tx_cur.period', '=', 'latest_sub.max_period');
+            })
+                ->where('sub_county_id', $selected_subcounties)
+                ->groupBy('tbl_tx_cur.mfl_code');
+            $client = $query->selectRaw('SUM(tbl_tx_cur.tx_cur) as tx_cur')
+                ->get()
+                ->sum('tx_cur');
             $client_ever_enrolled = $client_ever_enrolled->where('tbl_partner_facility.sub_county_id', $selected_subcounties);
             $active_facilities = $active_facilities->where('tbl_partner_facility.sub_county_id', $selected_subcounties);
             $facilities_ever_enrolled = $facilities_ever_enrolled->where('sub_county_id', $selected_subcounties);
@@ -5998,7 +6070,17 @@ class NewDashboardController extends Controller
             $client_unknown_age = $client_unknown_age->where('tbl_partner_facility.sub_county_id', $selected_subcounties);
         }
         if (!empty($selected_facilites)) {
-            $client = $client->where('tbl_partner_facility.mfl_code', $selected_facilites);
+            $query->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
+            FROM tbl_tx_cur t1
+            GROUP BY t1.mfl_code) latest_fac'), function ($join) {
+                $join->on('tbl_tx_cur.mfl_code', '=', 'latest_fac.mfl_code')
+                    ->on('tbl_tx_cur.period', '=', 'latest_fac.max_period');
+            })
+                ->where('tbl_partner_facility.mfl_code', $selected_facilites)
+                ->groupBy('tbl_tx_cur.mfl_code');
+            $client = $query->selectRaw('SUM(tbl_tx_cur.tx_cur) as tx_cur')
+                ->get()
+                ->sum('tx_cur');
             $client_ever_enrolled = $client_ever_enrolled->where('tbl_partner_facility.mfl_code', $selected_facilites);
             $active_facilities = $active_facilities->where('tbl_partner_facility.mfl_code', $selected_facilites);
             $facilities_ever_enrolled = $facilities_ever_enrolled->where('tbl_partner_facility.mfl_code', $selected_facilites);
@@ -6015,22 +6097,44 @@ class NewDashboardController extends Controller
         if (!empty($selected_from || $selected_to)) {
             $selectedFrom = date('Ym', strtotime($request->from));
             $selectedTo = date('Ym', strtotime($request->to));
-            $client = $client->where('tbl_tx_cur.period', function ($query) use ($selectedFrom, $selectedTo) {
-                $query->select(DB::raw('MAX(period)'))
-                    ->from('tbl_tx_cur')
-                    ->whereRaw("SUBSTRING(period, 1, 6) BETWEEN ? AND ?", [$selectedFrom, $selectedTo]);
-            });
+
+
+            $query->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
+           FROM tbl_tx_cur t1
+           GROUP BY t1.mfl_code) latest_fac'), function ($join) {
+                $join->on('tbl_tx_cur.mfl_code', '=', 'latest_fac.mfl_code')
+                    ->on('tbl_tx_cur.period', '=', 'latest_fac.max_period');
+            })
+                ->where(function ($query) use ($selectedFrom, $selectedTo) {
+                    $query->whereRaw("SUBSTRING(tbl_tx_cur.period, 1, 6) >= ?", $selectedFrom)
+                        ->whereRaw("SUBSTRING(tbl_tx_cur.period, 1, 6) <= ?", $selectedTo);
+                })
+                ->groupBy('tbl_tx_cur.mfl_code');
+            $client = $query->selectRaw('SUM(tbl_tx_cur.tx_cur) as tx_cur')
+                ->get()
+                ->sum('tx_cur');
+
+            // $client = $client->where('tbl_tx_cur.period', function ($query) use ($selectedFrom, $selectedTo) {
+            //     $query->select(DB::raw('MAX(period)'))
+            //         ->from('tbl_tx_cur')
+            //         ->whereRaw("SUBSTRING(period, 1, 6) BETWEEN ? AND ?", [$selectedFrom, $selectedTo]);
+            // });
             $client_ever_enrolled = $client_ever_enrolled->where('tbl_client.created_at', '>=', date($request->from))->where('tbl_client.created_at', '<=', date($request->to));
             // $active_facilities = $active_facilities->where('tbl_appointment.created_at', '>=', date($request->from))->where('tbl_appointment.created_at', '>=', date($request->to));
-            $active_facilities = PartnerFacility::join('tbl_client', 'tbl_partner_facility.mfl_code', '=', 'tbl_client.mfl_code')
-                ->join('tbl_appointment', 'tbl_client.id', '=', 'tbl_appointment.client_id')
-                ->selectRaw('tbl_partner_facility.mfl_code, MAX(DATE(tbl_appointment.created_at)) as max_date')
-                ->where(DB::raw('(SELECT MAX(DATE(tbl_appointment.created_at)) from tbl_appointment)'), '>=', Carbon::now()->subMonths(6))
-                ->whereDate('tbl_appointment.created_at', '>=', $request->from)
-                ->whereDate('tbl_appointment.created_at', '<=', $request->to)
-                ->orderBy('tbl_appointment.created_at', 'DESC')
-                ->groupBy('tbl_partner_facility.mfl_code')
-                ->remember($this->remember_period);
+            // if (Auth::user()->access_level == 'Partner') {
+            //     $active_facilities = PartnerFacility::join('tbl_client', 'tbl_partner_facility.mfl_code', '=', 'tbl_client.mfl_code')
+            //     ->join('tbl_appointment', 'tbl_client.id', '=', 'tbl_appointment.client_id')
+            //     ->selectRaw('tbl_partner_facility.mfl_code, MAX(DATE(tbl_appointment.created_at)) as max_date')
+            //     ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
+            //     ->where(DB::raw('(SELECT MAX(DATE(tbl_appointment.created_at)) from tbl_appointment)'), '>=', Carbon::now()->subMonths(6))
+            //     ->whereDate('tbl_appointment.created_at', '>=', $request->from)
+            //     ->whereDate('tbl_appointment.created_at', '<=', $request->to)
+            //     ->orderBy('tbl_appointment.created_at', 'DESC')
+            //     ->groupBy('tbl_partner_facility.mfl_code')
+            //     ->remember($this->remember_period);
+            // }
+            $active_facilities = $active_facilities->whereDate('tbl_appointment.created_at', '>=', $request->from)
+                ->whereDate('tbl_appointment.created_at', '<=', $request->to);
 
             $facilities_ever_enrolled = $facilities_ever_enrolled->where('tbl_partner_facility.created_at', '>=', date($request->from))->where('tbl_partner_facility.created_at', '<=', date($request->to));
             $clients_male = $clients_male->where('tbl_client.created_at', '>=', date($request->from))->where('tbl_client.created_at', '<=', date($request->to));
@@ -6044,7 +6148,16 @@ class NewDashboardController extends Controller
             $client_unknown_age = $client_unknown_age->where('tbl_client.created_at', '>=', date($request->from))->where('tbl_client.created_at', '<=', date($request->to));
         }
         if (!empty($selected_module == 'DSD')) {
-            $client = $client;
+            $query->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
+           FROM tbl_tx_cur t1
+           GROUP BY t1.mfl_code) latest_dsd'), function ($join) {
+                $join->on('tbl_tx_cur.mfl_code', '=', 'latest_dsd.mfl_code')
+                    ->on('tbl_tx_cur.period', '=', 'latest_dsd.max_period');
+            })
+                ->groupBy('tbl_tx_cur.mfl_code');
+            $client = $query->selectRaw('SUM(tbl_tx_cur.tx_cur) as tx_cur')
+                ->get()
+                ->sum('tx_cur');
             $client_ever_enrolled = $client_ever_enrolled->join('tbl_dfc_module', 'tbl_client.id', '=', 'tbl_dfc_module.client_id');
             $active_facilities = $active_facilities->join('tbl_dfc_module', 'tbl_client.id', '=', 'tbl_dfc_module.client_id');
             $facilities_ever_enrolled = $facilities_ever_enrolled->join('tbl_client', 'tbl_partner_facility.mfl_code', '=', 'tbl_client.mfl_code')->join('tbl_dfc_module', 'tbl_client.id', '=', 'tbl_dfc_module.client_id')->groupBy('tbl_partner_facility.mfl_code')->having(DB::raw('count(tbl_client.mfl_code)'), '>', 0)->get();
@@ -6059,7 +6172,16 @@ class NewDashboardController extends Controller
             $client_unknown_age = $client_unknown_age->join('tbl_dfc_module', 'tbl_client.id', '=', 'tbl_dfc_module.client_id');
         }
         if (!empty($selected_module == 'PMTCT')) {
-            $client = $client;
+            $query->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
+        FROM tbl_tx_cur t1
+        GROUP BY t1.mfl_code) latest_pmtct'), function ($join) {
+                $join->on('tbl_tx_cur.mfl_code', '=', 'latest_pmtct.mfl_code')
+                    ->on('tbl_tx_cur.period', '=', 'latest_pmtct.max_period');
+            })
+                ->groupBy('tbl_tx_cur.mfl_code');
+            $client = $query->selectRaw('SUM(tbl_tx_cur.tx_cur) as tx_cur')
+                ->get()
+                ->sum('tx_cur');
             $client_ever_enrolled = $client_ever_enrolled->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id');
             $active_facilities = $active_facilities->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id');
             $facilities_ever_enrolled = $facilities_ever_enrolled->join('tbl_client', 'tbl_partner_facility.mfl_code', '=', 'tbl_client.mfl_code')->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id')->groupBy('tbl_partner_facility.mfl_code')->having(DB::raw('count(tbl_client.mfl_code)'), '>', 0)->get();;
@@ -6073,7 +6195,7 @@ class NewDashboardController extends Controller
             $client_to_twentyfive_above = $client_to_twentyfive_above->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id');
             $client_unknown_age = $client_unknown_age->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id');
         }
-        $data["client"]        = $client->sum('tbl_tx_cur.tx_cur');
+        $data["client"]        = $client;
         $data["facilities_ever_enrolled"]        = $facilities_ever_enrolled->count();
         $data["client_ever_enrolled"]        = $client_ever_enrolled->count();
         $data["active_facilities"]        = $active_facilities->get()->count();
