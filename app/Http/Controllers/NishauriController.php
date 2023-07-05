@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Appointments;
 use App\Models\Reschedule;
 use App\Models\Txcurr;
+use App\Models\NishauriUser;
 use RealRashid\SweetAlert\Facades\Alert;
 use Illuminate\Support\Facades\Auth;
 
@@ -84,8 +85,20 @@ class NishauriController extends Controller
     public function tet()
     {
         $client = Txcurr::where('mfl_code', '12345')->where('period', '202302')
-                ->update([
-                    'tx_cur' => '202305',
-                ]);
+            ->update([
+                'tx_cur' => '202305',
+            ]);
+    }
+
+    public function otp_search(Request $request)
+    {
+        $upn_search = $request->input('upn_search');
+
+        $otp_search = NishauriUser::select('msisdn', 'otp_number')
+            ->where('is_active', '=', '0')
+            ->where('msisdn', 'like', '%' . $upn_search . '%')
+            ->first();
+
+        return response()->json(['otp_number' => $otp_search ? $otp_search->otp_number : null]);
     }
 }
