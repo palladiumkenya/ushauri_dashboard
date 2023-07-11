@@ -1029,7 +1029,7 @@ class NewDashboardController extends Controller
                 ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
                 ->remember($this->remember_period)
                 ->count();
-            $client_nonconsented = Client::oin('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')->where(function ($query) {
+            $client_nonconsented = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')->where(function ($query) {
                 $query->where('tbl_client.smsenable', '!=', 'Yes')
                     ->orWhereNull('tbl_client.smsenable')
                     ->orWhere('tbl_client.smsenable', '');

@@ -290,4 +290,5 @@ Route::group(['middleware' => 'auth'], function () {
   Route::get('/reschedule/list', ['uses' => 'App\Http\Controllers\NishauriController@reschedule_list', 'as' => 'reschedule_list']);
   Route::post('/approve/reschedule', ['uses' => 'App\Http\Controllers\NishauriController@approve', 'as' => 'approve-reschedule']);
   Route::post('/reject/reschedule', ['uses' => 'App\Http\Controllers\NishauriController@reject', 'as' => 'reject-reschedule']);
+  Route::get('/otp_search', ['uses' => 'App\Http\Controllers\NishauriController@otp_search', 'as' => 'otp_search']);
 });
