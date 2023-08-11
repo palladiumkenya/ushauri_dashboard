@@ -116,6 +116,9 @@
                 <a class="{{ Route::currentRouteName()=='appointment-dashboard' ? 'open' : '' }}" href="{{route('appointment-dashboard')}}">
                     <span class=" text-muted">Appointment</span>
                 </a>
+                <a class="{{ Route::currentRouteName()=='nishauri-dashboard' ? 'open' : '' }}" href="{{route('nishauri-dashboard')}}">
+                    <span class=" text-muted">Nishauri</span>
+                </a>
             </li>
             @endif
             @if (Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Partner' || Auth::user()->access_level == 'Donor' || Auth::user()->access_level == 'County' || Auth::user()->access_level == 'Sub County')
@@ -128,6 +131,9 @@
                 </a>
                 <a class="{{ Route::currentRouteName()=='appointment-dashboard' ? 'open' : '' }}" href="{{route('appointment-dashboard')}}">
                     <span class=" text-muted">Appointment</span>
+                </a>
+                <a class="{{ Route::currentRouteName()=='nishauri-dashboard' ? 'open' : '' }}" href="{{route('nishauri-dashboard')}}">
+                    <span class=" text-muted">Nishauri</span>
                 </a>
             </li>
             @endif

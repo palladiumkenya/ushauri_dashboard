@@ -291,6 +291,10 @@ Route::group(['middleware' => 'auth'], function () {
   Route::post('/approve/reschedule', ['uses' => 'App\Http\Controllers\NishauriController@approve', 'as' => 'approve-reschedule']);
   Route::post('/reject/reschedule', ['uses' => 'App\Http\Controllers\NishauriController@reject', 'as' => 'reject-reschedule']);
   Route::get('/otp_search', ['uses' => 'App\Http\Controllers\NishauriController@otp_search', 'as' => 'otp_search']);
+  Route::get('/nishauri_uptake', ['uses' => 'App\Http\Controllers\NishauriController@nishauri_uptake', 'as' => 'nishauri_uptake']);
+  Route::get('/nishauri/dashboard', ['uses' => 'App\Http\Controllers\NishauriController@dashboard', 'as' => 'nishauri-dashboard']);
+  Route::get('/filter_nishauri_uptake', ['uses' => 'App\Http\Controllers\NishauriController@filter_nishauri_uptake', 'as' => 'filter_nishauri_uptake']);
 
   Route::get('/partner_summary', ['uses' => 'App\Http\Controllers\NewDashboardController@partner_summary', 'as' => 'partner_summary']);
+
 });

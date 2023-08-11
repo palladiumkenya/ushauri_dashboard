@@ -394,8 +394,8 @@
                                             <th>County</th>
                                             <th>Partner</th>
                                             <th>Clients</th>
-                                            <th>Tx Curr</th>
                                             <th>Consented</th>
+                                            <th>Tx Curr</th>
                                         </tr>
                                     </thead>
                                     <tbody>
