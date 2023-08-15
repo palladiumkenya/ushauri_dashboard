@@ -11,59 +11,127 @@
 
         background: #FFFFFF;
         border-radius: 10px;
-
-    }
-
-    /* Add your existing CSS styles here */
-
-    .progress-bar {
         position: relative;
-        width: 60px;
-        height: 60px;
+
     }
 
-    .progress-circle {
-        width: 100%;
-        height: 100%;
-        clip: rect(0, 60px, 60px, 30px);
-        border-radius: 50%;
+    .radial-01 {
+        top: 15px;
+        right: 15px;
+        float: right;
         position: absolute;
+        width: 40px;
+        height: 40px;
+        text-align: center;
+        border-radius: 100%;
+        /* background-color: transparent; */
+        /* overflow: hidden; */
+
     }
 
-    .progress-circle .progress-percent {
+    .radial-01 p {
         position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        font-size: 14px;
+        left: -25px;
+        bottom: -55px;
+        z-index: 50;
+        width: 100px;
     }
 
-    .progress-left,
-    .progress-right {
-        width: 50%;
-        height: 100%;
-        overflow: hidden;
+    .radial-01 .radial-01-number {
         position: absolute;
+        top: 0px;
+        left: 0px;
+        right: 0px;
+        bottom: 0px;
+        background-color: #fff;
+        border-radius: 100%;
+        padding-top: 11px;
+        z-index: 20;
+        /* background-color: transparent; */
     }
 
-    .progress-left {
-        transform: rotate(0deg);
+    .radial-01 .radial-01-number {
+        font-weight: 700;
+        font-size: 10px;
     }
 
-    .progress-right {
-        transform: rotate(180deg);
+    .radial-01 .radial-01-number .radial-01-syb {
+        font-weight: 700;
+        font-size: 10px;
     }
 
-    .progress-bar-circle {
-        width: 100%;
-        height: 100%;
-        border: 5px solid #3498db;
-        border-top-color: transparent;
-        border-right-color: transparent;
-        border-radius: 50%;
+    .radial-01>span.radial-01-border-r:before {
+        content: " ";
+        display: block;
         position: absolute;
-        top: 0;
+        top: -10px;
+        left: -10px;
+        right: -10px;
+        bottom: -10px;
+        background-color: #ccc;
+        border-radius: 100%;
+        z-index: 5;
     }
+
+    .radial-01>span.radial-01-border-r:after {
+        content: " ";
+        display: block;
+        position: absolute;
+        top: -10px;
+        left: -10px;
+        right: -10px;
+        bottom: -10px;
+        background-color: #006838;
+        border-radius: 100%;
+        z-index: 10;
+        clip: rect(0px, 60px, 60px, 15px);
+    }
+
+    .radial-01>span.radial-02-border-r:after {
+        content: " ";
+        display: block;
+        position: absolute;
+        top: -10px;
+        left: -10px;
+        right: -10px;
+        bottom: -10px;
+        background-color: #97080F;
+        border-radius: 100%;
+        z-index: 10;
+        clip: rect(0px, 60px, 60px, 30px);
+    }
+
+    .radial-01>span.radial-03-border-r:after {
+        content: " ";
+        display: block;
+        position: absolute;
+        top: -10px;
+        left: -10px;
+        right: -10px;
+        bottom: -10px;
+        background-color: #01058A;
+        border-radius: 100%;
+        z-index: 10;
+        clip: rect(0px, 60px, 60px, 40px);
+    }
+
+    .radial-01>span.radial-01-border-l:before {
+        content: " ";
+        display: block;
+        position: absolute;
+        top: -10px;
+        left: -10px;
+        right: -10px;
+        bottom: -10px;
+        background-color: #ccc;
+        border-radius: 100%;
+        z-index: 5;
+    }
+    /* .radial-01 .progress-bar {
+        background: conic-gradient(#3498db 0% var(--progress, 0%), transparent var(--progress, 0%) 100%);
+    } */
+
+
 
     /* Customize colors as per your design */
 </style>
@@ -409,7 +477,7 @@
                 <div class="form-group">
                     <div class="input-group">
                         <div class="col-md-12">
-                            <input type="text" id="from" class="form-control" placeholder="From" name="from" max="{{date("Y-m-d")}}" onfocus="(this.type='date')" onkeydown="return false" pattern="\d{4}/\d{2}/\d{2}"  />
+                            <input type="text" id="from" class="form-control" placeholder="From" name="from" max="{{date("Y-m-d")}}" onfocus="(this.type='date')" onkeydown="return false" pattern="\d{4}/\d{2}/\d{2}" />
 
                         </div>
                         <div class="input-group-append">
@@ -448,7 +516,7 @@
 
 <nav>
     <div class="nav nav-tabs" id="nav-tab" role="tablist">
-        <a class="nav-item nav-link active" id="nav-client-tab" data-toggle="tab" href="#nav-client" role="tab" aria-controls="nav-client" aria-selected="true">Dashboard</a>
+        <a class="nav-item nav-link active" id="nav-client-tab" data-toggle="tab" href="#nav-client" role="tab" aria-controls="nav-client" aria-selected="true">Nishauri Dashboard</a>
         <a class="nav-item nav-link" data-toggle="tab" href="#nav-indicators" role="tab" aria-selected="false"></a>
     </div>
 </nav>
@@ -486,10 +554,16 @@
                             <span class="card_tittle">Clients Enrolled</span>
                             <p id="client_enrolled" class="no_count"></p>
                         </div>
+                        <div class="radial-01 radial-three-quarters">
+                            <span id="enrolledPercentage" class="radial-01-number">
+                                <span class="radial-01-syb"><sup></sup></span>
+                            </span>
+                            <span class="radial-01-border-r"></span>
+                            <span class="radial-01-border-l"></span>
+                        </div>
                     </div>
                 </div>
             </div>
-
 
             <div class="col-sm-3">
                 <div class="Clients card o-hidden mb-0 h-75">
@@ -498,6 +572,13 @@
                             <span class="card_tittle">Not Enrolled</span>
 
                             <p id="client_profile" class="no_count"></p>
+                        </div>
+                        <div class="radial-01 radial-three-quarters">
+                            <span id="notEnrolledPercentage" class="radial-01-number">
+                                <span class="radial-01-syb"><sup></sup></span>
+                            </span>
+                            <span class="radial-02-border-r"></span>
+                            <span class="radial-01-border-l"></span>
                         </div>
                     </div>
                 </div>
@@ -662,9 +743,8 @@
 
 
                         $('select[name="county"]').empty();
-                        $('select[name="county"]').append('<option value="">Please Select County</option>');
+                        $('select[name="county"]').append('<option value="">Please County</option>');
                         $.each(data, function(key, value) {
-
                             $('select[name="county"]').append('<option value="' + key + '">' + value + '</option>');
                         });
 
@@ -676,6 +756,7 @@
             }
         });
     });
+
 
     $(document).ready(function() {
         $('select[name="county"]').on('change', function() {
@@ -715,10 +796,86 @@
 
 
                         $('select[name="facility"]').empty();
-                        $('select[name="facility"]').append('<option value="">Please select Facility</option>');
+                        $('select[name="facility"]').append('<option value="">Please Select Facility</option>');
                         $.each(data, function(key, value) {
                             $('select[name="facility"]').append('<option value="' + key + '">' + value + '</option>');
                         });
+
+
+                    }
+                });
+            } else {
+                $('select[name="facility"]').empty();
+            }
+        });
+    });
+    $(document).ready(function() {
+        $('select[name="county"]').on('change', function() {
+            var countyID = $(this).val();
+            if (countyID) {
+                $.ajax({
+                    url: '/get_county_facilities/' + countyID,
+                    type: "GET",
+                    dataType: "json",
+                    success: function(data) {
+
+                        $('select[name="facility"]').empty();
+                        $('select[name="facility"]').append('<option value="">Please Select Facility</option>');
+                        $.each(data, function(key, value) {
+                            $('select[name="facility"]').append('<option value="' + key + '">' + value + '</option>');
+                        });
+
+
+                    }
+                });
+            } else {
+                $('select[name="facility"]').empty();
+            }
+        });
+    });
+
+    $(document).ready(function() {
+        $('select[name="partner"]').on('change', function() {
+            var partnerID = $(this).val();
+            if (partnerID) {
+                $.ajax({
+                    url: '/get_partner_sub_counties/' + partnerID,
+                    type: "GET",
+                    dataType: "json",
+                    success: function(data) {
+
+
+                        $('select[name="subcounty"]').empty();
+                        $('select[name="subcounty"]').append('<option value="">Please Select Sub County</option>');
+                        $.each(data, function(key, value) {
+                            $('select[name="subcounty"]').append('<option value="' + key + '">' + value + '</option>');
+                        });
+
+
+                    }
+                });
+            } else {
+                $('select[name="subcounty"]').empty();
+            }
+        });
+    });
+    $(document).ready(function() {
+        $('select[name="partner"]').on('change', function() {
+            var partnerID = $(this).val();
+            if (partnerID) {
+                $.ajax({
+                    url: '/get_partner_facilities/' + partnerID,
+                    type: "GET",
+                    dataType: "json",
+                    success: function(data) {
+
+
+                        $('select[name="facility"]').empty();
+                        $('select[name="facility"]').append('<option value="">Please Select Facility</option>');
+                        $.each(data, function(key, value) {
+                            $('select[name="facility"]').append('<option value="' + key + '">' + value + '</option>');
+                        });
+
 
                     }
                 });
@@ -1220,6 +1377,9 @@
 
                 $("#enrolledPercentage").text(enrolledPercentage.toFixed(1) + "%");
                 $("#notEnrolledPercentage").text(notEnrolledPercentage.toFixed(1) + "%")
+
+                var radial = document.querySelector(".radial-01");
+                radial.style.setProperty("--progress", notEnrolledPercentage + "%");
 
                 if (authenticating == 'Facility') {
                     var table = $j('#table_client').DataTable();
