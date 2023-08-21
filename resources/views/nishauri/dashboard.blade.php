@@ -127,6 +127,7 @@
         border-radius: 100%;
         z-index: 5;
     }
+
     /* .radial-01 .progress-bar {
         background: conic-gradient(#3498db 0% var(--progress, 0%), transparent var(--progress, 0%) 100%);
     } */
@@ -167,36 +168,24 @@
             <div class="col-lg-3">
                 <div class="form-group">
                     <select class="form-control select2" id="counties" name="county">
-                        <option></option>
-                        @if (count($counties) > 0)
-                        @foreach($counties as $county)
-                        <option value="{{$county->id }}">{{ ucwords($county->name) }}</option>
-                        @endforeach
-                        @endif
+                    <option value="">County</option>
+                        <option value=""></option>
                     </select>
                 </div>
             </div>
             <div class="col-lg-3">
                 <div class="form-group">
                     <select class="form-control select2" id="subcounties" name="subcounty">
-                        <option value="">All</option>
-                        @if (count($sub_counties) > 0)
-                        @foreach($sub_counties as $sub_county)
-                        <option value="{{$sub_county->id }}">{{ ucwords($sub_county->name) }}</option>
-                        @endforeach
-                        @endif
+                        <option value="">Sub County</option>
+                        <option value=""></option>
                     </select>
                 </div>
             </div>
             <div class="col-lg-3">
                 <div class="form-group">
                     <select class="form-control select2" id="facilities" name="facility">
+                        <option value="">Facility</option>
                         <option value=""></option>
-                        @if (count($facilities) > 0)
-                        @foreach($facilities as $facility)
-                        <option value="{{$facility->code }}">{{ ucwords($facility->name) }}</option>
-                        @endforeach
-                        @endif
                     </select>
                 </div>
             </div>
@@ -248,7 +237,7 @@
                 <div class="form-group">
 
                     <select class="form-control select2" id="partners" name="partner">
-                        <option></option>
+                        <option value="">Partner</option>
                         @if (count($partners) > 0)
                         @foreach($partners as $partner)
                         <option value="{{$partner->id }}">{{ ucwords($partner->name) }}</option>
@@ -261,36 +250,24 @@
             <div class="col-lg-3">
                 <div class="form-group">
                     <select class="form-control select2" id="counties" name="county">
+                        <option value="">County</option>
                         <option value=""></option>
-                        @if (count($counties) > 0)
-                        @foreach($counties as $county)
-                        <option value="{{$county->id }}">{{ ucwords($county->name) }}</option>
-                        @endforeach
-                        @endif
                     </select>
                 </div>
             </div>
             <div class="col-lg-3">
                 <div class="form-group">
                     <select class="form-control select2" id="subcounties" name="subcounty">
+                        <option value="">Sub County</option>
                         <option value=""></option>
-                        @if (count($sub_counties) > 0)
-                        @foreach($sub_counties as $sub_county)
-                        <option value="{{$sub_county->id }}">{{ ucwords($sub_county->name) }}</option>
-                        @endforeach
-                        @endif
                     </select>
                 </div>
             </div>
             <div class="col-lg-3">
                 <div class="form-group">
                     <select class="form-control select2" id="facilities" name="facility">
+                        <option value="">Facility</option>
                         <option value=""></option>
-                        @if (count($facilities) > 0)
-                        @foreach($facilities as $facility)
-                        <option value="{{$facility->code }}">{{ ucwords($facility->name) }}</option>
-                        @endforeach
-                        @endif
                     </select>
                 </div>
             </div>
@@ -341,7 +318,7 @@
             <div class="col-lg-4">
                 <div class="form-group">
                     <select class="form-control select2" id="counties" name="county">
-                        <option value="">All</option>
+                        <option value="">County</option>
                         @if (count($counties) > 0)
                         @foreach($counties as $county)
                         <option value="{{$county->id }}">{{ ucwords($county->name) }}</option>
@@ -353,25 +330,16 @@
             <div class="col-lg-4">
                 <div class="form-group">
                     <select class="form-control select2" id="subcounties" name="subcounty">
-                        <option value="">All</option>
-                        @if (count($sub_counties) > 0)
-                        @foreach($sub_counties as $sub_county)
-                        <option value="{{$sub_county->id }}">{{ ucwords($sub_county->name) }}</option>
-                        @endforeach
-                        @endif
+                        <option value="">Sub County</option>
+                        <option value=""></option>
                     </select>
                 </div>
             </div>
             <div class="col-lg-4">
                 <div class="form-group">
                     <select class="form-control select2" id="facilities" name="facility">
+                        <option value="">Facility</option>
                         <option value=""></option>
-                        @if (count($facilities) > 0)
-                        @foreach($facilities as $facility)
-                        <option value="">All</option>
-                        <option value="{{$facility->code }}">{{ ucwords($facility->name) }}</option>
-                        @endforeach
-                        @endif
                     </select>
                 </div>
             </div>
@@ -711,24 +679,9 @@
 
 
 <script type="text/javascript">
-    $("select").select2();
-    $("#partners").select2({
-        width: 'element',
-        placeholder: "Select Partner",
-        allowClear: true
-    });
-    $("#counties").select2({
-        placeholder: "Select County",
-        allowClear: true
-    });
-    $("#subcounties").select2({
-        placeholder: "Select SubCounty",
-        allowClear: true
-    });
-    $("#facilities").select2({
-        placeholder: "Select Facility",
-        allowClear: true
-    });
+    $('.partners').select2();
+    $('.counties').select2();
+    $('.subcounties').select2();
 
     let authenticating = $('#authent').val();
     $(document).ready(function() {
