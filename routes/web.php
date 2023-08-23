@@ -296,5 +296,6 @@ Route::group(['middleware' => 'auth'], function () {
   Route::get('/filter_nishauri_uptake', ['uses' => 'App\Http\Controllers\NishauriController@filter_nishauri_uptake', 'as' => 'filter_nishauri_uptake']);
 
   Route::get('/partner_summary', ['uses' => 'App\Http\Controllers\NewDashboardController@partner_summary', 'as' => 'partner_summary']);
-
+  Route::get('/hei/list', ['uses' => 'App\Http\Controllers\ClientListController@hei_list', 'as' => 'hei_list']);
+  Route::post('/edit/hei', ['uses' => 'App\Http\Controllers\ClientListController@edit_hei', 'as' => 'edit-hei']);
 });

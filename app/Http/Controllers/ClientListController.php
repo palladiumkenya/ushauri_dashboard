@@ -8,6 +8,7 @@ use App\Models\Appointments;
 use Illuminate\Http\Request;
 use App\Models\ClientList;
 use App\Models\Group;
+use App\Models\Gender;
 use App\Models\Clinic;
 use App\Models\Client;
 use App\Models\Outcome;
@@ -17,6 +18,9 @@ use App\Models\ClientReport;
 use App\Models\Pmtct;
 use Auth;
 use DB;
+use Exception;
+use Session;
+use RealRashid\SweetAlert\Facades\Alert;
 
 class ClientListController extends Controller
 {
@@ -860,5 +864,64 @@ class ClientListController extends Controller
         }
 
         return view('clients.client_extract')->with('client_extract', $client_extract);
+    }
+
+    public function hei_list()
+    {
+        if (Auth::user()->access_level == 'Facility') {
+            $gender = Gender::all();
+            $hei_list = Pmtct::select('tbl_pmtct.id as id', 'tbl_client.id as client_id', 'tbl_pmtct.hei_first_name', 'tbl_pmtct.hei_middle_name', 'tbl_pmtct.hei_last_name', 'tbl_pmtct.hei_dob', 'tbl_gender.name as gender', 'tbl_gender.id as gender_id', 'tbl_pmtct.hei_no')
+                ->join('tbl_gender', 'tbl_gender.id', '=', 'tbl_pmtct.hei_gender')
+                ->join('tbl_client', 'tbl_client.id', '=', 'tbl_pmtct.client_id')
+                ->whereNotNull('tbl_pmtct.hei_no')
+                ->where('tbl_client.mfl_code', '=', Auth::user()->facility_id)
+                ->get();
+        }
+
+        return view('clients.hei_list', compact('hei_list', 'gender'));
+    }
+
+    public function edit_hei(Request $request)
+    {
+
+        try {
+            $client = Pmtct::where('id', $request->id)
+                ->update([
+                    'hei_no' => $request->clinic_number,
+                    'hei_first_name' => $request->first_name,
+                    'hei_middle_name' => $request->middle_name,
+                    'hei_last_name' => $request->last_name,
+                    'hei_dob' => $request->birth,
+                    'hei_gender' => $request->gender,
+
+                ]);
+            $hei_client = Client::where('hei_no', $request->clinic_number)
+                ->update([
+                    'hei_no' => $request->clinic_number,
+                    'f_name' => $request->first_name,
+                    'm_name' => $request->middle_name,
+                    'l_name' => $request->last_name,
+                    'dob' => $request->birth,
+                    'gender' => $request->gender,
+
+                ]);
+
+            if ($client && $hei_client) {
+                Alert::success('Success', 'HEI' . ' ' . $request->clinic_number . ' ' . 'details was successfully updated!');
+                return redirect('hei/list');
+            } else {
+                Alert::error('Failed', 'Could not update HEI details please try again later.');
+                return back();
+            }
+        } catch (Exception $e) {
+            $code = $e->getCode();
+
+            if ((string)$code === (string)"23000") {
+                Alert::success('Success', 'HEI Number' . ' ' . $request->clinic_number . ' ' . 'belongs to another client! ');
+                return back();;
+            } else {
+                return back();
+            }
+        }
     }
 }

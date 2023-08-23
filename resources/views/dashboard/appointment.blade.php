@@ -1599,7 +1599,6 @@
                     dataType: "json",
                     success: function(data) {
 
-
                         $('select[name="facility"]').empty();
                         $('select[name="facility"]').append('<option value="">Please Select Facility</option>');
                         $.each(data, function(key, value) {

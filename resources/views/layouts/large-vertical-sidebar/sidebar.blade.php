@@ -184,6 +184,10 @@
                             <span class="item-name">HEI Profile</span>
                         </a>
                     </li>
+                    <li><a href="{{route('hei_list')}}">
+                            <span class="item-name">Edit HEI</span>
+                        </a>
+                    </li>
                 </ul>
             </li>
 
