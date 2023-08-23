@@ -578,12 +578,12 @@
                     <div id="module_access" class="col" style="height:  400px;margin-top:20px;width: 900px"></div> <br />
                 </div>
             </div>
-            <div class="col-12">
+            <!-- <div class="col-12">
 
                 <div class="card-body row">
                     <div id="daily_login" class="col" style="height:  400px;margin-top:20px;width: 900px"></div> <br />
                 </div>
-            </div>
+            </div> -->
             @if (Auth::user()->access_level == 'Partner' || Auth::user()->access_level == 'County' || Auth::user()->access_level == 'Sub County')
             <div class="col-12">
                 <div class="card-body row">
@@ -931,7 +931,7 @@
 
             // Create an array of day names for the x-axis labels
             var dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-            dailyLogin(dayNames, dayOfWeekCounts, dayOfWeekDates)
+            // dailyLogin(dayNames, dayOfWeekCounts, dayOfWeekDates)
 
             // Initialize and render Highcharts column chart
 
@@ -1207,7 +1207,7 @@
 
                 // Create an array of day names for the x-axis labels
                 var dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-                dailyLogin(dayNames, dayOfWeekCounts, dayOfWeekDates)
+                // dailyLogin(dayNames, dayOfWeekCounts, dayOfWeekDates)
 
                 // Initialize and render Highcharts column chart
 
@@ -1553,51 +1553,51 @@
         });
     }
 
-    function dailyLogin(dayNames, dayOfWeekCounts, dayOfWeekDates) {
-        Highcharts.chart('daily_login', {
-            chart: {
-                type: 'column'
-            },
-            title: {
-                text: 'Login Counts by Day of the Week',
-                style: {
-                    fontFamily: 'Inter',
-                    fontSize: '14px'
-                }
-            },
-            style: {
-                fontFamily: 'Inter',
-                fontSize: '14px'
-            },
-            xAxis: {
-                categories: dayNames,
-                title: {
-                    text: 'Day of the Week'
-                },
-                style: {
-                    fontFamily: 'Inter',
-                    fontSize: '14px'
-                }
-            },
-            yAxis: {
-                title: {
-                    text: 'Number of Patients'
-                }
-            },
-            tooltip: {
-                formatter: function() {
-                    var dayIndex = this.point.index;
-                    var loginDates = dayOfWeekDates[dayIndex].map(date => Highcharts.dateFormat('%Y-%m-%d', new Date(date)));
-                    return '<b>' + this.x + '</b><br>Logins: ' + this.y + '<br>Date: ' + loginDates.join(', ');
-                }
-            },
-            series: [{
-                name: 'Logins',
-                color: '#01058A',
-                data: dayOfWeekCounts
-            }]
-        });
-    }
+    // function dailyLogin(dayNames, dayOfWeekCounts, dayOfWeekDates) {
+    //     Highcharts.chart('daily_login', {
+    //         chart: {
+    //             type: 'column'
+    //         },
+    //         title: {
+    //             text: 'Login Counts by Day of the Week',
+    //             style: {
+    //                 fontFamily: 'Inter',
+    //                 fontSize: '14px'
+    //             }
+    //         },
+    //         style: {
+    //             fontFamily: 'Inter',
+    //             fontSize: '14px'
+    //         },
+    //         xAxis: {
+    //             categories: dayNames,
+    //             title: {
+    //                 text: 'Day of the Week'
+    //             },
+    //             style: {
+    //                 fontFamily: 'Inter',
+    //                 fontSize: '14px'
+    //             }
+    //         },
+    //         yAxis: {
+    //             title: {
+    //                 text: 'Number of Patients'
+    //             }
+    //         },
+    //         tooltip: {
+    //             formatter: function() {
+    //                 var dayIndex = this.point.index;
+    //                 var loginDates = dayOfWeekDates[dayIndex].map(date => Highcharts.dateFormat('%Y-%m-%d', new Date(date)));
+    //                 return '<b>' + this.x + '</b><br>Logins: ' + this.y + '<br>Date: ' + loginDates.join(', ');
+    //             }
+    //         },
+    //         series: [{
+    //             name: 'Logins',
+    //             color: '#01058A',
+    //             data: dayOfWeekCounts
+    //         }]
+    //     });
+    // }
 
     function moduleChart(chartData) {
         Highcharts.chart('module_access', {

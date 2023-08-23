@@ -724,11 +724,26 @@
                     <span class="item-name">Summary Report</span>
                 </a>
             </li> -->
-            <li class="nav-item">
-                <a href="{{route('tracing-outcome-report')}}">
-                    <span class="item-name">Tracing OutCome</span>
+            @if (Auth::user()->access_level == 'Partner' || Auth::user()->access_level == 'Facility')
+            <li class="nav-item dropdown-sidemenu">
+                <a>
+                    <span class="item-name">Tracing Report</span>
+                    <i class="dd-arrow i-Arrow-Down"></i>
                 </a>
+                <ul class="submenu">
+                    <li>
+                        <a href="{{route('tracing-outcome-report')}}">
+                            <span class="item-name">Outcome Report</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{route('tracing_attempts_form')}}">
+                            <span class="item-name">Attempts Report</span>
+                        </a>
+                    </li>
+                </ul>
             </li>
+            @endif
 
         </ul>
         <ul class="childNav" data-parent="indicators">

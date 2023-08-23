@@ -298,4 +298,7 @@ Route::group(['middleware' => 'auth'], function () {
   Route::get('/partner_summary', ['uses' => 'App\Http\Controllers\NewDashboardController@partner_summary', 'as' => 'partner_summary']);
   Route::get('/hei/list', ['uses' => 'App\Http\Controllers\ClientListController@hei_list', 'as' => 'hei_list']);
   Route::post('/edit/hei', ['uses' => 'App\Http\Controllers\ClientListController@edit_hei', 'as' => 'edit-hei']);
+
+  Route::get('/tracing/attempts', ['uses' => 'App\Http\Controllers\ReportController@tracing_attempts', 'as' => 'tracing_attempts']);
+  Route::get('/report/tracing/attempts', ['uses' => 'App\Http\Controllers\ReportController@tracing_attempts_form', 'as' => 'tracing_attempts_form']);
 });
