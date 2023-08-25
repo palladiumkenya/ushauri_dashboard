@@ -80,11 +80,10 @@
                                 <div class="row">
                                     <input type="hidden" name="id" id="id">
                                     <input type="hidden" name="client_id" id="client_id">
+                                    <input type="hidden" class="form-control" id="old_clinic_number" name="old_clinic_number">
                                     <div class="col-md-6 form-group mb-3">
                                         <label for="firstName1">HEI Number</label>
-
                                         <input type="text" class="form-control" id="clinic_number" name="clinic_number" placeholder="HEI Number">
-
                                     </div>
                                     <div class="col-md-6 form-group mb-3">
                                         <label for="firstName1">First Name</label>
@@ -174,6 +173,8 @@
         $('#gender').val(result.gender_id);
         $('#id').val(result.id);
         $('#client_id').val(result.client_id);
+        $('#old_clinic_number').val(result.hei_no);
+
     }
     // multi column ordering
     $('#multicolumn_ordering_table').DataTable({

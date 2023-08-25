@@ -895,7 +895,8 @@ class ClientListController extends Controller
                     'hei_gender' => $request->gender,
 
                 ]);
-            $hei_client = Client::where('hei_no', $request->clinic_number)
+
+            $hei_client = Client::where('hei_no', $request->old_clinic_number)
                 ->update([
                     'hei_no' => $request->clinic_number,
                     'f_name' => $request->first_name,
@@ -903,10 +904,12 @@ class ClientListController extends Controller
                     'l_name' => $request->last_name,
                     'dob' => $request->birth,
                     'gender' => $request->gender,
-
                 ]);
 
-            if ($client && $hei_client) {
+            if ($client) {
+                Alert::success('Success', 'HEI' . ' ' . $request->clinic_number . ' ' . 'details was successfully updated!');
+                return redirect('hei/list');
+            } elseif ($hei_client) {
                 Alert::success('Success', 'HEI' . ' ' . $request->clinic_number . ' ' . 'details was successfully updated!');
                 return redirect('hei/list');
             } else {
