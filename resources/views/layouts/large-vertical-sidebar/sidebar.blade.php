@@ -116,6 +116,9 @@
                 <a class="{{ Route::currentRouteName()=='appointment-dashboard' ? 'open' : '' }}" href="{{route('appointment-dashboard')}}">
                     <span class=" text-muted">Appointment</span>
                 </a>
+                <a class="{{ Route::currentRouteName()=='nishauri-dashboard' ? 'open' : '' }}" href="{{route('nishauri-dashboard')}}">
+                    <span class=" text-muted">Nishauri</span>
+                </a>
             </li>
             @endif
             @if (Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Partner' || Auth::user()->access_level == 'Donor' || Auth::user()->access_level == 'County' || Auth::user()->access_level == 'Sub County')
@@ -128,6 +131,9 @@
                 </a>
                 <a class="{{ Route::currentRouteName()=='appointment-dashboard' ? 'open' : '' }}" href="{{route('appointment-dashboard')}}">
                     <span class=" text-muted">Appointment</span>
+                </a>
+                <a class="{{ Route::currentRouteName()=='nishauri-dashboard' ? 'open' : '' }}" href="{{route('nishauri-dashboard')}}">
+                    <span class=" text-muted">Nishauri</span>
                 </a>
             </li>
             @endif
@@ -176,6 +182,10 @@
                     </li>
                     <li><a href="{{route('hei-profile')}}">
                             <span class="item-name">HEI Profile</span>
+                        </a>
+                    </li>
+                    <li><a href="{{route('hei_list')}}">
+                            <span class="item-name">Edit HEI</span>
                         </a>
                     </li>
                 </ul>
@@ -714,11 +724,26 @@
                     <span class="item-name">Summary Report</span>
                 </a>
             </li> -->
-            <li class="nav-item">
-                <a href="{{route('tracing-outcome-report')}}">
-                    <span class="item-name">Tracing OutCome</span>
+            @if (Auth::user()->access_level == 'Partner' || Auth::user()->access_level == 'Facility')
+            <li class="nav-item dropdown-sidemenu">
+                <a>
+                    <span class="item-name">Tracing Report</span>
+                    <i class="dd-arrow i-Arrow-Down"></i>
                 </a>
+                <ul class="submenu">
+                    <li>
+                        <a href="{{route('tracing-outcome-report')}}">
+                            <span class="item-name">Outcome Report</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{route('tracing_attempts_form')}}">
+                            <span class="item-name">Attempts Report</span>
+                        </a>
+                    </li>
+                </ul>
             </li>
+            @endif
 
         </ul>
         <ul class="childNav" data-parent="indicators">

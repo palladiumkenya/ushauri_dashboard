@@ -224,9 +224,9 @@ class ReportController extends Controller
         if (Auth::user()->access_level == 'Facility') {
 
             $outcome_report = OutcomeReport::select('*')->where('mfl_code', Auth::user()->facility_id)
-            ->where('Appointment_Date', '>=', date($request->date_from))
-            ->where('Appointment_Date', '<=', date($request->date_to))
-            ->get();
+                ->where('Appointment_Date', '>=', date($request->date_from))
+                ->where('Appointment_Date', '<=', date($request->date_to))
+                ->get();
             $all_partners = Partner::where('status', '=', 'Active')->orderBy('name', 'ASC')->pluck('name', 'id');
         }
         // if (!empty($request->date_from)) {
@@ -252,6 +252,39 @@ class ReportController extends Controller
 
         // dd($outcome_report);
         return view('reports.outcome', compact('outcome_report', 'all_partners', 'selected_from', 'selected_to'));
+    }
+
+    public function tracing_attempts(Request $request)
+    {
+        $selected_from = $request->date_from;
+        $selected_to = $request->date_to;
+
+        if (Auth::user()->access_level == 'Facility') {
+            $tracing_attempts = OutcomeReport::select('UPN', 'MFL', 'Facility', 'Appointment_Date', 'Tracing_Date', 'Tracer', 'Outcome', 'Final_Outcome', 'tracing_type', DB::raw('COUNT(Outcome) AS attempts'))
+                ->where('mfl_code', Auth::user()->facility_id)
+                ->where('Appointment_Date', '>=', date($request->date_from))
+                ->where('Appointment_Date', '<=', date($request->date_to))
+                ->groupBy('Appointment_ID', 'Outcome', 'Final_Outcome')
+                ->get();
+
+            return view('reports.attempts_tracing', compact('tracing_attempts'));
+        }
+        if (Auth::user()->access_level == 'Partner') {
+            $tracing_attempts = OutcomeReport::select('UPN', 'MFL', 'Facility', 'Sub_County', 'County', 'Appointment_Date', 'Outcome', 'Final_Outcome', 'tracing_type', DB::raw('COUNT(Appointment_ID) AS attempts'))
+                ->where('partner_id', Auth::user()->partner_id)
+                ->where('Appointment_Date', '>=', date($request->date_from))
+                ->where('Appointment_Date', '<=', date($request->date_to))
+                ->groupBy('tracing_type', 'Appointment_Date', 'Outcome', 'Final_Outcome')
+                ->get();
+
+            return view('reports.attempts_tracing', compact('tracing_attempts'));
+        }
+
+        //dd($tracing_attempts);
+    }
+    public function tracing_attempts_form()
+    {
+        return view('reports.attempts_form');
     }
 
     public function messages_extract_report()

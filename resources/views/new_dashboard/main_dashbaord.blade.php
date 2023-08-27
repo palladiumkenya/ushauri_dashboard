@@ -1,5 +1,6 @@
 @extends('layouts.master')
 @section('page-css')
+<link rel="stylesheet" href="{{asset('assets/styles/vendor/datatables.min.css')}}">
 <style rel="stylesheet" type="text/css">
     .no_count {
         font-weight: 700;
@@ -376,6 +377,45 @@
 
         </div>
 
+        <div class="col-md-12">
+            <div class="row">
+                <input id="authent" type="hidden" value="{{ auth()->user()->access_level }}">
+                <div class="col-12">
+                    <div class="card text-left">
+                        @if (Auth::user()->access_level == 'Partner')
+                        <div class="card-body">
+                            <h4 class="card-title mb-3"></h4>
+                            <div class="table-responsive">
+                                <table id="table_summary" class="display table table-striped table-bordered" style="width:100%">
+                                    <thead>
+                                        <tr>
+                                            <th>Facility</th>
+                                            <th>MFL Code</th>
+                                            <th>County</th>
+                                            <th>Partner</th>
+                                            <th>Clients</th>
+                                            <th>Consented</th>
+                                            <th>Tx Curr</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+
+                                    </tbody>
+
+                                </table>
+
+                            </div>
+
+                        </div>
+                        @endif
+
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
     </div>
     <!-- main dashbaord ends -->
 
@@ -394,6 +434,7 @@
 
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<!-- <script type="text/javascript" src="https://code.jquery.com/jquery-3.6.0.min.js"></script> -->
 <link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet" />
 <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
 <script src="https://code.highcharts.com/highcharts.js"></script>
@@ -407,8 +448,64 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
 
+<!-- <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script> -->
+
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.24/css/jquery.dataTables.min.css">
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/1.7.0/css/buttons.dataTables.min.css">
+<script type="text/javascript" src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/buttons/1.7.0/js/dataTables.buttons.min.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/buttons/1.7.0/js/buttons.html5.min.js"></script>
+
+
+
 
 <script type="text/javascript">
+    let authent = $('#authent').val();
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        }
+    });
+    var $j = jQuery.noConflict();
+    $.ajax({
+        type: 'GET',
+        url: "{{ route('partner_summary') }}",
+        success: function(data) {
+            console.log(data);
+            if (authent == 'Partner') {
+                var list = data.result;
+
+                $.each(list, function(index, item) {
+
+                    $('#table_summary tbody').append('<tr><td>' + item.facility + '</td><td>' + item.mfl_code + '</td><td>' + item.county + '</td><td>' + item.partner + '</td><td>' + item.client_ever_enrolled + '</td><td>' + item.client_consented + '</td><td>' + item.tx_cur + '</td></tr>');
+                });
+                $j('#table_summary').DataTable({
+                    columnDefs: [{
+                        targets: [0],
+                        orderData: [0, 1]
+                    }, {
+                        targets: [1],
+                        orderData: [1, 0]
+                    }, {
+                        targets: [4],
+                        orderData: [4, 0]
+                    }],
+                    "pageLength": 10,
+                    "paging": true,
+                    "responsive": true,
+                    "ordering": true,
+                    "info": true,
+                    dom: 'Bfrtip',
+                    buttons: [
+                        'copyHtml5',
+                        'excelHtml5',
+                        'csvHtml5',
+                        'pdfHtml5'
+                    ]
+                });
+            }
+        }
+    });
     $('#searchForm').submit(function(e) {
         e.preventDefault();
         var searchValue = $('#upn_search').val();
@@ -453,7 +550,6 @@
         });
     });
 
-
     // var filterForm = $("#dataFilter");
     // filterForm.submit(function(e) {
     //     e.preventDefault();
@@ -475,9 +571,9 @@
 
     // });
 
-    $('.partners').select2();
-    $('.counties').select2();
-    $('.subcounties').select2();
+    $j('.partners').select2();
+    $j('.counties').select2();
+    $j('.subcounties').select2();
 
     var Clients_male = <?php echo json_encode($clients_male) ?>;
     var Clients_female = <?php echo json_encode($clients_female) ?>;
@@ -603,7 +699,44 @@
             },
             url: "{{ route('filter_dashboard_charts') }}",
             success: function(data) {
+                // if (authent == 'Partner') {
+                //     var table = $j('#table_summary').DataTable();
 
+                //     // Destroy the DataTable instance
+                //     table.destroy();
+
+                //     $('#table_summary tbody').empty();
+                //     var list = data.result;
+
+                //     $.each(list, function(index, item) {
+
+                //         $('#table_summary tbody').append('<tr><td>' + item.facility + '</td><td>' + item.mfl_code + '</td><td>' + item.county + '</td><td>' + item.partner + '</td><td>' + item.client_ever_enrolled + '</td><td>' + item.client_consented + '</td><td>' + item.tx_cur + '</td></tr>');
+                //     });
+                //     $('#table_summary').DataTable({
+                //         columnDefs: [{
+                //             targets: [0],
+                //             orderData: [0, 1]
+                //         }, {
+                //             targets: [1],
+                //             orderData: [1, 0]
+                //         }, {
+                //             targets: [4],
+                //             orderData: [4, 0]
+                //         }],
+                //         "pageLength": 10,
+                //         "paging": true,
+                //         "responsive": true,
+                //         "ordering": true,
+                //         "info": true,
+                //         dom: 'Bfrtip',
+                //         buttons: [
+                //             'copyHtml5',
+                //             'excelHtml5',
+                //             'csvHtml5',
+                //             'pdfHtml5'
+                //         ]
+                //     });
+                // }
                 $("#client").html(data.client.toLocaleString());
                 $("#client_ever_enrolled").html(data.client_ever_enrolled.toLocaleString());
                 $("#facilities_ever_enrolled").html(data.facilities_ever_enrolled);

@@ -333,8 +333,12 @@ class FinalDashboardController extends Controller
             SUM(CASE WHEN consent = "Yes" AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_consent,
             SUM(CASE WHEN consent = "Yes" AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_consent '
             )
+                ->join(DB::raw('(SELECT MAX(appointment_id) as max_appointment_id, client_id FROM etl_appointment_detail GROUP BY client_id) as max_appointments'), function ($join) {
+                    $join->on('etl_appointment_detail.appointment_id', '=', 'max_appointments.max_appointment_id')
+                        ->on('etl_appointment_detail.client_id', '=', 'max_appointments.client_id');
+                })
                 ->where('mfl_code', Auth::user()->facility_id)
-                ->groupBy('client_id')
+                ->groupBy('etl_appointment_detail.client_id')
                 ->remember($this->remember_period);
 
             $missed_age = ETLAppointment::select(
@@ -571,29 +575,33 @@ class FinalDashboardController extends Controller
             // missed appointment
             $client_missed = ETLAppointment::selectRaw(
                 '
-                SUM(CASE WHEN app_not_kept = 1 THEN 1 ELSE 0 END) AS not_kept_app,
-                SUM(CASE WHEN appointment_status = "Missed" OR appointment_status = "Defaulted" OR appointment_status = "IIT" THEN received_sms END) AS messages,
-                SUM(CASE WHEN received_sms = 1 AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_messages,
-                SUM(CASE WHEN received_sms = 1 AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_messages,
-                SUM(CASE WHEN received_sms = 1 AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_messages,
-                SUM(CASE WHEN appointment_status = "Missed" OR appointment_status = "Defaulted" OR appointment_status = "IIT" THEN called END) AS called,
-                SUM(CASE WHEN called = 1 AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_called,
-                SUM(CASE WHEN called = 1 AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_called,
-                SUM(CASE WHEN called = 1 AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_called,
-                SUM(CASE WHEN appointment_status = "Missed" OR appointment_status = "Defaulted" OR appointment_status = "IIT" THEN physically_traced END) AS physically_traced,
-                SUM(CASE WHEN physically_traced = 1 AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_traced,
-                SUM(CASE WHEN physically_traced = 1 AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_traced,
-                SUM(CASE WHEN physically_traced = 1 AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_traced,
-                SUM(CASE WHEN appointment_status = "Missed" OR appointment_status = "Defaulted" OR appointment_status = "IIT" THEN rtc_no END) AS final_outcome,
-                SUM(CASE WHEN final_outcome = "Client returned to care" AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_outcome,
-                SUM(CASE WHEN final_outcome = "Client returned to care" AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_outcome,
-                SUM(CASE WHEN final_outcome = "Client returned to care" AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_outcome,
-                SUM(CASE WHEN appointment_status = "Missed" OR appointment_status = "Defaulted" OR appointment_status = "IIT" THEN consent_no END) AS consent,
-                SUM(CASE WHEN consent = "Yes" AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_consent,
-                SUM(CASE WHEN consent = "Yes" AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_consent,
-                SUM(CASE WHEN consent = "Yes" AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_consent '
+            SUM(CASE WHEN app_not_kept = 1 THEN 1 ELSE 0 END) AS not_kept_app,
+            SUM(CASE WHEN appointment_status = "Missed" OR appointment_status = "Defaulted" OR appointment_status = "IIT" THEN received_sms END) AS messages,
+            SUM(CASE WHEN received_sms = 1 AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_messages,
+            SUM(CASE WHEN received_sms = 1 AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_messages,
+            SUM(CASE WHEN received_sms = 1 AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_messages,
+            SUM(CASE WHEN appointment_status = "Missed" OR appointment_status = "Defaulted" OR appointment_status = "IIT" THEN called END) AS called,
+            SUM(CASE WHEN called = 1 AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_called,
+            SUM(CASE WHEN called = 1 AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_called,
+            SUM(CASE WHEN called = 1 AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_called,
+            SUM(CASE WHEN appointment_status = "Missed" OR appointment_status = "Defaulted" OR appointment_status = "IIT" THEN physically_traced END) AS physically_traced,
+            SUM(CASE WHEN physically_traced = 1 AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_traced,
+            SUM(CASE WHEN physically_traced = 1 AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_traced,
+            SUM(CASE WHEN physically_traced = 1 AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_traced,
+            SUM(CASE WHEN appointment_status = "Missed" OR appointment_status = "Defaulted" OR appointment_status = "IIT" THEN rtc_no END) AS final_outcome,
+            SUM(CASE WHEN final_outcome = "Client returned to care" AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_outcome,
+            SUM(CASE WHEN final_outcome = "Client returned to care" AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_outcome,
+            SUM(CASE WHEN final_outcome = "Client returned to care" AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_outcome,
+            SUM(CASE WHEN appointment_status = "Missed" OR appointment_status = "Defaulted" OR appointment_status = "IIT" THEN consent_no END) AS consent,
+            SUM(CASE WHEN consent = "Yes" AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_consent,
+            SUM(CASE WHEN consent = "Yes" AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_consent,
+            SUM(CASE WHEN consent = "Yes" AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_consent '
             )
-                ->groupBy('client_id')
+                ->join(DB::raw('(SELECT MAX(appointment_id) as max_appointment_id, client_id FROM etl_appointment_detail GROUP BY client_id) as max_appointments'), function ($join) {
+                    $join->on('etl_appointment_detail.appointment_id', '=', 'max_appointments.max_appointment_id')
+                        ->on('etl_appointment_detail.client_id', '=', 'max_appointments.client_id');
+                })
+                ->groupBy('etl_appointment_detail.client_id')
                 ->remember($this->remember_period);
 
             $missed_age = ETLAppointment::selectRaw(
@@ -814,7 +822,85 @@ class FinalDashboardController extends Controller
                 ->where('partner_id', Auth::user()->partner_id)
                 ->remember($this->remember_period);
 
+            // $client_missed = ETLAppointment::selectRaw('
+            //     client_id,
+            //     MAX(appointment_id) AS max_appointment_id,
+            //     SUM(app_not_kept) AS not_kept_app,
+            //     SUM(CASE WHEN appointment_status IN ("Missed", "Defaulted", "IIT") THEN received_sms ELSE 0 END) AS messages,
+            //     SUM(CASE WHEN received_sms = 1 AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_messages,
+            //     SUM(CASE WHEN received_sms = 1 AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_messages,
+            //     SUM(CASE WHEN received_sms = 1 AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_messages,
+            //     SUM(CASE WHEN appointment_status IN ("Missed", "Defaulted", "IIT") THEN called ELSE 0 END) AS called,
+            //     SUM(CASE WHEN called = 1 AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_called,
+            //     SUM(CASE WHEN called = 1 AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_called,
+            //     SUM(CASE WHEN called = 1 AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_called,
+            //     SUM(CASE WHEN appointment_status IN ("Missed", "Defaulted", "IIT") THEN physically_traced ELSE 0 END) AS physically_traced,
+            //     SUM(CASE WHEN physically_traced = 1 AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_traced,
+            //     SUM(CASE WHEN physically_traced = 1 AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_traced,
+            //     SUM(CASE WHEN physically_traced = 1 AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_traced,
+            //     SUM(CASE WHEN appointment_status IN ("Missed", "Defaulted", "IIT") THEN rtc_no ELSE 0 END) AS final_outcome,
+            //     SUM(CASE WHEN rtc_no = "Client returned to care" AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_outcome,
+            //     SUM(CASE WHEN rtc_no = "Client returned to care" AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_outcome,
+            //     SUM(CASE WHEN rtc_no = "Client returned to care" AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_outcome,
+            //     SUM(CASE WHEN appointment_status IN ("Missed", "Defaulted", "IIT") THEN consent_no ELSE 0 END) AS consent,
+            //     SUM(CASE WHEN consent_no = "Yes" AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_consent,
+            //     SUM(CASE WHEN consent_no = "Yes" AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_consent,
+            //     SUM(CASE WHEN consent_no = "Yes" AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_consent
+            // ')
+            //     ->where('partner_id', Auth::user()->partner_id)
+            //     ->groupBy('client_id')
+            //     ->orderBy('max_appointment_id', 'desc')
+            //     ->get();
+
+            // Fetch the data without grouping or aggregation
+            // $client_missed_data = ETLAppointment::select(
+            //     'client_id',
+            //     'appointment_id', // Add appointment_id to fetch the maximum value later
+            //     'app_not_kept',
+            //     'appointment_status',
+            //     'received_sms',
+            //     'called',
+            //     'physically_traced',
+            //     'rtc_no',
+            //     'consent_no'
+            // )
+            //     ->where('partner_id', Auth::user()->partner_id)
+            //     ->get();
+
+            // // Perform grouping and aggregation in-memory using Laravel Collection methods
+            // $client_missed = $client_missed_data->groupBy('client_id')->map(function ($appointments) {
+            //     return [
+            //         'max_appointment_id' => $appointments->max('appointment_id'), // Get the maximum appointment_id
+            //         'not_kept_app' => $appointments->sum('app_not_kept'),
+            //         'messages' => $appointments->whereIn('appointment_status', ['Missed', 'Defaulted', 'IIT'])->sum('received_sms'),
+            //         'missed_messages' => $appointments->where('received_sms', 1)->where('appointment_status', 'Missed')->count(),
+            //         'defaulted_messages' => $appointments->where('received_sms', 1)->where('appointment_status', 'Defaulted')->count(),
+            //         'iit_messages' => $appointments->where('received_sms', 1)->where('appointment_status', 'IIT')->count(),
+            //         'called' => $appointments->whereIn('appointment_status', ['Missed', 'Defaulted', 'IIT'])->sum('called'),
+            //         'missed_called' => $appointments->where('called', 1)->where('appointment_status', 'Missed')->count(),
+            //         'defaulted_called' => $appointments->where('called', 1)->where('appointment_status', 'Defaulted')->count(),
+            //         'iit_called' => $appointments->where('called', 1)->where('appointment_status', 'IIT')->count(),
+            //         'physically_traced' => $appointments->whereIn('appointment_status', ['Missed', 'Defaulted', 'IIT'])->sum('physically_traced'),
+            //         'missed_traced' => $appointments->where('physically_traced', 1)->where('appointment_status', 'Missed')->count(),
+            //         'defaulted_traced' => $appointments->where('physically_traced', 1)->where('appointment_status', 'Defaulted')->count(),
+            //         'iit_traced' => $appointments->where('physically_traced', 1)->where('appointment_status', 'IIT')->count(),
+            //         'final_outcome' => $appointments->whereIn('appointment_status', ['Missed', 'Defaulted', 'IIT'])->sum('rtc_no'),
+            //         'missed_outcome' => $appointments->where('rtc_no', 'Client returned to care')->where('appointment_status', 'Missed')->count(),
+            //         'defaulted_outcome' => $appointments->where('rtc_no', 'Client returned to care')->where('appointment_status', 'Defaulted')->count(),
+            //         'iit_outcome' => $appointments->where('rtc_no', 'Client returned to care')->where('appointment_status', 'IIT')->count(),
+            //         'consent' => $appointments->whereIn('appointment_status', ['Missed', 'Defaulted', 'IIT'])->sum('consent_no'),
+            //         'missed_consent' => $appointments->where('consent_no', 'Yes')->where('appointment_status', 'Missed')->count(),
+            //         'defaulted_consent' => $appointments->where('consent_no', 'Yes')->where('appointment_status', 'Defaulted')->count(),
+            //         'iit_consent' => $appointments->where('consent_no', 'Yes')->where('appointment_status', 'IIT')->count(),
+            //     ];
+            // })->toArray();
+
+            // Now $client_missed contains the aggregated data for each client, including the max_appointment_id
+
+
             // missed appointment
+
+
             $client_missed = ETLAppointment::selectRaw(
                 '
             SUM(CASE WHEN app_not_kept = 1 THEN 1 ELSE 0 END) AS not_kept_app,
@@ -839,8 +925,12 @@ class FinalDashboardController extends Controller
             SUM(CASE WHEN consent = "Yes" AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_consent,
             SUM(CASE WHEN consent = "Yes" AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_consent '
             )
-                ->where('partner_id', Auth::user()->partner_id)
-                ->groupBy('client_id')
+                ->join(DB::raw('(SELECT MAX(appointment_id) as max_appointment_id, client_id FROM etl_appointment_detail GROUP BY client_id) as max_appointments'), function ($join) {
+                    $join->on('etl_appointment_detail.appointment_id', '=', 'max_appointments.max_appointment_id')
+                        ->on('etl_appointment_detail.client_id', '=', 'max_appointments.client_id');
+                })
+                ->where('etl_appointment_detail.partner_id', Auth::user()->partner_id)
+                ->groupBy('etl_appointment_detail.client_id')
                 ->remember($this->remember_period);
 
             $missed_age = ETLAppointment::select(
@@ -1105,8 +1195,12 @@ class FinalDashboardController extends Controller
             SUM(CASE WHEN consent = "Yes" AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_consent,
             SUM(CASE WHEN consent = "Yes" AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_consent '
             )
+                ->join(DB::raw('(SELECT MAX(appointment_id) as max_appointment_id, client_id FROM etl_appointment_detail GROUP BY client_id) as max_appointments'), function ($join) {
+                    $join->on('etl_appointment_detail.appointment_id', '=', 'max_appointments.max_appointment_id')
+                        ->on('etl_appointment_detail.client_id', '=', 'max_appointments.client_id');
+                })
                 ->where('subcounty_id', Auth::user()->subcounty_id)
-                ->groupBy('client_id')
+                ->groupBy('etl_appointment_detail.client_id')
                 ->remember($this->remember_period);
 
             $missed_age = ETLAppointment::select(
@@ -1375,10 +1469,13 @@ class FinalDashboardController extends Controller
             SUM(CASE WHEN consent = "Yes" AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_consent,
             SUM(CASE WHEN consent = "Yes" AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_consent,
             SUM(CASE WHEN consent = "Yes" AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_consent '
-
             )
+                ->join(DB::raw('(SELECT MAX(appointment_id) as max_appointment_id, client_id FROM etl_appointment_detail GROUP BY client_id) as max_appointments'), function ($join) {
+                    $join->on('etl_appointment_detail.appointment_id', '=', 'max_appointments.max_appointment_id')
+                        ->on('etl_appointment_detail.client_id', '=', 'max_appointments.client_id');
+                })
                 ->where('county_id', Auth::user()->county_id)
-                ->groupBy('client_id')
+                ->groupBy('etl_appointment_detail.client_id')
                 ->remember($this->remember_period);
 
             $missed_age = ETLAppointment::select(
@@ -1613,8 +1710,13 @@ class FinalDashboardController extends Controller
             SUM(CASE WHEN consent = "Yes" AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_consent,
             SUM(CASE WHEN consent = "Yes" AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_consent,
             SUM(CASE WHEN consent = "Yes" AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_consent '
-            )->groupBy('client_id')
-                ->remember($this->remember_period);
+            )
+            ->join(DB::raw('(SELECT MAX(appointment_id) as max_appointment_id, client_id FROM etl_appointment_detail GROUP BY client_id) as max_appointments'), function ($join) {
+                $join->on('etl_appointment_detail.appointment_id', '=', 'max_appointments.max_appointment_id')
+                    ->on('etl_appointment_detail.client_id', '=', 'max_appointments.client_id');
+            })
+            ->groupBy('etl_appointment_detail.client_id')
+            ->remember($this->remember_period);
 
             $missed_age = ETLAppointment::select(
                 'age_group',
@@ -2076,8 +2178,12 @@ class FinalDashboardController extends Controller
             SUM(CASE WHEN consent = "Yes" AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_consent,
             SUM(CASE WHEN consent = "Yes" AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_consent '
             )
+                ->join(DB::raw('(SELECT MAX(appointment_id) as max_appointment_id, client_id FROM etl_appointment_detail GROUP BY client_id) as max_appointments'), function ($join) {
+                    $join->on('etl_appointment_detail.appointment_id', '=', 'max_appointments.max_appointment_id')
+                        ->on('etl_appointment_detail.client_id', '=', 'max_appointments.client_id');
+                })
                 ->where('mfl_code', Auth::user()->facility_id)
-                ->groupBy('client_id')
+                ->groupBy('etl_appointment_detail.client_id')
                 ->remember($this->remember_period);
 
             $missed_age = ETLAppointment::select(
@@ -2572,9 +2678,13 @@ class FinalDashboardController extends Controller
             SUM(CASE WHEN consent = "Yes" AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_consent,
             SUM(CASE WHEN consent = "Yes" AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_consent '
             )
-                ->where('partner_id', Auth::user()->partner_id)
-                ->groupBy('client_id')
-                ->remember($this->remember_period);
+            ->join(DB::raw('(SELECT MAX(appointment_id) as max_appointment_id, client_id FROM etl_appointment_detail GROUP BY client_id) as max_appointments'), function ($join) {
+                $join->on('etl_appointment_detail.appointment_id', '=', 'max_appointments.max_appointment_id')
+                    ->on('etl_appointment_detail.client_id', '=', 'max_appointments.client_id');
+            })
+            ->where('partner_id', Auth::user()->partner_id)
+            ->groupBy('etl_appointment_detail.client_id')
+            ->remember($this->remember_period);
 
             $missed_age = ETLAppointment::select(
                 'age_group',
@@ -3073,9 +3183,13 @@ class FinalDashboardController extends Controller
             SUM(CASE WHEN consent = "Yes" AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_consent,
             SUM(CASE WHEN consent = "Yes" AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_consent '
             )
-                ->where('subcounty_id', Auth::user()->subcounty_id)
-                ->groupBy('client_id')
-                ->remember($this->remember_period);
+            ->join(DB::raw('(SELECT MAX(appointment_id) as max_appointment_id, client_id FROM etl_appointment_detail GROUP BY client_id) as max_appointments'), function ($join) {
+                $join->on('etl_appointment_detail.appointment_id', '=', 'max_appointments.max_appointment_id')
+                    ->on('etl_appointment_detail.client_id', '=', 'max_appointments.client_id');
+            })
+            ->where('subcounty_id', Auth::user()->subcounty_id)
+            ->groupBy('etl_appointment_detail.client_id')
+            ->remember($this->remember_period);
 
             $missed_age = ETLAppointment::select(
                 'age_group',
@@ -3577,11 +3691,14 @@ class FinalDashboardController extends Controller
             SUM(CASE WHEN consent = "Yes" AND appointment_status = "Missed" THEN 1 ELSE 0 END) AS missed_consent,
             SUM(CASE WHEN consent = "Yes" AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_consent,
             SUM(CASE WHEN consent = "Yes" AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_consent '
-
             )
-                ->where('county_id', Auth::user()->county_id)
-                ->groupBy('client_id')
-                ->remember($this->remember_period);
+            ->join(DB::raw('(SELECT MAX(appointment_id) as max_appointment_id, client_id FROM etl_appointment_detail GROUP BY client_id) as max_appointments'), function ($join) {
+                $join->on('etl_appointment_detail.appointment_id', '=', 'max_appointments.max_appointment_id')
+                    ->on('etl_appointment_detail.client_id', '=', 'max_appointments.client_id');
+            })
+            ->where('county_id', Auth::user()->county_id)
+            ->groupBy('etl_appointment_detail.client_id')
+            ->remember($this->remember_period);
 
             $missed_age = ETLAppointment::select(
                 'age_group',
