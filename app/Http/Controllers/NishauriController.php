@@ -101,7 +101,7 @@ class NishauriController extends Controller
     {
         $upn_search = $request->input('upn_search');
 
-        $otp_search = NishauriUser::select('msisdn', 'otp_number')
+        $otp_search = NishauriUser::select('msisdn', 'profile_otp_number')
             ->where('is_active', '=', '0')
             ->where('msisdn', 'like', '%' . $upn_search . '%')
             ->first();
