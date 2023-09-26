@@ -1,5 +1,5 @@
 # Getting started
- [![deploy to test instance](https://github.com/palladiumkenya/ushauri_dashboard/actions/workflows/cicd_process.yml/badge.svg)](https://github.com/palladiumkenya/ushauri_dashboard/actions/workflows/cicd_process.yml)
+[![To production!](https://github.com/palladiumkenya/ushauri_dashboard/actions/workflows/production_deployment_process.yml/badge.svg)](https://github.com/palladiumkenya/ushauri_dashboard/actions/workflows/production_deployment_process.yml)  [![test instance](https://github.com/palladiumkenya/ushauri_dashboard/actions/workflows/Test%20deployment.yml/badge.svg)](https://github.com/palladiumkenya/ushauri_dashboard/actions/workflows/Test%20deployment.yml)
 ## Installation
 <hr>
 Please check the official laravel installation guide for server requirements before you start. [Official Documentation](https://laravel.com/docs/8.x/installation)
