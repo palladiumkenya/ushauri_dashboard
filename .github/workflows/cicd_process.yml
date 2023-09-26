@@ -18,5 +18,9 @@ jobs:
         script: |
 
           cd /var/www/ushauri_dashboard
-          git pull origin 
-
+          git pull origin master
+          # optimizations
+          php artisan config:cache
+          php artisan event:cache
+          php artisan view:cache
+          php artisan route:cache
