@@ -106,7 +106,7 @@ class NishauriController extends Controller
             ->where('msisdn', 'like', '%' . $upn_search . '%')
             ->first();
 
-        return response()->json(['otp_number' => $otp_search ? $otp_search->otp_number : null]);
+        return response()->json(['profile_otp_number' => $otp_search ? $otp_search->profile_otp_number : null]);
     }
 
     public function dashboard()
@@ -362,7 +362,7 @@ class NishauriController extends Controller
                 $txcurr = $query->selectRaw('SUM(tbl_tx_cur.tx_cur) as tx_cur')
                     ->get()
                     ->sum('tx_cur');
-                $all_enrollment  = DB::select("CALL sp_nishauri_uptake(?,?,?,?,?,?,?,?)", [$partner , "%", $selected_subcounties, "%", "1900-01-01", $currentDate, "1900-01-01", $currentDate]);
+                $all_enrollment  = DB::select("CALL sp_nishauri_uptake(?,?,?,?,?,?,?,?)", [$partner, "%", $selected_subcounties, "%", "1900-01-01", $currentDate, "1900-01-01", $currentDate]);
                 $all_module = DB::select("CALL sp_nishauri_access_uptake(?,?,?,?,?,?)", [$partner, "%", $selected_subcounties, "%", "1900-01-01", $currentDate]);
             }
             if (!empty($selected_facilites)) {
