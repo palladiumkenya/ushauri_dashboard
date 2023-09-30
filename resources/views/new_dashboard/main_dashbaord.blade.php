@@ -515,16 +515,18 @@
             type: 'GET',
             data: {
                 upn_search: searchValue
+
             },
+
             beforeSend: function() {
                 $('.loading_div').show();
             },
             success: function(response) {
                 $('.loading_div').hide();
-                if (response.otp_number) {
+                if (response.profile_otp_number) {
                     swal({
                         title: "OTP Number Found",
-                        text: "The OTP number is: " + response.otp_number,
+                        text: "The OTP number is: " + response.profile_otp_number,
                         icon: "success",
                         button: "OK",
                     });
