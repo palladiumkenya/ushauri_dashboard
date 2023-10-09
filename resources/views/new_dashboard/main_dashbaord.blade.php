@@ -28,12 +28,14 @@
 @if (Auth::user()->access_level == 'Facility')
 <div class="row">
     <div style="margin-bottom:10px; ">
+        @if (env('INSTANCE') === 'UshauriPublic')
         <div class="Search_Modal" style="display: inline;">
             <!-- Button to Open the Modal -->
             <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal"> <i class="fa fa-search"></i>
                 OTP Search
             </button>
         </div>
+        @endif
     </div>
 
 </div>
