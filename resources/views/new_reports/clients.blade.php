@@ -19,7 +19,11 @@
                     <thead>
                         <tr>
                             <th>No.</th>
+                            @if (env('INSTANCE') === 'UshauriDOD')
+                            <th>KDOD Number</th>
+                            @else
                             <th>CCC Number</th>
+                            @endif
                             <th>UPI Number</th>
                             <th>Client Name</th>
                             <th>Gender</th>
@@ -30,7 +34,9 @@
                             <th>Facility Name</th>
                             <th>MFL Code</th>
                             <th>Partner Name</th>
+                            @if (env('INSTANCE') === 'UshauriPublic')
                             <th>County</th>
+                            @endif
                             <th>Action</th>
 
                         </tr>

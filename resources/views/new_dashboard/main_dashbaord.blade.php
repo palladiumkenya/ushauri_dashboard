@@ -112,7 +112,7 @@
                 <div class="form-group">
 
                     <select class="form-control select2" id="partners" name="partner">
-                        <option value="">Partner</option>
+                        <option value="">Service:</option>
                         @foreach ($all_partners as $partner => $value)
                         <option value="{{ $partner }}"> {{ $value }}</option>
                         @endforeach
@@ -560,13 +560,15 @@
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
         }
     });
+
     var $j = jQuery.noConflict();
-    $.ajax({
-        type: 'GET',
-        url: "{{ route('partner_summary') }}",
-        success: function(data) {
-            console.log(data);
-            if (authent == 'Partner') {
+    if (authent == 'Partner') {
+        $.ajax({
+            type: 'GET',
+            url: "{{ route('partner_summary') }}",
+            success: function(data) {
+                console.log(data);
+
                 var list = data.result;
 
                 $.each(list, function(index, item) {
@@ -597,9 +599,10 @@
                         'pdfHtml5'
                     ]
                 });
+
             }
-        }
-    });
+        });
+    }
     $('#searchForm').submit(function(e) {
         e.preventDefault();
         var searchValue = $('#upn_search').val();

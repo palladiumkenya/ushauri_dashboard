@@ -22,9 +22,13 @@
                                                 <th>No.</th>
                                                 <th>MFL CODE</th>
                                                 <th>FACILITY</th>
+                                                @if (env('INSTANCE') === 'UshauriDOD')
+                                                <th>SERVICE</th>
+                                                @else
                                                 <th>PARTNER</th>
                                                 <th>COUNTY</th>
                                                 <th>SUB COUNTY</th>
+                                                @endif
 
                                             </tr>
                                         </thead>
@@ -36,9 +40,10 @@
                                                         <td>  {{$active_facility->code}}</td>
                                                         <td>  {{$active_facility->facility}}</td>
                                                         <td>  {{$active_facility->partner}}</td>
+                                                        @if (env('INSTANCE') === 'UshauriPublic')
                                                         <td>  {{$active_facility->county}}</td>
                                                         <td>  {{$active_facility->subcounty}}</td>
-
+                                                        @endif
 
                                                     </tr>
                                                 @endforeach
@@ -69,8 +74,8 @@
             targets: [1],
             orderData: [1, 0]
         }, {
-            targets: [4],
-            orderData: [4, 0]
+            targets: [3],
+            orderData: [3, 0]
         }],
         "paging": true,
         "responsive":true,

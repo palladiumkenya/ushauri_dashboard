@@ -1642,6 +1642,8 @@
 
 
 <script type="text/javascript">
+    var instance = "{{ env('INSTANCE') }}";
+
     function setToDate() {
         var fromDateInput = document.getElementById("from");
         var toDateInput = document.getElementById("to");
@@ -1655,11 +1657,19 @@
     }
 
     $("select").select2();
-    $("#partners").select2({
-        width: 'element',
-        placeholder: "Select Partner",
-        allowClear: true
-    });
+    if (instance === 'UshauriDOD') {
+        $("#partners").select2({
+            width: 'element',
+            placeholder: "Select Service",
+            allowClear: true
+        });
+    } else {
+        $("#partners").select2({
+            width: 'element',
+            placeholder: "Select Partner",
+            allowClear: true
+        });
+    }
     $("#counties").select2({
         placeholder: "Select County",
         allowClear: true

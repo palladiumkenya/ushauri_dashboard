@@ -35,7 +35,7 @@
                 <div class="form-group">
 
                     <select class="form-control select2" id="partners" name="partner">
-                        <option value="">Partner</option>
+                        <option value="">Service</option>
                         @foreach ($all_partners as $partner => $value)
                         <option value="{{ $partner }}"> {{ $value }}</option>
                         @endforeach

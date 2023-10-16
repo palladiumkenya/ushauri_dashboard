@@ -403,6 +403,13 @@
         @endif
         <ul class="childNav" data-parent="admin">
             @if (Auth::user()->access_level == 'Admin')
+            @if (env('INSTANCE') === 'UshauriDOD')
+            <li class="nav-item">
+                <a class="" href="{{route('admin-partners')}}">
+                    <span class="item-name">Service</span>
+                </a>
+            </li>
+            @else
             <li class="nav-item">
                 <a class="" href="{{route('admin-donors')}}">
                     <span class="item-name">Donor</span>
@@ -413,6 +420,7 @@
                     <span class="item-name">Partner</span>
                 </a>
             </li>
+            @endif
             <li class="nav-item">
                 <a class="" href="{{route('admin-groups')}}">
                     <span class="item-name">Groups</span>
