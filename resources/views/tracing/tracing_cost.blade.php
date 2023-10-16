@@ -25,7 +25,11 @@
                                         <thead>
                                             <tr>
                                                 <th>No.</th>
+                                                @if (env('INSTANCE') === 'UshauriDOD')
+                                                <th>KDOD Number</th>
+                                                @else
                                                 <th>Clinic Number</th>
+                                                @endif
                                                 <th>Appointment Status</th>
                                                 <th>Tracer Name</th>
                                                 <th>Tracing Cost</th>

@@ -31,7 +31,11 @@
                         <thead>
                             <tr>
                                 <th>No</th>
+                                @if (env('INSTANCE') === 'UshauriDOD')
+                                <th>KDOD Number</th>
+                                @else
                                 <th>CCC Number</th>
+                                @endif
                                 <th>First Name</th>
                                 <th>Middle Name</th>
                                 <th>Last Name</th>

@@ -25,9 +25,14 @@
                                         <thead>
                                             <tr>
                                                 <th>No.</th>
+                                                @if (env('INSTANCE') === 'UshauriDOD')
+                                                <th>KDOD Number</th>
+                                                <th>Service No</th>
+                                                @else
                                                 <th>Clinic Number</th>
-                                                <th>UPI Number</th>
                                                 <th>Serial No</th>
+                                                @endif
+                                                <th>UPI Number</th>
                                                 <th>First Name</th>
                                                 <th>Middle Name</th>
                                                 <th>Last Name</th>
@@ -43,8 +48,8 @@
                                                     <tr>
                                                         <td> {{ $loop->iteration }}</td>
                                                         <td>  {{$result->clinic_number}}</td>
-                                                        <td>  {{$result->upi_no}}</td>
                                                         <td>  {{$result->file_no}}</td>
+                                                        <td>  {{$result->upi_no}}</td>
                                                         <td>  {{$result->f_name}}</td>
                                                         <td>  {{$result->m_name}}</td>
                                                         <td>  {{$result->l_name}}</td>

@@ -31,7 +31,11 @@
                             <th>Middle Name</th>
                             <th>Last Name</th>
                             <th>Gender</th>
+                            @if (env('INSTANCE') === 'UshauriDOD')
+                            <th>Mother KDOD Number</th>
+                            @else
                             <th>Mother CCC Number</th>
+                            @endif
                             <th>Birth Date</th>
                             <th>Outcome</th>
 

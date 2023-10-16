@@ -47,7 +47,11 @@
                                         <div class="modal-body">
 
                                             <div class="search_field">
+                                                @if (env('INSTANCE') === 'UshauriDOD')
+                                                <input type="text" class="upn_search form-control" id="upn_search" name="upn_search" placeholder="Please Enter KDOD No : " />
+                                                @else
                                                 <input type="text" class="upn_search form-control" id="upn_search" name="upn_search" placeholder="Please Enter UPN No : " />
+                                                @endif
                                             </div>
 
                                             <div class="loading_div" style="display: none;">
@@ -95,7 +99,11 @@
                                                                 <tr>
                                                                     <th>No</th>
                                                                     <th>Full Name</th>
-                                                                    <th>UPI Number</th>
+                                                                    @if (env('INSTANCE') === 'UshauriDOD')
+                                                                    <th>KDOD Number</th>
+                                                                    @else
+                                                                    <th>UPN Number</th>
+                                                                    @endif
                                                                     <th>Mobile</th>
                                                                     <th>Marital Status</th>
                                                                     <th>Language</th>
@@ -207,7 +215,11 @@
                                                             <thead>
                                                                 <tr>
                                                                     <th>No</th>
+                                                                    @if (env('INSTANCE') === 'UshauriDOD')
+                                                                    <th>KDOD Number</th>
+                                                                    @else
                                                                     <th>Clinic Number</th>
+                                                                    @endif
                                                                     <th>Phone Number</th>
                                                                     <th>Message Type</th>
                                                                     <th>Message</th>
@@ -276,8 +288,13 @@
                                                             <thead>
                                                                 <tr>
                                                                     <th>No</th>
+                                                                    @if (env('INSTANCE') === 'UshauriDOD')
+                                                                    <th>KDOD Number</th>
+                                                                    <th>Service No</th>
+                                                                    @else
                                                                     <th>Clinic Number</th>
                                                                     <th>File No</th>
+                                                                    @endif
                                                                     <th>Appointment Date</th>
                                                                     <th>Appointment Type</th>
                                                                     <th>Tracer Name</th>

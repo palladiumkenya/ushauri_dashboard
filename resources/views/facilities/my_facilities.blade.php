@@ -39,9 +39,11 @@
                                 <th>Facility Name</th>
                                 <th>MFL Code</th>
                                 <th>Facility Type</th>
+                                @if (env('INSTANCE') === 'UshauriPublic')
                                 <th>County</th>
                                 <th>Sub County</th>
                                 <th>Consituency</th>
+                                @endif
                                 <th>Owner</th>
                                 <th>Approve</th>
                                 <th>Action</th>
@@ -56,9 +58,11 @@
                                 <td> {{$result->facility_name}}</td>
                                 <td> {{$result->code}}</td>
                                 <td> {{$result->facility_type}}</td>
+                                @if (env('INSTANCE') === 'UshauriPublic')
                                 <td> {{$result->county_name}}</td>
                                 <td> {{$result->sub_county_name}}</td>
                                 <td> {{$result->consituency_name}}</td>
+                                @endif
                                 <td> {{$result->owner}}</td>
                                 @if($result->is_approved == 'Yes')
                                 <td>{{$result->is_approved}}</td>
