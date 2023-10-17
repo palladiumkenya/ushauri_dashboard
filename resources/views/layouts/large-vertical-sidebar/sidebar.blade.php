@@ -426,11 +426,13 @@
                     <span class="item-name">Groups</span>
                 </a>
             </li>
+            @if (env('INSTANCE') === 'UshauriPublic')
             <li class="nav-item">
                 <a class="" href="{{route('admin_facilities')}}">
                     <span class="item-name">Facilities</span>
                 </a>
             </li>
+            @endif
             <li class="nav-item">
                 <a class="" href={{route('admin-users')}}>
                     <span class="item-name">Users</span>
