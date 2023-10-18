@@ -25,8 +25,13 @@
                                         <thead>
                                             <tr>
                                                 <th>No.</th>
+                                                @if (env('INSTANCE') === 'UshauriDOD')
+                                                <th>KDOD Number</th>
+                                                <th>Service No</th>
+                                                @else
                                                 <th>Clinic Number</th>
                                                 <th>Serial No</th>
+                                                @endif
                                                 <th>First Name</th>
                                                 <th>Middle Name</th>
                                                 <th>Last Name</th>

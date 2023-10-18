@@ -25,7 +25,11 @@
                                         <thead>
                                             <tr>
                                                 <th>No.</th>
+                                                @if (env('INSTANCE') === 'UshauriDOD')
+                                                <th>KDOD No</th>
+                                                @else
                                                 <th>UPN</th>
+                                                @endif
                                                 <th>Appointment Date</th>
                                                 <th>Appointment Type</th>
                                                 <th>Appointment Status</th>

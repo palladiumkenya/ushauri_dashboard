@@ -28,12 +28,14 @@
 @if (Auth::user()->access_level == 'Facility')
 <div class="row">
     <div style="margin-bottom:10px; ">
+        @if (env('INSTANCE') === 'UshauriPublic')
         <div class="Search_Modal" style="display: inline;">
             <!-- Button to Open the Modal -->
             <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal"> <i class="fa fa-search"></i>
                 OTP Search
             </button>
         </div>
+        @endif
     </div>
 
 </div>
@@ -99,7 +101,96 @@
 @endif
 @if (Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Partner' || Auth::user()->access_level == 'Donor' || Auth::user()->access_level == 'County' || Auth::user()->access_level == 'Sub County')
 
+@if (env('INSTANCE') === 'UshauriDOD')
 
+<div class=" col">
+
+    <form role="form" method="get" action="#" id="dataFilter">
+        {{ csrf_field() }}
+        <div class="row">
+            <div class="col-lg-4">
+                <div class="form-group">
+
+                    <select class="form-control select2" id="partners" name="partner">
+                        <option value="">Service:</option>
+                        @foreach ($all_partners as $partner => $value)
+                        <option value="{{ $partner }}"> {{ $value }}</option>
+                        @endforeach
+                        <option></option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="form-group">
+                    <span class="filter_facility_wait" style="display: none;">.</span>
+
+                    <select class="form-control filter_facility input-rounded input-sm select2" id="facilities" name="facility">
+                        <option value="">Facility : </option>
+                        <option value=""></option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="form-group">
+                    <span class="filter_facility_wait" style="display: none;"></span>
+
+                    <select class="form-control filter_facility input-rounded input-sm select2" id="module" name="module">
+                        <option value="">Module : </option>
+                        <option value="DSD">DSD</option>
+                        <option value="PMTCT">PMTCT</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class='col'>
+                <div class="form-group">
+                    <div class="input-group">
+                        <div class="col-md-2">
+                            <label for="firstName1">From</label>
+                        </div>
+
+                        <div class="col-md-10">
+
+                            <input type="date" id="from" class="form-control" placeholder="From" name="from" max="{{date("Y-m-d")}}">
+                        </div>
+                        <div class="input-group-append">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="form-group">
+                    <div class="input-group">
+                        <div class="col-md-2">
+                            <label for="firstName1">To</label>
+                        </div>
+                        <div class="col-md-10">
+
+                            <input type="date" id="to" class="form-control" placeholder="To" name="to" max="{{date("Y-m-d")}}">
+                        </div>
+                        <div class="input-group-append">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="form-group">
+                    <div class="col-md-4">
+
+                    </div>
+                    <span class="filter_facility_wait" style="display: none;"></span>
+                    <button class="btn btn-default filter btn-round  btn-small btn-primary  " type="submit" name="filter" id="filter"> <i class="fa fa-filter"></i>
+                        Filter</button>
+                </div>
+            </div>
+        </div>
+
+    </form>
+
+</div>
+@else
 <div class=" col">
 
     <form role="form" method="get" action="#" id="dataFilter">
@@ -206,6 +297,9 @@
     </form>
 
 </div>
+@endif
+
+
 @endif
 @if (Auth::user()->access_level == 'Facility')
 
@@ -466,13 +560,15 @@
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
         }
     });
+
     var $j = jQuery.noConflict();
-    $.ajax({
-        type: 'GET',
-        url: "{{ route('partner_summary') }}",
-        success: function(data) {
-            console.log(data);
-            if (authent == 'Partner') {
+    if (authent == 'Partner') {
+        $.ajax({
+            type: 'GET',
+            url: "{{ route('partner_summary') }}",
+            success: function(data) {
+                console.log(data);
+
                 var list = data.result;
 
                 $.each(list, function(index, item) {
@@ -503,9 +599,10 @@
                         'pdfHtml5'
                     ]
                 });
+
             }
-        }
-    });
+        });
+    }
     $('#searchForm').submit(function(e) {
         e.preventDefault();
         var searchValue = $('#upn_search').val();
@@ -654,6 +751,31 @@
 
                         $('select[name="facility"]').empty();
                         $('select[name="facility"]').append('<option value="">Please select Facility</option>');
+                        $.each(data, function(key, value) {
+                            $('select[name="facility"]').append('<option value="' + key + '">' + value + '</option>');
+                        });
+
+
+                    }
+                });
+            } else {
+                $('select[name="facility"]').empty();
+            }
+        });
+    });
+    $(document).ready(function() {
+        $('select[name="partner"]').on('change', function() {
+            var partnerID = $(this).val();
+            if (partnerID) {
+                $.ajax({
+                    url: '/get_partner_facilities/' + partnerID,
+                    type: "GET",
+                    dataType: "json",
+                    success: function(data) {
+
+
+                        $('select[name="facility"]').empty();
+                        $('select[name="facility"]').append('<option value="">Please Select Facility</option>');
                         $.each(data, function(key, value) {
                             $('select[name="facility"]').append('<option value="' + key + '">' + value + '</option>');
                         });

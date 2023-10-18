@@ -132,7 +132,11 @@
                     <table id="multicolumn_ordering_table" class="display table table-striped table-bordered" style="width:100%">
                         <thead>
                             <tr>
+                                @if (env('INSTANCE') === 'UshauriDOD')
+                                <th>KDOD Number</th>
+                                @else
                                 <th>Clinic Number</th>
+                                @endif
                                 <th>Age</th>
                                 <th>Gender</th>
                                 <th>MFL Code</th>

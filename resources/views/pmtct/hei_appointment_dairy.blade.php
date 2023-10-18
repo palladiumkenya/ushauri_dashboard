@@ -34,7 +34,11 @@
                                 <th>HEI Full Name</th>
                                 <th>Gender</th>
                                 <th>HEI DOB</th>
-                                <th>Mother CC Number</th>
+                                @if (env('INSTANCE') === 'UshauriDOD')
+                                <th>Mother KDOD Number</th>
+                                @else
+                                <th>Mother CCC Number</th>
+                                @endif
                                 <th>CareGiver Name</th>
                                 <th>Appointment Date</th>
                                 <th>Appoitment Type</th>

@@ -28,8 +28,13 @@
                                         <thead>
                                             <tr>
                                                 <th>No.</th>
+                                                @if (env('INSTANCE') === 'UshauriDOD')
+                                                <th>KDOD No</th>
+                                                <th>Service No</th>
+                                                @else
                                                 <th>UPN</th>
                                                 <th>Serial No</th>
+                                                @endif
                                                 <th>Client Name</th>
                                                 <th>Phone No</th>
                                                 <th>DOB</th>
@@ -78,8 +83,13 @@
                                         <thead>
                                             <tr>
                                                 <th>No.</th>
+                                                @if (env('INSTANCE') === 'UshauriDOD')
+                                                <th>KDOD No</th>
+                                                <th>Service No</th>
+                                                @else
                                                 <th>UPN</th>
                                                 <th>Serial No</th>
+                                                @endif
                                                 <th>Client Name</th>
                                                 <th>Phone No</th>
                                                 <th>DOB</th>

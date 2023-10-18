@@ -236,4 +236,19 @@ return [
 
     ],
 
+    'config' => [
+        'app' => env('INSTANCE') . '/app.php',
+        'auth' => env('INSTANCE') . '/auth.php',
+        'broadcasting' => env('INSTANCE') . '/broadcasting.php',
+        'cache' => env('INSTANCE') . '/cache.php',
+        'database' => env('INSTANCE') . '/database.php',
+        'filesystems' => env('INSTANCE') . '/filesystems.php',
+        'mail' => env('INSTANCE') . '/mail.php',
+        'queue' => env('INSTANCE') . '/queue.php',
+        'services' => env('INSTANCE') . '/services.php',
+        'session' => env('INSTANCE') . '/session.php',
+        'view' => env('INSTANCE') . '/view.php',
+    ],
+
+
 ];

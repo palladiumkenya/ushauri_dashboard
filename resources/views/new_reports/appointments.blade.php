@@ -19,7 +19,11 @@
                     <thead>
                         <tr>
                             <th>No.</th>
+                            @if (env('INSTANCE') === 'UshauriDOD')
+                            <th>KDOD Number</th>
+                            @else
                             <th>CCC Number</th>
+                            @endif
                             <th>Client Name</th>
                             <th>Gender</th>
                             <th>DOB</th>

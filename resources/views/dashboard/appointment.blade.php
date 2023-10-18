@@ -268,6 +268,99 @@
     </ul>
 </div>
 @if (Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Donor')
+@if (env('INSTANCE') === 'UshauriDOD')
+<div class="col">
+    <form role="form" method="get" action="#" id="dataFilter">
+        {{ csrf_field() }}
+        <div class="row">
+            <div class="col-lg-4">
+                <div class="form-group">
+
+                    <select class="form-control select2" id="partners" name="partner">
+                        <option value="">All</option>
+                        @if (count($partners) > 0)
+                        @foreach($partners as $partner)
+                        <option value="{{$partner->id }}">{{ ucwords($partner->name) }}</option>
+                        @endforeach
+                        @endif
+                        <option></option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="form-group">
+                    <select class="form-control select2" id="facilities" name="facility">
+                        <option value=""></option>
+                        @if (count($facilities) > 0)
+                        @foreach($facilities as $facility)
+                        <option value="{{$facility->code }}">{{ ucwords($facility->name) }}</option>
+                        @endforeach
+                        @endif
+                    </select>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="form-group">
+                    <select class="form-control input-rounded input-sm select2" id="clinics" name="clinic">
+                        <option value=""></option>
+                        @if (count($clinics) > 0)
+                        @foreach($clinics as $clinic)
+                        <option value="{{$clinic->name }}">{{ ucwords($clinic->name) }}</option>
+                        @endforeach
+                        @endif
+                    </select>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="form-group">
+                    <select class="form-control input-rounded input-sm select2" id="appointments" name="appointment">
+                        <option value=""></option>
+                        <option value="Missed">Missed</option>
+                        <option value="Defaulted">Defaulted</option>
+                        <option value="IIT">IIT</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class='col-lg-2'>
+                <div class="form-group">
+                    <div class="input-group">
+                        <div class="col-md-12">
+                            <input type="text" id="from" class="form-control" placeholder="From" name="from" max="{{date("Y-m-d")}}" onfocus="(this.type='date')" onkeydown="return false" onchange="setToDate()" />
+                        </div>
+                        <div class="input-group-append">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-2">
+                <div class="form-group">
+                    <div class="input-group">
+                        <div class="col-md-12">
+
+                            <input type="text" id="to" class="form-control" placeholder="To" name="to" max="{{date("Y-m-d")}}" onfocus="(this.type='date')" onkeydown="return false" />
+                        </div>
+                        <div class="input-group-append">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-2">
+                <div class="form-group">
+                    <span class="filter_facility_wait" style="display: none;"></span>
+                    <button class="btn btn-default filter btn-round  btn-small btn-primary  " type="submit" name="filter" id="filter"> <i class="fa fa-filter"></i>
+                        Filter</button>
+                </div>
+            </div>
+        </div>
+
+    </form>
+
+</div>
+@else
 <div class="col">
     <form role="form" method="get" action="#" id="dataFilter">
         {{ csrf_field() }}
@@ -392,6 +485,7 @@
     </form>
 
 </div>
+@endif
 @endif
 @if (Auth::user()->access_level == 'County')
 <div class="col">
@@ -520,6 +614,86 @@
 </div>
 @endif
 @if (Auth::user()->access_level == 'Partner')
+@if (env('INSTANCE') === 'UshauriDOD')
+<div class="col">
+    <form role="form" method="get" action="#" id="dataFilter">
+        {{ csrf_field() }}
+        <div class="row">
+            <div class="col-lg-4">
+                <div class="form-group">
+                    <select class="form-control select2" id="facilities" name="facility">
+                        <option value=""></option>
+                        @if (count($facilities) > 0)
+                        @foreach($facilities as $facility)
+                        <option value="">All</option>
+                        <option value="{{$facility->code }}">{{ ucwords($facility->name) }}</option>
+                        @endforeach
+                        @endif
+                    </select>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="form-group">
+                    <select class="form-control input-rounded input-sm select2" id="clinics" name="clinic">
+                        <option value=""></option>
+                        @if (count($clinics) > 0)
+                        @foreach($clinics as $clinic)
+                        <option value="">All</option>
+                        <option value="{{$clinic->name }}">{{ ucwords($clinic->name) }}</option>
+                        @endforeach
+                        @endif
+                    </select>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="form-group">
+                    <select class="form-control input-rounded input-sm select2" id="appointments" name="appointment">
+                        <option value="">All</option>
+                        <option value="Missed">Missed</option>
+                        <option value="Defaulted">Defaulted</option>
+                        <option value="IIT">IIT</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class='col-lg-2'>
+                <div class="form-group">
+                    <div class="input-group">
+                        <div class="col-md-12">
+                            <input type="text" id="from" class="form-control" placeholder="From" name="from" max="{{date("Y-m-d")}}" onfocus="(this.type='date')" onkeydown="return false" onchange="setToDate()" />
+                        </div>
+                        <div class="input-group-append">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-2">
+                <div class="form-group">
+                    <div class="input-group">
+                        <div class="col-md-12">
+
+                            <input type="text" id="to" class="form-control" placeholder="To" name="to" max="{{date("Y-m-d")}}" onfocus="(this.type='date')" onkeydown="return false" />
+                        </div>
+                        <div class="input-group-append">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-2">
+                <div class="form-group">
+                    <span class="filter_facility_wait" style="display: none;"></span>
+                    <button class="btn btn-default filter btn-round  btn-small btn-primary  " type="submit" name="filter" id="filter"> <i class="fa fa-filter"></i>
+                        Filter</button>
+                </div>
+            </div>
+        </div>
+
+    </form>
+
+</div>
+@else
 <div class="col">
     <form role="form" method="get" action="#" id="dataFilter">
         {{ csrf_field() }}
@@ -631,6 +805,8 @@
     </form>
 
 </div>
+@endif
+
 @endif
 @if (Auth::user()->access_level == 'Sub County')
 <div class="col">
@@ -1466,6 +1642,8 @@
 
 
 <script type="text/javascript">
+    var instance = "{{ env('INSTANCE') }}";
+
     function setToDate() {
         var fromDateInput = document.getElementById("from");
         var toDateInput = document.getElementById("to");
@@ -1479,11 +1657,19 @@
     }
 
     $("select").select2();
-    $("#partners").select2({
-        width: 'element',
-        placeholder: "Select Partner",
-        allowClear: true
-    });
+    if (instance === 'UshauriDOD') {
+        $("#partners").select2({
+            width: 'element',
+            placeholder: "Select Service",
+            allowClear: true
+        });
+    } else {
+        $("#partners").select2({
+            width: 'element',
+            placeholder: "Select Partner",
+            allowClear: true
+        });
+    }
     $("#counties").select2({
         placeholder: "Select County",
         allowClear: true

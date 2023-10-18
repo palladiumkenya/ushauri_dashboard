@@ -15,7 +15,7 @@
 <div class="separator-breadcrumb border-top"></div>
 <div class="col-md-12">
 
-
+    @if (env('INSTANCE') === 'UshauriPublic')
     <div class="row">
         <div style="margin-bottom:10px; ">
             <a type="button" href="{{route('new_client')}}" class="btn btn-primary btn-md pull-right">Add Client</a>
@@ -24,6 +24,7 @@
         </div>
 
     </div>
+    @endif
 
     <div class=" row">
             <div class="col-lg-6 col-md-12">
@@ -37,8 +38,13 @@
                                 <thead>
                                     <tr>
                                         <th>No.</th>
+                                        @if (env('INSTANCE') === 'UshauriDOD')
+                                        <th>KDOD No</th>
+                                        <th>Service No</th>
+                                        @else
                                         <th>UPN</th>
                                         <th>Serial No</th>
+                                        @endif
                                         <th>Client Name</th>
                                         <th>Phone No</th>
                                         <th>Appointment Date</th>
@@ -78,8 +84,13 @@
                                 <thead>
                                     <tr>
                                         <th>No.</th>
+                                        @if (env('INSTANCE') === 'UshauriDOD')
+                                        <th>KDOD No</th>
+                                        <th>Service No</th>
+                                        @else
                                         <th>UPN</th>
                                         <th>Serial No</th>
+                                        @endif
                                         <th>Client Name</th>
                                         <th>Phone No</th>
                                         <th>Appointment Date</th>
@@ -123,8 +134,13 @@
                                 <thead>
                                     <tr>
                                         <th>No.</th>
+                                        @if (env('INSTANCE') === 'UshauriDOD')
+                                        <th>KDOD No</th>
+                                        <th>Service No</th>
+                                        @else
                                         <th>UPN</th>
                                         <th>Serial No</th>
+                                        @endif
                                         <th>Client Name</th>
                                         <th>Phone No</th>
                                         <th>Appointment Date</th>
@@ -165,8 +181,13 @@
                                 <thead>
                                     <tr>
                                         <th>No.</th>
+                                        @if (env('INSTANCE') === 'UshauriDOD')
+                                        <th>KDOD No</th>
+                                        <th>Service No</th>
+                                        @else
                                         <th>UPN</th>
                                         <th>Serial No</th>
+                                        @endif
                                         <th>Client Name</th>
                                         <th>Phone No</th>
                                         <th>Appointment Date</th>
