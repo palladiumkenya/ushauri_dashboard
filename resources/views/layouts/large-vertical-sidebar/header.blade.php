@@ -65,13 +65,13 @@
         @endif
         @endif
 
-        <div>
+<!--         <div>
             @if (env('INSTANCE') === 'UshauriPublic')
             <img class=" pl-3" src="{{ asset('assets/images/NASCOP_Logo.png') }}" alt="ushauri">
-            @endif
-            @if (env('INSTANCE') === 'UshauriDOD')
+            @endif -->
+<!-- /            @if (env('INSTANCE') === 'UshauriDOD') -->
             <img class=" pl-3" src="{{ asset('assets/images/DOD_Logo.png') }}" alt="ushauri" height="50">
-            @endif
+<!--             @endif -->
 
         </div>
 
