@@ -409,7 +409,8 @@
                     <span class="item-name">Service</span>
                 </a>
             </li>
-            @else
+             @endif
+            @if (env('INSTANCE') === 'UshauriPublic')
             <li class="nav-item">
                 <a class="" href="{{route('admin-donors')}}">
                     <span class="item-name">Donor</span>
