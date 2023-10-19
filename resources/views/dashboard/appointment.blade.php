@@ -1643,6 +1643,7 @@
 
 <script type="text/javascript">
     var instance = "{{ env('INSTANCE') }}";
+    console.log("The value of INSTANCE is: ", instance);
 
     function setToDate() {
         var fromDateInput = document.getElementById("from");
