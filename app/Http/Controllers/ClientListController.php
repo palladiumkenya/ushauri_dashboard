@@ -22,6 +22,7 @@ use Exception;
 use Session;
 use RealRashid\SweetAlert\Facades\Alert;
 
+
 class ClientListController extends Controller
 {
     public function get_client_list()
@@ -642,28 +643,28 @@ class ClientListController extends Controller
 
 
         if (Auth::user()->access_level == 'Facility') {
-            $client_extract = ClientReport::join('tbl_client', 'client_report.id', '=', 'tbl_client.id')
-                ->select(
-                    'tbl_client.enrollment_date',
-                    'tbl_client.art_date',
-                    'client_report.clinic_number',
-                    'client_report.gender',
-                    'client_report.group_name',
-                    'client_report.marital',
-                    'client_report.created_at',
-                    'client_report.month_year',
-                    'client_report.LANGUAGE',
-                    'client_report.consented',
-                    'client_report.txt_time',
-                    'client_report.partner_name',
-                    'client_report.county',
-                    'client_report.sub_county',
-                    'client_report.mfl_code',
-                    'client_report.facility_name',
-                    'client_report.consented',
-                    'tbl_client.wellness_enable',
-                    'tbl_client.upi_no'
-                )
+            $client_extract = ClientReport::select(
+                'tbl_client.enrollment_date',
+                'tbl_client.art_date',
+                'client_report.clinic_number',
+                'client_report.gender',
+                'client_report.group_name',
+                'client_report.marital',
+                'client_report.created_at',
+                'client_report.month_year',
+                'client_report.LANGUAGE',
+                'client_report.consented',
+                'client_report.txt_time',
+                'client_report.partner_name',
+                'client_report.county',
+                'client_report.sub_county',
+                'client_report.mfl_code',
+                'client_report.facility_name',
+                'client_report.consented',
+                'tbl_client.wellness_enable',
+                'tbl_client.upi_no'
+            )
+                ->join('tbl_client', 'client_report.id', '=', 'tbl_client.id')
                 ->where('client_report.mfl_code', Auth::user()->facility_id)
                 ->get();
         }

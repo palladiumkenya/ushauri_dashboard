@@ -207,7 +207,7 @@ class NishauriController extends Controller
                 ->groupBy('tbl_tx_cur.mfl_code')
                 ->get();
             $txcurr = $txcurr->sum('tx_cur');
-            $all_enrollment  = DB::select("CALL sp_nishauri_uptake(?,?,?,?,?,?,?,?)", ["%", "%", "%", "%", "1900-01-01", $currentDate, "1900-01-01", $currentDate]);
+            $all_enrollment  = DB::select("CALL sp_nishauri_national_uptake(?,?,?,?,?,?,?,?)", ["%", "%", "%", "%", "1900-01-01", $currentDate, "1900-01-01", $currentDate]);
             $all_module = DB::select("CALL sp_nishauri_access_uptake(?,?,?,?,?,?)", ["%", "%", "%", "%", "1900-01-01", $currentDate]);
 
             $data['txcurr'] =  $txcurr;
@@ -251,7 +251,7 @@ class NishauriController extends Controller
                 ->groupBy('tbl_tx_cur.mfl_code')
                 ->get();
             $txcurr = $txcurr->sum('tx_cur');
-            $all_enrollment  = DB::select("CALL sp_nishauri_uptake(?,?,?,?,?,?,?,?)", [$partner, "%", "%", "%", "1900-01-01", $currentDate, "1900-01-01", $currentDate]);
+            $all_enrollment  = DB::select("CALL sp_nishauri_national_uptake(?,?,?,?,?,?,?,?)", [$partner, "%", "%", "%", "1900-01-01", $currentDate, "1900-01-01", $currentDate]);
             $all_module = DB::select("CALL sp_nishauri_access_uptake(?,?,?,?,?,?)", [$partner, "%", "%", "%", "1900-01-01", $currentDate]);
 
             $data['txcurr'] =  $txcurr;
@@ -273,7 +273,7 @@ class NishauriController extends Controller
                 ->groupBy('tbl_tx_cur.mfl_code')
                 ->get();
             $txcurr = $txcurr->sum('tx_cur');
-            $all_enrollment  = DB::select("CALL sp_nishauri_uptake(?,?,?,?,?,?,?,?)", ["%", $county, "%", "%", "1900-01-01", $currentDate, "1900-01-01", $currentDate]);
+            $all_enrollment  = DB::select("CALL sp_nishauri_national_uptake(?,?,?,?,?,?,?,?)", ["%", $county, "%", "%", "1900-01-01", $currentDate, "1900-01-01", $currentDate]);
             $all_module = DB::select("CALL sp_nishauri_access_uptake(?,?,?,?,?,?)", ["%", $county, "%", "%", "1900-01-01", $currentDate]);
 
             $data['txcurr'] =  $txcurr;
@@ -294,7 +294,7 @@ class NishauriController extends Controller
                 ->groupBy('tbl_tx_cur.mfl_code')
                 ->get();
             $txcurr = $txcurr->sum('tx_cur');
-            $all_enrollment  = DB::select("CALL sp_nishauri_uptake(?,?,?,?,?,?,?,?)", ["%", "%", $subcounty, "%", "1900-01-01", $currentDate, "1900-01-01", $currentDate]);
+            $all_enrollment  = DB::select("CALL sp_nishauri_national_uptake(?,?,?,?,?,?,?,?)", ["%", "%", $subcounty, "%", "1900-01-01", $currentDate, "1900-01-01", $currentDate]);
             $all_module = DB::select("CALL sp_nishauri_access_uptake(?,?,?,?,?,?)", ["%", "%", $subcounty, "%", "1900-01-01", $currentDate]);
 
             $data['txcurr'] =  $txcurr;
