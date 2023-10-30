@@ -43,11 +43,11 @@ class NewReportController extends Controller
                 $clients = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
                     ->join('tbl_master_facility', 'tbl_client.mfl_code', '=', 'tbl_master_facility.code')
                     ->join('tbl_partner', 'tbl_partner_facility.partner_id', '=', 'tbl_partner.id')
-                    ->join('tbl_gender', 'tbl_client.gender', '=', 'tbl_gender.id')
-                    ->join('tbl_groups', 'tbl_client.group_id', '=', 'tbl_groups.id')
-                    ->join('tbl_language', 'tbl_client.language_id', '=', 'tbl_language.id')
-                    ->join('tbl_condition', 'tbl_client.client_status', '=', 'tbl_condition.name')
-                    ->join('tbl_marital_status', 'tbl_client.marital', '=', 'tbl_marital_status.id')
+                    ->leftJoin('tbl_gender', 'tbl_client.gender', '=', 'tbl_gender.id')
+                    ->leftJoin('tbl_groups', 'tbl_client.group_id', '=', 'tbl_groups.id')
+                    ->leftJoin('tbl_language', 'tbl_client.language_id', '=', 'tbl_language.id')
+                    ->leftJoin('tbl_condition', 'tbl_client.client_status', '=', 'tbl_condition.name')
+                    ->leftJoin('tbl_marital_status', 'tbl_client.marital', '=', 'tbl_marital_status.id')
                     ->select(
                         'tbl_client.id',
                         'tbl_client.clinic_number',
@@ -99,11 +99,11 @@ class NewReportController extends Controller
                 $clients = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
                     ->join('tbl_master_facility', 'tbl_client.mfl_code', '=', 'tbl_master_facility.code')
                     ->join('tbl_partner', 'tbl_partner_facility.partner_id', '=', 'tbl_partner.id')
-                    ->join('tbl_gender', 'tbl_client.gender', '=', 'tbl_gender.id')
-                    ->join('tbl_groups', 'tbl_client.group_id', '=', 'tbl_groups.id')
-                    ->join('tbl_language', 'tbl_client.language_id', '=', 'tbl_language.id')
-                    ->join('tbl_condition', 'tbl_client.client_status', '=', 'tbl_condition.name')
-                    ->join('tbl_marital_status', 'tbl_client.marital', '=', 'tbl_marital_status.id')
+                    ->leftJoin('tbl_gender', 'tbl_client.gender', '=', 'tbl_gender.id')
+                    ->leftJoin('tbl_groups', 'tbl_client.group_id', '=', 'tbl_groups.id')
+                    ->leftJoin('tbl_language', 'tbl_client.language_id', '=', 'tbl_language.id')
+                    ->leftJoin('tbl_condition', 'tbl_client.client_status', '=', 'tbl_condition.name')
+                    ->leftJoin('tbl_marital_status', 'tbl_client.marital', '=', 'tbl_marital_status.id')
                     ->select(
                         'tbl_client.id',
                         'tbl_client.clinic_number',
@@ -155,11 +155,11 @@ class NewReportController extends Controller
                 $clients = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
                     ->join('tbl_master_facility', 'tbl_client.mfl_code', '=', 'tbl_master_facility.code')
                     ->join('tbl_partner', 'tbl_partner_facility.partner_id', '=', 'tbl_partner.id')
-                    ->join('tbl_gender', 'tbl_client.gender', '=', 'tbl_gender.id')
-                    ->join('tbl_groups', 'tbl_client.group_id', '=', 'tbl_groups.id')
-                    ->join('tbl_language', 'tbl_client.language_id', '=', 'tbl_language.id')
-                    ->join('tbl_condition', 'tbl_client.client_status', '=', 'tbl_condition.name')
-                    ->join('tbl_marital_status', 'tbl_client.marital', '=', 'tbl_marital_status.id')
+                    ->leftJoin('tbl_gender', 'tbl_client.gender', '=', 'tbl_gender.id')
+                    ->leftJoin('tbl_groups', 'tbl_client.group_id', '=', 'tbl_groups.id')
+                    ->leftJoin('tbl_language', 'tbl_client.language_id', '=', 'tbl_language.id')
+                    ->leftJoin('tbl_condition', 'tbl_client.client_status', '=', 'tbl_condition.name')
+                    ->leftJoin('tbl_marital_status', 'tbl_client.marital', '=', 'tbl_marital_status.id')
                     ->select(
                         'tbl_client.id',
                         'tbl_client.clinic_number',
@@ -211,11 +211,11 @@ class NewReportController extends Controller
                 $clients = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
                     ->join('tbl_master_facility', 'tbl_client.mfl_code', '=', 'tbl_master_facility.code')
                     ->join('tbl_partner', 'tbl_partner_facility.partner_id', '=', 'tbl_partner.id')
-                    ->join('tbl_gender', 'tbl_client.gender', '=', 'tbl_gender.id')
-                    ->join('tbl_groups', 'tbl_client.group_id', '=', 'tbl_groups.id')
-                    ->join('tbl_language', 'tbl_client.language_id', '=', 'tbl_language.id')
-                    ->join('tbl_condition', 'tbl_client.client_status', '=', 'tbl_condition.name')
-                    ->join('tbl_marital_status', 'tbl_client.marital', '=', 'tbl_marital_status.id')
+                    ->leftJoin('tbl_gender', 'tbl_client.gender', '=', 'tbl_gender.id')
+                    ->leftJoin('tbl_groups', 'tbl_client.group_id', '=', 'tbl_groups.id')
+                    ->leftJoin('tbl_language', 'tbl_client.language_id', '=', 'tbl_language.id')
+                    ->leftJoin('tbl_condition', 'tbl_client.client_status', '=', 'tbl_condition.name')
+                    ->leftJoin('tbl_marital_status', 'tbl_client.marital', '=', 'tbl_marital_status.id')
                     ->join('tbl_county', 'tbl_partner_facility.county_id', '=', 'tbl_county.id')
                     ->select(
                         'tbl_client.id',

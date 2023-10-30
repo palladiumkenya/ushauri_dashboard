@@ -36,9 +36,9 @@
                             <th>Partner Name</th>
                             @if (env('INSTANCE') === 'UshauriPublic')
                             <th>County</th>
-                            @endif
-                            <th>Action</th>
 
+                            <th>Action</th>
+                            @endif
                         </tr>
                     </thead>
                     <tbody>
@@ -57,13 +57,16 @@
                             <td> {{$client->facility}}</td>
                             <td> {{$client->code}}</td>
                             <td> {{$client->partner}}</td>
+                            @if (env('INSTANCE') === 'UshauriPublic')
                             <td> {{$client->county}}</td>
+
 
                             @if (Auth::user()->access_level == 'Facility')
                             <td>
                                 <button onclick="editclient({{$client}});" data-toggle="modal" data-target="#editclient" type="button" class="btn btn-primary btn-sm">Edit</button>
 
                             </td>
+                            @endif
                             @endif
                         </tr>
                         @endforeach

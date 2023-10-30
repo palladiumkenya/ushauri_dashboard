@@ -719,7 +719,7 @@ class ClientListController extends Controller
                     'tbl_client.upi_no'
                 )
                 ->get();
-            $client_extract;
+
         }
 
         if (Auth::user()->access_level == 'Admin') {
