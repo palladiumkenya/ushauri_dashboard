@@ -26,13 +26,15 @@
                             @endif
                             <th>Client Name</th>
                             <th>Gender</th>
+                            <th>Appointment Type</th>
+                            <th>Appointment Date</th>
+                            <th>Current Status</th>
+                            <th>Date Closed</th>
+                            <th>Appointment Status</th>
+                            <th>Date Created</th>
                             <th>DOB</th>
                             <th>Phone No</th>
                             <th>Consent</th>
-                            <th>Appointment Type</th>
-                            <th>Appointment Date</th>
-                            <th>Appointment Status</th>
-                            <th>Date Created</th>
                             <th>Facility Name</th>
                             <th>MFL Code</th>
                             <th>Partner Name</th>
@@ -48,13 +50,19 @@
                             <td> {{$appointment->clinic_number}}</td>
                             <td> {{$appointment->f_name}} {{$appointment->m_name}} {{$appointment->l_name}}</td>
                             <td> {{$appointment->gender}}</td>
+                            <td> {{$appointment->app_type}}</td>
+                            <td> {{$appointment->appntmnt_date}}</td>
+                            @if ($appointment->active_app == 1)
+                            <td> Open</td>
+                            @else
+                            <td> Closed</td>
+                            @endif
+                            <td> {{$appointment->date_attended}}</td>
+                            <td> {{$appointment->app_status}}</td>
+                            <td> {{date('d-m-Y', strtotime($appointment->created_at))}}</td>
                             <td> {{$appointment->dob}}</td>
                             <td> {{$appointment->phone_no}}</td>
                             <td> {{$appointment->smsenable}}</td>
-                            <td> {{$appointment->app_type}}</td>
-                            <td> {{$appointment->appntmnt_date}}</td>
-                            <td> {{$appointment->app_status}}</td>
-                            <td> {{date('d-m-Y', strtotime($appointment->created_at))}}</td>
                             <td> {{$appointment->facility}}</td>
                             <td> {{$appointment->code}}</td>
                             <td> {{$appointment->partner}}</td>
