@@ -432,8 +432,8 @@ class NewReportController extends Controller
                 ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
                 ->join('tbl_master_facility', 'tbl_client.mfl_code', '=', 'tbl_master_facility.code')
                 ->join('tbl_partner', 'tbl_partner_facility.partner_id', '=', 'tbl_partner.id')
-                ->join('tbl_gender', 'tbl_client.gender', '=', 'tbl_gender.id')
-                ->join('tbl_county', 'tbl_partner_facility.county_id', '=', 'tbl_county.id')
+                ->leftJoin('tbl_gender', 'tbl_client.gender', '=', 'tbl_gender.id')
+                ->leftJoin('tbl_county', 'tbl_partner_facility.county_id', '=', 'tbl_county.id')
                 ->join('tbl_appointment_types', 'tbl_appointment.app_type_1', '=', 'tbl_appointment_types.id')
                 ->select('tbl_client.clinic_number', 'tbl_client.f_name', 'tbl_client.m_name', 'tbl_client.l_name', 'tbl_client.dob', 'tbl_client.smsenable', 'tbl_client.phone_no', 'tbl_gender.name as gender', 'tbl_appointment_types.name as app_type', 'tbl_appointment.appntmnt_date', 'tbl_appointment.app_status', 'tbl_appointment.appntmnt_date', 'tbl_appointment.app_status', 'tbl_appointment.created_at', 'tbl_master_facility.code', 'tbl_master_facility.name as facility', 'tbl_partner.name as partner', 'tbl_county.name as county')
                 ->where('tbl_client.status', '=', 'Active')
@@ -444,8 +444,8 @@ class NewReportController extends Controller
                 ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
                 ->join('tbl_master_facility', 'tbl_client.mfl_code', '=', 'tbl_master_facility.code')
                 ->join('tbl_partner', 'tbl_partner_facility.partner_id', '=', 'tbl_partner.id')
-                ->join('tbl_gender', 'tbl_client.gender', '=', 'tbl_gender.id')
-                ->join('tbl_county', 'tbl_partner_facility.county_id', '=', 'tbl_county.id')
+                ->leftJoin('tbl_gender', 'tbl_client.gender', '=', 'tbl_gender.id')
+                ->leftJoin('tbl_county', 'tbl_partner_facility.county_id', '=', 'tbl_county.id')
                 ->join('tbl_appointment_types', 'tbl_appointment.app_type_1', '=', 'tbl_appointment_types.id')
                 ->select('tbl_client.clinic_number', 'tbl_client.f_name', 'tbl_client.m_name', 'tbl_client.l_name', 'tbl_client.dob', 'tbl_client.smsenable', 'tbl_client.phone_no', 'tbl_gender.name as gender', 'tbl_appointment_types.name as app_type', 'tbl_appointment.appntmnt_date', 'tbl_appointment.app_status', 'tbl_appointment.date_attended', 'tbl_appointment.active_app', 'tbl_appointment.created_at', 'tbl_master_facility.code', 'tbl_master_facility.name as facility', 'tbl_partner.name as partner', 'tbl_county.name as county')
                 ->where('tbl_client.status', '=', 'Active')
@@ -457,8 +457,8 @@ class NewReportController extends Controller
                 ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
                 ->join('tbl_master_facility', 'tbl_client.mfl_code', '=', 'tbl_master_facility.code')
                 ->join('tbl_partner', 'tbl_partner_facility.partner_id', '=', 'tbl_partner.id')
-                ->join('tbl_gender', 'tbl_client.gender', '=', 'tbl_gender.id')
-                ->join('tbl_county', 'tbl_partner_facility.county_id', '=', 'tbl_county.id')
+                ->leftJoin('tbl_gender', 'tbl_client.gender', '=', 'tbl_gender.id')
+                ->leftJoin('tbl_county', 'tbl_partner_facility.county_id', '=', 'tbl_county.id')
                 ->join('tbl_appointment_types', 'tbl_appointment.app_type_1', '=', 'tbl_appointment_types.id')
                 ->select('tbl_client.clinic_number', 'tbl_client.f_name', 'tbl_client.m_name', 'tbl_client.l_name', 'tbl_client.dob', 'tbl_client.smsenable', 'tbl_client.phone_no', 'tbl_gender.name as gender', 'tbl_appointment_types.name as app_type', 'tbl_appointment.appntmnt_date', 'tbl_appointment.app_status', 'tbl_appointment.appntmnt_date', 'tbl_appointment.app_status', 'tbl_appointment.created_at', 'tbl_master_facility.code', 'tbl_master_facility.name as facility', 'tbl_partner.name as partner', 'tbl_county.name as county')
                 ->where('tbl_client.status', '=', 'Active')
@@ -631,14 +631,14 @@ class NewReportController extends Controller
         if (Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Donor') {
             $client_messages = Appointments::join('tbl_client', 'tbl_appointment.client_id', 'tbl_client.id')
                 ->join('tbl_clnt_outgoing', 'tbl_appointment.id', 'tbl_clnt_outgoing.appointment_id')
-                ->join('tbl_gender', 'tbl_client.gender', 'tbl_gender.id')
-                ->join('tbl_language', 'tbl_client.language_id', 'tbl_language.id')
+                ->leftJoin('tbl_gender', 'tbl_client.gender', 'tbl_gender.id')
+                ->leftJoin('tbl_language', 'tbl_client.language_id', 'tbl_language.id')
                 ->join('tbl_appointment_types', 'tbl_appointment.app_type_1', 'tbl_appointment_types.id')
                 ->join('tbl_partner_facility', 'tbl_client.mfl_code', 'tbl_partner_facility.mfl_code')
                 ->join('tbl_master_facility', 'tbl_partner_facility.mfl_code', 'tbl_master_facility.code')
                 ->join('tbl_partner', 'tbl_partner_facility.partner_id', 'tbl_partner.id')
-                ->join('tbl_county', 'tbl_partner_facility.county_id', 'tbl_county.id')
-                ->join('tbl_sub_county', 'tbl_partner_facility.sub_county_id', 'tbl_sub_county.id')
+                ->leftJoin('tbl_county', 'tbl_partner_facility.county_id', 'tbl_county.id')
+                ->leftJoin('tbl_sub_county', 'tbl_partner_facility.sub_county_id', 'tbl_sub_county.id')
                 ->select(
                     'tbl_client.clinic_number',
                     'tbl_client.f_name',
@@ -668,14 +668,14 @@ class NewReportController extends Controller
         if (Auth::user()->access_level == 'Partner') {
             $client_messages = Appointments::join('tbl_client', 'tbl_appointment.client_id', 'tbl_client.id')
                 ->join('tbl_clnt_outgoing', 'tbl_appointment.id', 'tbl_clnt_outgoing.appointment_id')
-                ->join('tbl_gender', 'tbl_client.gender', 'tbl_gender.id')
-                ->join('tbl_language', 'tbl_client.language_id', 'tbl_language.id')
+                ->leftJoin('tbl_gender', 'tbl_client.gender', 'tbl_gender.id')
+                ->leftJoin('tbl_language', 'tbl_client.language_id', 'tbl_language.id')
                 ->join('tbl_appointment_types', 'tbl_appointment.app_type_1', 'tbl_appointment_types.id')
                 ->join('tbl_partner_facility', 'tbl_client.mfl_code', 'tbl_partner_facility.mfl_code')
                 ->join('tbl_master_facility', 'tbl_partner_facility.mfl_code', 'tbl_master_facility.code')
                 ->join('tbl_partner', 'tbl_partner_facility.partner_id', 'tbl_partner.id')
-                ->join('tbl_county', 'tbl_partner_facility.county_id', 'tbl_county.id')
-                ->join('tbl_sub_county', 'tbl_partner_facility.sub_county_id', 'tbl_sub_county.id')
+                ->leftJoin('tbl_county', 'tbl_partner_facility.county_id', 'tbl_county.id')
+                ->leftJoin('tbl_sub_county', 'tbl_partner_facility.sub_county_id', 'tbl_sub_county.id')
                 ->select(
                     'tbl_client.clinic_number',
                     'tbl_client.f_name',
@@ -706,14 +706,14 @@ class NewReportController extends Controller
         if (Auth::user()->access_level == 'Facility') {
             $client_messages = Appointments::join('tbl_client', 'tbl_appointment.client_id', 'tbl_client.id')
                 ->join('tbl_clnt_outgoing', 'tbl_appointment.id', 'tbl_clnt_outgoing.appointment_id')
-                ->join('tbl_gender', 'tbl_client.gender', 'tbl_gender.id')
-                ->join('tbl_language', 'tbl_client.language_id', 'tbl_language.id')
+                ->leftJoin('tbl_gender', 'tbl_client.gender', 'tbl_gender.id')
+                ->leftJoin('tbl_language', 'tbl_client.language_id', 'tbl_language.id')
                 ->join('tbl_appointment_types', 'tbl_appointment.app_type_1', 'tbl_appointment_types.id')
                 ->join('tbl_partner_facility', 'tbl_client.mfl_code', 'tbl_partner_facility.mfl_code')
                 ->join('tbl_master_facility', 'tbl_partner_facility.mfl_code', 'tbl_master_facility.code')
                 ->join('tbl_partner', 'tbl_partner_facility.partner_id', 'tbl_partner.id')
-                ->join('tbl_county', 'tbl_partner_facility.county_id', 'tbl_county.id')
-                ->join('tbl_sub_county', 'tbl_partner_facility.sub_county_id', 'tbl_sub_county.id')
+                ->leftJoin('tbl_county', 'tbl_partner_facility.county_id', 'tbl_county.id')
+                ->leftJoin('tbl_sub_county', 'tbl_partner_facility.sub_county_id', 'tbl_sub_county.id')
                 ->select(
                     'tbl_client.clinic_number',
                     'tbl_client.f_name',

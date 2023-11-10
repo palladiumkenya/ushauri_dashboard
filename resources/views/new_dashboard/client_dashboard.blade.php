@@ -391,24 +391,25 @@
     $('.subcounties').select2();
 
 
-    var Client_consented_male = <?php echo json_encode($client_consented_male) ?>;
-    var Client_consented_female = <?php echo json_encode($client_consented_female) ?>;
-    var Client_consented_uknown_gender = <?php echo json_encode($client_consented_uknown_gender) ?>;
-    var Client_nonconsented_male = <?php echo json_encode($client_nonconsented_male) ?>;
-    var Client_nonconsented_female = <?php echo json_encode($client_nonconsented_female) ?>;
-    var Client_nonconsented_uknown_gender = <?php echo json_encode($client_nonconsented_uknown_gender) ?>;
-    var Client_consented_to_nine = <?php echo json_encode($client_consented_to_nine) ?>;
-    var Client_consented_to_fourteen = <?php echo json_encode($client_consented_to_fourteen) ?>;
-    var Client_consented_to_nineteen = <?php echo json_encode($client_consented_to_nineteen) ?>;
-    var Client_consented_to_twentyfour = <?php echo json_encode($client_consented_to_twentyfour) ?>;
-    var Client_consented_to_twentyfive_above = <?php echo json_encode($client_consented_to_twentyfive_above) ?>;
-    var Client_consented_uknown_age = <?php echo json_encode($client_consented_uknown_age) ?>;
-    var Client_nonconsented_to_nine = <?php echo json_encode($client_nonconsented_to_nine) ?>;
-    var Client_nonconsented_to_fourteen = <?php echo json_encode($client_nonconsented_to_fourteen) ?>;
-    var Client_nonconsented_to_nineteen = <?php echo json_encode($client_nonconsented_to_nineteen) ?>;
-    var Client_nonconsented_to_twentyfour = <?php echo json_encode($client_nonconsented_to_twentyfour) ?>;
-    var Client_nonconsented_to_twentyfive_above = <?php echo json_encode($client_nonconsented_to_twentyfive_above) ?>;
-    var Client_nonconsented_uknown_age = <?php echo json_encode($client_nonconsented_uknown_age) ?>;
+    var Client_consented_male = <?php echo $client_consented_male ?>;
+    console.log(Client_consented_male);
+    var Client_consented_female = <?php echo $client_consented_female ?>;
+    var Client_consented_uknown_gender = <?php echo $client_consented_uknown_gender ?>;
+    var Client_nonconsented_male = <?php echo $client_nonconsented_male ?>;
+    var Client_nonconsented_female = <?php echo $client_nonconsented_female ?>;
+    var Client_nonconsented_uknown_gender = <?php echo $client_nonconsented_uknown_gender ?>;
+    var Client_consented_to_nine = <?php echo $client_consented_to_nine ?>;
+    var Client_consented_to_fourteen = <?php echo $client_consented_to_fourteen ?>;
+    var Client_consented_to_nineteen = <?php echo $client_consented_to_nineteen ?>;
+    var Client_consented_to_twentyfour = <?php echo $client_consented_to_twentyfour ?>;
+    var Client_consented_to_twentyfive_above = <?php echo $client_consented_to_twentyfive_above ?>;
+    var Client_consented_uknown_age = <?php echo $client_consented_uknown_age ?>;
+    var Client_nonconsented_to_nine = <?php echo $client_nonconsented_to_nine ?>;
+    var Client_nonconsented_to_fourteen = <?php echo $client_nonconsented_to_fourteen ?>;
+    var Client_nonconsented_to_nineteen = <?php echo $client_nonconsented_to_nineteen ?>;
+    var Client_nonconsented_to_twentyfour = <?php echo $client_nonconsented_to_twentyfour ?>;
+    var Client_nonconsented_to_twentyfive_above = <?php echo $client_nonconsented_to_twentyfive_above ?>;
+    var Client_nonconsented_uknown_age = <?php echo $client_nonconsented_uknown_age ?>;
 
 
 
