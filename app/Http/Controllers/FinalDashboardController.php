@@ -19,6 +19,7 @@ use App\Models\Indicator;
 use App\Models\ETLAppointment;
 use App\Models\ETLClient;
 use App\Models\Txcurr;
+use App\Models\ClientDashboard;
 use Auth;
 use DB;
 use Carbon\Carbon;
@@ -189,9 +190,16 @@ class FinalDashboardController extends Controller
                 ->where('mfl_code', Auth::user()->facility_id)
                 ->remember($this->remember_period);
 
-            $consented_clients = ETLClient::select(
-                DB::raw('SUM(CASE WHEN consented = "Yes" THEN 1 ELSE 0 END) AS consented '),
-                DB::raw('AVG(percent_consented) AS percent_consented ')
+            // $consented_clients = ETLClient::select(
+            //     DB::raw('SUM(CASE WHEN consented = "Yes" THEN 1 ELSE 0 END) AS consented '),
+            //     DB::raw('AVG(percent_consented) AS percent_consented ')
+            // )
+            //     ->where('mfl_code', Auth::user()->facility_id)
+            //     ->remember($this->remember_period);
+
+            $consented_clients = ClientDashboard::select(
+                DB::raw('SUM(client_consented) AS consented '),
+                DB::raw('ROUND((SUM(client_consented) / (SUM(non_consented) + SUM(client_consented))) * 100, 2) AS percent_consented')
             )
                 ->where('mfl_code', Auth::user()->facility_id)
                 ->remember($this->remember_period);
@@ -487,9 +495,9 @@ class FinalDashboardController extends Controller
             )
                 ->remember($this->remember_period);
 
-            $consented_clients = ETLClient::selectRaw(
-                'SUM(CASE WHEN consented = "Yes" THEN 1 ELSE 0 END) AS consented,
-                 AVG(percent_consented) AS percent_consented '
+            $consented_clients = ClientDashboard::select(
+                DB::raw('SUM(client_consented) AS consented '),
+                DB::raw('ROUND((SUM(client_consented) / (SUM(non_consented) + SUM(client_consented))) * 100, 2) AS percent_consented')
             )
                 ->remember($this->remember_period);
 
@@ -717,9 +725,9 @@ class FinalDashboardController extends Controller
                 ->where('partner_id', Auth::user()->partner_id)
                 ->remember($this->remember_period);
 
-            $consented_clients = ETLClient::select(
-                DB::raw('SUM(CASE WHEN consented = "Yes" THEN 1 ELSE 0 END) AS consented '),
-                DB::raw('AVG(percent_consented) AS percent_consented ')
+            $consented_clients = ClientDashboard::select(
+                DB::raw('SUM(client_consented) AS consented '),
+                DB::raw('ROUND((SUM(client_consented) / (SUM(non_consented) + SUM(client_consented))) * 100, 2) AS percent_consented')
             )
                 ->where('partner_id', Auth::user()->partner_id)
                 ->remember($this->remember_period);
@@ -1065,11 +1073,11 @@ class FinalDashboardController extends Controller
                 ->where('subcounty_id', Auth::user()->subcounty_id)
                 ->remember($this->remember_period);
 
-            $consented_clients = ETLClient::select(
-                DB::raw('SUM(CASE WHEN consented = "Yes" THEN 1 ELSE 0 END) AS consented '),
-                DB::raw('AVG(percent_consented) AS percent_consented ')
+            $consented_clients = ClientDashboard::select(
+                DB::raw('SUM(client_consented) AS consented '),
+                DB::raw('ROUND((SUM(client_consented) / (SUM(non_consented) + SUM(client_consented))) * 100, 2) AS percent_consented')
             )
-                ->where('subcounty_id', Auth::user()->subcounty_id)
+                ->where('sub_county_id', Auth::user()->subcounty_id)
                 ->remember($this->remember_period);
 
             // $all_tx_curr = Txcurr::join('tbl_partner_facility', 'tbl_tx_cur.mfl_code', '=', 'tbl_partner_facility.mfl_code')
@@ -1337,9 +1345,9 @@ class FinalDashboardController extends Controller
             )
                 ->where('county_id', Auth::user()->county_id)
                 ->remember($this->remember_period);
-            $consented_clients = ETLClient::select(
-                DB::raw('SUM(CASE WHEN consented = "Yes" THEN 1 ELSE 0 END) AS consented '),
-                DB::raw('AVG(percent_consented) AS percent_consented ')
+            $consented_clients = ClientDashboard::select(
+                DB::raw('SUM(client_consented) AS consented '),
+                DB::raw('ROUND((SUM(client_consented) / (SUM(non_consented) + SUM(client_consented))) * 100, 2) AS percent_consented')
             )
                 ->where('county_id', Auth::user()->county_id)
                 ->remember($this->remember_period);
@@ -1624,10 +1632,11 @@ class FinalDashboardController extends Controller
                 DB::raw('AVG(percent_future) AS percent_future ')
             )->remember($this->remember_period);
 
-            $consented_clients = ETLClient::select(
-                DB::raw('SUM(CASE WHEN consented = "Yes" THEN 1 ELSE 0 END) AS consented '),
-                DB::raw('AVG(percent_consented) AS percent_consented ')
-            )->remember($this->remember_period);
+            $consented_clients = ClientDashboard::select(
+                DB::raw('SUM(client_consented) AS consented '),
+                DB::raw('ROUND((SUM(client_consented) / (SUM(non_consented) + SUM(client_consented))) * 100, 2) AS percent_consented')
+            )
+                ->remember($this->remember_period);
 
             $query = Txcurr::query()->join('tbl_partner_facility', 'tbl_tx_cur.mfl_code', '=', 'tbl_partner_facility.mfl_code');
 
@@ -1711,12 +1720,12 @@ class FinalDashboardController extends Controller
             SUM(CASE WHEN consent = "Yes" AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_consent,
             SUM(CASE WHEN consent = "Yes" AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_consent '
             )
-            ->join(DB::raw('(SELECT MAX(appointment_id) as max_appointment_id, client_id FROM etl_appointment_detail GROUP BY client_id) as max_appointments'), function ($join) {
-                $join->on('etl_appointment_detail.appointment_id', '=', 'max_appointments.max_appointment_id')
-                    ->on('etl_appointment_detail.client_id', '=', 'max_appointments.client_id');
-            })
-            ->groupBy('etl_appointment_detail.client_id')
-            ->remember($this->remember_period);
+                ->join(DB::raw('(SELECT MAX(appointment_id) as max_appointment_id, client_id FROM etl_appointment_detail GROUP BY client_id) as max_appointments'), function ($join) {
+                    $join->on('etl_appointment_detail.appointment_id', '=', 'max_appointments.max_appointment_id')
+                        ->on('etl_appointment_detail.client_id', '=', 'max_appointments.client_id');
+                })
+                ->groupBy('etl_appointment_detail.client_id')
+                ->remember($this->remember_period);
 
             $missed_age = ETLAppointment::select(
                 'age_group',
@@ -1847,7 +1856,7 @@ class FinalDashboardController extends Controller
             }
             if (!empty($selected_subcounties)) {
                 $all_appoinments = $all_appoinments->where('subcounty_id', $selected_subcounties);
-                $consented_clients = $consented_clients->where('subcounty_id', $selected_subcounties);
+                $consented_clients = $consented_clients->where('sub_county_id', $selected_subcounties);
                 $query->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
                 FROM tbl_tx_cur t1
                 GROUP BY t1.mfl_code) latest_sub'), function ($join) {
@@ -1902,7 +1911,7 @@ class FinalDashboardController extends Controller
 
             if (!empty($selected_clinics)) {
                 $all_appoinments = $all_appoinments->where('clinic_type', $selected_clinics);
-                $consented_clients = $consented_clients->where('clinic_type', $selected_clinics);
+                $consented_clients = $consented_clients;
                 $query->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
               FROM tbl_tx_cur t1
               GROUP BY t1.mfl_code) latest_clinic'), function ($join) {
@@ -1954,7 +1963,7 @@ class FinalDashboardController extends Controller
             }
             if (!empty($selected_from || $selected_to)) {
                 $all_appoinments = $all_appoinments->where('appointment_date', '>=', date($request->from))->where('appointment_date', '<=', date($request->to));
-                $consented_clients = $consented_clients->where('consented_date', '>=', date($request->from))->where('consented_date', '<=', date($request->to));
+                $consented_clients = $consented_clients->where('consent_date', '>=', date($request->from))->where('consent_date', '<=', date($request->to));
                 $selectedFrom = date('Ym', strtotime($request->from));
                 $selectedTo = date('Ym', strtotime($request->to));
 
@@ -1988,7 +1997,7 @@ class FinalDashboardController extends Controller
 
             if (!empty($selected_site)) {
                 $all_appoinments = $all_appoinments->where('facility_type', $selected_site);
-                $consented_clients = $consented_clients->where('facility_type', $selected_site);
+                $consented_clients = $consented_clients;
                 $query->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
               FROM tbl_tx_cur t1
               GROUP BY t1.mfl_code) latest_site'), function ($join) {
@@ -2057,9 +2066,9 @@ class FinalDashboardController extends Controller
                 ->where('mfl_code', Auth::user()->facility_id)
                 ->remember($this->remember_period);
 
-            $consented_clients = ETLClient::select(
-                DB::raw('SUM(CASE WHEN consented = "Yes" THEN 1 ELSE 0 END) AS consented '),
-                DB::raw('AVG(percent_consented) AS percent_consented ')
+            $consented_clients = ClientDashboard::select(
+                DB::raw('SUM(client_consented) AS consented '),
+                DB::raw('ROUND((SUM(client_consented) / (SUM(non_consented) + SUM(client_consented))) * 100, 2) AS percent_consented')
             )
                 ->where('mfl_code', Auth::user()->facility_id)
                 ->remember($this->remember_period);
@@ -2339,7 +2348,7 @@ class FinalDashboardController extends Controller
             }
             if (!empty($selected_subcounties)) {
                 $all_appoinments = $all_appoinments->where('subcounty_id', $selected_subcounties);
-                $consented_clients = $consented_clients->where('subcounty_id', $selected_subcounties);
+                $consented_clients = $consented_clients->where('sub_county_id', $selected_subcounties);
                 $query->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
                 FROM tbl_tx_cur t1
                 GROUP BY t1.mfl_code) latest_sub'), function ($join) {
@@ -2400,7 +2409,7 @@ class FinalDashboardController extends Controller
 
             if (!empty($selected_clinics)) {
                 $all_appoinments = $all_appoinments->where('clinic_type', $selected_clinics);
-                $consented_clients = $consented_clients->where('clinic_type', $selected_clinics);
+                $consented_clients = $consented_clients;
                 $query->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
               FROM tbl_tx_cur t1
               GROUP BY t1.mfl_code) latest_clinic'), function ($join) {
@@ -2458,7 +2467,7 @@ class FinalDashboardController extends Controller
             }
             if (!empty($selected_from || $selected_to)) {
                 $all_appoinments = $all_appoinments->where('appointment_date', '>=', date($request->from))->where('appointment_date', '<=', date($request->to));
-                $consented_clients = $consented_clients->where('consented_date', '>=', date($request->from))->where('consented_date', '<=', date($request->to));
+                $consented_clients = $consented_clients->where('consent_date', '>=', date($request->from))->where('consent_date', '<=', date($request->to));
                 $selectedFrom = date('Ym', strtotime($request->from));
                 $selectedTo = date('Ym', strtotime($request->to));
                 $query->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
@@ -2496,7 +2505,7 @@ class FinalDashboardController extends Controller
 
             if (!empty($selected_sites)) {
                 $all_appoinments = $all_appoinments->where('facility_type', $selected_sites);
-                $consented_clients = $consented_clients->where('facility_type', $selected_sites);
+                $consented_clients = $consented_clients;
                 $query->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
               FROM tbl_tx_cur t1
               GROUP BY t1.mfl_code) latest_sites'), function ($join) {
@@ -2571,9 +2580,9 @@ class FinalDashboardController extends Controller
                 ->where('partner_id', Auth::user()->partner_id)
                 ->remember($this->remember_period);
 
-            $consented_clients = ETLClient::select(
-                DB::raw('SUM(CASE WHEN consented = "Yes" THEN 1 ELSE 0 END) AS consented '),
-                DB::raw('AVG(percent_consented) AS percent_consented ')
+            $consented_clients = ClientDashboard::select(
+                DB::raw('SUM(client_consented) AS consented '),
+                DB::raw('ROUND((SUM(client_consented) / (SUM(non_consented) + SUM(client_consented))) * 100, 2) AS percent_consented')
             )
                 ->where('partner_id', Auth::user()->partner_id)
                 ->remember($this->remember_period);
@@ -2678,13 +2687,13 @@ class FinalDashboardController extends Controller
             SUM(CASE WHEN consent = "Yes" AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_consent,
             SUM(CASE WHEN consent = "Yes" AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_consent '
             )
-            ->join(DB::raw('(SELECT MAX(appointment_id) as max_appointment_id, client_id FROM etl_appointment_detail GROUP BY client_id) as max_appointments'), function ($join) {
-                $join->on('etl_appointment_detail.appointment_id', '=', 'max_appointments.max_appointment_id')
-                    ->on('etl_appointment_detail.client_id', '=', 'max_appointments.client_id');
-            })
-            ->where('partner_id', Auth::user()->partner_id)
-            ->groupBy('etl_appointment_detail.client_id')
-            ->remember($this->remember_period);
+                ->join(DB::raw('(SELECT MAX(appointment_id) as max_appointment_id, client_id FROM etl_appointment_detail GROUP BY client_id) as max_appointments'), function ($join) {
+                    $join->on('etl_appointment_detail.appointment_id', '=', 'max_appointments.max_appointment_id')
+                        ->on('etl_appointment_detail.client_id', '=', 'max_appointments.client_id');
+                })
+                ->where('partner_id', Auth::user()->partner_id)
+                ->groupBy('etl_appointment_detail.client_id')
+                ->remember($this->remember_period);
 
             $missed_age = ETLAppointment::select(
                 'age_group',
@@ -2838,7 +2847,7 @@ class FinalDashboardController extends Controller
             }
             if (!empty($selected_subcounties)) {
                 $all_appoinments = $all_appoinments->where('subcounty_id', $selected_subcounties);
-                $consented_clients = $consented_clients->where('subcounty_id', $selected_subcounties);
+                $consented_clients = $consented_clients->where('sub_county_id', $selected_subcounties);
                 $query->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
                 FROM tbl_tx_cur t1
                 GROUP BY t1.mfl_code) latest_sub'), function ($join) {
@@ -2901,7 +2910,7 @@ class FinalDashboardController extends Controller
 
             if (!empty($selected_clinics)) {
                 $all_appoinments = $all_appoinments->where('clinic_type', $selected_clinics);
-                $consented_clients = $consented_clients->where('clinic_type', $selected_clinics);
+                $consented_clients = $consented_clients;
                 $query->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
               FROM tbl_tx_cur t1
               GROUP BY t1.mfl_code) latest_clinic'), function ($join) {
@@ -2961,7 +2970,7 @@ class FinalDashboardController extends Controller
             }
             if (!empty($selected_from || $selected_to)) {
                 $all_appoinments = $all_appoinments->where('appointment_date', '>=', date($request->from))->where('appointment_date', '<=', date($request->to));
-                $consented_clients = $consented_clients->where('consented_date', '>=', date($request->from))->where('consented_date', '<=', date($request->to));
+                $consented_clients = $consented_clients->where('consent_date', '>=', date($request->from))->where('consent_date', '<=', date($request->to));
                 $selectedFrom = date('Ym', strtotime($request->from));
                 $selectedTo = date('Ym', strtotime($request->to));
                 $query->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
@@ -2998,7 +3007,7 @@ class FinalDashboardController extends Controller
 
             if (!empty($selected_site)) {
                 $all_appoinments = $all_appoinments->where('facility_type', $selected_site);
-                $consented_clients = $consented_clients->where('facility_type', $selected_site);
+                $consented_clients = $consented_clients;
                 $query->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
               FROM tbl_tx_cur t1
               GROUP BY t1.mfl_code) latest_site'), function ($join) {
@@ -3075,11 +3084,11 @@ class FinalDashboardController extends Controller
                 ->where('subcounty_id', Auth::user()->subcounty_id)
                 ->remember($this->remember_period);
 
-            $consented_clients = ETLClient::select(
-                DB::raw('SUM(CASE WHEN consented = "Yes" THEN 1 ELSE 0 END) AS consented '),
-                DB::raw('AVG(percent_consented) AS percent_consented ')
+            $consented_clients = ClientDashboard::select(
+                DB::raw('SUM(client_consented) AS consented '),
+                DB::raw('ROUND((SUM(client_consented) / (SUM(non_consented) + SUM(client_consented))) * 100, 2) AS percent_consented')
             )
-                ->where('subcounty_id', Auth::user()->subcounty_id)
+                ->where('sub_county_id', Auth::user()->subcounty_id)
                 ->remember($this->remember_period);
 
             $query = Txcurr::query()->join('tbl_partner_facility', 'tbl_tx_cur.mfl_code', '=', 'tbl_partner_facility.mfl_code')
@@ -3183,13 +3192,13 @@ class FinalDashboardController extends Controller
             SUM(CASE WHEN consent = "Yes" AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_consent,
             SUM(CASE WHEN consent = "Yes" AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_consent '
             )
-            ->join(DB::raw('(SELECT MAX(appointment_id) as max_appointment_id, client_id FROM etl_appointment_detail GROUP BY client_id) as max_appointments'), function ($join) {
-                $join->on('etl_appointment_detail.appointment_id', '=', 'max_appointments.max_appointment_id')
-                    ->on('etl_appointment_detail.client_id', '=', 'max_appointments.client_id');
-            })
-            ->where('subcounty_id', Auth::user()->subcounty_id)
-            ->groupBy('etl_appointment_detail.client_id')
-            ->remember($this->remember_period);
+                ->join(DB::raw('(SELECT MAX(appointment_id) as max_appointment_id, client_id FROM etl_appointment_detail GROUP BY client_id) as max_appointments'), function ($join) {
+                    $join->on('etl_appointment_detail.appointment_id', '=', 'max_appointments.max_appointment_id')
+                        ->on('etl_appointment_detail.client_id', '=', 'max_appointments.client_id');
+                })
+                ->where('subcounty_id', Auth::user()->subcounty_id)
+                ->groupBy('etl_appointment_detail.client_id')
+                ->remember($this->remember_period);
 
             $missed_age = ETLAppointment::select(
                 'age_group',
@@ -3345,7 +3354,7 @@ class FinalDashboardController extends Controller
             }
             if (!empty($selected_subcounties)) {
                 $all_appoinments = $all_appoinments->where('subcounty_id', $selected_subcounties);
-                $consented_clients = $consented_clients->where('subcounty_id', $selected_subcounties);
+                $consented_clients = $consented_clients->where('sub_county_id', $selected_subcounties);
                 $query->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
                 FROM tbl_tx_cur t1
                 GROUP BY t1.mfl_code) latest_sub'), function ($join) {
@@ -3408,7 +3417,7 @@ class FinalDashboardController extends Controller
 
             if (!empty($selected_clinics)) {
                 $all_appoinments = $all_appoinments->where('clinic_type', $selected_clinics);
-                $consented_clients = $consented_clients->where('clinic_type', $selected_clinics);
+                $consented_clients = $consented_clients;
                 $query->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
                 FROM tbl_tx_cur t1
                 GROUP BY t1.mfl_code) latest_clinic'), function ($join) {
@@ -3468,7 +3477,7 @@ class FinalDashboardController extends Controller
             }
             if (!empty($selected_from || $selected_to)) {
                 $all_appoinments = $all_appoinments->where('appointment_date', '>=', date($request->from))->where('appointment_date', '<=', date($request->to));
-                $consented_clients = $consented_clients->where('consented_date', '>=', date($request->from))->where('consented_date', '<=', date($request->to));
+                $consented_clients = $consented_clients->where('consent_date', '>=', date($request->from))->where('consent_date', '<=', date($request->to));
                 $selectedFrom = date('Ym', strtotime($request->from));
                 $selectedTo = date('Ym', strtotime($request->to));
                 $query->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
@@ -3505,7 +3514,7 @@ class FinalDashboardController extends Controller
 
             if (!empty($selected_sites)) {
                 $all_appoinments = $all_appoinments->where('facility_type', $selected_sites);
-                $consented_clients = $consented_clients->where('facility_type', $selected_sites);
+                $consented_clients = $consented_clients;
                 $query->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
                 FROM tbl_tx_cur t1
                 GROUP BY t1.mfl_code) latest_site'), function ($join) {
@@ -3582,9 +3591,9 @@ class FinalDashboardController extends Controller
                 ->where('county_id', Auth::user()->county_id)
                 ->remember($this->remember_period);
 
-            $consented_clients = ETLClient::select(
-                DB::raw('SUM(CASE WHEN consented = "Yes" THEN 1 ELSE 0 END) AS consented '),
-                DB::raw('AVG(percent_consented) AS percent_consented ')
+            $consented_clients = ClientDashboard::select(
+                DB::raw('SUM(client_consented) AS consented '),
+                DB::raw('ROUND((SUM(client_consented) / (SUM(non_consented) + SUM(client_consented))) * 100, 2) AS percent_consented')
             )
                 ->where('county_id', Auth::user()->county_id)
                 ->remember($this->remember_period);
@@ -3692,13 +3701,13 @@ class FinalDashboardController extends Controller
             SUM(CASE WHEN consent = "Yes" AND appointment_status = "Defaulted" THEN 1 ELSE 0 END) AS defaulted_consent,
             SUM(CASE WHEN consent = "Yes" AND appointment_status = "IIT" THEN 1 ELSE 0 END) AS iit_consent '
             )
-            ->join(DB::raw('(SELECT MAX(appointment_id) as max_appointment_id, client_id FROM etl_appointment_detail GROUP BY client_id) as max_appointments'), function ($join) {
-                $join->on('etl_appointment_detail.appointment_id', '=', 'max_appointments.max_appointment_id')
-                    ->on('etl_appointment_detail.client_id', '=', 'max_appointments.client_id');
-            })
-            ->where('county_id', Auth::user()->county_id)
-            ->groupBy('etl_appointment_detail.client_id')
-            ->remember($this->remember_period);
+                ->join(DB::raw('(SELECT MAX(appointment_id) as max_appointment_id, client_id FROM etl_appointment_detail GROUP BY client_id) as max_appointments'), function ($join) {
+                    $join->on('etl_appointment_detail.appointment_id', '=', 'max_appointments.max_appointment_id')
+                        ->on('etl_appointment_detail.client_id', '=', 'max_appointments.client_id');
+                })
+                ->where('county_id', Auth::user()->county_id)
+                ->groupBy('etl_appointment_detail.client_id')
+                ->remember($this->remember_period);
 
             $missed_age = ETLAppointment::select(
                 'age_group',
@@ -3854,7 +3863,7 @@ class FinalDashboardController extends Controller
             }
             if (!empty($selected_subcounties)) {
                 $all_appoinments = $all_appoinments->where('subcounty_id', $selected_subcounties);
-                $consented_clients = $consented_clients->where('subcounty_id', $selected_subcounties);
+                $consented_clients = $consented_clients->where('sub_county_id', $selected_subcounties);
                 $query->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
                 FROM tbl_tx_cur t1
                 GROUP BY t1.mfl_code) latest_sub'), function ($join) {
@@ -3917,7 +3926,7 @@ class FinalDashboardController extends Controller
 
             if (!empty($selected_clinics)) {
                 $all_appoinments = $all_appoinments->where('clinic_type', $selected_clinics);
-                $consented_clients = $consented_clients->where('clinic_type', $selected_clinics);
+                $consented_clients = $consented_clients;
                 $query->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
                 FROM tbl_tx_cur t1
                 GROUP BY t1.mfl_code) latest_clinic'), function ($join) {
@@ -3977,7 +3986,7 @@ class FinalDashboardController extends Controller
             }
             if (!empty($selected_from || $selected_to)) {
                 $all_appoinments = $all_appoinments->where('appointment_date', '>=', date($request->from))->where('appointment_date', '<=', date($request->to));
-                $consented_clients = $consented_clients->where('consented_date', '>=', date($request->from))->where('consented_date', '<=', date($request->to));
+                $consented_clients = $consented_clients->where('consent_date', '>=', date($request->from))->where('consent_date', '<=', date($request->to));
                 $selectedFrom = date('Ym', strtotime($request->from));
                 $selectedTo = date('Ym', strtotime($request->to));
                 $query->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
@@ -4014,7 +4023,7 @@ class FinalDashboardController extends Controller
 
             if (!empty($selected_sites)) {
                 $all_appoinments = $all_appoinments->where('facility_type', $selected_sites);
-                $consented_clients = $consented_clients->where('facility_type', $selected_sites);
+                $consented_clients = $consented_clients;
                 $selectedFrom = date('Ym', strtotime($request->from));
                 $selectedTo = date('Ym', strtotime($request->to));
                 $query->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period

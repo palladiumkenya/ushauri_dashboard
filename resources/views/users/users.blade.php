@@ -8,17 +8,17 @@
 @section('main-content')
 @include('sweetalert::alert')
 <div class="breadcrumb">
-                <ul>
-                    <li><a href="">System Users</a></li>
-                    <li></li>
-                </ul>
-            </div>
+    <ul>
+        <li><a href="">System Users</a></li>
+        <li></li>
+    </ul>
+</div>
 
 <div class="col-md-12 mb-4">
     <div class="card text-left">
 
         <div class="card-body">
-        <h4 class="card-title mb-3">{{count($all_users)}} Users</h4>
+            <h4 class="card-title mb-3">{{count($all_users)}} Users</h4>
 
             <div style="margin-bottom:10px; ">
                 <a type="button" href="{{route('admin-users-form')}}" class="btn btn-primary btn-md pull-right">Add User</a>
@@ -56,7 +56,7 @@
                             <td> {{$user->created_at}}</td>
                             <td> {{$user->updated_at}}</td>
                             <td>
-                            <button onclick="resetUser({{$user->id}});" type="button" class="btn btn-success btn-sm">Reset</button>
+                                <button onclick="resetUser({{$user->id}});" type="button" class="btn btn-success btn-sm">Reset</button>
                                 <button onclick="edituser({{$user}});" data-toggle="modal" data-target="#edituser" type="button" class="btn btn-primary btn-sm">Edit</button>
 
                             </td>
@@ -76,10 +76,10 @@
 <!-- Reset Modal -->
 <div class="modal fade" id="ResetModal" tabindex="-1" role="dialog" aria-labelledby="ResetTitle" aria-hidden="true">
     <div class="modal-dialog" role="document">
-        <div  class="modal-content">
+        <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="ResetTitle">Reset User</h5>
-                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -88,13 +88,13 @@
 
             </div>
             <form id="reset_form">
-                                {{ csrf_field() }}
-            <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                <button id="reset" type="submit" class="btn btn-primary">Reset</button>
+                {{ csrf_field() }}
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button id="reset" type="submit" class="btn btn-primary">Reset</button>
 
-            </div>
-</form>
+                </div>
+            </form>
         </div>
     </div>
 </div>
@@ -174,7 +174,7 @@
                                             <option value="">Please select </option>
                                             @if (count($donors) > 0)
                                             @foreach($donors as $donor)
-                                            <option value="{{$donor->id }}" >{{ ucwords($donor->name) }}</option>
+                                            <option value="{{$donor->id }}">{{ ucwords($donor->name) }}</option>
                                             @endforeach
                                             @endif
                                         </select>
@@ -201,7 +201,11 @@
                                     </div>
 
                                     <div class="col-md-3 form-group mb-3" id="add_partner_div">
+                                        @if (env('INSTANCE') === 'UshauriDOD')
+                                        <label for="partner">Service</label>
+                                        @else
                                         <label for="partner">Partner</label>
+                                        @endif
                                         <select class="form-control" data-width="100%" id="partner" name="partner">
                                             <option value="">Please select </option>
                                             @if (count($partners) > 0)
@@ -369,12 +373,10 @@
 
 <script src="{{asset('assets/js/vendor/datatables.min.js')}}"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.css">
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
 <script type="text/javascript">
-
-
-$('#multicolumn_ordering_table').DataTable({
+    $('#multicolumn_ordering_table').DataTable({
         columnDefs: [{
             targets: [0],
             orderData: [0, 1]
@@ -602,25 +604,25 @@ $('#multicolumn_ordering_table').DataTable({
 
     var loginForm = $("#reset_form");
 
-            loginForm.submit(function (e) {
-                $('#ResetModal').modal('hide');
-                e.preventDefault();
-                var thisForm = $(this);
-                var endPoint = thisForm.attr("action") || window.location.href;
-                var method = thisForm.attr("method");
-                var formData = thisForm.serialize();
+    loginForm.submit(function(e) {
+        $('#ResetModal').modal('hide');
+        e.preventDefault();
+        var thisForm = $(this);
+        var endPoint = thisForm.attr("action") || window.location.href;
+        var method = thisForm.attr("method");
+        var formData = thisForm.serialize();
 
-                console.log(endPoint);
-                console.log(method);
-                Swal.fire({
-                    title: "User has been reset successfull",
-                    showConfirmButton: true,
-                    allowOutsideClick: true
-                });
+        console.log(endPoint);
+        console.log(method);
+        Swal.fire({
+            title: "User has been reset successfull",
+            showConfirmButton: true,
+            allowOutsideClick: true
+        });
 
-                this.submit();
+        this.submit();
 
-            });
+    });
 
 
     $(document).ready(function() {

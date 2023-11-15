@@ -19,7 +19,11 @@
                     <thead>
                         <tr>
                             <th>No.</th>
+                            @if (env('INSTANCE') === 'UshauriDOD')
+                            <th>KDOD Number</th>
+                            @else
                             <th>CCC Number</th>
+                            @endif
                             <th>UPI Number</th>
                             <th>Client Name</th>
                             <th>Gender</th>
@@ -30,9 +34,11 @@
                             <th>Facility Name</th>
                             <th>MFL Code</th>
                             <th>Partner Name</th>
+                            @if (env('INSTANCE') === 'UshauriPublic')
                             <th>County</th>
-                            <th>Action</th>
 
+                            <th>Action</th>
+                            @endif
                         </tr>
                     </thead>
                     <tbody>
@@ -51,13 +57,16 @@
                             <td> {{$client->facility}}</td>
                             <td> {{$client->code}}</td>
                             <td> {{$client->partner}}</td>
+                            @if (env('INSTANCE') === 'UshauriPublic')
                             <td> {{$client->county}}</td>
+
 
                             @if (Auth::user()->access_level == 'Facility')
                             <td>
                                 <button onclick="editclient({{$client}});" data-toggle="modal" data-target="#editclient" type="button" class="btn btn-primary btn-sm">Edit</button>
 
                             </td>
+                            @endif
                             @endif
                         </tr>
                         @endforeach

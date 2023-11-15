@@ -110,15 +110,19 @@
                 <a class="{{ Route::currentRouteName()=='Reports-facility_home' ? 'open' : '' }}" href="{{route('Reports-facility_home')}}">
                     <span class=" text-muted">Appointment Register</span>
                 </a>
+                @if (env('INSTANCE') === 'UshauriPublic')
                 <a class="{{ Route::currentRouteName()=='upi_dashboard' ? 'open' : '' }}" href="{{route('upi_dashboard')}}">
                     <span class=" text-muted">Client Verification</span>
                 </a>
+                @endif
                 <a class="{{ Route::currentRouteName()=='appointment-dashboard' ? 'open' : '' }}" href="{{route('appointment-dashboard')}}">
                     <span class=" text-muted">Appointment</span>
                 </a>
+                @if (env('INSTANCE') === 'UshauriPublic')
                 <a class="{{ Route::currentRouteName()=='nishauri-dashboard' ? 'open' : '' }}" href="{{route('nishauri-dashboard')}}">
                     <span class=" text-muted">Nishauri</span>
                 </a>
+                @endif
             </li>
             @endif
             @if (Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Partner' || Auth::user()->access_level == 'Donor' || Auth::user()->access_level == 'County' || Auth::user()->access_level == 'Sub County')
@@ -126,15 +130,19 @@
                 <a class="{{ Route::currentRouteName()=='dashboard' ? 'open' : '' }}" href="{{route('dashboard')}}">
                     <span class=" text-muted">Summary</span>
                 </a>
+                @if (env('INSTANCE') === 'UshauriPublic')
                 <a class="{{ Route::currentRouteName()=='upi_dashboard' ? 'open' : '' }}" href="{{route('upi_dashboard')}}">
                     <span class=" text-muted">Client Verification</span>
                 </a>
+                @endif
                 <a class="{{ Route::currentRouteName()=='appointment-dashboard' ? 'open' : '' }}" href="{{route('appointment-dashboard')}}">
                     <span class=" text-muted">Appointment</span>
                 </a>
+                @if (env('INSTANCE') === 'UshauriPublic')
                 <a class="{{ Route::currentRouteName()=='nishauri-dashboard' ? 'open' : '' }}" href="{{route('nishauri-dashboard')}}">
                     <span class=" text-muted">Nishauri</span>
                 </a>
+                @endif
             </li>
             @endif
 
@@ -152,13 +160,14 @@
                 </a>
             </li> -->
             @endif
-
+            @if (env('INSTANCE') === 'UshauriPublic')
             @if (Auth::user()->access_level == 'Admin')
             <li class="nav-item">
                 <a class="{{ Route::currentRouteName()=='sms-analytics' ? 'open' : '' }}" href="{{route('sms-analytics')}}">
                     <span class=" text-muted">SMS Analytics</span>
                 </a>
             </li>
+            @endif
             @endif
         </ul>
 
@@ -213,11 +222,13 @@
                     <span class="item-name">Client Extract</span>
                 </a>
             </li>
+            @if (env('INSTANCE') === 'UshauriPublic')
             <li class="nav-item">
                 <a class="{{ Route::currentRouteName()=='upload-clients-form' ? 'open' : '' }}" href={{route('upload-clients-form')}}>
                     <span class="item-name">Upload Clients</span>
                 </a>
             </li>
+            @endif
             @endif
             @if (Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Partner' || Auth::user()->access_level == 'Donor' || Auth::user()->access_level == 'County' || Auth::user()->access_level == 'Sub County')
 
@@ -232,12 +243,13 @@
                     <span class="item-name">Clients List</span>
                 </a>
             </li>
-
+            @if (env('INSTANCE') === 'UshauriPublic')
             <li class="nav-item">
                 <a class="{{ Route::currentRouteName()=='upload-clients-form' ? 'open' : '' }}" href={{route('upload-clients-form')}}>
                     <span class="item-name">Upload Clients</span>
                 </a>
             </li>
+            @endif
             @endif
             @endif
         </ul>
@@ -391,6 +403,14 @@
         @endif
         <ul class="childNav" data-parent="admin">
             @if (Auth::user()->access_level == 'Admin')
+             @if (env('INSTANCE') === 'UshauriDOD')
+            <li class="nav-item">
+                <a class="" href="{{route('admin-partners')}}">
+                    <span class="item-name">Service</span>
+                </a>
+            </li>
+             @endif
+             @if (env('INSTANCE') === 'UshauriPublic')
             <li class="nav-item">
                 <a class="" href="{{route('admin-donors')}}">
                     <span class="item-name">Donor</span>
@@ -401,16 +421,19 @@
                     <span class="item-name">Partner</span>
                 </a>
             </li>
+             @endif
             <li class="nav-item">
                 <a class="" href="{{route('admin-groups')}}">
                     <span class="item-name">Groups</span>
                 </a>
             </li>
+            @if (env('INSTANCE') === 'UshauriPublic')
             <li class="nav-item">
                 <a class="" href="{{route('admin_facilities')}}">
                     <span class="item-name">Facilities</span>
                 </a>
             </li>
+            @endif
             <li class="nav-item">
                 <a class="" href={{route('admin-users')}}>
                     <span class="item-name">Users</span>
@@ -700,11 +723,13 @@
             </li>
 
             @if (Auth::user()->access_level == 'Partner' || Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Facility')
+            @if (env('INSTANCE') === 'UshauriPublic')
             <li class="nav-item">
                 <a href="{{route('report-lab_investigation')}}">
                     <span class="item-name">Lab Investigation</span>
                 </a>
             </li>
+            @endif
             @endif
 
             @if (Auth::user()->access_level == 'Admin')

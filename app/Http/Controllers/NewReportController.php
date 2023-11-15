@@ -29,178 +29,357 @@ class NewReportController extends Controller
 {
     public function clients_list()
     {
-        if (Auth::user()->access_level == 'Facility') {
-            $gender = Gender::all();
-            $marital = Marital::all();
-            $treatment = Condition::all();
-            $grouping = Group::all()->where('status', '=', 'Active');
-            $clinics = Clinic::all();
-            $time = Time::all();
-            $county = County::where('status', '=', 'Active')->pluck('name', 'id');
-            $language = Language::all()->where('status', '=', 'Active');
+        if (env('INSTANCE') === 'UshauriDOD') {
+            if (Auth::user()->access_level == 'Facility') {
+                $gender = Gender::all();
+                $marital = Marital::all();
+                $treatment = Condition::all();
+                $grouping = Group::all()->where('status', '=', 'Active');
+                $clinics = Clinic::all();
+                $time = Time::all();
+                $county = County::where('status', '=', 'Active')->pluck('name', 'id');
+                $language = Language::all()->where('status', '=', 'Active');
 
-            $clients = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->join('tbl_master_facility', 'tbl_client.mfl_code', '=', 'tbl_master_facility.code')
-                ->join('tbl_partner', 'tbl_partner_facility.partner_id', '=', 'tbl_partner.id')
-                ->join('tbl_gender', 'tbl_client.gender', '=', 'tbl_gender.id')
-                ->join('tbl_groups', 'tbl_client.group_id', '=', 'tbl_groups.id')
-                ->join('tbl_language', 'tbl_client.language_id', '=', 'tbl_language.id')
-                ->join('tbl_condition', 'tbl_client.client_status', '=', 'tbl_condition.name')
-                ->join('tbl_marital_status', 'tbl_client.marital', '=', 'tbl_marital_status.id')
-                ->join('tbl_county', 'tbl_partner_facility.county_id', '=', 'tbl_county.id')
-                ->select(
-                    'tbl_client.id',
-                    'tbl_client.clinic_number',
-                    'tbl_client.f_name',
-                    'tbl_client.m_name',
-                    'tbl_client.l_name',
-                    'tbl_client.dob',
-                    'tbl_client.created_at',
-                    'tbl_client.smsenable',
-                    DB::raw('DATE(tbl_client.enrollment_date) AS enrollment_date'),
-                    DB::raw('DATE(tbl_client.art_date) AS art_date'),
-                    'tbl_client.motivational_enable',
-                    'tbl_client.phone_no',
-                    'tbl_client.clinic_id',
-                    'tbl_client.client_status',
-                    'tbl_client.status',
-                    'tbl_client.language_id',
-                    'tbl_client.group_id',
-                    'tbl_client.txt_time',
-                    'tbl_condition.id as client_treatment',
-                    'tbl_gender.id as gender',
-                    'tbl_gender.name as gender_name',
-                    'tbl_marital_status.id as marital',
-                    'tbl_master_facility.code',
-                    'tbl_master_facility.name as facility',
-                    'tbl_partner.name as partner',
-                    'tbl_county.name as county',
-                    'tbl_client.locator_county',
-                    'tbl_client.locator_sub_county',
-                    'tbl_client.locator_ward',
-                    'tbl_client.locator_village',
-                    'tbl_client.locator_location',
-                    'tbl_client.upi_no'
-                )
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_client.mfl_code', Auth::user()->facility_id)
-                ->paginate(20000);
-        }
-        if (Auth::user()->access_level == 'Partner') {
-            $gender = Gender::all();
-            $marital = Marital::all();
-            $treatment = Condition::all();
-            $grouping = Group::all()->where('status', '=', 'Active');
-            $clinics = Clinic::all();
-            $time = Time::all();
-            $county = County::where('status', '=', 'Active')->pluck('name', 'id');
-            $language = Language::all()->where('status', '=', 'Active');
+                $clients = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                    ->join('tbl_master_facility', 'tbl_client.mfl_code', '=', 'tbl_master_facility.code')
+                    ->join('tbl_partner', 'tbl_partner_facility.partner_id', '=', 'tbl_partner.id')
+                    ->leftJoin('tbl_gender', 'tbl_client.gender', '=', 'tbl_gender.id')
+                    ->leftJoin('tbl_groups', 'tbl_client.group_id', '=', 'tbl_groups.id')
+                    ->leftJoin('tbl_language', 'tbl_client.language_id', '=', 'tbl_language.id')
+                    ->leftJoin('tbl_condition', 'tbl_client.client_status', '=', 'tbl_condition.name')
+                    ->leftJoin('tbl_marital_status', 'tbl_client.marital', '=', 'tbl_marital_status.id')
+                    ->select(
+                        'tbl_client.id',
+                        'tbl_client.clinic_number',
+                        'tbl_client.f_name',
+                        'tbl_client.m_name',
+                        'tbl_client.l_name',
+                        'tbl_client.dob',
+                        'tbl_client.created_at',
+                        'tbl_client.smsenable',
+                        DB::raw('DATE(tbl_client.enrollment_date) AS enrollment_date'),
+                        DB::raw('DATE(tbl_client.art_date) AS art_date'),
+                        'tbl_client.motivational_enable',
+                        'tbl_client.phone_no',
+                        'tbl_client.clinic_id',
+                        'tbl_client.client_status',
+                        'tbl_client.status',
+                        'tbl_client.language_id',
+                        'tbl_client.group_id',
+                        'tbl_client.txt_time',
+                        'tbl_condition.id as client_treatment',
+                        'tbl_gender.id as gender',
+                        'tbl_gender.name as gender_name',
+                        'tbl_marital_status.id as marital',
+                        'tbl_master_facility.code',
+                        'tbl_master_facility.name as facility',
+                        'tbl_partner.name as partner',
+                        'tbl_client.locator_county',
+                        'tbl_client.locator_sub_county',
+                        'tbl_client.locator_ward',
+                        'tbl_client.locator_village',
+                        'tbl_client.locator_location',
+                        'tbl_client.upi_no'
+                    )
+                    ->where('tbl_client.status', '=', 'Active')
+                    ->whereNull('tbl_client.hei_no')
+                    ->where('tbl_client.mfl_code', Auth::user()->facility_id)
+                    ->paginate(20000);
+            }
+            if (Auth::user()->access_level == 'Partner') {
+                $gender = Gender::all();
+                $marital = Marital::all();
+                $treatment = Condition::all();
+                $grouping = Group::all()->where('status', '=', 'Active');
+                $clinics = Clinic::all();
+                $time = Time::all();
+                $county = County::where('status', '=', 'Active')->pluck('name', 'id');
+                $language = Language::all()->where('status', '=', 'Active');
 
-            $clients = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->join('tbl_master_facility', 'tbl_client.mfl_code', '=', 'tbl_master_facility.code')
-                ->join('tbl_partner', 'tbl_partner_facility.partner_id', '=', 'tbl_partner.id')
-                ->join('tbl_gender', 'tbl_client.gender', '=', 'tbl_gender.id')
-                ->join('tbl_groups', 'tbl_client.group_id', '=', 'tbl_groups.id')
-                ->join('tbl_language', 'tbl_client.language_id', '=', 'tbl_language.id')
-                ->join('tbl_condition', 'tbl_client.client_status', '=', 'tbl_condition.name')
-                ->join('tbl_marital_status', 'tbl_client.marital', '=', 'tbl_marital_status.id')
-                ->join('tbl_county', 'tbl_partner_facility.county_id', '=', 'tbl_county.id')
-                ->select(
-                    'tbl_client.id',
-                    'tbl_client.clinic_number',
-                    'tbl_client.f_name',
-                    'tbl_client.m_name',
-                    'tbl_client.l_name',
-                    'tbl_client.dob',
-                    'tbl_client.created_at',
-                    'tbl_client.smsenable',
-                    DB::raw('DATE(tbl_client.enrollment_date) AS enrollment_date'),
-                    DB::raw('DATE(tbl_client.art_date) AS art_date'),
-                    'tbl_client.motivational_enable',
-                    'tbl_client.phone_no',
-                    'tbl_client.clinic_id',
-                    'tbl_client.client_status',
-                    'tbl_client.status',
-                    'tbl_client.language_id',
-                    'tbl_client.group_id',
-                    'tbl_client.txt_time',
-                    'tbl_condition.id as client_treatment',
-                    'tbl_gender.id as gender',
-                    'tbl_gender.name as gender_name',
-                    'tbl_marital_status.id as marital',
-                    'tbl_master_facility.code',
-                    'tbl_master_facility.name as facility',
-                    'tbl_partner.name as partner',
-                    'tbl_county.name as county',
-                    'tbl_client.locator_county',
-                    'tbl_client.locator_sub_county',
-                    'tbl_client.locator_ward',
-                    'tbl_client.locator_village',
-                    'tbl_client.locator_location',
-                    'tbl_client.upi_no'
-                )
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
-                ->paginate(1000);
-        }
-        if (Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Donor') {
-            $gender = Gender::all();
-            $marital = Marital::all();
-            $treatment = Condition::all();
-            $grouping = Group::all()->where('status', '=', 'Active');
-            $clinics = Clinic::all();
-            $time = Time::all();
-            $county = County::where('status', '=', 'Active')->pluck('name', 'id');
-            $language = Language::all()->where('status', '=', 'Active');
+                $clients = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                    ->join('tbl_master_facility', 'tbl_client.mfl_code', '=', 'tbl_master_facility.code')
+                    ->join('tbl_partner', 'tbl_partner_facility.partner_id', '=', 'tbl_partner.id')
+                    ->leftJoin('tbl_gender', 'tbl_client.gender', '=', 'tbl_gender.id')
+                    ->leftJoin('tbl_groups', 'tbl_client.group_id', '=', 'tbl_groups.id')
+                    ->leftJoin('tbl_language', 'tbl_client.language_id', '=', 'tbl_language.id')
+                    ->leftJoin('tbl_condition', 'tbl_client.client_status', '=', 'tbl_condition.name')
+                    ->leftJoin('tbl_marital_status', 'tbl_client.marital', '=', 'tbl_marital_status.id')
+                    ->select(
+                        'tbl_client.id',
+                        'tbl_client.clinic_number',
+                        'tbl_client.f_name',
+                        'tbl_client.m_name',
+                        'tbl_client.l_name',
+                        'tbl_client.dob',
+                        'tbl_client.created_at',
+                        'tbl_client.smsenable',
+                        DB::raw('DATE(tbl_client.enrollment_date) AS enrollment_date'),
+                        DB::raw('DATE(tbl_client.art_date) AS art_date'),
+                        'tbl_client.motivational_enable',
+                        'tbl_client.phone_no',
+                        'tbl_client.clinic_id',
+                        'tbl_client.client_status',
+                        'tbl_client.status',
+                        'tbl_client.language_id',
+                        'tbl_client.group_id',
+                        'tbl_client.txt_time',
+                        'tbl_condition.id as client_treatment',
+                        'tbl_gender.id as gender',
+                        'tbl_gender.name as gender_name',
+                        'tbl_marital_status.id as marital',
+                        'tbl_master_facility.code',
+                        'tbl_master_facility.name as facility',
+                        'tbl_partner.name as partner',
+                        'tbl_client.locator_county',
+                        'tbl_client.locator_sub_county',
+                        'tbl_client.locator_ward',
+                        'tbl_client.locator_village',
+                        'tbl_client.locator_location',
+                        'tbl_client.upi_no'
+                    )
+                    ->where('tbl_client.status', '=', 'Active')
+                    ->whereNull('tbl_client.hei_no')
+                    ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
+                    ->paginate(1000);
+            }
+            if (Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Donor') {
+                $gender = Gender::all();
+                $marital = Marital::all();
+                $treatment = Condition::all();
+                $grouping = Group::all()->where('status', '=', 'Active');
+                $clinics = Clinic::all();
+                $time = Time::all();
+                $county = County::where('status', '=', 'Active')->pluck('name', 'id');
+                $language = Language::all()->where('status', '=', 'Active');
 
-            $clients = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->join('tbl_master_facility', 'tbl_client.mfl_code', '=', 'tbl_master_facility.code')
-                ->join('tbl_partner', 'tbl_partner_facility.partner_id', '=', 'tbl_partner.id')
-                ->join('tbl_gender', 'tbl_client.gender', '=', 'tbl_gender.id')
-                ->join('tbl_groups', 'tbl_client.group_id', '=', 'tbl_groups.id')
-                ->join('tbl_language', 'tbl_client.language_id', '=', 'tbl_language.id')
-                ->join('tbl_condition', 'tbl_client.client_status', '=', 'tbl_condition.name')
-                ->join('tbl_marital_status', 'tbl_client.marital', '=', 'tbl_marital_status.id')
-                ->join('tbl_county', 'tbl_partner_facility.county_id', '=', 'tbl_county.id')
-                ->select(
-                    'tbl_client.id',
-                    'tbl_client.clinic_number',
-                    'tbl_client.f_name',
-                    'tbl_client.m_name',
-                    'tbl_client.l_name',
-                    'tbl_client.dob',
-                    'tbl_client.created_at',
-                    'tbl_client.smsenable',
-                    DB::raw('DATE(tbl_client.enrollment_date) AS enrollment_date'),
-                    DB::raw('DATE(tbl_client.art_date) AS art_date'),
-                    'tbl_client.motivational_enable',
-                    'tbl_client.phone_no',
-                    'tbl_client.clinic_id',
-                    'tbl_client.client_status',
-                    'tbl_client.status',
-                    'tbl_client.language_id',
-                    'tbl_client.group_id',
-                    'tbl_client.txt_time',
-                    'tbl_condition.id as client_treatment',
-                    'tbl_gender.id as gender',
-                    'tbl_gender.name as gender_name',
-                    'tbl_marital_status.id as marital',
-                    'tbl_master_facility.code',
-                    'tbl_master_facility.name as facility',
-                    'tbl_partner.name as partner',
-                    'tbl_county.name as county',
-                    'tbl_client.locator_county',
-                    'tbl_client.locator_sub_county',
-                    'tbl_client.locator_ward',
-                    'tbl_client.locator_village',
-                    'tbl_client.locator_location',
-                    'tbl_client.upi_no'
-                )
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->paginate(1000);
+                $clients = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                    ->join('tbl_master_facility', 'tbl_client.mfl_code', '=', 'tbl_master_facility.code')
+                    ->join('tbl_partner', 'tbl_partner_facility.partner_id', '=', 'tbl_partner.id')
+                    ->leftJoin('tbl_gender', 'tbl_client.gender', '=', 'tbl_gender.id')
+                    ->leftJoin('tbl_groups', 'tbl_client.group_id', '=', 'tbl_groups.id')
+                    ->leftJoin('tbl_language', 'tbl_client.language_id', '=', 'tbl_language.id')
+                    ->leftJoin('tbl_condition', 'tbl_client.client_status', '=', 'tbl_condition.name')
+                    ->leftJoin('tbl_marital_status', 'tbl_client.marital', '=', 'tbl_marital_status.id')
+                    ->select(
+                        'tbl_client.id',
+                        'tbl_client.clinic_number',
+                        'tbl_client.f_name',
+                        'tbl_client.m_name',
+                        'tbl_client.l_name',
+                        'tbl_client.dob',
+                        'tbl_client.created_at',
+                        'tbl_client.smsenable',
+                        DB::raw('DATE(tbl_client.enrollment_date) AS enrollment_date'),
+                        DB::raw('DATE(tbl_client.art_date) AS art_date'),
+                        'tbl_client.motivational_enable',
+                        'tbl_client.phone_no',
+                        'tbl_client.clinic_id',
+                        'tbl_client.client_status',
+                        'tbl_client.status',
+                        'tbl_client.language_id',
+                        'tbl_client.group_id',
+                        'tbl_client.txt_time',
+                        'tbl_condition.id as client_treatment',
+                        'tbl_gender.id as gender',
+                        'tbl_gender.name as gender_name',
+                        'tbl_marital_status.id as marital',
+                        'tbl_master_facility.code',
+                        'tbl_master_facility.name as facility',
+                        'tbl_partner.name as partner',
+                        'tbl_client.locator_county',
+                        'tbl_client.locator_sub_county',
+                        'tbl_client.locator_ward',
+                        'tbl_client.locator_village',
+                        'tbl_client.locator_location',
+                        'tbl_client.upi_no'
+                    )
+                    ->where('tbl_client.status', '=', 'Active')
+                    ->whereNull('tbl_client.hei_no')
+                    ->paginate(1000);
+            }
+        } else {
+            if (Auth::user()->access_level == 'Facility') {
+                $gender = Gender::all();
+                $marital = Marital::all();
+                $treatment = Condition::all();
+                $grouping = Group::all()->where('status', '=', 'Active');
+                $clinics = Clinic::all();
+                $time = Time::all();
+                $county = County::where('status', '=', 'Active')->pluck('name', 'id');
+                $language = Language::all()->where('status', '=', 'Active');
+
+                $clients = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                    ->join('tbl_master_facility', 'tbl_client.mfl_code', '=', 'tbl_master_facility.code')
+                    ->join('tbl_partner', 'tbl_partner_facility.partner_id', '=', 'tbl_partner.id')
+                    ->leftJoin('tbl_gender', 'tbl_client.gender', '=', 'tbl_gender.id')
+                    ->leftJoin('tbl_groups', 'tbl_client.group_id', '=', 'tbl_groups.id')
+                    ->leftJoin('tbl_language', 'tbl_client.language_id', '=', 'tbl_language.id')
+                    ->leftJoin('tbl_condition', 'tbl_client.client_status', '=', 'tbl_condition.name')
+                    ->leftJoin('tbl_marital_status', 'tbl_client.marital', '=', 'tbl_marital_status.id')
+                    ->join('tbl_county', 'tbl_partner_facility.county_id', '=', 'tbl_county.id')
+                    ->leftJoin(DB::raw('(SELECT client_id, DATE(created_at) AS created_at
+                   FROM tbl_appointment a1
+                   WHERE a1.id = (SELECT MAX(a2.id) FROM tbl_appointment a2 WHERE a2.client_id = a1.client_id)
+                     AND a1.consented = "YES") a'), 'tbl_client.id', '=', 'a.client_id')
+                    ->select(
+                        'tbl_client.id',
+                        'tbl_client.clinic_number',
+                        'tbl_client.f_name',
+                        'tbl_client.m_name',
+                        'tbl_client.l_name',
+                        'tbl_client.dob',
+                        'tbl_client.created_at',
+                        DB::raw('CASE WHEN tbl_client.smsenable="Yes" THEN "Yes" WHEN a.client_id IS NOT NULL THEN
+                        "Yes" ELSE "No" END as smsenable'),
+                        DB::raw('DATE(tbl_client.enrollment_date) AS enrollment_date'),
+                        DB::raw('DATE(tbl_client.art_date) AS art_date'),
+                        'tbl_client.motivational_enable',
+                        'tbl_client.phone_no',
+                        'tbl_client.clinic_id',
+                        'tbl_client.client_status',
+                        'tbl_client.status',
+                        'tbl_client.language_id',
+                        'tbl_client.group_id',
+                        'tbl_client.txt_time',
+                        'tbl_condition.id as client_treatment',
+                        'tbl_gender.id as gender',
+                        'tbl_gender.name as gender_name',
+                        'tbl_marital_status.id as marital',
+                        'tbl_master_facility.code',
+                        'tbl_master_facility.name as facility',
+                        'tbl_partner.name as partner',
+                        'tbl_county.name as county',
+                        'tbl_client.locator_county',
+                        'tbl_client.locator_sub_county',
+                        'tbl_client.locator_ward',
+                        'tbl_client.locator_village',
+                        'tbl_client.locator_location',
+                        'tbl_client.upi_no'
+                    )
+                    ->whereNull('tbl_client.hei_no')
+                    ->where('tbl_client.mfl_code', Auth::user()->facility_id)
+                    ->paginate(20000);
+            }
+            if (Auth::user()->access_level == 'Partner') {
+                $gender = Gender::all();
+                $marital = Marital::all();
+                $treatment = Condition::all();
+                $grouping = Group::all()->where('status', '=', 'Active');
+                $clinics = Clinic::all();
+                $time = Time::all();
+                $county = County::where('status', '=', 'Active')->pluck('name', 'id');
+                $language = Language::all()->where('status', '=', 'Active');
+
+                $clients = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                    ->join('tbl_master_facility', 'tbl_client.mfl_code', '=', 'tbl_master_facility.code')
+                    ->join('tbl_partner', 'tbl_partner_facility.partner_id', '=', 'tbl_partner.id')
+                    ->join('tbl_gender', 'tbl_client.gender', '=', 'tbl_gender.id')
+                    ->join('tbl_groups', 'tbl_client.group_id', '=', 'tbl_groups.id')
+                    ->join('tbl_language', 'tbl_client.language_id', '=', 'tbl_language.id')
+                    ->join('tbl_condition', 'tbl_client.client_status', '=', 'tbl_condition.name')
+                    ->join('tbl_marital_status', 'tbl_client.marital', '=', 'tbl_marital_status.id')
+                    ->join('tbl_county', 'tbl_partner_facility.county_id', '=', 'tbl_county.id')
+                    ->leftJoin(DB::raw('(SELECT client_id, DATE(created_at) AS created_at
+                   FROM tbl_appointment a1
+                   WHERE a1.id = (SELECT MAX(a2.id) FROM tbl_appointment a2 WHERE a2.client_id = a1.client_id)
+                     AND a1.consented = "YES") a'), 'tbl_client.id', '=', 'a.client_id')
+                    ->select(
+                        'tbl_client.id',
+                        'tbl_client.clinic_number',
+                        'tbl_client.f_name',
+                        'tbl_client.m_name',
+                        'tbl_client.l_name',
+                        'tbl_client.dob',
+                        'tbl_client.created_at',
+                        DB::raw('CASE WHEN tbl_client.smsenable="Yes" THEN "Yes" WHEN a.client_id IS NOT NULL THEN
+                        "Yes" ELSE "No" END as smsenable'),
+                        DB::raw('DATE(tbl_client.enrollment_date) AS enrollment_date'),
+                        DB::raw('DATE(tbl_client.art_date) AS art_date'),
+                        'tbl_client.motivational_enable',
+                        'tbl_client.phone_no',
+                        'tbl_client.clinic_id',
+                        'tbl_client.client_status',
+                        'tbl_client.status',
+                        'tbl_client.language_id',
+                        'tbl_client.group_id',
+                        'tbl_client.txt_time',
+                        'tbl_condition.id as client_treatment',
+                        'tbl_gender.id as gender',
+                        'tbl_gender.name as gender_name',
+                        'tbl_marital_status.id as marital',
+                        'tbl_master_facility.code',
+                        'tbl_master_facility.name as facility',
+                        'tbl_partner.name as partner',
+                        'tbl_county.name as county',
+                        'tbl_client.locator_county',
+                        'tbl_client.locator_sub_county',
+                        'tbl_client.locator_ward',
+                        'tbl_client.locator_village',
+                        'tbl_client.locator_location',
+                        'tbl_client.upi_no'
+                    )
+                    ->where('tbl_client.status', '=', 'Active')
+                    ->whereNull('tbl_client.hei_no')
+                    ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
+                    ->paginate(1000);
+            }
+            if (Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Donor') {
+                $gender = Gender::all();
+                $marital = Marital::all();
+                $treatment = Condition::all();
+                $grouping = Group::all()->where('status', '=', 'Active');
+                $clinics = Clinic::all();
+                $time = Time::all();
+                $county = County::where('status', '=', 'Active')->pluck('name', 'id');
+                $language = Language::all()->where('status', '=', 'Active');
+
+                $clients = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                    ->join('tbl_master_facility', 'tbl_client.mfl_code', '=', 'tbl_master_facility.code')
+                    ->join('tbl_partner', 'tbl_partner_facility.partner_id', '=', 'tbl_partner.id')
+                    ->join('tbl_gender', 'tbl_client.gender', '=', 'tbl_gender.id')
+                    ->join('tbl_groups', 'tbl_client.group_id', '=', 'tbl_groups.id')
+                    ->join('tbl_language', 'tbl_client.language_id', '=', 'tbl_language.id')
+                    ->join('tbl_condition', 'tbl_client.client_status', '=', 'tbl_condition.name')
+                    ->join('tbl_marital_status', 'tbl_client.marital', '=', 'tbl_marital_status.id')
+                    ->join('tbl_county', 'tbl_partner_facility.county_id', '=', 'tbl_county.id')
+                    ->select(
+                        'tbl_client.id',
+                        'tbl_client.clinic_number',
+                        'tbl_client.f_name',
+                        'tbl_client.m_name',
+                        'tbl_client.l_name',
+                        'tbl_client.dob',
+                        'tbl_client.created_at',
+                        'tbl_client.smsenable',
+                        DB::raw('DATE(tbl_client.enrollment_date) AS enrollment_date'),
+                        DB::raw('DATE(tbl_client.art_date) AS art_date'),
+                        'tbl_client.motivational_enable',
+                        'tbl_client.phone_no',
+                        'tbl_client.clinic_id',
+                        'tbl_client.client_status',
+                        'tbl_client.status',
+                        'tbl_client.language_id',
+                        'tbl_client.group_id',
+                        'tbl_client.txt_time',
+                        'tbl_condition.id as client_treatment',
+                        'tbl_gender.id as gender',
+                        'tbl_gender.name as gender_name',
+                        'tbl_marital_status.id as marital',
+                        'tbl_master_facility.code',
+                        'tbl_master_facility.name as facility',
+                        'tbl_partner.name as partner',
+                        'tbl_county.name as county',
+                        'tbl_client.locator_county',
+                        'tbl_client.locator_sub_county',
+                        'tbl_client.locator_ward',
+                        'tbl_client.locator_village',
+                        'tbl_client.locator_location',
+                        'tbl_client.upi_no'
+                    )
+                    ->where('tbl_client.status', '=', 'Active')
+                    ->whereNull('tbl_client.hei_no')
+                    ->paginate(1000);
+            }
         }
 
         return view('new_reports.clients', compact('clients', 'gender', 'marital', 'clinics', 'time', 'treatment', 'language', 'grouping', 'county'));
@@ -262,10 +441,10 @@ class NewReportController extends Controller
                 ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
                 ->join('tbl_master_facility', 'tbl_client.mfl_code', '=', 'tbl_master_facility.code')
                 ->join('tbl_partner', 'tbl_partner_facility.partner_id', '=', 'tbl_partner.id')
-                ->join('tbl_gender', 'tbl_client.gender', '=', 'tbl_gender.id')
-                ->join('tbl_county', 'tbl_partner_facility.county_id', '=', 'tbl_county.id')
+                ->leftJoin('tbl_gender', 'tbl_client.gender', '=', 'tbl_gender.id')
+                ->leftJoin('tbl_county', 'tbl_partner_facility.county_id', '=', 'tbl_county.id')
                 ->join('tbl_appointment_types', 'tbl_appointment.app_type_1', '=', 'tbl_appointment_types.id')
-                ->select('tbl_client.clinic_number', 'tbl_client.f_name', 'tbl_client.m_name', 'tbl_client.l_name', 'tbl_client.dob', 'tbl_client.smsenable', 'tbl_client.phone_no', 'tbl_gender.name as gender', 'tbl_appointment_types.name as app_type', 'tbl_appointment.appntmnt_date', 'tbl_appointment.app_status', 'tbl_appointment.created_at', 'tbl_master_facility.code', 'tbl_master_facility.name as facility', 'tbl_partner.name as partner', 'tbl_county.name as county')
+                ->select('tbl_client.clinic_number', 'tbl_client.f_name', 'tbl_client.m_name', 'tbl_client.l_name', 'tbl_client.dob', 'tbl_client.smsenable', 'tbl_client.phone_no', 'tbl_gender.name as gender', 'tbl_appointment_types.name as app_type', 'tbl_appointment.appntmnt_date', 'tbl_appointment.app_status', 'tbl_appointment.appntmnt_date', 'tbl_appointment.app_status', 'tbl_appointment.created_at', 'tbl_master_facility.code', 'tbl_master_facility.name as facility', 'tbl_partner.name as partner', 'tbl_county.name as county')
                 ->where('tbl_client.status', '=', 'Active')
                 ->paginate(1000);
         }
@@ -274,10 +453,10 @@ class NewReportController extends Controller
                 ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
                 ->join('tbl_master_facility', 'tbl_client.mfl_code', '=', 'tbl_master_facility.code')
                 ->join('tbl_partner', 'tbl_partner_facility.partner_id', '=', 'tbl_partner.id')
-                ->join('tbl_gender', 'tbl_client.gender', '=', 'tbl_gender.id')
-                ->join('tbl_county', 'tbl_partner_facility.county_id', '=', 'tbl_county.id')
+                ->leftJoin('tbl_gender', 'tbl_client.gender', '=', 'tbl_gender.id')
+                ->leftJoin('tbl_county', 'tbl_partner_facility.county_id', '=', 'tbl_county.id')
                 ->join('tbl_appointment_types', 'tbl_appointment.app_type_1', '=', 'tbl_appointment_types.id')
-                ->select('tbl_client.clinic_number', 'tbl_client.f_name', 'tbl_client.m_name', 'tbl_client.l_name', 'tbl_client.dob', 'tbl_client.smsenable', 'tbl_client.phone_no', 'tbl_gender.name as gender', 'tbl_appointment_types.name as app_type', 'tbl_appointment.appntmnt_date', 'tbl_appointment.app_status', 'tbl_appointment.created_at', 'tbl_master_facility.code', 'tbl_master_facility.name as facility', 'tbl_partner.name as partner', 'tbl_county.name as county')
+                ->select('tbl_client.clinic_number', 'tbl_client.f_name', 'tbl_client.m_name', 'tbl_client.l_name', 'tbl_client.dob', 'tbl_client.smsenable', 'tbl_client.phone_no', 'tbl_gender.name as gender', 'tbl_appointment_types.name as app_type', 'tbl_appointment.appntmnt_date', 'tbl_appointment.app_status', 'tbl_appointment.date_attended', 'tbl_appointment.active_app', 'tbl_appointment.created_at', 'tbl_master_facility.code', 'tbl_master_facility.name as facility', 'tbl_partner.name as partner', 'tbl_county.name as county')
                 ->where('tbl_client.status', '=', 'Active')
                 ->where('tbl_client.mfl_code', Auth::user()->facility_id)
                 ->paginate(1000);
@@ -287,10 +466,10 @@ class NewReportController extends Controller
                 ->join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
                 ->join('tbl_master_facility', 'tbl_client.mfl_code', '=', 'tbl_master_facility.code')
                 ->join('tbl_partner', 'tbl_partner_facility.partner_id', '=', 'tbl_partner.id')
-                ->join('tbl_gender', 'tbl_client.gender', '=', 'tbl_gender.id')
-                ->join('tbl_county', 'tbl_partner_facility.county_id', '=', 'tbl_county.id')
+                ->leftJoin('tbl_gender', 'tbl_client.gender', '=', 'tbl_gender.id')
+                ->leftJoin('tbl_county', 'tbl_partner_facility.county_id', '=', 'tbl_county.id')
                 ->join('tbl_appointment_types', 'tbl_appointment.app_type_1', '=', 'tbl_appointment_types.id')
-                ->select('tbl_client.clinic_number', 'tbl_client.f_name', 'tbl_client.m_name', 'tbl_client.l_name', 'tbl_client.dob', 'tbl_client.smsenable', 'tbl_client.phone_no', 'tbl_gender.name as gender', 'tbl_appointment_types.name as app_type', 'tbl_appointment.appntmnt_date', 'tbl_appointment.app_status', 'tbl_appointment.created_at', 'tbl_master_facility.code', 'tbl_master_facility.name as facility', 'tbl_partner.name as partner', 'tbl_county.name as county')
+                ->select('tbl_client.clinic_number', 'tbl_client.f_name', 'tbl_client.m_name', 'tbl_client.l_name', 'tbl_client.dob', 'tbl_client.smsenable', 'tbl_client.phone_no', 'tbl_gender.name as gender', 'tbl_appointment_types.name as app_type', 'tbl_appointment.appntmnt_date', 'tbl_appointment.app_status', 'tbl_appointment.appntmnt_date', 'tbl_appointment.app_status', 'tbl_appointment.created_at', 'tbl_master_facility.code', 'tbl_master_facility.name as facility', 'tbl_partner.name as partner', 'tbl_county.name as county')
                 ->where('tbl_client.status', '=', 'Active')
                 ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
                 ->paginate(1000);
@@ -300,74 +479,144 @@ class NewReportController extends Controller
     }
     public function active_facility()
     {
-        if (Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Donor') {
-            $active_facilities = PartnerFacility::join('tbl_client', 'tbl_partner_facility.mfl_code', '=', 'tbl_client.mfl_code')
-                ->join('tbl_master_facility', 'tbl_partner_facility.mfl_code', '=', 'tbl_master_facility.code')
-                ->join('tbl_appointment', 'tbl_client.id', '=', 'tbl_appointment.client_id')
-                ->join('tbl_partner', 'tbl_partner_facility.partner_id', '=', 'tbl_partner.id')
-                ->join('tbl_county', 'tbl_partner_facility.county_id', '=', 'tbl_county.id')
-                ->join('tbl_sub_county', 'tbl_partner_facility.sub_county_id', '=', 'tbl_sub_county.id')
-                ->select('tbl_master_facility.code', 'tbl_master_facility.name as facility', 'tbl_partner.name as partner', 'tbl_county.name as county', 'tbl_sub_county.name as subcounty')
-                ->whereDate('tbl_appointment.created_at', '>=', Carbon::now()->subMonths(6)->toDateString())
-                ->orderBy('tbl_appointment.created_at', 'DESC')
-                ->groupBy('tbl_partner_facility.mfl_code')
-                ->get();
-        }
-        if (Auth::user()->access_level == 'Partner') {
-            $active_facilities = PartnerFacility::join('tbl_client', 'tbl_partner_facility.mfl_code', '=', 'tbl_client.mfl_code')
-                ->join('tbl_master_facility', 'tbl_partner_facility.mfl_code', '=', 'tbl_master_facility.code')
-                ->join('tbl_appointment', 'tbl_client.id', '=', 'tbl_appointment.client_id')
-                ->join('tbl_partner', 'tbl_partner_facility.partner_id', '=', 'tbl_partner.id')
-                ->join('tbl_county', 'tbl_partner_facility.county_id', '=', 'tbl_county.id')
-                ->join('tbl_sub_county', 'tbl_partner_facility.sub_county_id', '=', 'tbl_sub_county.id')
-                ->select('tbl_master_facility.code', 'tbl_master_facility.name as facility', 'tbl_partner.name as partner', 'tbl_county.name as county', 'tbl_sub_county.name as subcounty')
-                ->whereDate('tbl_appointment.created_at', '>=', Carbon::now()->subMonths(6)->toDateString())
-                ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
-                ->orderBy('tbl_appointment.created_at', 'DESC')
-                ->groupBy('tbl_partner_facility.mfl_code')
-                ->get();
-        }
-        if (Auth::user()->access_level == 'Sub County') {
-            $active_facilities = PartnerFacility::join('tbl_client', 'tbl_partner_facility.mfl_code', '=', 'tbl_client.mfl_code')
-                ->join('tbl_master_facility', 'tbl_partner_facility.mfl_code', '=', 'tbl_master_facility.code')
-                ->join('tbl_appointment', 'tbl_client.id', '=', 'tbl_appointment.client_id')
-                ->join('tbl_partner', 'tbl_partner_facility.partner_id', '=', 'tbl_partner.id')
-                ->join('tbl_county', 'tbl_partner_facility.county_id', '=', 'tbl_county.id')
-                ->join('tbl_sub_county', 'tbl_partner_facility.sub_county_id', '=', 'tbl_sub_county.id')
-                ->select('tbl_master_facility.code', 'tbl_master_facility.name as facility', 'tbl_partner.name as partner', 'tbl_county.name as county', 'tbl_sub_county.name as subcounty')
-                ->whereDate('tbl_appointment.created_at', '>=', Carbon::now()->subMonths(6)->toDateString())
-                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id)
-                ->orderBy('tbl_appointment.created_at', 'DESC')
-                ->groupBy('tbl_partner_facility.mfl_code')
-                ->get();
-        }
-        if (Auth::user()->access_level == 'County') {
-            $active_facilities = PartnerFacility::join('tbl_client', 'tbl_partner_facility.mfl_code', '=', 'tbl_client.mfl_code')
-                ->join('tbl_master_facility', 'tbl_partner_facility.mfl_code', '=', 'tbl_master_facility.code')
-                ->join('tbl_appointment', 'tbl_client.id', '=', 'tbl_appointment.client_id')
-                ->join('tbl_partner', 'tbl_partner_facility.partner_id', '=', 'tbl_partner.id')
-                ->join('tbl_county', 'tbl_partner_facility.county_id', '=', 'tbl_county.id')
-                ->join('tbl_sub_county', 'tbl_partner_facility.sub_county_id', '=', 'tbl_sub_county.id')
-                ->select('tbl_master_facility.code', 'tbl_master_facility.name as facility', 'tbl_partner.name as partner', 'tbl_county.name as county', 'tbl_sub_county.name as subcounty')
-                ->whereDate('tbl_appointment.created_at', '>=', Carbon::now()->subMonths(6)->toDateString())
-                ->where('tbl_partner_facility.county_id', Auth::user()->county_id)
-                ->orderBy('tbl_appointment.created_at', 'DESC')
-                ->groupBy('tbl_partner_facility.mfl_code')
-                ->get();
-        }
-        if (Auth::user()->access_level == 'Facility') {
-            $active_facilities = PartnerFacility::join('tbl_client', 'tbl_partner_facility.mfl_code', '=', 'tbl_client.mfl_code')
-                ->join('tbl_master_facility', 'tbl_partner_facility.mfl_code', '=', 'tbl_master_facility.code')
-                ->join('tbl_appointment', 'tbl_client.id', '=', 'tbl_appointment.client_id')
-                ->join('tbl_partner', 'tbl_partner_facility.partner_id', '=', 'tbl_partner.id')
-                ->join('tbl_county', 'tbl_partner_facility.county_id', '=', 'tbl_county.id')
-                ->join('tbl_sub_county', 'tbl_partner_facility.sub_county_id', '=', 'tbl_sub_county.id')
-                ->select('tbl_master_facility.code', 'tbl_master_facility.name as facility', 'tbl_partner.name as partner', 'tbl_county.name as county', 'tbl_sub_county.name as subcounty')
-                ->whereDate('tbl_appointment.created_at', '>=', Carbon::now()->subMonths(6)->toDateString())
-                ->where('tbl_partner_facility.mfl_code', Auth::user()->facility_id)
-                ->orderBy('tbl_appointment.created_at', 'DESC')
-                ->groupBy('tbl_partner_facility.mfl_code')
-                ->get();
+        if (env('INSTANCE') === 'UshauriDOD') {
+            if (Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Donor') {
+                $active_facilities = PartnerFacility::join('tbl_client', 'tbl_partner_facility.mfl_code', '=', 'tbl_client.mfl_code')
+                    ->join('tbl_master_facility', 'tbl_partner_facility.mfl_code', '=', 'tbl_master_facility.code')
+                    ->join('tbl_appointment', 'tbl_client.id', '=', 'tbl_appointment.client_id')
+                    ->join('tbl_partner', 'tbl_partner_facility.partner_id', '=', 'tbl_partner.id')
+                    ->select('tbl_master_facility.code', 'tbl_master_facility.name as facility', 'tbl_partner.name as partner')
+                    ->whereDate('tbl_appointment.created_at', '>=', Carbon::now()->subMonths(6)->toDateString())
+                    ->orderBy('tbl_appointment.created_at', 'DESC')
+                    ->groupBy('tbl_partner_facility.mfl_code')
+                    ->get();
+            }
+            if (Auth::user()->access_level == 'Partner') {
+                $active_facilities = PartnerFacility::join('tbl_client', 'tbl_partner_facility.mfl_code', '=', 'tbl_client.mfl_code')
+                    ->join('tbl_master_facility', 'tbl_partner_facility.mfl_code', '=', 'tbl_master_facility.code')
+                    ->join('tbl_appointment', 'tbl_client.id', '=', 'tbl_appointment.client_id')
+                    ->join('tbl_partner', 'tbl_partner_facility.partner_id', '=', 'tbl_partner.id')
+                    ->join('tbl_county', 'tbl_partner_facility.county_id', '=', 'tbl_county.id')
+                    ->join('tbl_sub_county', 'tbl_partner_facility.sub_county_id', '=', 'tbl_sub_county.id')
+                    ->select('tbl_master_facility.code', 'tbl_master_facility.name as facility', 'tbl_partner.name as partner', 'tbl_county.name as county', 'tbl_sub_county.name as subcounty')
+                    ->whereDate('tbl_appointment.created_at', '>=', Carbon::now()->subMonths(6)->toDateString())
+                    ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
+                    ->orderBy('tbl_appointment.created_at', 'DESC')
+                    ->groupBy('tbl_partner_facility.mfl_code')
+                    ->get();
+            }
+            if (Auth::user()->access_level == 'Sub County') {
+                $active_facilities = PartnerFacility::join('tbl_client', 'tbl_partner_facility.mfl_code', '=', 'tbl_client.mfl_code')
+                    ->join('tbl_master_facility', 'tbl_partner_facility.mfl_code', '=', 'tbl_master_facility.code')
+                    ->join('tbl_appointment', 'tbl_client.id', '=', 'tbl_appointment.client_id')
+                    ->join('tbl_partner', 'tbl_partner_facility.partner_id', '=', 'tbl_partner.id')
+                    ->join('tbl_county', 'tbl_partner_facility.county_id', '=', 'tbl_county.id')
+                    ->join('tbl_sub_county', 'tbl_partner_facility.sub_county_id', '=', 'tbl_sub_county.id')
+                    ->select('tbl_master_facility.code', 'tbl_master_facility.name as facility', 'tbl_partner.name as partner', 'tbl_county.name as county', 'tbl_sub_county.name as subcounty')
+                    ->whereDate('tbl_appointment.created_at', '>=', Carbon::now()->subMonths(6)->toDateString())
+                    ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id)
+                    ->orderBy('tbl_appointment.created_at', 'DESC')
+                    ->groupBy('tbl_partner_facility.mfl_code')
+                    ->get();
+            }
+            if (Auth::user()->access_level == 'County') {
+                $active_facilities = PartnerFacility::join('tbl_client', 'tbl_partner_facility.mfl_code', '=', 'tbl_client.mfl_code')
+                    ->join('tbl_master_facility', 'tbl_partner_facility.mfl_code', '=', 'tbl_master_facility.code')
+                    ->join('tbl_appointment', 'tbl_client.id', '=', 'tbl_appointment.client_id')
+                    ->join('tbl_partner', 'tbl_partner_facility.partner_id', '=', 'tbl_partner.id')
+                    ->join('tbl_county', 'tbl_partner_facility.county_id', '=', 'tbl_county.id')
+                    ->join('tbl_sub_county', 'tbl_partner_facility.sub_county_id', '=', 'tbl_sub_county.id')
+                    ->select('tbl_master_facility.code', 'tbl_master_facility.name as facility', 'tbl_partner.name as partner', 'tbl_county.name as county', 'tbl_sub_county.name as subcounty')
+                    ->whereDate('tbl_appointment.created_at', '>=', Carbon::now()->subMonths(6)->toDateString())
+                    ->where('tbl_partner_facility.county_id', Auth::user()->county_id)
+                    ->orderBy('tbl_appointment.created_at', 'DESC')
+                    ->groupBy('tbl_partner_facility.mfl_code')
+                    ->get();
+            }
+            if (Auth::user()->access_level == 'Facility') {
+                $active_facilities = PartnerFacility::join('tbl_client', 'tbl_partner_facility.mfl_code', '=', 'tbl_client.mfl_code')
+                    ->join('tbl_master_facility', 'tbl_partner_facility.mfl_code', '=', 'tbl_master_facility.code')
+                    ->join('tbl_appointment', 'tbl_client.id', '=', 'tbl_appointment.client_id')
+                    ->join('tbl_partner', 'tbl_partner_facility.partner_id', '=', 'tbl_partner.id')
+                    ->join('tbl_county', 'tbl_partner_facility.county_id', '=', 'tbl_county.id')
+                    ->join('tbl_sub_county', 'tbl_partner_facility.sub_county_id', '=', 'tbl_sub_county.id')
+                    ->select('tbl_master_facility.code', 'tbl_master_facility.name as facility', 'tbl_partner.name as partner', 'tbl_county.name as county', 'tbl_sub_county.name as subcounty')
+                    ->whereDate('tbl_appointment.created_at', '>=', Carbon::now()->subMonths(6)->toDateString())
+                    ->where('tbl_partner_facility.mfl_code', Auth::user()->facility_id)
+                    ->orderBy('tbl_appointment.created_at', 'DESC')
+                    ->groupBy('tbl_partner_facility.mfl_code')
+                    ->get();
+            }
+        } else {
+            if (Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Donor') {
+                $active_facilities = PartnerFacility::join('tbl_client', 'tbl_partner_facility.mfl_code', '=', 'tbl_client.mfl_code')
+                    ->join('tbl_master_facility', 'tbl_partner_facility.mfl_code', '=', 'tbl_master_facility.code')
+                    ->join('tbl_appointment', 'tbl_client.id', '=', 'tbl_appointment.client_id')
+                    ->join('tbl_partner', 'tbl_partner_facility.partner_id', '=', 'tbl_partner.id')
+                    ->join('tbl_county', 'tbl_partner_facility.county_id', '=', 'tbl_county.id')
+                    ->join('tbl_sub_county', 'tbl_partner_facility.sub_county_id', '=', 'tbl_sub_county.id')
+                    ->select('tbl_master_facility.code', 'tbl_master_facility.name as facility', 'tbl_partner.name as partner', 'tbl_county.name as county', 'tbl_sub_county.name as subcounty')
+                    ->whereDate('tbl_appointment.created_at', '>=', Carbon::now()->subMonths(6)->toDateString())
+                    ->orderBy('tbl_appointment.created_at', 'DESC')
+                    ->groupBy('tbl_partner_facility.mfl_code')
+                    ->get();
+            }
+            if (Auth::user()->access_level == 'Partner') {
+                $active_facilities = PartnerFacility::join('tbl_client', 'tbl_partner_facility.mfl_code', '=', 'tbl_client.mfl_code')
+                    ->join('tbl_master_facility', 'tbl_partner_facility.mfl_code', '=', 'tbl_master_facility.code')
+                    ->join('tbl_appointment', 'tbl_client.id', '=', 'tbl_appointment.client_id')
+                    ->join('tbl_partner', 'tbl_partner_facility.partner_id', '=', 'tbl_partner.id')
+                    ->join('tbl_county', 'tbl_partner_facility.county_id', '=', 'tbl_county.id')
+                    ->join('tbl_sub_county', 'tbl_partner_facility.sub_county_id', '=', 'tbl_sub_county.id')
+                    ->select('tbl_master_facility.code', 'tbl_master_facility.name as facility', 'tbl_partner.name as partner', 'tbl_county.name as county', 'tbl_sub_county.name as subcounty')
+                    ->whereDate('tbl_appointment.created_at', '>=', Carbon::now()->subMonths(6)->toDateString())
+                    ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
+                    ->orderBy('tbl_appointment.created_at', 'DESC')
+                    ->groupBy('tbl_partner_facility.mfl_code')
+                    ->get();
+            }
+            if (Auth::user()->access_level == 'Sub County') {
+                $active_facilities = PartnerFacility::join('tbl_client', 'tbl_partner_facility.mfl_code', '=', 'tbl_client.mfl_code')
+                    ->join('tbl_master_facility', 'tbl_partner_facility.mfl_code', '=', 'tbl_master_facility.code')
+                    ->join('tbl_appointment', 'tbl_client.id', '=', 'tbl_appointment.client_id')
+                    ->join('tbl_partner', 'tbl_partner_facility.partner_id', '=', 'tbl_partner.id')
+                    ->join('tbl_county', 'tbl_partner_facility.county_id', '=', 'tbl_county.id')
+                    ->join('tbl_sub_county', 'tbl_partner_facility.sub_county_id', '=', 'tbl_sub_county.id')
+                    ->select('tbl_master_facility.code', 'tbl_master_facility.name as facility', 'tbl_partner.name as partner', 'tbl_county.name as county', 'tbl_sub_county.name as subcounty')
+                    ->whereDate('tbl_appointment.created_at', '>=', Carbon::now()->subMonths(6)->toDateString())
+                    ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id)
+                    ->orderBy('tbl_appointment.created_at', 'DESC')
+                    ->groupBy('tbl_partner_facility.mfl_code')
+                    ->get();
+            }
+            if (Auth::user()->access_level == 'County') {
+                $active_facilities = PartnerFacility::join('tbl_client', 'tbl_partner_facility.mfl_code', '=', 'tbl_client.mfl_code')
+                    ->join('tbl_master_facility', 'tbl_partner_facility.mfl_code', '=', 'tbl_master_facility.code')
+                    ->join('tbl_appointment', 'tbl_client.id', '=', 'tbl_appointment.client_id')
+                    ->join('tbl_partner', 'tbl_partner_facility.partner_id', '=', 'tbl_partner.id')
+                    ->join('tbl_county', 'tbl_partner_facility.county_id', '=', 'tbl_county.id')
+                    ->join('tbl_sub_county', 'tbl_partner_facility.sub_county_id', '=', 'tbl_sub_county.id')
+                    ->select('tbl_master_facility.code', 'tbl_master_facility.name as facility', 'tbl_partner.name as partner', 'tbl_county.name as county', 'tbl_sub_county.name as subcounty')
+                    ->whereDate('tbl_appointment.created_at', '>=', Carbon::now()->subMonths(6)->toDateString())
+                    ->where('tbl_partner_facility.county_id', Auth::user()->county_id)
+                    ->orderBy('tbl_appointment.created_at', 'DESC')
+                    ->groupBy('tbl_partner_facility.mfl_code')
+                    ->get();
+            }
+            if (Auth::user()->access_level == 'Facility') {
+                $active_facilities = PartnerFacility::join('tbl_client', 'tbl_partner_facility.mfl_code', '=', 'tbl_client.mfl_code')
+                    ->join('tbl_master_facility', 'tbl_partner_facility.mfl_code', '=', 'tbl_master_facility.code')
+                    ->join('tbl_appointment', 'tbl_client.id', '=', 'tbl_appointment.client_id')
+                    ->join('tbl_partner', 'tbl_partner_facility.partner_id', '=', 'tbl_partner.id')
+                    ->join('tbl_county', 'tbl_partner_facility.county_id', '=', 'tbl_county.id')
+                    ->join('tbl_sub_county', 'tbl_partner_facility.sub_county_id', '=', 'tbl_sub_county.id')
+                    ->select('tbl_master_facility.code', 'tbl_master_facility.name as facility', 'tbl_partner.name as partner', 'tbl_county.name as county', 'tbl_sub_county.name as subcounty')
+                    ->whereDate('tbl_appointment.created_at', '>=', Carbon::now()->subMonths(6)->toDateString())
+                    ->where('tbl_partner_facility.mfl_code', Auth::user()->facility_id)
+                    ->orderBy('tbl_appointment.created_at', 'DESC')
+                    ->groupBy('tbl_partner_facility.mfl_code')
+                    ->get();
+            }
         }
 
         return view('new_reports.active_facilities', compact('active_facilities'));
@@ -391,14 +640,14 @@ class NewReportController extends Controller
         if (Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Donor') {
             $client_messages = Appointments::join('tbl_client', 'tbl_appointment.client_id', 'tbl_client.id')
                 ->join('tbl_clnt_outgoing', 'tbl_appointment.id', 'tbl_clnt_outgoing.appointment_id')
-                ->join('tbl_gender', 'tbl_client.gender', 'tbl_gender.id')
-                ->join('tbl_language', 'tbl_client.language_id', 'tbl_language.id')
+                ->leftJoin('tbl_gender', 'tbl_client.gender', 'tbl_gender.id')
+                ->leftJoin('tbl_language', 'tbl_client.language_id', 'tbl_language.id')
                 ->join('tbl_appointment_types', 'tbl_appointment.app_type_1', 'tbl_appointment_types.id')
                 ->join('tbl_partner_facility', 'tbl_client.mfl_code', 'tbl_partner_facility.mfl_code')
                 ->join('tbl_master_facility', 'tbl_partner_facility.mfl_code', 'tbl_master_facility.code')
                 ->join('tbl_partner', 'tbl_partner_facility.partner_id', 'tbl_partner.id')
-                ->join('tbl_county', 'tbl_partner_facility.county_id', 'tbl_county.id')
-                ->join('tbl_sub_county', 'tbl_partner_facility.sub_county_id', 'tbl_sub_county.id')
+                ->leftJoin('tbl_county', 'tbl_partner_facility.county_id', 'tbl_county.id')
+                ->leftJoin('tbl_sub_county', 'tbl_partner_facility.sub_county_id', 'tbl_sub_county.id')
                 ->select(
                     'tbl_client.clinic_number',
                     'tbl_client.f_name',
@@ -408,8 +657,8 @@ class NewReportController extends Controller
                     'tbl_language.name as language',
                     'tbl_client.phone_no',
                     'tbl_clnt_outgoing.msg',
-                    DB::raw('CASE WHEN tbl_clnt_outgoing.message_id IS NULL OR tbl_clnt_outgoing.callback_status = "Failed" OR tbl_clnt_outgoing.callback_status = "Expired" THEN "Failed" ELSE "Success" END AS callback_status'),
-                    DB::raw('CASE WHEN tbl_clnt_outgoing.message_id IS NULL OR tbl_clnt_outgoing.callback_status = "Expired" THEN "DeliveryFailure" ELSE tbl_clnt_outgoing.failure_reason END AS failure_reason'),
+                    DB::raw('CASE WHEN tbl_clnt_outgoing.message_id IS NULL OR tbl_clnt_outgoing.message_id = "None" OR tbl_clnt_outgoing.callback_status = "Failed" OR tbl_clnt_outgoing.callback_status = "Expired" THEN "Failed" ELSE "Success" END AS callback_status'),
+                    DB::raw('CASE WHEN tbl_clnt_outgoing.message_id IS NULL OR tbl_clnt_outgoing.message_id = "None" OR tbl_clnt_outgoing.callback_status = "Expired" THEN "DeliveryFailure" ELSE tbl_clnt_outgoing.failure_reason END AS failure_reason'),
                     'tbl_clnt_outgoing.updated_at',
                     'tbl_appointment.appntmnt_date as appointment_date',
                     'tbl_appointment_types.name as app_type',
@@ -428,14 +677,14 @@ class NewReportController extends Controller
         if (Auth::user()->access_level == 'Partner') {
             $client_messages = Appointments::join('tbl_client', 'tbl_appointment.client_id', 'tbl_client.id')
                 ->join('tbl_clnt_outgoing', 'tbl_appointment.id', 'tbl_clnt_outgoing.appointment_id')
-                ->join('tbl_gender', 'tbl_client.gender', 'tbl_gender.id')
-                ->join('tbl_language', 'tbl_client.language_id', 'tbl_language.id')
+                ->leftJoin('tbl_gender', 'tbl_client.gender', 'tbl_gender.id')
+                ->leftJoin('tbl_language', 'tbl_client.language_id', 'tbl_language.id')
                 ->join('tbl_appointment_types', 'tbl_appointment.app_type_1', 'tbl_appointment_types.id')
                 ->join('tbl_partner_facility', 'tbl_client.mfl_code', 'tbl_partner_facility.mfl_code')
                 ->join('tbl_master_facility', 'tbl_partner_facility.mfl_code', 'tbl_master_facility.code')
                 ->join('tbl_partner', 'tbl_partner_facility.partner_id', 'tbl_partner.id')
-                ->join('tbl_county', 'tbl_partner_facility.county_id', 'tbl_county.id')
-                ->join('tbl_sub_county', 'tbl_partner_facility.sub_county_id', 'tbl_sub_county.id')
+                ->leftJoin('tbl_county', 'tbl_partner_facility.county_id', 'tbl_county.id')
+                ->leftJoin('tbl_sub_county', 'tbl_partner_facility.sub_county_id', 'tbl_sub_county.id')
                 ->select(
                     'tbl_client.clinic_number',
                     'tbl_client.f_name',
@@ -445,8 +694,8 @@ class NewReportController extends Controller
                     'tbl_language.name as language',
                     'tbl_client.phone_no',
                     'tbl_clnt_outgoing.msg',
-                    DB::raw('CASE WHEN tbl_clnt_outgoing.message_id IS NULL OR tbl_clnt_outgoing.callback_status = "Failed" OR tbl_clnt_outgoing.callback_status = "Expired" THEN "Failed" ELSE "Success" END AS callback_status'),
-                    DB::raw('CASE WHEN tbl_clnt_outgoing.message_id IS NULL OR tbl_clnt_outgoing.callback_status = "Expired" THEN "DeliveryFailure" ELSE tbl_clnt_outgoing.failure_reason END AS failure_reason'),
+                    DB::raw('CASE WHEN tbl_clnt_outgoing.message_id IS NULL OR tbl_clnt_outgoing.message_id = "None" OR tbl_clnt_outgoing.callback_status = "Failed" OR tbl_clnt_outgoing.callback_status = "Expired" THEN "Failed" ELSE "Success" END AS callback_status'),
+                    DB::raw('CASE WHEN tbl_clnt_outgoing.message_id IS NULL OR tbl_clnt_outgoing.message_id = "None" OR tbl_clnt_outgoing.callback_status = "Expired" THEN "DeliveryFailure" ELSE tbl_clnt_outgoing.failure_reason END AS failure_reason'),
                     'tbl_clnt_outgoing.updated_at',
                     'tbl_appointment.appntmnt_date as appointment_date',
                     'tbl_appointment_types.name as app_type',
@@ -466,14 +715,14 @@ class NewReportController extends Controller
         if (Auth::user()->access_level == 'Facility') {
             $client_messages = Appointments::join('tbl_client', 'tbl_appointment.client_id', 'tbl_client.id')
                 ->join('tbl_clnt_outgoing', 'tbl_appointment.id', 'tbl_clnt_outgoing.appointment_id')
-                ->join('tbl_gender', 'tbl_client.gender', 'tbl_gender.id')
-                ->join('tbl_language', 'tbl_client.language_id', 'tbl_language.id')
+                ->leftJoin('tbl_gender', 'tbl_client.gender', 'tbl_gender.id')
+                ->leftJoin('tbl_language', 'tbl_client.language_id', 'tbl_language.id')
                 ->join('tbl_appointment_types', 'tbl_appointment.app_type_1', 'tbl_appointment_types.id')
                 ->join('tbl_partner_facility', 'tbl_client.mfl_code', 'tbl_partner_facility.mfl_code')
                 ->join('tbl_master_facility', 'tbl_partner_facility.mfl_code', 'tbl_master_facility.code')
                 ->join('tbl_partner', 'tbl_partner_facility.partner_id', 'tbl_partner.id')
-                ->join('tbl_county', 'tbl_partner_facility.county_id', 'tbl_county.id')
-                ->join('tbl_sub_county', 'tbl_partner_facility.sub_county_id', 'tbl_sub_county.id')
+                ->leftJoin('tbl_county', 'tbl_partner_facility.county_id', 'tbl_county.id')
+                ->leftJoin('tbl_sub_county', 'tbl_partner_facility.sub_county_id', 'tbl_sub_county.id')
                 ->select(
                     'tbl_client.clinic_number',
                     'tbl_client.f_name',
@@ -483,8 +732,8 @@ class NewReportController extends Controller
                     'tbl_language.name as language',
                     'tbl_client.phone_no',
                     'tbl_clnt_outgoing.msg',
-                    DB::raw('CASE WHEN tbl_clnt_outgoing.message_id IS NULL OR tbl_clnt_outgoing.callback_status = "Failed" OR tbl_clnt_outgoing.callback_status = "Expired" THEN "Failed" ELSE "Success" END AS callback_status'),
-                    DB::raw('CASE WHEN tbl_clnt_outgoing.message_id IS NULL OR tbl_clnt_outgoing.callback_status = "Expired" THEN "DeliveryFailure" ELSE tbl_clnt_outgoing.failure_reason END AS failure_reason'),
+                    DB::raw('CASE WHEN tbl_clnt_outgoing.message_id IS NULL OR tbl_clnt_outgoing.message_id = "None" OR tbl_clnt_outgoing.callback_status = "Failed" OR tbl_clnt_outgoing.callback_status = "Expired" THEN "Failed" ELSE "Success" END AS callback_status'),
+                    DB::raw('CASE WHEN tbl_clnt_outgoing.message_id IS NULL OR tbl_clnt_outgoing.message_id = "None" OR tbl_clnt_outgoing.callback_status = "Expired" THEN "DeliveryFailure" ELSE tbl_clnt_outgoing.failure_reason END AS failure_reason'),
                     'tbl_clnt_outgoing.no_of_days',
                     'tbl_clnt_outgoing.updated_at',
                     'tbl_appointment.appntmnt_date as appointment_date',

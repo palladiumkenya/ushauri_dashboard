@@ -30,7 +30,11 @@
                                         <thead>
                                             <tr>
                                                 <th>No.</th>
+                                                @if (env('INSTANCE') === 'UshauriDOD')
+                                                <th>KDOD No</th>
+                                                @else
                                                 <th>UPN</th>
+                                                @endif
                                                 <th>Client Name</th>
                                                 <th>Appointment Date</th>
                                                 <th>Appointment Type</th>

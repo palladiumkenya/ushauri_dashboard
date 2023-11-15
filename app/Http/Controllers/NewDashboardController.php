@@ -18,6 +18,7 @@ use App\Models\ActiveFacilities;
 use App\Models\Dcm;
 use App\Models\Indicator;
 use App\Models\Txcurr;
+use App\Models\ClientDashboard;
 use Auth;
 use Carbon\Carbon;
 use DB;
@@ -35,23 +36,36 @@ class NewDashboardController extends Controller
     {
         $data = [];
 
-        $result = Txcurr::selectRaw('tbl_tx_cur.tx_cur as tx_cur')
-            ->join('tbl_partner_facility', 'tbl_tx_cur.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-            ->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
+        if (env('INSTANCE') === 'UshauriDOD') {
+
+            $result = PartnerFacility::leftJoin('tbl_client', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->leftJoin('tbl_partner', 'tbl_partner.id', '=', 'tbl_partner_facility.partner_id')
+                ->leftJoin('tbl_master_facility', 'tbl_master_facility.code', '=', 'tbl_partner_facility.mfl_code')
+                ->selectRaw('COUNT(tbl_client.clinic_number) as client_ever_enrolled, tbl_partner.name as partner, tbl_master_facility.name as facility, tbl_master_facility.code as mfl_code, (SELECT COUNT(*) FROM tbl_client WHERE tbl_client.mfl_code = tbl_partner_facility.mfl_code AND tbl_client.hei_no IS NULL AND tbl_client.smsenable = "Yes" AND tbl_partner_facility.partner_id = ' . Auth::user()->partner_id . ') as client_consented')
+                ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
+                ->whereNull('tbl_client.hei_no')
+                ->groupBy('tbl_partner_facility.mfl_code');
+        } else {
+
+            $result = Txcurr::selectRaw('tbl_tx_cur.tx_cur as tx_cur')
+                ->join('tbl_partner_facility', 'tbl_tx_cur.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
             FROM tbl_tx_cur t1
             GROUP BY t1.mfl_code) latest'), function ($join) {
-                $join->on('tbl_tx_cur.mfl_code', '=', 'latest.mfl_code')
-                    ->on('tbl_tx_cur.period', '=', 'latest.max_period');
-            })
-            ->leftJoin('tbl_client', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-            ->leftJoin('tbl_partner', 'tbl_partner.id', '=', 'tbl_partner_facility.partner_id')
-            ->leftJoin('tbl_county', 'tbl_county.id', '=', 'tbl_partner_facility.county_id')
-            ->leftJoin('tbl_master_facility', 'tbl_master_facility.code', '=', 'tbl_partner_facility.mfl_code')
-            ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
-            ->whereNull('tbl_client.hei_no')
-            ->groupBy('tbl_tx_cur.mfl_code')
-            ->remember($this->remember_period)
-            ->selectRaw('COUNT(tbl_client.clinic_number) as client_ever_enrolled, tbl_county.name as county, tbl_partner.name as partner, tbl_master_facility.name as facility, tbl_master_facility.code as mfl_code, (SELECT COUNT(*) FROM tbl_client WHERE tbl_client.mfl_code = tbl_partner_facility.mfl_code AND tbl_client.hei_no IS NULL AND tbl_client.smsenable = "Yes" AND tbl_partner_facility.partner_id = ' . Auth::user()->partner_id . ') as client_consented');
+                    $join->on('tbl_tx_cur.mfl_code', '=', 'latest.mfl_code')
+                        ->on('tbl_tx_cur.period', '=', 'latest.max_period');
+                })
+                ->leftJoin('tbl_client', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                ->leftJoin('tbl_partner', 'tbl_partner.id', '=', 'tbl_partner_facility.partner_id')
+                ->leftJoin('tbl_county', 'tbl_county.id', '=', 'tbl_partner_facility.county_id')
+                ->leftJoin('tbl_master_facility', 'tbl_master_facility.code', '=', 'tbl_partner_facility.mfl_code')
+                ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
+                ->whereNull('tbl_client.hei_no')
+                ->groupBy('tbl_tx_cur.mfl_code')
+                ->remember($this->remember_period)
+                ->selectRaw('COUNT(tbl_client.clinic_number) as client_ever_enrolled, tbl_county.name as county, tbl_partner.name as partner, tbl_master_facility.name as facility, tbl_master_facility.code as mfl_code, (SELECT COUNT(*) FROM tbl_client WHERE tbl_client.mfl_code = tbl_partner_facility.mfl_code AND tbl_client.hei_no IS NULL AND tbl_client.smsenable = "Yes" AND tbl_partner_facility.partner_id = ' . Auth::user()->partner_id . ') as client_consented');
+        }
+
 
         $data["result"]        = $result->get();
 
@@ -849,147 +863,91 @@ class NewDashboardController extends Controller
         if (Auth::user()->access_level == 'Facility') {
             $all_partners = Partner::where('status', '=', 'Active')->remember($this->remember_period)->pluck('name', 'id');
 
-            $client = Client::whereNull('hei_no')
+            $client = ClientDashboard::selectRaw('SUM(client_consented + non_consented) as total_sum')
                 ->where('mfl_code', Auth::user()->facility_id)
                 ->remember($this->remember_period)
-                ->count();
-
+                ->first()->total_sum;
             // client charts
-            $client_consented =  Client::select('smsenable')
-                ->whereNull('hei_no')
-                ->where('smsenable', '=', 'Yes')
-                ->where('mfl_code', Auth::user()->facility_id)
-                ->remember($this->remember_period)
-                ->count();
+            // $client_consented =  Client::select('smsenable')
+            //     ->whereNull('hei_no')
+            //     ->where('smsenable', '=', 'Yes')
+            //     ->where('mfl_code', Auth::user()->facility_id)
+            //     ->remember($this->remember_period)
+            //     ->count();
 
-            $client_nonconsented = Client::where(function ($query) {
-                $query->where('smsenable', '!=', 'Yes')
-                    ->orWhereNull('smsenable')
-                    ->orWhere('smsenable', '');
-            })
-                ->whereNull('hei_no')
-                ->where('mfl_code', Auth::user()->facility_id)
+            $client_consented = ClientDashboard::where('mfl_code', Auth::user()->facility_id)
                 ->remember($this->remember_period)
-                ->count();
+                ->sum('client_consented');
+
+
+            $client_nonconsented = ClientDashboard::where('mfl_code', Auth::user()->facility_id)
+                ->remember($this->remember_period)
+                ->sum('non_consented');
 
             // consented clients by gender
 
-            $client_consented_male = Client::where('smsenable', '=', 'Yes')
-                ->whereNull('hei_no')
-                ->where('gender', '=', '2')
-                ->where('mfl_code', Auth::user()->facility_id)
+            $client_consented_male = ClientDashboard::where('mfl_code', Auth::user()->facility_id)
+                ->where('gender', '=', 'Male')
                 ->remember($this->remember_period)
-                ->count();
+                ->sum('client_consented');
 
-            $client_consented_female = Client::where('smsenable', '=', 'Yes')
-                ->whereNull('hei_no')
-                ->where('gender', '=', '1')
-                ->where('mfl_code', Auth::user()->facility_id)
+            $client_consented_female = ClientDashboard::where('mfl_code', Auth::user()->facility_id)
+                ->where('gender', '=', 'Female')
                 ->remember($this->remember_period)
-                ->count();
+                ->sum('client_consented');
 
-            $client_consented_uknown_gender = Client::where(function ($query) {
-                $query->where('tbl_client.gender', '!=', '1')
-                    ->where('tbl_client.gender', '!=', '2')
-                    ->orWhereNull('tbl_client.gender')
-                    ->orWhere('tbl_client.gender', '');
-            })
-                ->where('smsenable', '=', 'Yes')
-                ->whereNull('hei_no')
-                ->where('mfl_code', Auth::user()->facility_id)
+            $client_consented_uknown_gender = ClientDashboard::where('mfl_code', Auth::user()->facility_id)
+                ->where('gender', '=', 'Unknown')
                 ->remember($this->remember_period)
-                ->count();
+                ->sum('client_consented');
 
             // non consented clients by gender
-            $client_nonconsented_male = Client::where(function ($query) {
-                $query->where('smsenable', '!=', 'Yes')
-                    ->orWhereNull('smsenable')
-                    ->orWhere('smsenable', '');
-            })
-                ->where('gender', '=', '2')
-                ->whereNull('hei_no')
-                ->where('mfl_code', Auth::user()->facility_id)
+            $client_nonconsented_male = ClientDashboard::where('mfl_code', Auth::user()->facility_id)
+                ->where('gender', '=', 'Male')
                 ->remember($this->remember_period)
-                ->count();
-            $client_nonconsented_female = Client::where(function ($query) {
-                $query->where('smsenable', '!=', 'Yes')
-                    ->orWhereNull('smsenable')
-                    ->orWhere('smsenable', '');
-            })
-                ->where('gender', '=', '1')
-                ->whereNull('hei_no')
-                ->where('mfl_code', Auth::user()->facility_id)
+                ->sum('non_consented');
+
+            $client_nonconsented_female = ClientDashboard::where('mfl_code', Auth::user()->facility_id)
+                ->where('gender', '=', 'Female')
                 ->remember($this->remember_period)
-                ->count();
+                ->sum('non_consented');
 
 
-            $client_nonconsented_uknown_gender = Client::where(function ($query) {
-                $query->where(function ($subquery) {
-                    $subquery->where('gender', '!=', '1')
-                        ->where('gender', '!=', '2')
-                        ->orWhereNull('gender')
-                        ->orWhere('smsenable', '');
-                })->Where(function ($subquery) {
-                    $subquery->where('smsenable', '!=', 'Yes')
-                        ->orWhereNull('smsenable')
-                        ->orWhere('smsenable', '');
-                })->orWhereNull('gender');
-            })
-                ->whereNull('hei_no')
-                ->where('mfl_code', Auth::user()->facility_id)
+            $client_nonconsented_uknown_gender = ClientDashboard::where('mfl_code', Auth::user()->facility_id)
+                ->where('gender', '=', 'Unknown')
                 ->remember($this->remember_period)
-                ->count();
-
+                ->sum('non_consented');
 
             // consented clients by age distribution
-            $client_consented_to_nine =  Client::select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 0) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 9)) then `tbl_client`.`id` end)) AS count"))
-                ->where('smsenable', '=', 'Yes')
-                ->whereNull('hei_no')
-                ->where('mfl_code', Auth::user()->facility_id)
+            $client_consented_to_nine =  ClientDashboard::where('mfl_code', Auth::user()->facility_id)
+                ->where('age_range', '=', '0-9')
                 ->remember($this->remember_period)
-                ->pluck('count');
+                ->sum('client_consented');
 
-            $client_consented_to_fourteen = Client::select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 10) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 14)) then `tbl_client`.`id` end)) AS count"))
-                ->where('smsenable', '=', 'Yes')
-                ->whereNull('hei_no')
-                ->where('mfl_code', Auth::user()->facility_id)
+            $client_consented_to_fourteen = ClientDashboard::where('mfl_code', Auth::user()->facility_id)
+                ->where('age_range', '=', '10-14')
                 ->remember($this->remember_period)
-                ->pluck('count');
+                ->sum('client_consented');
 
-            $client_consented_to_nineteen = Client::select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 15) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 19)) then `tbl_client`.`id` end)) AS count"))
-                ->where('smsenable', '=', 'Yes')
-                ->whereNull('hei_no')
-                ->where('mfl_code', Auth::user()->facility_id)
+            $client_consented_to_nineteen = ClientDashboard::where('mfl_code', Auth::user()->facility_id)
+                ->where('age_range', '=', '15-19')
                 ->remember($this->remember_period)
-                ->pluck('count');
+                ->sum('client_consented');
 
-            $client_consented_to_twentyfour = Client::select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 20) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 24)) then `tbl_client`.`id` end)) AS count"))
-                ->where('smsenable', '=', 'Yes')
-                ->whereNull('hei_no')
-                ->where('mfl_code', Auth::user()->facility_id)
+            $client_consented_to_twentyfour = ClientDashboard::where('mfl_code', Auth::user()->facility_id)
+                ->where('age_range', '=', '20-24')
                 ->remember($this->remember_period)
-                ->pluck('count');
+                ->sum('client_consented');
 
-            $client_consented_to_twentyfive_above = Client::select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 25)) then `tbl_client`.`id` end)) AS count"))
-                ->where('smsenable', '=', 'Yes')
-                ->whereNull('hei_no')
-                ->where('mfl_code', Auth::user()->facility_id)
+            $client_consented_to_twentyfive_above = ClientDashboard::where('mfl_code', Auth::user()->facility_id)
+                ->where('age_range', '=', '25+')
                 ->remember($this->remember_period)
-                ->pluck('count');
+                ->sum('client_consented');
 
-            $client_consented_uknown_age = Client::where('smsenable', 'Yes')
-                ->where(function ($query) {
-                    $query->whereNull('dob')
-                        ->orWhere('dob', '')
-                        ->orWhere(function ($subquery) {
-                            $subquery->where(\DB::raw("locate('/', `tbl_client`.`dob`) > 0"))
-                                ->orWhere(\DB::raw("locate('-', `tbl_client`.`dob`) > 0"));
-                        });
-                })
-                ->whereNull('hei_no')
-                ->where('mfl_code', Auth::user()->facility_id)
+            $client_consented_uknown_age = ClientDashboard::where('mfl_code', Auth::user()->facility_id)
+                ->where('age_range', '=', 'Unknown')
                 ->remember($this->remember_period)
-                ->count();
+                ->sum('client_consented');
 
 
             // $client_consented_uknown_age = Client::select('smsenable')
@@ -1010,1038 +968,475 @@ class NewDashboardController extends Controller
             //     ->count();
 
             // non consented clients by age distribution
-            $client_nonconsented_to_nine = Client::select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 0) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 9)) then `tbl_client`.`id` end)) AS count"))
-                ->where(function ($query) {
-                    $query->where('smsenable', '!=', 'Yes')
-                        ->orWhereNull('smsenable')
-                        ->orWhere('smsenable', '');
-                })
-                ->whereNull('hei_no')
-                ->where('mfl_code', Auth::user()->facility_id)
+            $client_nonconsented_to_nine = ClientDashboard::where('mfl_code', Auth::user()->facility_id)
+                ->where('age_range', '=', '0-9')
                 ->remember($this->remember_period)
-                ->pluck('count');
+                ->sum('non_consented');
 
-            $client_nonconsented_to_fourteen = Client::select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 10) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 14)) then `tbl_client`.`id` end)) AS count"))
-                ->where(function ($query) {
-                    $query->where('smsenable', '!=', 'Yes')
-                        ->orWhereNull('smsenable')
-                        ->orWhere('smsenable', '');
-                })
-                ->whereNull('hei_no')
-                ->where('mfl_code', Auth::user()->facility_id)
+            $client_nonconsented_to_fourteen = ClientDashboard::where('mfl_code', Auth::user()->facility_id)
+                ->where('age_range', '=', '10-14')
                 ->remember($this->remember_period)
-                ->pluck('count');
+                ->sum('non_consented');
 
-            $client_nonconsented_to_nineteen = Client::select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 15) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 19)) then `tbl_client`.`id` end)) AS count"))
-                ->where(function ($query) {
-                    $query->where('smsenable', '!=', 'Yes')
-                        ->orWhereNull('smsenable')
-                        ->orWhere('smsenable', '');
-                })
-                ->whereNull('hei_no')
-                ->where('mfl_code', Auth::user()->facility_id)
+            $client_nonconsented_to_nineteen = ClientDashboard::where('mfl_code', Auth::user()->facility_id)
+                ->where('age_range', '=', '15-19')
                 ->remember($this->remember_period)
-                ->pluck('count');
+                ->sum('non_consented');
 
-            $client_nonconsented_to_twentyfour = Client::select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 20) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 24)) then `tbl_client`.`id` end)) AS count"))
-                ->where(function ($query) {
-                    $query->where('smsenable', '!=', 'Yes')
-                        ->orWhereNull('smsenable')
-                        ->orWhere('smsenable', '');
-                })
-                ->whereNull('hei_no')
-                ->where('mfl_code', Auth::user()->facility_id)
+            $client_nonconsented_to_twentyfour = ClientDashboard::where('mfl_code', Auth::user()->facility_id)
+                ->where('age_range', '=', '20-24')
                 ->remember($this->remember_period)
-                ->pluck('count');
+                ->sum('non_consented');
 
-            $client_nonconsented_to_twentyfive_above = Client::select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 25)) then `tbl_client`.`id` end)) AS count"))
-                ->where(function ($query) {
-                    $query->where('smsenable', '!=', 'Yes')
-                        ->orWhereNull('smsenable')
-                        ->orWhere('smsenable', '');
-                })
-                ->whereNull('hei_no')
-                ->where('mfl_code', Auth::user()->facility_id)
+            $client_nonconsented_to_twentyfive_above = ClientDashboard::where('mfl_code', Auth::user()->facility_id)
+                ->where('age_range', '=', '25+')
                 ->remember($this->remember_period)
-                ->pluck('count');
+                ->sum('non_consented');
 
-            $client_nonconsented_uknown_age = Client::where(function ($query) {
-                $query->whereIn('smsenable', ['No', null, '']);
-            })
-                ->whereNull('hei_no')
-                ->where(function ($query) {
-                    $query->where(function ($subquery) {
-                        $subquery->where(\DB::raw("locate('/', `tbl_client`.`dob`) > 0"))
-                            ->orWhere(\DB::raw("locate('-', `tbl_client`.`dob`) > 0"));
-                    })
-                        ->orWhere(function ($subquery) {
-                            $subquery->whereNull('dob')
-                                ->orWhere('dob', '');
-                        });
-                })
-                ->where('mfl_code', Auth::user()->facility_id)
+            $client_nonconsented_uknown_age = ClientDashboard::where('mfl_code', Auth::user()->facility_id)
+                ->where('age_range', '=', 'Unknown')
                 ->remember($this->remember_period)
-                ->count();
+                ->sum('non_consented');
         }
         if (Auth::user()->access_level == 'Partner') {
 
             $all_partners = Partner::where('status', '=', 'Active')->where('id', Auth::user()->partner_id)->remember($this->remember_period)->pluck('name', 'id');
 
-            $client = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
+            $client = ClientDashboard::selectRaw('SUM(client_consented + non_consented) as total_sum')
+                ->where('partner_id', Auth::user()->partner_id)
                 ->remember($this->remember_period)
-                ->count('tbl_client.clinic_number');
+                ->first()->total_sum;
 
             // client charts
-            $client_consented = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select('tbl_clientsmsenable')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_client.smsenable', '=', 'Yes')
-                ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
+            $client_consented = ClientDashboard::where('partner_id', Auth::user()->partner_id)
                 ->remember($this->remember_period)
-                ->count();
-            $client_nonconsented = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')->where(function ($query) {
-                $query->where('tbl_client.smsenable', '!=', 'Yes')
-                    ->orWhereNull('tbl_client.smsenable')
-                    ->orWhere('tbl_client.smsenable', '');
-            })
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
+                ->sum('client_consented');
+
+
+            $client_nonconsented = ClientDashboard::where('partner_id', Auth::user()->partner_id)
                 ->remember($this->remember_period)
-                ->count();
+                ->sum('non_consented');
 
             // consented clients by gender
 
-            $client_consented_male = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->where('tbl_client.smsenable', '=', 'Yes')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_client.gender', '=', '2')
-                ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
+            $client_consented_male = ClientDashboard::where('partner_id', Auth::user()->partner_id)
+                ->where('gender', '=', 'Male')
                 ->remember($this->remember_period)
-                ->count();
+                ->sum('client_consented');
 
-            $client_consented_female = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->where('tbl_client.smsenable', '=', 'Yes')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_client.gender', '=', '1')
-                ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
+            $client_consented_female = ClientDashboard::where('partner_id', Auth::user()->partner_id)
+                ->where('gender', '=', 'Female')
                 ->remember($this->remember_period)
-                ->count();
+                ->sum('client_consented');
 
-            $client_consented_uknown_gender = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->where(function ($query) {
-                    $query->where('tbl_client.gender', '!=', '1')
-                        ->where('tbl_client.gender', '!=', '2')
-                        ->orWhereNull('tbl_client.gender')
-                        ->orWhere('tbl_client.gender', '');
-                })
-                ->where('tbl_client.smsenable', '=', 'Yes')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
+            $client_consented_uknown_gender = ClientDashboard::where('partner_id', Auth::user()->partner_id)
+                ->where('gender', '=', 'Unknown')
                 ->remember($this->remember_period)
-                ->count();
+                ->sum('client_consented');
 
             // non consented clients by gender
-            $client_nonconsented_male = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->where(function ($query) {
-                    $query->where('tbl_client.smsenable', '!=', 'Yes')
-                        ->orWhereNull('tbl_client.smsenable')
-                        ->orWhere('tbl_client.smsenable', '');
-                })
-                ->where('tbl_client.gender', '=', '2')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
+            $client_nonconsented_male = ClientDashboard::where('partner_id', Auth::user()->partner_id)
+                ->where('gender', '=', 'Male')
                 ->remember($this->remember_period)
-                ->count();
+                ->sum('non_consented');
 
-            $client_nonconsented_female = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->where(function ($query) {
-                    $query->where('tbl_client.smsenable', '!=', 'Yes')
-                        ->orWhereNull('tbl_client.smsenable')
-                        ->orWhere('tbl_client.smsenable', '');
-                })
-                ->where('tbl_client.gender', '=', '1')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
+            $client_nonconsented_female = ClientDashboard::where('partner_id', Auth::user()->partner_id)
+                ->where('gender', '=', 'Female')
                 ->remember($this->remember_period)
-                ->count();
+                ->sum('non_consented');
 
-            $client_nonconsented_uknown_gender = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->where(function ($query) {
-                    $query->where(function ($subquery) {
-                        $subquery->where('tbl_client.gender', '!=', '1')
-                            ->where('tbl_client.gender', '!=', '2')
-                            ->orWhereNull('tbl_client.gender')
-                            ->orWhere('tbl_client.smsenable', '');
-                    })->Where(function ($subquery) {
-                        $subquery->where('tbl_client.smsenable', '!=', 'Yes')
-                            ->orWhereNull('tbl_client.smsenable')
-                            ->orWhere('tbl_client.smsenable', '');
-                    })->orWhereNull('tbl_client.gender');
-                })
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
+
+            $client_nonconsented_uknown_gender = ClientDashboard::where('partner_id', Auth::user()->partner_id)
+                ->where('gender', '=', 'Unknown')
                 ->remember($this->remember_period)
-                ->count();
+                ->sum('non_consented');
 
             // consented clients by age distribution
-            $client_consented_to_nine = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 0) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 9)) then `tbl_client`.`id` end)) AS count"))
-                ->where('tbl_client.smsenable', '=', 'Yes')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
+            $client_consented_to_nine =  ClientDashboard::where('partner_id', Auth::user()->partner_id)
+                ->where('age_range', '=', '0-9')
                 ->remember($this->remember_period)
-                ->pluck('count');
+                ->sum('client_consented');
 
-            $client_consented_to_fourteen = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 10) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 14)) then `tbl_client`.`id` end)) AS count"))
-                ->where('tbl_client.smsenable', '=', 'Yes')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
+            $client_consented_to_fourteen = ClientDashboard::where('partner_id', Auth::user()->partner_id)
+                ->where('age_range', '=', '10-14')
                 ->remember($this->remember_period)
-                ->pluck('count');
+                ->sum('client_consented');
 
-            $client_consented_to_nineteen = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 15) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 19)) then `tbl_client`.`id` end)) AS count"))
-                ->where('tbl_client.smsenable', '=', 'Yes')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
+            $client_consented_to_nineteen = ClientDashboard::where('partner_id', Auth::user()->partner_id)
+                ->where('age_range', '=', '15-19')
                 ->remember($this->remember_period)
-                ->pluck('count');
+                ->sum('client_consented');
 
-            $client_consented_to_twentyfour = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 20) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 24)) then `tbl_client`.`id` end)) AS count"))
-                ->where('tbl_client.smsenable', '=', 'Yes')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
+            $client_consented_to_twentyfour = ClientDashboard::where('partner_id', Auth::user()->partner_id)
+                ->where('age_range', '=', '20-24')
                 ->remember($this->remember_period)
-                ->pluck('count');
+                ->sum('client_consented');
 
-            $client_consented_to_twentyfive_above = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 25)) then `tbl_client`.`id` end)) AS count"))
-                ->where('tbl_client.smsenable', '=', 'Yes')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
+            $client_consented_to_twentyfive_above = ClientDashboard::where('partner_id', Auth::user()->partner_id)
+                ->where('age_range', '=', '25+')
                 ->remember($this->remember_period)
-                ->pluck('count');
+                ->sum('client_consented');
 
-            $client_consented_uknown_age = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select('tbl_client.smsenable')
-                ->where(\DB::raw("CASE
-                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
-                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"), '=', '')
-                ->orWhereNull(\DB::raw("CASE
-                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
-                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"))
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_client.smsenable', '=', 'Yes')
-                ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
+            $client_consented_uknown_age = ClientDashboard::where('partner_id', Auth::user()->partner_id)
+                ->where('age_range', '=', 'Unknown')
                 ->remember($this->remember_period)
-                ->count();
+                ->sum('client_consented');
 
             // non consented clients by age distribution
-            $client_nonconsented_to_nine = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 0) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 9)) then `tbl_client`.`id` end)) AS count"))
-                ->where(function ($query) {
-                    $query->where('tbl_client.smsenable', '!=', 'Yes')
-                        ->orWhereNull('tbl_client.smsenable')
-                        ->orWhere('tbl_client.smsenable', '');
-                })
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
+            $client_nonconsented_to_nine = ClientDashboard::where('partner_id', Auth::user()->partner_id)
+                ->where('age_range', '=', '0-9')
                 ->remember($this->remember_period)
-                ->pluck('count');
+                ->sum('non_consented');
 
-            $client_nonconsented_to_fourteen = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 10) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 14)) then `tbl_client`.`id` end)) AS count"))
-                ->where(function ($query) {
-                    $query->where('tbl_client.smsenable', '!=', 'Yes')
-                        ->orWhereNull('tbl_client.smsenable')
-                        ->orWhere('tbl_client.smsenable', '');
-                })
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
+            $client_nonconsented_to_fourteen = ClientDashboard::where('partner_id', Auth::user()->partner_id)
+                ->where('age_range', '=', '10-14')
                 ->remember($this->remember_period)
-                ->pluck('count');
+                ->sum('non_consented');
 
-            $client_nonconsented_to_nineteen = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 15) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 19)) then `tbl_client`.`id` end)) AS count"))
-                ->where(function ($query) {
-                    $query->where('tbl_client.smsenable', '!=', 'Yes')
-                        ->orWhereNull('tbl_client.smsenable')
-                        ->orWhere('tbl_client.smsenable', '');
-                })
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
+            $client_nonconsented_to_nineteen = ClientDashboard::where('partner_id', Auth::user()->partner_id)
+                ->where('age_range', '=', '15-19')
                 ->remember($this->remember_period)
-                ->pluck('count');
+                ->sum('non_consented');
 
-            $client_nonconsented_to_twentyfour = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 20) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 24)) then `tbl_client`.`id` end)) AS count"))
-                ->where(function ($query) {
-                    $query->where('tbl_client.smsenable', '!=', 'Yes')
-                        ->orWhereNull('tbl_client.smsenable')
-                        ->orWhere('tbl_client.smsenable', '');
-                })
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
+            $client_nonconsented_to_twentyfour = ClientDashboard::where('partner_id', Auth::user()->partner_id)
+                ->where('age_range', '=', '20-24')
                 ->remember($this->remember_period)
-                ->pluck('count');
+                ->sum('non_consented');
 
-            $client_nonconsented_to_twentyfive_above = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 25)) then `tbl_client`.`id` end)) AS count"))
-                ->where(function ($query) {
-                    $query->where('tbl_client.smsenable', '!=', 'Yes')
-                        ->orWhereNull('tbl_client.smsenable')
-                        ->orWhere('tbl_client.smsenable', '');
-                })
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
+            $client_nonconsented_to_twentyfive_above = ClientDashboard::where('partner_id', Auth::user()->partner_id)
+                ->where('age_range', '=', '25+')
                 ->remember($this->remember_period)
-                ->pluck('count');
+                ->sum('non_consented');
 
-            $client_nonconsented_uknown_age = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->where(function ($query) {
-                    $query->whereIn('tbl_client.smsenable', ['No', null, '']);
-                })
-                ->whereNull('tbl_client.hei_no')
-                ->where(function ($query) {
-                    $query->where(function ($subquery) {
-                        $subquery->where(\DB::raw("locate('/', `tbl_client`.`dob`) > 0"))
-                            ->orWhere(\DB::raw("locate('-', `tbl_client`.`dob`) > 0"));
-                    })
-                        ->orWhere(function ($subquery) {
-                            $subquery->whereNull('tbl_client.dob')
-                                ->orWhere('tbl_client.dob', '');
-                        });
-                })
-                ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
+            $client_nonconsented_uknown_age = ClientDashboard::where('partner_id', Auth::user()->partner_id)
+                ->where('age_range', '=', 'Unknown')
                 ->remember($this->remember_period)
-                ->count();
-
-            // $client_nonconsented_uknown_age = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-            //     ->select('tbl_client.smsenable')
-            //     ->whereNull('tbl_client.hei_no')
-            //     ->where(\DB::raw("CASE
-            //     WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
-            //     date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
-            //     WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
-            //     date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"), '=', '')
-            //     ->orWhereNull(\DB::raw("CASE
-            //     WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
-            //     date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
-            //     WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
-            //     date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"))
-            //     ->where('tbl_client.smsenable', '!=', 'Yes')
-            //     ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
-            //     ->remember($this->remember_period)
-            //     ->count();
+                ->sum('non_consented');
         }
         if (Auth::user()->access_level == 'County') {
             $all_partners = Partner::join('tbl_partner_facility', 'tbl_partner.id', '=', 'tbl_partner_facility.partner_id')->where('tbl_partner.status', '=', 'Active')->where('tbl_partner_facility.county_id', Auth::user()->county_id)->remember($this->remember_period)->pluck('tbl_partner.name', 'tbl_partner.id');
 
-            $client = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_partner_facility.county_id', Auth::user()->county_id)
+            $client = ClientDashboard::selectRaw('SUM(client_consented + non_consented) as total_sum')
+                ->where('county_id', Auth::user()->county_id)
                 ->remember($this->remember_period)
-                ->count('tbl_client.clinic_number');
+                ->first()->total_sum;
 
             // client charts
-            $client_consented = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select('tbl_clientsmsenable')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_client.smsenable', '=', 'Yes')
-                ->where('tbl_partner_facility.county_id', Auth::user()->county_id)
+            $client_consented = ClientDashboard::where('county_id', Auth::user()->county_id)
                 ->remember($this->remember_period)
-                ->count();
+                ->sum('client_consented');
 
-            $client_nonconsented = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select('smsenable')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_client.smsenable', '!=', 'Yes')
-                ->where('tbl_partner_facility.county_id', Auth::user()->county_id)
+
+            $client_nonconsented = ClientDashboard::where('county_id', Auth::user()->county_id)
                 ->remember($this->remember_period)
-                ->count();
+                ->sum('non_consented');
 
             // consented clients by gender
 
-            $client_consented_male = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->where('tbl_client.smsenable', '=', 'Yes')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_client.gender', '=', '2')
-                ->where('tbl_partner_facility.county_id', Auth::user()->county_id)
+            $client_consented_male = ClientDashboard::where('county_id', Auth::user()->county_id)
+                ->where('gender', '=', 'Male')
                 ->remember($this->remember_period)
-                ->count();
+                ->sum('client_consented');
 
-            $client_consented_female = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->where('tbl_client.smsenable', '=', 'Yes')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_client.gender', '=', '1')
-                ->where('tbl_partner_facility.county_id', Auth::user()->county_id)
+            $client_consented_female = ClientDashboard::where('county_id', Auth::user()->county_id)
+                ->where('gender', '=', 'Female')
                 ->remember($this->remember_period)
-                ->count();
+                ->sum('client_consented');
 
-            $client_consented_uknown_gender = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->where('tbl_client.smsenable', '=', 'Yes')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_client.gender', '!=', '1')
-                ->where('tbl_client.gender', '!=', '2')
-                ->where('tbl_partner_facility.county_id', Auth::user()->county_id)
+            $client_consented_uknown_gender = ClientDashboard::where('county_id', Auth::user()->county_id)
+                ->where('gender', '=', 'Unknown')
                 ->remember($this->remember_period)
-                ->count();
+                ->sum('client_consented');
 
             // non consented clients by gender
-            $client_nonconsented_male = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->where(function ($query) {
-                    $query->where('tbl_client.smsenable', '!=', 'Yes')
-                        ->orWhereNull('tbl_client.smsenable')
-                        ->orWhere('tbl_client.smsenable', '');
-                })
-                ->where('tbl_client.gender', '=', '2')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_partner_facility.county_id', Auth::user()->county_id)
+            $client_nonconsented_male = ClientDashboard::where('county_id', Auth::user()->county_id)
+                ->where('gender', '=', 'Male')
                 ->remember($this->remember_period)
-                ->count();
+                ->sum('non_consented');
 
-            $client_nonconsented_female = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->where(function ($query) {
-                    $query->where('tbl_client.smsenable', '!=', 'Yes')
-                        ->orWhereNull('tbl_client.smsenable')
-                        ->orWhere('tbl_client.smsenable', '');
-                })
-                ->where('tbl_client.gender', '=', '1')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_partner_facility.county_id', Auth::user()->county_id)
+            $client_nonconsented_female = ClientDashboard::where('county_id', Auth::user()->county_id)
+                ->where('gender', '=', 'Female')
                 ->remember($this->remember_period)
-                ->count();
+                ->sum('non_consented');
 
-            $client_nonconsented_uknown_gender = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->where(function ($query) {
-                    $query->where(function ($subquery) {
-                        $subquery->where('tbl_client.gender', '!=', '1')
-                            ->where('tbl_client.gender', '!=', '2')
-                            ->orWhereNull('tbl_client.gender')
-                            ->orWhere('tbl_client.smsenable', '');
-                    })->Where(function ($subquery) {
-                        $subquery->where('tbl_client.smsenable', '!=', 'Yes')
-                            ->orWhereNull('tbl_client.smsenable')
-                            ->orWhere('tbl_client.smsenable', '');
-                    })->orWhereNull('tbl_client.gender');
-                })
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_partner_facility.county_id', Auth::user()->county_id)
+
+            $client_nonconsented_uknown_gender = ClientDashboard::where('county_id', Auth::user()->county_id)
+                ->where('gender', '=', 'Unknown')
                 ->remember($this->remember_period)
-                ->count();
+                ->sum('non_consented');
 
             // consented clients by age distribution
-            $client_consented_to_nine = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 0) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 9)) then `tbl_client`.`id` end)) AS count"))
-                ->where('tbl_client.smsenable', '=', 'Yes')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_partner_facility.county_id', Auth::user()->county_id)
+            $client_consented_to_nine =  ClientDashboard::where('county_id', Auth::user()->county_id)
+                ->where('age_range', '=', '0-9')
                 ->remember($this->remember_period)
-                ->pluck('count');
+                ->sum('client_consented');
 
-            $client_consented_to_fourteen = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 10) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 14)) then `tbl_client`.`id` end)) AS count"))
-                ->where('tbl_client.smsenable', '=', 'Yes')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_partner_facility.county_id', Auth::user()->county_id)
+            $client_consented_to_fourteen = ClientDashboard::where('county_id', Auth::user()->county_id)
+                ->where('age_range', '=', '10-14')
                 ->remember($this->remember_period)
-                ->pluck('count');
+                ->sum('client_consented');
 
-            $client_consented_to_nineteen = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 15) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 19)) then `tbl_client`.`id` end)) AS count"))
-                ->where('tbl_client.smsenable', '=', 'Yes')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_partner_facility.county_id', Auth::user()->county_id)
+            $client_consented_to_nineteen = ClientDashboard::where('county_id', Auth::user()->county_id)
+                ->where('age_range', '=', '15-19')
                 ->remember($this->remember_period)
-                ->pluck('count');
+                ->sum('client_consented');
 
-            $client_consented_to_twentyfour = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 20) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 24)) then `tbl_client`.`id` end)) AS count"))
-                ->where('tbl_client.smsenable', '=', 'Yes')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_partner_facility.county_id', Auth::user()->county_id)
+            $client_consented_to_twentyfour = ClientDashboard::where('county_id', Auth::user()->county_id)
+                ->where('age_range', '=', '20-24')
                 ->remember($this->remember_period)
-                ->pluck('count');
+                ->sum('client_consented');
 
-            $client_consented_to_twentyfive_above = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 25)) then `tbl_client`.`id` end)) AS count"))
-                ->where('tbl_client.smsenable', '=', 'Yes')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_partner_facility.county_id', Auth::user()->county_id)
+            $client_consented_to_twentyfive_above = ClientDashboard::where('county_id', Auth::user()->county_id)
+                ->where('age_range', '=', '25+')
                 ->remember($this->remember_period)
-                ->pluck('count');
+                ->sum('client_consented');
 
-            $client_consented_uknown_age = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select('tbl_client.smsenable')
-                ->where(\DB::raw("CASE
-                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
-                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"), '=', '')
-                ->orWhereNull(\DB::raw("CASE
-                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
-                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"))
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_client.smsenable', '=', 'Yes')
-                ->where('tbl_partner_facility.county_id', Auth::user()->county_id)
+            $client_consented_uknown_age = ClientDashboard::where('county_id', Auth::user()->county_id)
+                ->where('age_range', '=', 'Unknown')
                 ->remember($this->remember_period)
-                ->count();
+                ->sum('client_consented');
 
             // non consented clients by age distribution
-            $client_nonconsented_to_nine = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 0) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 9)) then `tbl_client`.`id` end)) AS count"))
-                ->where(function ($query) {
-                    $query->where('tbl_client.smsenable', '!=', 'Yes')
-                        ->orWhereNull('tbl_client.smsenable')
-                        ->orWhere('tbl_client.smsenable', '');
-                })
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_partner_facility.county_id', Auth::user()->county_id)
+            $client_nonconsented_to_nine = ClientDashboard::where('county_id', Auth::user()->county_id)
+                ->where('age_range', '=', '0-9')
                 ->remember($this->remember_period)
-                ->pluck('count');
+                ->sum('non_consented');
 
-            $client_nonconsented_to_fourteen = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 10) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 14)) then `tbl_client`.`id` end)) AS count"))
-                ->where(function ($query) {
-                    $query->where('tbl_client.smsenable', '!=', 'Yes')
-                        ->orWhereNull('tbl_client.smsenable')
-                        ->orWhere('tbl_client.smsenable', '');
-                })
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_partner_facility.county_id', Auth::user()->county_id)
+            $client_nonconsented_to_fourteen = ClientDashboard::where('county_id', Auth::user()->county_id)
+                ->where('age_range', '=', '10-14')
                 ->remember($this->remember_period)
-                ->pluck('count');
+                ->sum('non_consented');
 
-            $client_nonconsented_to_nineteen = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 15) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 19)) then `tbl_client`.`id` end)) AS count"))
-                ->where(function ($query) {
-                    $query->where('tbl_client.smsenable', '!=', 'Yes')
-                        ->orWhereNull('tbl_client.smsenable')
-                        ->orWhere('tbl_client.smsenable', '');
-                })
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_partner_facility.county_id', Auth::user()->county_id)
+            $client_nonconsented_to_nineteen = ClientDashboard::where('county_id', Auth::user()->county_id)
+                ->where('age_range', '=', '15-19')
                 ->remember($this->remember_period)
-                ->pluck('count');
+                ->sum('non_consented');
 
-            $client_nonconsented_to_twentyfour = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 20) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 24)) then `tbl_client`.`id` end)) AS count"))
-                ->where(function ($query) {
-                    $query->where('tbl_client.smsenable', '!=', 'Yes')
-                        ->orWhereNull('tbl_client.smsenable')
-                        ->orWhere('tbl_client.smsenable', '');
-                })
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_partner_facility.county_id', Auth::user()->county_id)
+            $client_nonconsented_to_twentyfour = ClientDashboard::where('county_id', Auth::user()->county_id)
+                ->where('age_range', '=', '20-24')
                 ->remember($this->remember_period)
-                ->pluck('count');
+                ->sum('non_consented');
 
-            $client_nonconsented_to_twentyfive_above = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 25)) then `tbl_client`.`id` end)) AS count"))
-                ->where(function ($query) {
-                    $query->where('tbl_client.smsenable', '!=', 'Yes')
-                        ->orWhereNull('tbl_client.smsenable')
-                        ->orWhere('tbl_client.smsenable', '');
-                })
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_partner_facility.county_id', Auth::user()->county_id)
+            $client_nonconsented_to_twentyfive_above = ClientDashboard::where('county_id', Auth::user()->county_id)
+                ->where('age_range', '=', '25+')
                 ->remember($this->remember_period)
-                ->pluck('count');
+                ->sum('non_consented');
 
-            $client_nonconsented_uknown_age = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->where(function ($query) {
-                    $query->where('tbl_client.smsenable', '!=', 'Yes')
-                        ->orWhereNull('tbl_client.smsenable')
-                        ->orWhere('tbl_client.smsenable', '');
-                })
-                ->whereNull('tbl_client.hei_no')
-                ->where(\DB::raw("CASE
-                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
-                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"), '=', '')
-                ->orWhereNull(\DB::raw("CASE
-                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
-                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"))
-                ->where('tbl_partner_facility.county_id', Auth::user()->county_id)
+            $client_nonconsented_uknown_age = ClientDashboard::where('county_id', Auth::user()->county_id)
+                ->where('age_range', '=', 'Unknown')
                 ->remember($this->remember_period)
-                ->count();
+                ->sum('non_consented');
         }
         if (Auth::user()->access_level == 'Sub County') {
             $all_partners = Partner::join('tbl_partner_facility', 'tbl_partner.id', '=', 'tbl_partner_facility.partner_id')->where('tbl_partner.status', '=', 'Active')->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id)->remember($this->remember_period)->pluck('tbl_partner.name', 'tbl_partner.id');
 
-            $client = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id)
+            $client = ClientDashboard::selectRaw('SUM(client_consented + non_consented) as total_sum')
+                ->where('sub_county_id', Auth::user()->subcounty_id)
                 ->remember($this->remember_period)
-                ->count('tbl_client.clinic_number');
+                ->first()->total_sum;
 
             // client charts
-            $client_consented = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select('tbl_clientsmsenable')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_client.smsenable', '=', 'Yes')
-                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id)
+            $client_consented = ClientDashboard::where('sub_county_id', Auth::user()->subcounty_id)
                 ->remember($this->remember_period)
-                ->count();
+                ->sum('client_consented');
 
-            $client_nonconsented = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select('smsenable')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_client.smsenable', '!=', 'Yes')
-                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id)
+
+            $client_nonconsented = ClientDashboard::where('sub_county_id', Auth::user()->subcounty_id)
                 ->remember($this->remember_period)
-                ->count();
+                ->sum('non_consented');
 
             // consented clients by gender
 
-            $client_consented_male = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->where('tbl_client.smsenable', '=', 'Yes')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_client.gender', '=', '2')
-                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id)
+            $client_consented_male = ClientDashboard::where('sub_county_id', Auth::user()->subcounty_id)
+                ->where('gender', '=', 'Male')
                 ->remember($this->remember_period)
-                ->count();
+                ->sum('client_consented');
 
-            $client_consented_female = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->where('tbl_client.smsenable', '=', 'Yes')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_client.gender', '=', '1')
-                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id)
+            $client_consented_female = ClientDashboard::where('sub_county_id', Auth::user()->subcounty_id)
+                ->where('gender', '=', 'Female')
                 ->remember($this->remember_period)
-                ->count();
+                ->sum('client_consented');
 
-            $client_consented_uknown_gender = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->where('tbl_client.smsenable', '=', 'Yes')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_client.gender', '!=', '1')
-                ->where('tbl_client.gender', '!=', '2')
-                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id)
+            $client_consented_uknown_gender = ClientDashboard::where('sub_county_id', Auth::user()->subcounty_id)
+                ->where('gender', '=', 'Unknown')
                 ->remember($this->remember_period)
-                ->count();
+                ->sum('client_consented');
 
             // non consented clients by gender
-            $client_nonconsented_male = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->where(function ($query) {
-                    $query->where('tbl_client.smsenable', '!=', 'Yes')
-                        ->orWhereNull('tbl_client.smsenable')
-                        ->orWhere('tbl_client.smsenable', '');
-                })
-                ->where('tbl_client.gender', '=', '2')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id)
+            $client_nonconsented_male = ClientDashboard::where('sub_county_id', Auth::user()->subcounty_id)
+                ->where('gender', '=', 'Male')
                 ->remember($this->remember_period)
-                ->count();
+                ->sum('non_consented');
 
-            $client_nonconsented_female = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->where(function ($query) {
-                    $query->where('tbl_client.smsenable', '!=', 'Yes')
-                        ->orWhereNull('tbl_client.smsenable')
-                        ->orWhere('tbl_client.smsenable', '');
-                })
-                ->where('tbl_client.gender', '=', '1')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id)
+            $client_nonconsented_female = ClientDashboard::where('sub_county_id', Auth::user()->subcounty_id)
+                ->where('gender', '=', 'Female')
                 ->remember($this->remember_period)
-                ->count();
+                ->sum('non_consented');
 
-            $client_nonconsented_uknown_gender = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->where(function ($query) {
-                    $query->where(function ($subquery) {
-                        $subquery->where('tbl_client.gender', '!=', '1')
-                            ->where('tbl_client.gender', '!=', '2')
-                            ->orWhereNull('tbl_client.gender')
-                            ->orWhere('tbl_client.smsenable', '');
-                    })->Where(function ($subquery) {
-                        $subquery->where('tbl_client.smsenable', '!=', 'Yes')
-                            ->orWhereNull('tbl_client.smsenable')
-                            ->orWhere('tbl_client.smsenable', '');
-                    })->orWhereNull('tbl_client.gender');
-                })
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id)
+
+            $client_nonconsented_uknown_gender = ClientDashboard::where('sub_county_id', Auth::user()->subcounty_id)
+                ->where('gender', '=', 'Unknown')
                 ->remember($this->remember_period)
-                ->count();
+                ->sum('non_consented');
 
             // consented clients by age distribution
-            $client_consented_to_nine = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 0) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 9)) then `tbl_client`.`id` end)) AS count"))
-                ->where('tbl_client.smsenable', '=', 'Yes')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id)
+            $client_consented_to_nine =  ClientDashboard::where('sub_county_id', Auth::user()->subcounty_id)
+                ->where('age_range', '=', '0-9')
                 ->remember($this->remember_period)
-                ->pluck('count');
+                ->sum('client_consented');
 
-            $client_consented_to_fourteen = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 10) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 14)) then `tbl_client`.`id` end)) AS count"))
-                ->where('tbl_client.smsenable', '=', 'Yes')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id)
+            $client_consented_to_fourteen = ClientDashboard::where('sub_county_id', Auth::user()->subcounty_id)
+                ->where('age_range', '=', '10-14')
                 ->remember($this->remember_period)
-                ->pluck('count');
+                ->sum('client_consented');
 
-            $client_consented_to_nineteen = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 15) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 19)) then `tbl_client`.`id` end)) AS count"))
-                ->where('tbl_client.smsenable', '=', 'Yes')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id)
+            $client_consented_to_nineteen = ClientDashboard::where('sub_county_id', Auth::user()->subcounty_id)
+                ->where('age_range', '=', '15-19')
                 ->remember($this->remember_period)
-                ->pluck('count');
+                ->sum('client_consented');
 
-            $client_consented_to_twentyfour = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 20) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 24)) then `tbl_client`.`id` end)) AS count"))
-                ->where('tbl_client.smsenable', '=', 'Yes')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id)
+            $client_consented_to_twentyfour = ClientDashboard::where('sub_county_id', Auth::user()->subcounty_id)
+                ->where('age_range', '=', '20-24')
                 ->remember($this->remember_period)
-                ->pluck('count');
+                ->sum('client_consented');
 
-            $client_consented_to_twentyfive_above = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 25)) then `tbl_client`.`id` end)) AS count"))
-                ->where('tbl_client.smsenable', '=', 'Yes')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id)
+            $client_consented_to_twentyfive_above = ClientDashboard::where('sub_county_id', Auth::user()->subcounty_id)
+                ->where('age_range', '=', '25+')
                 ->remember($this->remember_period)
-                ->pluck('count');
+                ->sum('client_consented');
 
-            $client_consented_uknown_age = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select('tbl_client.smsenable')
-                ->where(\DB::raw("CASE
-                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
-                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"), '=', '')
-                ->orWhereNull(\DB::raw("CASE
-                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
-                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"))
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_client.smsenable', '=', 'Yes')
-                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id)
+            $client_consented_uknown_age = ClientDashboard::where('sub_county_id', Auth::user()->subcounty_id)
+                ->where('age_range', '=', 'Unknown')
                 ->remember($this->remember_period)
-                ->count();
+                ->sum('client_consented');
 
             // non consented clients by age distribution
-            $client_nonconsented_to_nine = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 0) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 9)) then `tbl_client`.`id` end)) AS count"))
-                ->where(function ($query) {
-                    $query->where('tbl_client.smsenable', '!=', 'Yes')
-                        ->orWhereNull('tbl_client.smsenable')
-                        ->orWhere('tbl_client.smsenable', '');
-                })
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id)
+            $client_nonconsented_to_nine = ClientDashboard::where('sub_county_id', Auth::user()->subcounty_id)
+                ->where('age_range', '=', '0-9')
                 ->remember($this->remember_period)
-                ->pluck('count');
+                ->sum('non_consented');
 
-            $client_nonconsented_to_fourteen = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 10) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 14)) then `tbl_client`.`id` end)) AS count"))
-                ->where(function ($query) {
-                    $query->where('tbl_client.smsenable', '!=', 'Yes')
-                        ->orWhereNull('tbl_client.smsenable')
-                        ->orWhere('tbl_client.smsenable', '');
-                })
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id)
+            $client_nonconsented_to_fourteen = ClientDashboard::where('sub_county_id', Auth::user()->subcounty_id)
+                ->where('age_range', '=', '10-14')
                 ->remember($this->remember_period)
-                ->pluck('count');
+                ->sum('non_consented');
 
-            $client_nonconsented_to_nineteen = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 15) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 19)) then `tbl_client`.`id` end)) AS count"))
-                ->where(function ($query) {
-                    $query->where('tbl_client.smsenable', '!=', 'Yes')
-                        ->orWhereNull('tbl_client.smsenable')
-                        ->orWhere('tbl_client.smsenable', '');
-                })
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id)
+            $client_nonconsented_to_nineteen = ClientDashboard::where('sub_county_id', Auth::user()->subcounty_id)
+                ->where('age_range', '=', '15-19')
                 ->remember($this->remember_period)
-                ->pluck('count');
+                ->sum('non_consented');
 
-            $client_nonconsented_to_twentyfour = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 20) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 24)) then `tbl_client`.`id` end)) AS count"))
-                ->where(function ($query) {
-                    $query->where('tbl_client.smsenable', '!=', 'Yes')
-                        ->orWhereNull('tbl_client.smsenable')
-                        ->orWhere('tbl_client.smsenable', '');
-                })
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id)
+            $client_nonconsented_to_twentyfour = ClientDashboard::where('sub_county_id', Auth::user()->subcounty_id)
+                ->where('age_range', '=', '20-24')
                 ->remember($this->remember_period)
-                ->pluck('count');
+                ->sum('non_consented');
 
-            $client_nonconsented_to_twentyfive_above = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 25)) then `tbl_client`.`id` end)) AS count"))
-                ->where(function ($query) {
-                    $query->where('tbl_client.smsenable', '!=', 'Yes')
-                        ->orWhereNull('tbl_client.smsenable')
-                        ->orWhere('tbl_client.smsenable', '');
-                })
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id)
+            $client_nonconsented_to_twentyfive_above = ClientDashboard::where('sub_county_id', Auth::user()->subcounty_id)
+                ->where('age_range', '=', '25+')
                 ->remember($this->remember_period)
-                ->pluck('count');
+                ->sum('non_consented');
 
-            $client_nonconsented_uknown_age = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select('tbl_client.smsenable')
-                ->where(function ($query) {
-                    $query->where('tbl_client.smsenable', '!=', 'Yes')
-                        ->orWhereNull('tbl_client.smsenable')
-                        ->orWhere('tbl_client.smsenable', '');
-                })
-                ->whereNull('tbl_client.hei_no')
-                ->where(\DB::raw("CASE
-                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
-                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"), '=', '')
-                ->orWhereNull(\DB::raw("CASE
-                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
-                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"))
-                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id)
+            $client_nonconsented_uknown_age = ClientDashboard::where('sub_county_id', Auth::user()->subcounty_id)
+                ->where('age_range', '=', 'Unknown')
                 ->remember($this->remember_period)
-                ->count();
+                ->sum('non_consented');
         }
         if (Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Donor') {
 
             $all_partners = Partner::where('status', '=', 'Active')->orderBy('name', 'ASC')->remember($this->remember_period)->pluck('name', 'id');
 
-            $client = Client::whereNull('hei_no')->remember($this->remember_period)->count();
+            // $client = Client::whereNull('hei_no')->remember($this->remember_period)->count();
+
+            $client = ClientDashboard::selectRaw('SUM(client_consented + non_consented) as total_sum')
+                ->remember($this->remember_period)
+                ->first()->total_sum;
+
 
             // client charts
-            $client_consented = Client::select('smsenable')
-                ->whereNull('hei_no')
-                ->where('smsenable', '=', 'Yes')
-                ->remember($this->remember_period)
-                ->count();
+            $client_consented = ClientDashboard::remember($this->remember_period)
+                ->sum('client_consented');
 
-            // $client_nonconsented = Client::select('smsenable')
-            //     ->whereNull('hei_no')
-            //     ->where('smsenable', '!=', 'Yes')
-            //     ->remember($this->remember_period)
-            //     ->count();
-            $client_nonconsented = Client::where(function ($query) {
-                $query->where('smsenable', '!=', 'Yes')
-                    ->orWhereNull('smsenable')
-                    ->orWhere('smsenable', '');
-            })
-                ->whereNull('hei_no')
-                ->remember($this->remember_period)
-                ->count();
+
+            $client_nonconsented = ClientDashboard::remember($this->remember_period)
+                ->sum('non_consented');
 
             // consented clients by gender
 
-            $client_consented_male = Client::where('smsenable', '=', 'Yes')
-                ->whereNull('hei_no')
-                ->where('gender', '=', '2')
+            $client_consented_male = ClientDashboard::where('gender', '=', 'Male')
                 ->remember($this->remember_period)
-                ->count();
+                ->sum('client_consented');
 
-            $client_consented_female = Client::where('smsenable', '=', 'Yes')
-                ->whereNull('hei_no')
-                ->where('gender', '=', '1')
+            $client_consented_female = ClientDashboard::where('gender', '=', 'Female')
                 ->remember($this->remember_period)
-                ->count();
+                ->sum('client_consented');
 
-            $client_consented_uknown_gender = Client::where('smsenable', '=', 'Yes')
-                ->whereNull('hei_no')
-                ->where('gender', '!=', '1')
-                ->where('gender', '!=', '2')
+            $client_consented_uknown_gender = ClientDashboard::where('gender', '=', 'Unknown')
                 ->remember($this->remember_period)
-                ->count();
+                ->sum('client_consented');
 
-            // non consxented clients by gender
-            $client_nonconsented_male = Client::where(function ($query) {
-                $query->where('smsenable', '!=', 'Yes')
-                    ->orWhereNull('smsenable')
-                    ->orWhere('smsenable', '');
-            })
-                ->whereNull('hei_no')
-                ->where('gender', '=', '2')
+            // non consented clients by gender
+            $client_nonconsented_male = ClientDashboard::where('gender', '=', 'Male')
                 ->remember($this->remember_period)
-                ->count();
+                ->sum('non_consented');
 
-            $client_nonconsented_female = Client::where(function ($query) {
-                $query->where('smsenable', '!=', 'Yes')
-                    ->orWhereNull('smsenable')
-                    ->orWhere('smsenable', '');
-            })
-                ->whereNull('hei_no')
-                ->where('gender', '=', '1')
+            $client_nonconsented_female = ClientDashboard::where('gender', '=', 'Female')
                 ->remember($this->remember_period)
-                ->count();
+                ->sum('non_consented');
 
-            $client_nonconsented_uknown_gender = Client::where(function ($query) {
-                $query->where(function ($subquery) {
-                    $subquery->where('tbl_client.gender', '!=', '1')
-                        ->where('tbl_client.gender', '!=', '2')
-                        ->orWhereNull('tbl_client.gender')
-                        ->orWhere('tbl_client.smsenable', '');
-                })->Where(function ($subquery) {
-                    $subquery->where('tbl_client.smsenable', '!=', 'Yes')
-                        ->orWhereNull('tbl_client.smsenable')
-                        ->orWhere('tbl_client.smsenable', '');
-                })->orWhereNull('tbl_client.gender');
-            })
-                ->whereNull('tbl_client.hei_no')
+
+            $client_nonconsented_uknown_gender = ClientDashboard::where('gender', '=', 'Unknown')
                 ->remember($this->remember_period)
-                ->count();
+                ->sum('non_consented');
+
             // consented clients by age distribution
-            $client_consented_to_nine = Client::select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 0) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 9)) then `tbl_client`.`id` end)) AS count"))
-                ->where('smsenable', '=', 'Yes')
-                ->whereNull('hei_no')
+            $client_consented_to_nine =  ClientDashboard::where('age_range', '=', '0-9')
                 ->remember($this->remember_period)
-                ->pluck('count');
+                ->sum('client_consented');
 
-            $client_consented_to_fourteen = Client::select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 10) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 14)) then `tbl_client`.`id` end)) AS count"))
-                ->where('smsenable', '=', 'Yes')
-                ->whereNull('hei_no')
+            $client_consented_to_fourteen = ClientDashboard::where('age_range', '=', '10-14')
                 ->remember($this->remember_period)
-                ->pluck('count');
+                ->sum('client_consented');
 
-            $client_consented_to_nineteen = Client::select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 15) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 19)) then `tbl_client`.`id` end)) AS count"))
-                ->where('smsenable', '=', 'Yes')
-                ->whereNull('hei_no')
+            $client_consented_to_nineteen = ClientDashboard::where('age_range', '=', '15-19')
                 ->remember($this->remember_period)
-                ->pluck('count');
+                ->sum('client_consented');
 
-            $client_consented_to_twentyfour = Client::select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 20) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 24)) then `tbl_client`.`id` end)) AS count"))
-                ->where('smsenable', '=', 'Yes')
-                ->whereNull('hei_no')
+            $client_consented_to_twentyfour = ClientDashboard::where('age_range', '=', '20-24')
                 ->remember($this->remember_period)
-                ->pluck('count');
+                ->sum('client_consented');
 
-            $client_consented_to_twentyfive_above = Client::select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 25)) then `tbl_client`.`id` end)) AS count"))
-                ->where('smsenable', '=', 'Yes')
-                ->whereNull('hei_no')
+            $client_consented_to_twentyfive_above = ClientDashboard::where('age_range', '=', '25+')
                 ->remember($this->remember_period)
-                ->pluck('count');
+                ->sum('client_consented');
 
-            $client_consented_uknown_age = Client::select('smsenable')
-                ->where(\DB::raw("CASE
-                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
-                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"), '=', '')
-                ->orWhereNull(\DB::raw("CASE
-                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
-                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"))
-                ->where('status', '=', 'Active')
-                ->whereNull('hei_no')
+            $client_consented_uknown_age = ClientDashboard::where('age_range', '=', 'Unknown')
                 ->remember($this->remember_period)
-                ->count();
+                ->sum('client_consented');
 
             // non consented clients by age distribution
-            $client_nonconsented_to_nine = Client::select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 0) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 9)) then `tbl_client`.`id` end)) AS count"))
-                ->where(function ($query) {
-                    $query->where('tbl_client.smsenable', '!=', 'Yes')
-                        ->orWhereNull('tbl_client.smsenable')
-                        ->orWhere('tbl_client.smsenable', '');
-                })
-                ->whereNull('hei_no')
+            $client_nonconsented_to_nine = ClientDashboard::where('age_range', '=', '0-9')
                 ->remember($this->remember_period)
-                ->pluck('count');
+                ->sum('non_consented');
 
-            $client_nonconsented_to_fourteen = Client::select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 10) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 14)) then `tbl_client`.`id` end)) AS count"))
-                ->where(function ($query) {
-                    $query->where('tbl_client.smsenable', '!=', 'Yes')
-                        ->orWhereNull('tbl_client.smsenable')
-                        ->orWhere('tbl_client.smsenable', '');
-                })
-                ->whereNull('hei_no')
+            $client_nonconsented_to_fourteen = ClientDashboard::where('age_range', '=', '10-14')
                 ->remember($this->remember_period)
-                ->pluck('count');
+                ->sum('non_consented');
 
-            $client_nonconsented_to_nineteen = Client::select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 15) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 19)) then `tbl_client`.`id` end)) AS count"))
-                ->where(function ($query) {
-                    $query->where('tbl_client.smsenable', '!=', 'Yes')
-                        ->orWhereNull('tbl_client.smsenable')
-                        ->orWhere('tbl_client.smsenable', '');
-                })
-                ->whereNull('hei_no')
+            $client_nonconsented_to_nineteen = ClientDashboard::where('age_range', '=', '15-19')
                 ->remember($this->remember_period)
-                ->pluck('count');
+                ->sum('non_consented');
 
-            $client_nonconsented_to_twentyfour = Client::select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 20) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 24)) then `tbl_client`.`id` end)) AS count"))
-                ->where(function ($query) {
-                    $query->where('tbl_client.smsenable', '!=', 'Yes')
-                        ->orWhereNull('tbl_client.smsenable')
-                        ->orWhere('tbl_client.smsenable', '');
-                })
-                ->whereNull('hei_no')
+            $client_nonconsented_to_twentyfour = ClientDashboard::where('age_range', '=', '20-24')
                 ->remember($this->remember_period)
-                ->pluck('count');
+                ->sum('non_consented');
 
-            $client_nonconsented_to_twentyfive_above = Client::select(\DB::raw("count((case when (((year(curdate()) - year(`tbl_client`.`dob`)) >= 25)) then `tbl_client`.`id` end)) AS count"))
-                ->where(function ($query) {
-                    $query->where('tbl_client.smsenable', '!=', 'Yes')
-                        ->orWhereNull('tbl_client.smsenable')
-                        ->orWhere('tbl_client.smsenable', '');
-                })
-                ->whereNull('hei_no')
+            $client_nonconsented_to_twentyfive_above = ClientDashboard::where('age_range', '=', '25+')
                 ->remember($this->remember_period)
-                ->pluck('count');
+                ->sum('non_consented');
 
-            $client_nonconsented_uknown_age = Client::select('smsenable')
-                ->where(function ($query) {
-                    $query->where('tbl_client.smsenable', '!=', 'Yes')
-                        ->orWhereNull('tbl_client.smsenable')
-                        ->orWhere('tbl_client.smsenable', '');
-                })
-                ->whereNull('hei_no')
-                ->where(\DB::raw("CASE
-                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
-                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"), '=', '')
-                ->orWhereNull(\DB::raw("CASE
-                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
-                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"))
+            $client_nonconsented_uknown_age = ClientDashboard::where('age_range', '=', 'Unknown')
                 ->remember($this->remember_period)
-                ->count();
+                ->sum('non_consented');
         }
 
 
@@ -6348,21 +5743,36 @@ class NewDashboardController extends Controller
             $selectedFrom = date('Ym', strtotime($request->from));
             $selectedTo = date('Ym', strtotime($request->to));
 
-
-            $query->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
+            if (env('INSTANCE') === 'UshauriDOD') {
+                $client = Txcurr::selectRaw('SUM(tbl_tx_cur.tx_cur) as tx_cur')
+                    ->join('tbl_partner_facility', 'tbl_tx_cur.mfl_code', '=', 'tbl_partner_facility.mfl_code')
+                    ->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
+                            FROM tbl_tx_cur t1
+                            GROUP BY t1.mfl_code) latest'), function ($join) {
+                        $join->on('tbl_tx_cur.mfl_code', '=', 'latest.mfl_code')
+                            ->on('tbl_tx_cur.period', '=', 'latest.max_period');
+                    })
+                    ->where('tbl_partner_facility.mfl_code', Auth::user()->facility_id)
+                    ->groupBy('tbl_tx_cur.mfl_code')
+                    ->remember($this->remember_period)
+                    ->get();
+                $client = $client->sum('tx_cur');
+            } else {
+                $query->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
            FROM tbl_tx_cur t1
            GROUP BY t1.mfl_code) latest_fac'), function ($join) {
-                $join->on('tbl_tx_cur.mfl_code', '=', 'latest_fac.mfl_code')
-                    ->on('tbl_tx_cur.period', '=', 'latest_fac.max_period');
-            })
-                ->where(function ($query) use ($selectedFrom, $selectedTo) {
-                    $query->whereRaw("SUBSTRING(tbl_tx_cur.period, 1, 6) >= ?", $selectedFrom)
-                        ->whereRaw("SUBSTRING(tbl_tx_cur.period, 1, 6) <= ?", $selectedTo);
+                    $join->on('tbl_tx_cur.mfl_code', '=', 'latest_fac.mfl_code')
+                        ->on('tbl_tx_cur.period', '=', 'latest_fac.max_period');
                 })
-                ->groupBy('tbl_tx_cur.mfl_code');
-            $client = $query->selectRaw('SUM(tbl_tx_cur.tx_cur) as tx_cur')
-                ->get()
-                ->sum('tx_cur');
+                    ->where(function ($query) use ($selectedFrom, $selectedTo) {
+                        $query->whereRaw("SUBSTRING(tbl_tx_cur.period, 1, 6) >= ?", $selectedFrom)
+                            ->whereRaw("SUBSTRING(tbl_tx_cur.period, 1, 6) <= ?", $selectedTo);
+                    })
+                    ->groupBy('tbl_tx_cur.mfl_code');
+                $client = $query->selectRaw('SUM(tbl_tx_cur.tx_cur) as tx_cur')
+                    ->get()
+                    ->sum('tx_cur');
+            }
 
             // $client = $client->where('tbl_tx_cur.period', function ($query) use ($selectedFrom, $selectedTo) {
             //     $query->select(DB::raw('MAX(period)'))
@@ -6479,1366 +5889,646 @@ class NewDashboardController extends Controller
 
         if (Auth::user()->access_level == 'Facility') {
 
-            $client = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_client.mfl_code', Auth::user()->facility_id)
+            $client = ClientDashboard::selectRaw('SUM(client_consented + non_consented) as total_sum')
+                ->where('mfl_code', Auth::user()->facility_id)
                 ->remember($this->remember_period);
 
-            $client_consented = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select('tbl_client.id')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_client.smsenable', '=', 'Yes')
-                ->where('tbl_client.mfl_code', Auth::user()->facility_id)
+            $client_consented = ClientDashboard::where('mfl_code', Auth::user()->facility_id)
                 ->remember($this->remember_period);
 
-            $client_nonconsented = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select('tbl_client.id')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_client.smsenable', '!=', 'Yes')
-                ->where('tbl_client.mfl_code', Auth::user()->facility_id)
+
+            $client_nonconsented = ClientDashboard::where('mfl_code', Auth::user()->facility_id)
                 ->remember($this->remember_period);
 
             // consented clients by gender
 
-            $client_consented_male = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->where('tbl_client.smsenable', '=', 'Yes')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_client.gender', '=', '2')
-                ->where('tbl_client.mfl_code', Auth::user()->facility_id)
+            $client_consented_male = ClientDashboard::where('mfl_code', Auth::user()->facility_id)
+                ->where('gender', '=', 'Male')
                 ->remember($this->remember_period);
 
-            $client_consented_female = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->where('tbl_client.smsenable', '=', 'Yes')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_client.gender', '=', '1')
-                ->where('tbl_client.mfl_code', Auth::user()->facility_id)
+            $client_consented_female = ClientDashboard::where('mfl_code', Auth::user()->facility_id)
+                ->where('gender', '=', 'Female')
                 ->remember($this->remember_period);
 
-            $client_consented_uknown_gender = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->where('tbl_client.smsenable', '=', 'Yes')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_client.gender', '!=', '1')
-                ->where('tbl_client.gender', '!=', '2')
-                ->where('tbl_client.mfl_code', Auth::user()->facility_id)
+            $client_consented_uknown_gender = ClientDashboard::where('mfl_code', Auth::user()->facility_id)
+                ->where('gender', '=', 'Unknown')
                 ->remember($this->remember_period);
 
             // non consented clients by gender
-            $client_nonconsented_male = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->where('tbl_client.smsenable', '!=', 'Yes')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_client.gender', '=', '2')
-                ->where('tbl_client.mfl_code', Auth::user()->facility_id)
+            $client_nonconsented_male = ClientDashboard::where('mfl_code', Auth::user()->facility_id)
+                ->where('gender', '=', 'Male')
+                ->remember($this->remember_period);
+
+            $client_nonconsented_female = ClientDashboard::where('mfl_code', Auth::user()->facility_id)
+                ->where('gender', '=', 'Female')
                 ->remember($this->remember_period);
 
 
-            $client_nonconsented_female =  Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->where('tbl_client.smsenable', '!=', 'Yes')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_client.gender', '=', '1')
-                ->where('tbl_client.mfl_code', Auth::user()->facility_id)
-                ->remember($this->remember_period);
-
-            $client_nonconsented_uknown_gender = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->where('tbl_client.smsenable', '!=', 'Yes')
-                ->where('tbl_client.gender', '!=', '1')
-                ->where('tbl_client.gender', '!=', '2')
-                ->where('tbl_client.mfl_code', Auth::user()->facility_id)
+            $client_nonconsented_uknown_gender = ClientDashboard::where('mfl_code', Auth::user()->facility_id)
+                ->where('gender', '=', 'Unknown')
                 ->remember($this->remember_period);
 
             // consented clients by age distribution
-            $client_consented_to_nine = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
-                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
-                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 0) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 9)) then `tbl_client`.`dob` end)) AS count"))
-                ->where('tbl_client.smsenable', '=', 'Yes')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_client.mfl_code', Auth::user()->facility_id)
+            $client_consented_to_nine =  ClientDashboard::where('mfl_code', Auth::user()->facility_id)
+                ->where('age_range', '=', '0-9')
                 ->remember($this->remember_period);
 
-            $client_consented_to_fourteen = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
-                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
-                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 10) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 14)) then `tbl_client`.`dob` end)) AS count"))
-                ->where('tbl_client.smsenable', '=', 'Yes')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_client.mfl_code', Auth::user()->facility_id)
+            $client_consented_to_fourteen = ClientDashboard::where('mfl_code', Auth::user()->facility_id)
+                ->where('age_range', '=', '10-14')
                 ->remember($this->remember_period);
 
-            $client_consented_to_nineteen = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
-                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
-                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 15) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 19)) then `tbl_client`.`dob` end)) AS count"))
-                ->where('tbl_client.smsenable', '=', 'Yes')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_client.mfl_code', Auth::user()->facility_id)
+            $client_consented_to_nineteen = ClientDashboard::where('mfl_code', Auth::user()->facility_id)
+                ->where('age_range', '=', '15-19')
                 ->remember($this->remember_period);
 
-            $client_consented_to_twentyfour = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
-                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
-                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 20) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 24)) then `tbl_client`.`dob` end)) AS count"))
-                ->where('tbl_client.smsenable', '=', 'Yes')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_client.mfl_code', Auth::user()->facility_id)
+            $client_consented_to_twentyfour = ClientDashboard::where('mfl_code', Auth::user()->facility_id)
+                ->where('age_range', '=', '20-24')
                 ->remember($this->remember_period);
 
-            $client_consented_to_twentyfive_above = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
-                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
-                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 25)) then `tbl_client`.`dob` end)) AS count"))
-                ->where('tbl_client.smsenable', '=', 'Yes')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_client.mfl_code', Auth::user()->facility_id)
+            $client_consented_to_twentyfive_above = ClientDashboard::where('mfl_code', Auth::user()->facility_id)
+                ->where('age_range', '=', '25+')
                 ->remember($this->remember_period);
 
-            $client_consented_uknown_age = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select('tbl_client.smsenable')
-                ->where(\DB::raw("CASE
-                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
-                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"), '=', '')
-                ->orWhereNull(\DB::raw("CASE
-                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
-                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"))
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_client.smsenable', '=', 'Yes')
-                ->where('tbl_client.mfl_code', Auth::user()->facility_id)
+            $client_consented_uknown_age = ClientDashboard::where('mfl_code', Auth::user()->facility_id)
+                ->where('age_range', '=', 'Unknown')
                 ->remember($this->remember_period);
+
+
+            // $client_consented_uknown_age = Client::select('smsenable')
+            //     ->where(\DB::raw("CASE
+            //     WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+            //     date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+            //     WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+            //     date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"), '=', '')
+            //     ->orWhereNull(\DB::raw("CASE
+            //     WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
+            //     date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
+            //     WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
+            //     date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"))
+            //     ->whereNull('hei_no')
+            //     ->where('smsenable', '=', 'Yes')
+            //     ->where('mfl_code', Auth::user()->facility_id)
+            //     ->remember($this->remember_period)
+            //     ->count();
 
             // non consented clients by age distribution
-            $client_nonconsented_to_nine = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
-                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
-                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 0) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 9)) then `tbl_client`.`dob` end)) AS count"))
-                ->where('tbl_client.smsenable', '!=', 'Yes')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_client.mfl_code', Auth::user()->facility_id)
+            $client_nonconsented_to_nine = ClientDashboard::where('mfl_code', Auth::user()->facility_id)
+                ->where('age_range', '=', '0-9')
                 ->remember($this->remember_period);
 
-            $client_nonconsented_to_fourteen = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
-                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
-                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 10) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 14)) then `tbl_client`.`dob` end)) AS count"))
-                ->where('tbl_client.smsenable', '!=', 'Yes')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_client.mfl_code', Auth::user()->facility_id)
+            $client_nonconsented_to_fourteen = ClientDashboard::where('mfl_code', Auth::user()->facility_id)
+                ->where('age_range', '=', '10-14')
                 ->remember($this->remember_period);
 
-            $client_nonconsented_to_nineteen = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
-                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
-                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 15) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 19)) then `tbl_client`.`dob` end)) AS count"))
-                ->where('tbl_client.smsenable', '!=', 'Yes')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_client.mfl_code', Auth::user()->facility_id)
+            $client_nonconsented_to_nineteen = ClientDashboard::where('mfl_code', Auth::user()->facility_id)
+                ->where('age_range', '=', '15-19')
                 ->remember($this->remember_period);
 
-            $client_nonconsented_to_twentyfour = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
-                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
-                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 20) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 24)) then `tbl_client`.`dob` end)) AS count"))
-                ->where('tbl_client.smsenable', '!=', 'Yes')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_client.mfl_code', Auth::user()->facility_id)
+            $client_nonconsented_to_twentyfour = ClientDashboard::where('mfl_code', Auth::user()->facility_id)
+                ->where('age_range', '=', '20-24')
                 ->remember($this->remember_period);
 
-            $client_nonconsented_to_twentyfive_above = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
-                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
-                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 25)) then `tbl_client`.`dob` end)) AS count"))
-                ->where('tbl_client.smsenable', '!=', 'Yes')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_client.mfl_code', Auth::user()->facility_id)
+            $client_nonconsented_to_twentyfive_above = ClientDashboard::where('mfl_code', Auth::user()->facility_id)
+                ->where('age_range', '=', '25+')
                 ->remember($this->remember_period);
 
-            $client_nonconsented_uknown_age = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select('tbl_client.smsenable')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where(\DB::raw("CASE
-                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
-                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"), '=', '')
-                ->orWhereNull(\DB::raw("CASE
-                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
-                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"))
-                ->where('tbl_client.smsenable', '!=', 'Yes')
-                ->where('tbl_client.mfl_code', Auth::user()->facility_id)
+            $client_nonconsented_uknown_age = ClientDashboard::where('mfl_code', Auth::user()->facility_id)
+                ->where('age_range', '=', 'Unknown')
                 ->remember($this->remember_period);
         }
-
         if (Auth::user()->access_level == 'Partner') {
-            $client = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
+
+            $client = ClientDashboard::selectRaw('SUM(client_consented + non_consented) as total_sum')
+                ->where('partner_id', Auth::user()->partner_id)
                 ->remember($this->remember_period);
 
-            $client_consented = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select('tbl_client.id')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_client.smsenable', '=', 'Yes')
-                ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
+            // client charts
+            $client_consented = ClientDashboard::where('partner_id', Auth::user()->partner_id)
                 ->remember($this->remember_period);
 
-            $client_nonconsented = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select('tbl_client.id')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_client.smsenable', '!=', 'Yes')
-                ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
+
+            $client_nonconsented = ClientDashboard::where('partner_id', Auth::user()->partner_id)
                 ->remember($this->remember_period);
 
             // consented clients by gender
 
-            $client_consented_male = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->where('tbl_client.smsenable', '=', 'Yes')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_client.gender', '=', '2')
-                ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
+            $client_consented_male = ClientDashboard::where('partner_id', Auth::user()->partner_id)
+                ->where('gender', '=', 'Male')
                 ->remember($this->remember_period);
 
-            $client_consented_female = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->where('tbl_client.smsenable', '=', 'Yes')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_client.gender', '=', '1')
-                ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
+            $client_consented_female = ClientDashboard::where('partner_id', Auth::user()->partner_id)
+                ->where('gender', '=', 'Female')
                 ->remember($this->remember_period);
 
-            $client_consented_uknown_gender = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->where('tbl_client.smsenable', '=', 'Yes')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_client.gender', '!=', '1')
-                ->where('tbl_client.gender', '!=', '2')
-                ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
+            $client_consented_uknown_gender = ClientDashboard::where('partner_id', Auth::user()->partner_id)
+                ->where('gender', '=', 'Unknown')
                 ->remember($this->remember_period);
 
             // non consented clients by gender
-            $client_nonconsented_male = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->where('tbl_client.smsenable', '!=', 'Yes')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_client.gender', '=', '2')
-                ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
+            $client_nonconsented_male = ClientDashboard::where('partner_id', Auth::user()->partner_id)
+                ->where('gender', '=', 'Male')
+                ->remember($this->remember_period);
+
+            $client_nonconsented_female = ClientDashboard::where('partner_id', Auth::user()->partner_id)
+                ->where('gender', '=', 'Female')
                 ->remember($this->remember_period);
 
 
-            $client_nonconsented_female =  Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->where('tbl_client.smsenable', '!=', 'Yes')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_client.gender', '=', '1')
-                ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
-                ->remember($this->remember_period);
-
-            $client_nonconsented_uknown_gender = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->where('tbl_client.smsenable', '!=', 'Yes')
-                ->where('tbl_client.gender', '!=', '1')
-                ->where('tbl_client.gender', '!=', '2')
-                ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
+            $client_nonconsented_uknown_gender = ClientDashboard::where('partner_id', Auth::user()->partner_id)
+                ->where('gender', '=', 'Unknown')
                 ->remember($this->remember_period);
 
             // consented clients by age distribution
-            $client_consented_to_nine = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
-                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
-                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 0) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 9)) then `tbl_client`.`dob` end)) AS count"))
-                ->where('tbl_client.smsenable', '=', 'Yes')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
+            $client_consented_to_nine =  ClientDashboard::where('partner_id', Auth::user()->partner_id)
+                ->where('age_range', '=', '0-9')
                 ->remember($this->remember_period);
 
-            $client_consented_to_fourteen = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
-                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
-                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 10) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 14)) then `tbl_client`.`dob` end)) AS count"))
-                ->where('tbl_client.smsenable', '=', 'Yes')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
+            $client_consented_to_fourteen = ClientDashboard::where('partner_id', Auth::user()->partner_id)
+                ->where('age_range', '=', '10-14')
                 ->remember($this->remember_period);
 
-            $client_consented_to_nineteen = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
-                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
-                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 15) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 19)) then `tbl_client`.`dob` end)) AS count"))
-                ->where('tbl_client.smsenable', '=', 'Yes')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
+            $client_consented_to_nineteen = ClientDashboard::where('partner_id', Auth::user()->partner_id)
+                ->where('age_range', '=', '15-19')
                 ->remember($this->remember_period);
 
-            $client_consented_to_twentyfour = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
-                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
-                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 20) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 24)) then `tbl_client`.`dob` end)) AS count"))
-                ->where('tbl_client.smsenable', '=', 'Yes')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
+            $client_consented_to_twentyfour = ClientDashboard::where('partner_id', Auth::user()->partner_id)
+                ->where('age_range', '=', '20-24')
                 ->remember($this->remember_period);
 
-            $client_consented_to_twentyfive_above = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
-                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
-                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 25)) then `tbl_client`.`dob` end)) AS count"))
-                ->where('tbl_client.smsenable', '=', 'Yes')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
+            $client_consented_to_twentyfive_above = ClientDashboard::where('partner_id', Auth::user()->partner_id)
+                ->where('age_range', '=', '25+')
                 ->remember($this->remember_period);
 
-            $client_consented_uknown_age = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select('tbl_client.smsenable')
-                ->where(\DB::raw("CASE
-                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
-                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"), '=', '')
-                ->orWhereNull(\DB::raw("CASE
-                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
-                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"))
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_client.smsenable', '=', 'Yes')
-                ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
+            $client_consented_uknown_age = ClientDashboard::where('partner_id', Auth::user()->partner_id)
+                ->where('age_range', '=', 'Unknown')
                 ->remember($this->remember_period);
 
             // non consented clients by age distribution
-            $client_nonconsented_to_nine = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
-                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
-                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 0) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 9)) then `tbl_client`.`dob` end)) AS count"))
-                ->where(function ($query) {
-                    $query->where('tbl_client.smsenable', '!=', 'Yes')
-                        ->orWhereNull('tbl_client.smsenable')
-                        ->orWhere('tbl_client.smsenable', '');
-                })
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
+            $client_nonconsented_to_nine = ClientDashboard::where('partner_id', Auth::user()->partner_id)
+                ->where('age_range', '=', '0-9')
                 ->remember($this->remember_period);
 
-            $client_nonconsented_to_fourteen = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
-                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
-                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 10) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 14)) then `tbl_client`.`dob` end)) AS count"))
-                ->where(function ($query) {
-                    $query->where('tbl_client.smsenable', '!=', 'Yes')
-                        ->orWhereNull('tbl_client.smsenable')
-                        ->orWhere('tbl_client.smsenable', '');
-                })
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
+            $client_nonconsented_to_fourteen = ClientDashboard::where('partner_id', Auth::user()->partner_id)
+                ->where('age_range', '=', '10-14')
                 ->remember($this->remember_period);
 
-            $client_nonconsented_to_nineteen = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
-                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
-                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 15) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 19)) then `tbl_client`.`dob` end)) AS count"))
-                ->where(function ($query) {
-                    $query->where('tbl_client.smsenable', '!=', 'Yes')
-                        ->orWhereNull('tbl_client.smsenable')
-                        ->orWhere('tbl_client.smsenable', '');
-                })
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
+            $client_nonconsented_to_nineteen = ClientDashboard::where('partner_id', Auth::user()->partner_id)
+                ->where('age_range', '=', '15-19')
                 ->remember($this->remember_period);
 
-            $client_nonconsented_to_twentyfour = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
-                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
-                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 20) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 24)) then `tbl_client`.`dob` end)) AS count"))
-                ->where(function ($query) {
-                    $query->where('tbl_client.smsenable', '!=', 'Yes')
-                        ->orWhereNull('tbl_client.smsenable')
-                        ->orWhere('tbl_client.smsenable', '');
-                })
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
+            $client_nonconsented_to_twentyfour = ClientDashboard::where('partner_id', Auth::user()->partner_id)
+                ->where('age_range', '=', '20-24')
                 ->remember($this->remember_period);
 
-            $client_nonconsented_to_twentyfive_above = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
-                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
-                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 25)) then `tbl_client`.`dob` end)) AS count"))
-                ->where(function ($query) {
-                    $query->where('tbl_client.smsenable', '!=', 'Yes')
-                        ->orWhereNull('tbl_client.smsenable')
-                        ->orWhere('tbl_client.smsenable', '');
-                })
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
+            $client_nonconsented_to_twentyfive_above = ClientDashboard::where('partner_id', Auth::user()->partner_id)
+                ->where('age_range', '=', '25+')
                 ->remember($this->remember_period);
 
-            $client_nonconsented_uknown_age = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select('tbl_client.smsenable')
-                ->whereNull('tbl_client.hei_no')
-                ->where(\DB::raw("CASE
-                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
-                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"), '=', '')
-                ->orWhereNull(\DB::raw("CASE
-                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
-                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"))
-                ->where(function ($query) {
-                    $query->where('tbl_client.smsenable', '!=', 'Yes')
-                        ->orWhereNull('tbl_client.smsenable')
-                        ->orWhere('tbl_client.smsenable', '');
-                })
-                ->where('tbl_partner_facility.partner_id', Auth::user()->partner_id)
-                ->remember($this->remember_period);
-        }
-        if (Auth::user()->access_level == 'Sub County') {
-            $client = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id)
-                ->remember($this->remember_period);
-
-            $client_consented = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select('tbl_client.id')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_client.smsenable', '=', 'Yes')
-                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id)
-                ->remember($this->remember_period);
-
-            $client_nonconsented = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select('tbl_client.id')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_client.smsenable', '!=', 'Yes')
-                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id)
-                ->remember($this->remember_period);
-
-            // consented clients by gender
-
-            $client_consented_male = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->where('tbl_client.smsenable', '=', 'Yes')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_client.gender', '=', '2')
-                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id)
-                ->remember($this->remember_period);
-
-            $client_consented_female = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->where('tbl_client.smsenable', '=', 'Yes')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_client.gender', '=', '1')
-                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id)
-                ->remember($this->remember_period);
-
-            $client_consented_uknown_gender = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->where('tbl_client.smsenable', '=', 'Yes')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_client.gender', '!=', '1')
-                ->where('tbl_client.gender', '!=', '2')
-                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id)
-                ->remember($this->remember_period);
-
-            // non consented clients by gender
-            $client_nonconsented_male = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->where('tbl_client.smsenable', '!=', 'Yes')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_client.gender', '=', '2')
-                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id)
-                ->remember($this->remember_period);
-
-
-            $client_nonconsented_female =  Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->where('tbl_client.smsenable', '!=', 'Yes')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_client.gender', '=', '1')
-                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id)
-                ->remember($this->remember_period);
-
-            $client_nonconsented_uknown_gender = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->where('tbl_client.smsenable', '!=', 'Yes')
-                ->where('tbl_client.gender', '!=', '1')
-                ->where('tbl_client.gender', '!=', '2')
-                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id)
-                ->remember($this->remember_period);
-
-            // consented clients by age distribution
-            $client_consented_to_nine = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
-                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
-                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 0) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 9)) then `tbl_client`.`dob` end)) AS count"))
-                ->where('tbl_client.smsenable', '=', 'Yes')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id)
-                ->remember($this->remember_period);
-
-            $client_consented_to_fourteen = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
-                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
-                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 10) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 14)) then `tbl_client`.`dob` end)) AS count"))
-                ->where('tbl_client.smsenable', '=', 'Yes')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id)
-                ->remember($this->remember_period);
-
-            $client_consented_to_nineteen = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
-                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
-                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 15) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 19)) then `tbl_client`.`dob` end)) AS count"))
-                ->where('tbl_client.smsenable', '=', 'Yes')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id)
-                ->remember($this->remember_period);
-
-            $client_consented_to_twentyfour = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
-                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
-                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 20) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 24)) then `tbl_client`.`dob` end)) AS count"))
-                ->where('tbl_client.smsenable', '=', 'Yes')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id)
-                ->remember($this->remember_period);
-
-            $client_consented_to_twentyfive_above = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
-                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
-                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 25)) then `tbl_client`.`dob` end)) AS count"))
-                ->where('tbl_client.smsenable', '=', 'Yes')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id)
-                ->remember($this->remember_period);
-
-            $client_consented_uknown_age = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select('tbl_client.smsenable')
-                ->where(\DB::raw("CASE
-                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
-                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"), '=', '')
-                ->orWhereNull(\DB::raw("CASE
-                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
-                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"))
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_client.smsenable', '=', 'Yes')
-                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id)
-                ->remember($this->remember_period);
-
-            // non consented clients by age distribution
-            $client_nonconsented_to_nine = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
-                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
-                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 0) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 9)) then `tbl_client`.`dob` end)) AS count"))
-                ->where('tbl_client.smsenable', '!=', 'Yes')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id)
-                ->remember($this->remember_period);
-
-            $client_nonconsented_to_fourteen = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
-                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
-                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 10) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 14)) then `tbl_client`.`dob` end)) AS count"))
-                ->where('tbl_client.smsenable', '!=', 'Yes')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id)
-                ->remember($this->remember_period);
-
-            $client_nonconsented_to_nineteen = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
-                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
-                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 15) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 19)) then `tbl_client`.`dob` end)) AS count"))
-                ->where('tbl_client.smsenable', '!=', 'Yes')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id)
-                ->remember($this->remember_period);
-
-            $client_nonconsented_to_twentyfour = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
-                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
-                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 20) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 24)) then `tbl_client`.`dob` end)) AS count"))
-                ->where('tbl_client.smsenable', '!=', 'Yes')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id)
-                ->remember($this->remember_period);
-
-            $client_nonconsented_to_twentyfive_above = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
-                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
-                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 25)) then `tbl_client`.`dob` end)) AS count"))
-                ->where('tbl_client.smsenable', '!=', 'Yes')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id)
-                ->remember($this->remember_period);
-
-            $client_nonconsented_uknown_age = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select('tbl_client.smsenable')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where(\DB::raw("CASE
-                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
-                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"), '=', '')
-                ->orWhereNull(\DB::raw("CASE
-                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
-                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"))
-                ->where('tbl_client.smsenable', '!=', 'Yes')
-                ->where('tbl_partner_facility.sub_county_id', Auth::user()->subcounty_id)
+            $client_nonconsented_uknown_age = ClientDashboard::where('partner_id', Auth::user()->partner_id)
+                ->where('age_range', '=', 'Unknown')
                 ->remember($this->remember_period);
         }
         if (Auth::user()->access_level == 'County') {
-            $client = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_partner_facility.county_id', Auth::user()->county_id)
+
+
+            $client = ClientDashboard::selectRaw('SUM(client_consented + non_consented) as total_sum')
+                ->where('county_id', Auth::user()->county_id)
                 ->remember($this->remember_period);
 
-            $client_consented = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select('tbl_client.id')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_client.smsenable', '=', 'Yes')
-                ->where('tbl_partner_facility.county_id', Auth::user()->county_id)
+            // client charts
+            $client_consented = ClientDashboard::where('county_id', Auth::user()->county_id)
                 ->remember($this->remember_period);
 
-            $client_nonconsented = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select('tbl_client.id')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_client.smsenable', '!=', 'Yes')
-                ->where('tbl_partner_facility.county_id', Auth::user()->county_id)
+
+            $client_nonconsented = ClientDashboard::where('county_id', Auth::user()->county_id)
                 ->remember($this->remember_period);
 
             // consented clients by gender
 
-            $client_consented_male = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->where('tbl_client.smsenable', '=', 'Yes')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_client.gender', '=', '2')
-                ->where('tbl_partner_facility.county_id', Auth::user()->county_id)
+            $client_consented_male = ClientDashboard::where('county_id', Auth::user()->county_id)
+                ->where('gender', '=', 'Male')
                 ->remember($this->remember_period);
 
-            $client_consented_female = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->where('tbl_client.smsenable', '=', 'Yes')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_client.gender', '=', '1')
-                ->where('tbl_partner_facility.county_id', Auth::user()->county_id)
+            $client_consented_female = ClientDashboard::where('county_id', Auth::user()->county_id)
+                ->where('gender', '=', 'Female')
                 ->remember($this->remember_period);
 
-            $client_consented_uknown_gender = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->where('tbl_client.smsenable', '=', 'Yes')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_client.gender', '!=', '1')
-                ->where('tbl_client.gender', '!=', '2')
-                ->where('tbl_partner_facility.county_id', Auth::user()->county_id)
+            $client_consented_uknown_gender = ClientDashboard::where('county_id', Auth::user()->county_id)
+                ->where('gender', '=', 'Unknown')
                 ->remember($this->remember_period);
 
             // non consented clients by gender
-            $client_nonconsented_male = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->where('tbl_client.smsenable', '!=', 'Yes')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_client.gender', '=', '2')
-                ->where('tbl_partner_facility.county_id', Auth::user()->county_id)
+            $client_nonconsented_male = ClientDashboard::where('county_id', Auth::user()->county_id)
+                ->where('gender', '=', 'Male')
+                ->remember($this->remember_period);
+
+            $client_nonconsented_female = ClientDashboard::where('county_id', Auth::user()->county_id)
+                ->where('gender', '=', 'Female')
                 ->remember($this->remember_period);
 
 
-            $client_nonconsented_female =  Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->where('tbl_client.smsenable', '!=', 'Yes')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_client.gender', '=', '1')
-                ->where('tbl_partner_facility.county_id', Auth::user()->county_id)
-                ->remember($this->remember_period);
-
-            $client_nonconsented_uknown_gender = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->where('tbl_client.smsenable', '!=', 'Yes')
-                ->where('tbl_client.gender', '!=', '1')
-                ->where('tbl_client.gender', '!=', '2')
-                ->where('tbl_partner_facility.county_id', Auth::user()->county_id)
+            $client_nonconsented_uknown_gender = ClientDashboard::where('county_id', Auth::user()->county_id)
+                ->where('gender', '=', 'Unknown')
                 ->remember($this->remember_period);
 
             // consented clients by age distribution
-            $client_consented_to_nine = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
-                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
-                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 0) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 9)) then `tbl_client`.`dob` end)) AS count"))
-                ->where('tbl_client.smsenable', '=', 'Yes')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_partner_facility.county_id', Auth::user()->county_id)
+            $client_consented_to_nine =  ClientDashboard::where('county_id', Auth::user()->county_id)
+                ->where('age_range', '=', '0-9')
                 ->remember($this->remember_period);
 
-            $client_consented_to_fourteen = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
-                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
-                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 10) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 14)) then `tbl_client`.`dob` end)) AS count"))
-                ->where('tbl_client.smsenable', '=', 'Yes')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_partner_facility.county_id', Auth::user()->county_id)
+            $client_consented_to_fourteen = ClientDashboard::where('county_id', Auth::user()->county_id)
+                ->where('age_range', '=', '10-14')
                 ->remember($this->remember_period);
 
-            $client_consented_to_nineteen = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
-                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
-                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 15) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 19)) then `tbl_client`.`dob` end)) AS count"))
-                ->where('tbl_client.smsenable', '=', 'Yes')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_partner_facility.county_id', Auth::user()->county_id)
+            $client_consented_to_nineteen = ClientDashboard::where('county_id', Auth::user()->county_id)
+                ->where('age_range', '=', '15-19')
                 ->remember($this->remember_period);
 
-            $client_consented_to_twentyfour = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
-                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
-                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 20) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 24)) then `tbl_client`.`dob` end)) AS count"))
-                ->where('tbl_client.smsenable', '=', 'Yes')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_partner_facility.county_id', Auth::user()->county_id)
+            $client_consented_to_twentyfour = ClientDashboard::where('county_id', Auth::user()->county_id)
+                ->where('age_range', '=', '20-24')
                 ->remember($this->remember_period);
 
-            $client_consented_to_twentyfive_above = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
-                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
-                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 25)) then `tbl_client`.`dob` end)) AS count"))
-                ->where('tbl_client.smsenable', '=', 'Yes')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_partner_facility.county_id', Auth::user()->county_id)
+            $client_consented_to_twentyfive_above = ClientDashboard::where('county_id', Auth::user()->county_id)
+                ->where('age_range', '=', '25+')
                 ->remember($this->remember_period);
 
-            $client_consented_uknown_age = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select('tbl_client.smsenable')
-                ->where(\DB::raw("CASE
-                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
-                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"), '=', '')
-                ->orWhereNull(\DB::raw("CASE
-                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
-                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"))
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_client.smsenable', '=', 'Yes')
-                ->where('tbl_partner_facility.county_id', Auth::user()->county_id)
+            $client_consented_uknown_age = ClientDashboard::where('county_id', Auth::user()->county_id)
+                ->where('age_range', '=', 'Unknown')
                 ->remember($this->remember_period);
 
             // non consented clients by age distribution
-            $client_nonconsented_to_nine = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
-                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
-                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 0) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 9)) then `tbl_client`.`dob` end)) AS count"))
-                ->where('tbl_client.smsenable', '!=', 'Yes')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_partner_facility.county_id', Auth::user()->county_id)
+            $client_nonconsented_to_nine = ClientDashboard::where('county_id', Auth::user()->county_id)
+                ->where('age_range', '=', '0-9')
                 ->remember($this->remember_period);
 
-            $client_nonconsented_to_fourteen = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
-                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
-                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 10) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 14)) then `tbl_client`.`dob` end)) AS count"))
-                ->where('tbl_client.smsenable', '!=', 'Yes')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_partner_facility.county_id', Auth::user()->county_id)
+            $client_nonconsented_to_fourteen = ClientDashboard::where('county_id', Auth::user()->county_id)
+                ->where('age_range', '=', '10-14')
                 ->remember($this->remember_period);
 
-            $client_nonconsented_to_nineteen = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
-                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
-                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 15) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 19)) then `tbl_client`.`dob` end)) AS count"))
-                ->where('tbl_client.smsenable', '!=', 'Yes')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_partner_facility.county_id', Auth::user()->county_id)
+            $client_nonconsented_to_nineteen = ClientDashboard::where('county_id', Auth::user()->county_id)
+                ->where('age_range', '=', '15-19')
                 ->remember($this->remember_period);
 
-            $client_nonconsented_to_twentyfour = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
-                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
-                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 20) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 24)) then `tbl_client`.`dob` end)) AS count"))
-                ->where('tbl_client.smsenable', '!=', 'Yes')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_partner_facility.county_id', Auth::user()->county_id)
+            $client_nonconsented_to_twentyfour = ClientDashboard::where('county_id', Auth::user()->county_id)
+                ->where('age_range', '=', '20-24')
                 ->remember($this->remember_period);
 
-            $client_nonconsented_to_twentyfive_above = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
-                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
-                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 25)) then `tbl_client`.`dob` end)) AS count"))
-                ->where('tbl_client.smsenable', '!=', 'Yes')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_partner_facility.county_id', Auth::user()->county_id)
+            $client_nonconsented_to_twentyfive_above = ClientDashboard::where('county_id', Auth::user()->county_id)
+                ->where('age_range', '=', '25+')
                 ->remember($this->remember_period);
 
-            $client_nonconsented_uknown_age = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select('tbl_client.smsenable')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where(\DB::raw("CASE
-                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
-                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"), '=', '')
-                ->orWhereNull(\DB::raw("CASE
-                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
-                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"))
-                ->where('tbl_client.smsenable', '!=', 'Yes')
-                ->where('tbl_partner_facility.county_id', Auth::user()->county_id)
+            $client_nonconsented_uknown_age = ClientDashboard::where('county_id', Auth::user()->county_id)
+                ->where('age_range', '=', 'Unknown')
+                ->remember($this->remember_period);
+        }
+        if (Auth::user()->access_level == 'Sub County') {
+
+            $client = ClientDashboard::selectRaw('SUM(client_consented + non_consented) as total_sum')
+                ->where('sub_county_id', Auth::user()->subcounty_id)
+                ->remember($this->remember_period);
+
+            // client charts
+            $client_consented = ClientDashboard::where('sub_county_id', Auth::user()->subcounty_id)
+                ->remember($this->remember_period);
+
+
+            $client_nonconsented = ClientDashboard::where('sub_county_id', Auth::user()->subcounty_id)
+                ->remember($this->remember_period);
+
+            // consented clients by gender
+
+            $client_consented_male = ClientDashboard::where('sub_county_id', Auth::user()->subcounty_id)
+                ->where('gender', '=', 'Male')
+                ->remember($this->remember_period);
+
+            $client_consented_female = ClientDashboard::where('sub_county_id', Auth::user()->subcounty_id)
+                ->where('gender', '=', 'Female')
+                ->remember($this->remember_period);
+
+            $client_consented_uknown_gender = ClientDashboard::where('sub_county_id', Auth::user()->subcounty_id)
+                ->where('gender', '=', 'Unknown')
+                ->remember($this->remember_period);
+
+            // non consented clients by gender
+            $client_nonconsented_male = ClientDashboard::where('sub_county_id', Auth::user()->subcounty_id)
+                ->where('gender', '=', 'Male')
+                ->remember($this->remember_period);
+
+            $client_nonconsented_female = ClientDashboard::where('sub_county_id', Auth::user()->subcounty_id)
+                ->where('gender', '=', 'Female')
+                ->remember($this->remember_period);
+
+
+            $client_nonconsented_uknown_gender = ClientDashboard::where('sub_county_id', Auth::user()->subcounty_id)
+                ->where('gender', '=', 'Unknown')
+                ->remember($this->remember_period);
+
+            // consented clients by age distribution
+            $client_consented_to_nine =  ClientDashboard::where('sub_county_id', Auth::user()->subcounty_id)
+                ->where('age_range', '=', '0-9')
+                ->remember($this->remember_period);
+
+            $client_consented_to_fourteen = ClientDashboard::where('sub_county_id', Auth::user()->subcounty_id)
+                ->where('age_range', '=', '10-14')
+                ->remember($this->remember_period);
+
+            $client_consented_to_nineteen = ClientDashboard::where('sub_county_id', Auth::user()->subcounty_id)
+                ->where('age_range', '=', '15-19')
+                ->remember($this->remember_period);
+
+            $client_consented_to_twentyfour = ClientDashboard::where('sub_county_id', Auth::user()->subcounty_id)
+                ->where('age_range', '=', '20-24')
+                ->remember($this->remember_period);
+
+            $client_consented_to_twentyfive_above = ClientDashboard::where('sub_county_id', Auth::user()->subcounty_id)
+                ->where('age_range', '=', '25+')
+                ->remember($this->remember_period);
+
+            $client_consented_uknown_age = ClientDashboard::where('sub_county_id', Auth::user()->subcounty_id)
+                ->where('age_range', '=', 'Unknown')
+                ->remember($this->remember_period);
+
+            // non consented clients by age distribution
+            $client_nonconsented_to_nine = ClientDashboard::where('sub_county_id', Auth::user()->subcounty_id)
+                ->where('age_range', '=', '0-9')
+                ->remember($this->remember_period);
+
+            $client_nonconsented_to_fourteen = ClientDashboard::where('sub_county_id', Auth::user()->subcounty_id)
+                ->where('age_range', '=', '10-14')
+                ->remember($this->remember_period);
+
+            $client_nonconsented_to_nineteen = ClientDashboard::where('sub_county_id', Auth::user()->subcounty_id)
+                ->where('age_range', '=', '15-19')
+                ->remember($this->remember_period);
+
+            $client_nonconsented_to_twentyfour = ClientDashboard::where('sub_county_id', Auth::user()->subcounty_id)
+                ->where('age_range', '=', '20-24')
+                ->remember($this->remember_period);
+
+            $client_nonconsented_to_twentyfive_above = ClientDashboard::where('sub_county_id', Auth::user()->subcounty_id)
+                ->where('age_range', '=', '25+')
+                ->remember($this->remember_period);
+
+            $client_nonconsented_uknown_age = ClientDashboard::where('sub_county_id', Auth::user()->subcounty_id)
+                ->where('age_range', '=', 'Unknown')
                 ->remember($this->remember_period);
         }
         if (Auth::user()->access_level == 'Admin' || Auth::user()->access_level == 'Donor') {
 
-            $client = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
+            $client = ClientDashboard::selectRaw('SUM(client_consented + non_consented) as total_sum')
                 ->remember($this->remember_period);
 
-            $client_consented = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select('tbl_client.id')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_client.smsenable', '=', 'Yes')
-                ->remember($this->remember_period);
 
-            $client_nonconsented = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select('tbl_client.id')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_client.smsenable', '!=', 'Yes')
-                ->remember($this->remember_period);
+            // client charts
+            $client_consented = ClientDashboard::remember($this->remember_period);
+
+
+            $client_nonconsented = ClientDashboard::remember($this->remember_period);
 
             // consented clients by gender
 
-            $client_consented_male = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->where('tbl_client.smsenable', '=', 'Yes')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_client.gender', '=', '2')
+            $client_consented_male = ClientDashboard::where('gender', '=', 'Male')
                 ->remember($this->remember_period);
 
-            $client_consented_female = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->where('tbl_client.smsenable', '=', 'Yes')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_client.gender', '=', '1')
+            $client_consented_female = ClientDashboard::where('gender', '=', 'Female')
                 ->remember($this->remember_period);
 
-            $client_consented_uknown_gender = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->where('tbl_client.smsenable', '=', 'Yes')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_client.gender', '!=', '1')
-                ->where('tbl_client.gender', '!=', '2')
+            $client_consented_uknown_gender = ClientDashboard::where('gender', '=', 'Unknown')
                 ->remember($this->remember_period);
 
             // non consented clients by gender
-            $client_nonconsented_male = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->where('tbl_client.smsenable', '!=', 'Yes')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_client.gender', '=', '2')
+            $client_nonconsented_male = ClientDashboard::where('gender', '=', 'Male')
                 ->remember($this->remember_period);
 
-
-            $client_nonconsented_female =  Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->where('tbl_client.smsenable', '!=', 'Yes')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where('tbl_client.gender', '=', '1')
+            $client_nonconsented_female = ClientDashboard::where('gender', '=', 'Female')
                 ->remember($this->remember_period);
 
-            $client_nonconsented_uknown_gender = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->where('tbl_client.smsenable', '!=', 'Yes')
-                ->where('tbl_client.gender', '!=', '1')
-                ->where('tbl_client.gender', '!=', '2')
+            $client_nonconsented_uknown_gender = ClientDashboard::where('gender', '=', 'Unknown')
                 ->remember($this->remember_period);
 
             // consented clients by age distribution
-            $client_consented_to_nine = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
-                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
-                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 0) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 9)) then `tbl_client`.`dob` end)) AS count"))
-                ->where('tbl_client.smsenable', '=', 'Yes')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
+            $client_consented_to_nine =  ClientDashboard::where('age_range', '=', '0-9')
                 ->remember($this->remember_period);
 
-            $client_consented_to_fourteen = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
-                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
-                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 10) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 14)) then `tbl_client`.`dob` end)) AS count"))
-                ->where('tbl_client.smsenable', '=', 'Yes')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
+            $client_consented_to_fourteen = ClientDashboard::where('age_range', '=', '10-14')
                 ->remember($this->remember_period);
 
-            $client_consented_to_nineteen = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
-                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
-                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 15) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 19)) then `tbl_client`.`dob` end)) AS count"))
-                ->where('tbl_client.smsenable', '=', 'Yes')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
+            $client_consented_to_nineteen = ClientDashboard::where('age_range', '=', '15-19')
                 ->remember($this->remember_period);
 
-            $client_consented_to_twentyfour = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
-                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
-                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 20) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 24)) then `tbl_client`.`dob` end)) AS count"))
-                ->where('tbl_client.smsenable', '=', 'Yes')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
+            $client_consented_to_twentyfour = ClientDashboard::where('age_range', '=', '20-24')
                 ->remember($this->remember_period);
 
-            $client_consented_to_twentyfive_above = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
-                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
-                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 25)) then `tbl_client`.`dob` end)) AS count"))
-                ->where('tbl_client.smsenable', '=', 'Yes')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
+            $client_consented_to_twentyfive_above = ClientDashboard::where('age_range', '=', '25+')
                 ->remember($this->remember_period);
 
-            $client_consented_uknown_age = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select('tbl_client.smsenable')
-                ->where('tbl_client.status', '=', 'Active')
-                ->whereNull('tbl_client.hei_no')
-                ->where(\DB::raw("CASE
-                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
-                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"), '=', '')
-                ->orWhereNull(\DB::raw("CASE
-                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
-                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"))
-                ->where('tbl_client.smsenable', '=', 'Yes')
+            $client_consented_uknown_age = ClientDashboard::where('age_range', '=', 'Unknown')
                 ->remember($this->remember_period);
 
             // non consented clients by age distribution
-            $client_nonconsented_to_nine = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
-                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
-                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 0) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 9)) then `tbl_client`.`dob` end)) AS count"))
-                ->where(function ($query) {
-                    $query->where('tbl_client.smsenable', '!=', 'Yes')
-                        ->orWhereNull('tbl_client.smsenable')
-                        ->orWhere('tbl_client.smsenable', '');
-                })
-                ->whereNull('tbl_client.hei_no')
+            $client_nonconsented_to_nine = ClientDashboard::where('age_range', '=', '0-9')
                 ->remember($this->remember_period);
 
-            $client_nonconsented_to_fourteen = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
-                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
-                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 10) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 14)) then `tbl_client`.`dob` end)) AS count"))
-                ->where(function ($query) {
-                    $query->where('tbl_client.smsenable', '!=', 'Yes')
-                        ->orWhereNull('tbl_client.smsenable')
-                        ->orWhere('tbl_client.smsenable', '');
-                })
-                ->whereNull('tbl_client.hei_no')
+            $client_nonconsented_to_fourteen = ClientDashboard::where('age_range', '=', '10-14')
                 ->remember($this->remember_period);
 
-            $client_nonconsented_to_nineteen = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
-                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
-                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 15) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 19)) then `tbl_client`.`dob` end)) AS count"))
-                ->where(function ($query) {
-                    $query->where('tbl_client.smsenable', '!=', 'Yes')
-                        ->orWhereNull('tbl_client.smsenable')
-                        ->orWhere('tbl_client.smsenable', '');
-                })
-                ->whereNull('tbl_client.hei_no')
+            $client_nonconsented_to_nineteen = ClientDashboard::where('age_range', '=', '15-19')
                 ->remember($this->remember_period);
 
-            $client_nonconsented_to_twentyfour = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
-                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
-                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 20) and ((year(curdate()) - year(`tbl_client`.`dob`)) <= 24)) then `tbl_client`.`dob` end)) AS count"))
-                ->where(function ($query) {
-                    $query->where('tbl_client.smsenable', '!=', 'Yes')
-                        ->orWhereNull('tbl_client.smsenable')
-                        ->orWhere('tbl_client.smsenable', '');
-                })
-                ->whereNull('tbl_client.hei_no')
+            $client_nonconsented_to_twentyfour = ClientDashboard::where('age_range', '=', '20-24')
                 ->remember($this->remember_period);
 
-            $client_nonconsented_to_twentyfive_above = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select(\DB::raw("count((case when (((year(curdate()) - year(CASE
-                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
-                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END)) >= 25)) then `tbl_client`.`dob` end)) AS count"))
-                ->where(function ($query) {
-                    $query->where('tbl_client.smsenable', '!=', 'Yes')
-                        ->orWhereNull('tbl_client.smsenable')
-                        ->orWhere('tbl_client.smsenable', '');
-                })
-                ->whereNull('tbl_client.hei_no')
+            $client_nonconsented_to_twentyfive_above = ClientDashboard::where('age_range', '=', '25+')
                 ->remember($this->remember_period);
 
-            $client_nonconsented_uknown_age = Client::join('tbl_partner_facility', 'tbl_client.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->select('tbl_client.smsenable')
-                ->whereNull('tbl_client.hei_no')
-                ->where(\DB::raw("CASE
-                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
-                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"), '=', '')
-                ->orWhereNull(\DB::raw("CASE
-                WHEN ( locate( '/', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%m/%d/%Y' ), '%Y-%m-%d' )
-                WHEN ( locate( '-', `tbl_client`.`dob` ) > 0 ) THEN
-                date_format( str_to_date( `tbl_client`.`dob`, '%Y-%m-%d' ), '%Y-%m-%d' ) END"))
-                ->where(function ($query) {
-                    $query->where('tbl_client.smsenable', '!=', 'Yes')
-                        ->orWhereNull('tbl_client.smsenable')
-                        ->orWhere('tbl_client.smsenable', '');
-                })
+            $client_nonconsented_uknown_age = ClientDashboard::where('age_range', '=', 'Unknown')
                 ->remember($this->remember_period);
         }
 
         if (!empty($selected_partners)) {
-            $client = $client->where('tbl_partner_facility.partner_id', $selected_partners);
-            $client_consented = $client_consented->where('tbl_partner_facility.partner_id', $selected_partners);
-            $client_nonconsented = $client_nonconsented->where('tbl_partner_facility.partner_id', $selected_partners);
-            $client_consented_male = $client_consented_male->where('tbl_partner_facility.partner_id', $selected_partners);
-            $client_consented_female = $client_consented_female->where('tbl_partner_facility.partner_id', $selected_partners);
-            $client_consented_uknown_gender = $client_consented_uknown_gender->where('tbl_partner_facility.partner_id', $selected_partners);
-            $client_nonconsented_male = $client_nonconsented_male->where('tbl_partner_facility.partner_id', $selected_partners);
-            $client_nonconsented_female = $client_nonconsented_female->where('tbl_partner_facility.partner_id', $selected_partners);
-            $client_nonconsented_uknown_gender = $client_nonconsented_uknown_gender->where('tbl_partner_facility.partner_id', $selected_partners);
-            $client_consented_to_nine = $client_consented_to_nine->where('tbl_partner_facility.partner_id', $selected_partners);
-            $client_consented_to_fourteen = $client_consented_to_fourteen->where('tbl_partner_facility.partner_id', $selected_partners);
-            $client_consented_to_nineteen = $client_consented_to_nineteen->where('tbl_partner_facility.partner_id', $selected_partners);
-            $client_consented_to_twentyfour = $client_consented_to_twentyfour->where('tbl_partner_facility.partner_id', $selected_partners);
-            $client_consented_to_twentyfive_above = $client_consented_to_twentyfive_above->where('tbl_partner_facility.partner_id', $selected_partners);
-            $client_consented_uknown_age = $client_consented_uknown_age->where('tbl_partner_facility.partner_id', $selected_partners);
-            $client_nonconsented_to_nine = $client_nonconsented_to_nine->where('tbl_partner_facility.partner_id', $selected_partners);
-            $client_nonconsented_to_fourteen = $client_nonconsented_to_fourteen->where('tbl_partner_facility.partner_id', $selected_partners);
-            $client_nonconsented_to_nineteen = $client_nonconsented_to_nineteen->where('tbl_partner_facility.partner_id', $selected_partners);
-            $client_nonconsented_to_twentyfour = $client_nonconsented_to_twentyfour->where('tbl_partner_facility.partner_id', $selected_partners);
-            $client_nonconsented_to_twentyfive_above = $client_nonconsented_to_twentyfive_above->where('tbl_partner_facility.partner_id', $selected_partners);
-            $client_nonconsented_uknown_age = $client_nonconsented_uknown_age->where('tbl_partner_facility.partner_id', $selected_partners);
+            $client = $client->where('partner_id', $selected_partners);
+            $client_consented = $client_consented->where('partner_id', $selected_partners);
+            $client_nonconsented = $client_nonconsented->where('partner_id', $selected_partners);
+            $client_consented_male = $client_consented_male->where('partner_id', $selected_partners);
+            $client_consented_female = $client_consented_female->where('partner_id', $selected_partners);
+            $client_consented_uknown_gender = $client_consented_uknown_gender->where('partner_id', $selected_partners);
+            $client_nonconsented_male = $client_nonconsented_male->where('partner_id', $selected_partners);
+            $client_nonconsented_female = $client_nonconsented_female->where('partner_id', $selected_partners);
+            $client_nonconsented_uknown_gender = $client_nonconsented_uknown_gender->where('partner_id', $selected_partners);
+            $client_consented_to_nine = $client_consented_to_nine->where('partner_id', $selected_partners);
+            $client_consented_to_fourteen = $client_consented_to_fourteen->where('partner_id', $selected_partners);
+            $client_consented_to_nineteen = $client_consented_to_nineteen->where('partner_id', $selected_partners);
+            $client_consented_to_twentyfour = $client_consented_to_twentyfour->where('partner_id', $selected_partners);
+            $client_consented_to_twentyfive_above = $client_consented_to_twentyfive_above->where('partner_id', $selected_partners);
+            $client_consented_uknown_age = $client_consented_uknown_age->where('partner_id', $selected_partners);
+            $client_nonconsented_to_nine = $client_nonconsented_to_nine->where('partner_id', $selected_partners);
+            $client_nonconsented_to_fourteen = $client_nonconsented_to_fourteen->where('partner_id', $selected_partners);
+            $client_nonconsented_to_nineteen = $client_nonconsented_to_nineteen->where('partner_id', $selected_partners);
+            $client_nonconsented_to_twentyfour = $client_nonconsented_to_twentyfour->where('partner_id', $selected_partners);
+            $client_nonconsented_to_twentyfive_above = $client_nonconsented_to_twentyfive_above->where('partner_id', $selected_partners);
+            $client_nonconsented_uknown_age = $client_nonconsented_uknown_age->where('partner_id', $selected_partners);
         }
         if (!empty($selected_counties)) {
-            $client = $client->where('tbl_partner_facility.county_id', $selected_counties);
-            $client_consented = $client_consented->where('tbl_partner_facility.county_id', $selected_counties);
-            $client_nonconsented = $client_nonconsented->where('tbl_partner_facility.county_id', $selected_counties);
-            $client_consented_male = $client_consented_male->where('tbl_partner_facility.county_id', $selected_counties);
-            $client_consented_female = $client_consented_female->where('tbl_partner_facility.county_id', $selected_counties);
-            $client_consented_uknown_gender = $client_consented_uknown_gender->where('tbl_partner_facility.county_id', $selected_counties);
-            $client_nonconsented_male = $client_nonconsented_male->where('tbl_partner_facility.county_id', $selected_counties);
-            $client_nonconsented_female = $client_nonconsented_female->where('tbl_partner_facility.county_id', $selected_counties);
-            $client_nonconsented_uknown_gender = $client_nonconsented_uknown_gender->where('tbl_partner_facility.county_id', $selected_counties);
-            $client_consented_to_nine = $client_consented_to_nine->where('tbl_partner_facility.county_id', $selected_counties);
-            $client_consented_to_fourteen = $client_consented_to_fourteen->where('tbl_partner_facility.county_id', $selected_counties);
-            $client_consented_to_nineteen = $client_consented_to_nineteen->where('tbl_partner_facility.county_id', $selected_counties);
-            $client_consented_to_twentyfour = $client_consented_to_twentyfour->where('tbl_partner_facility.county_id', $selected_counties);
-            $client_consented_to_twentyfive_above = $client_consented_to_twentyfive_above->where('tbl_partner_facility.county_id', $selected_counties);
-            $client_consented_uknown_age = $client_consented_uknown_age->where('tbl_partner_facility.county_id', $selected_counties);
-            $client_nonconsented_to_nine = $client_nonconsented_to_nine->where('tbl_partner_facility.county_id', $selected_counties);
-            $client_nonconsented_to_fourteen = $client_nonconsented_to_fourteen->where('tbl_partner_facility.county_id', $selected_counties);
-            $client_nonconsented_to_nineteen = $client_nonconsented_to_nineteen->where('tbl_partner_facility.county_id', $selected_counties);
-            $client_nonconsented_to_twentyfour = $client_nonconsented_to_twentyfour->where('tbl_partner_facility.county_id', $selected_counties);
-            $client_nonconsented_to_twentyfive_above = $client_nonconsented_to_twentyfive_above->where('tbl_partner_facility.county_id', $selected_counties);
-            $client_nonconsented_uknown_age = $client_nonconsented_uknown_age->where('tbl_partner_facility.county_id', $selected_counties);
+            $client = $client->where('county_id', $selected_counties);
+            $client_consented = $client_consented->where('county_id', $selected_counties);
+            $client_nonconsented = $client_nonconsented->where('county_id', $selected_counties);
+            $client_consented_male = $client_consented_male->where('county_id', $selected_counties);
+            $client_consented_female = $client_consented_female->where('county_id', $selected_counties);
+            $client_consented_uknown_gender = $client_consented_uknown_gender->where('county_id', $selected_counties);
+            $client_nonconsented_male = $client_nonconsented_male->where('county_id', $selected_counties);
+            $client_nonconsented_female = $client_nonconsented_female->where('county_id', $selected_counties);
+            $client_nonconsented_uknown_gender = $client_nonconsented_uknown_gender->where('county_id', $selected_counties);
+            $client_consented_to_nine = $client_consented_to_nine->where('county_id', $selected_counties);
+            $client_consented_to_fourteen = $client_consented_to_fourteen->where('county_id', $selected_counties);
+            $client_consented_to_nineteen = $client_consented_to_nineteen->where('county_id', $selected_counties);
+            $client_consented_to_twentyfour = $client_consented_to_twentyfour->where('county_id', $selected_counties);
+            $client_consented_to_twentyfive_above = $client_consented_to_twentyfive_above->where('county_id', $selected_counties);
+            $client_consented_uknown_age = $client_consented_uknown_age->where('county_id', $selected_counties);
+            $client_nonconsented_to_nine = $client_nonconsented_to_nine->where('county_id', $selected_counties);
+            $client_nonconsented_to_fourteen = $client_nonconsented_to_fourteen->where('county_id', $selected_counties);
+            $client_nonconsented_to_nineteen = $client_nonconsented_to_nineteen->where('county_id', $selected_counties);
+            $client_nonconsented_to_twentyfour = $client_nonconsented_to_twentyfour->where('county_id', $selected_counties);
+            $client_nonconsented_to_twentyfive_above = $client_nonconsented_to_twentyfive_above->where('county_id', $selected_counties);
+            $client_nonconsented_uknown_age = $client_nonconsented_uknown_age->where('county_id', $selected_counties);
         }
         if (!empty($selected_subcounties)) {
-            $client = $client->where('tbl_partner_facility.sub_county_id', $selected_subcounties);
-            $client_consented = $client_consented->where('tbl_partner_facility.sub_county_id', $selected_subcounties);
-            $client_nonconsented = $client_nonconsented->where('tbl_partner_facility.sub_county_id', $selected_subcounties);
-            $client_consented_male = $client_consented_male->where('tbl_partner_facility.sub_county_id', $selected_subcounties);
-            $client_consented_female = $client_consented_female->where('tbl_partner_facility.sub_county_id', $selected_subcounties);
-            $client_consented_uknown_gender = $client_consented_uknown_gender->where('tbl_partner_facility.sub_county_id', $selected_subcounties);
-            $client_nonconsented_male = $client_nonconsented_male->where('tbl_partner_facility.sub_county_id', $selected_subcounties);
-            $client_nonconsented_female = $client_nonconsented_female->where('tbl_partner_facility.sub_county_id', $selected_subcounties);
-            $client_nonconsented_uknown_gender = $client_nonconsented_uknown_gender->where('tbl_partner_facility.sub_county_id', $selected_subcounties);
-            $client_consented_to_nine = $client_consented_to_nine->where('tbl_partner_facility.sub_county_id', $selected_subcounties);
-            $client_consented_to_fourteen = $client_consented_to_fourteen->where('tbl_partner_facility.sub_county_id', $selected_subcounties);
-            $client_consented_to_nineteen = $client_consented_to_nineteen->where('tbl_partner_facility.sub_county_id', $selected_subcounties);
-            $client_consented_to_twentyfour = $client_consented_to_twentyfour->where('tbl_partner_facility.sub_county_id', $selected_subcounties);
-            $client_consented_to_twentyfive_above = $client_consented_to_twentyfive_above->where('tbl_partner_facility.sub_county_id', $selected_subcounties);
-            $client_consented_uknown_age = $client_consented_uknown_age->where('tbl_partner_facility.sub_county_id', $selected_subcounties);
-            $client_nonconsented_to_nine = $client_nonconsented_to_nine->where('tbl_partner_facility.sub_county_id', $selected_subcounties);
-            $client_nonconsented_to_fourteen = $client_nonconsented_to_fourteen->where('tbl_partner_facility.sub_county_id', $selected_subcounties);
-            $client_nonconsented_to_nineteen = $client_nonconsented_to_nineteen->where('tbl_partner_facility.sub_county_id', $selected_subcounties);
-            $client_nonconsented_to_twentyfour = $client_nonconsented_to_twentyfour->where('tbl_partner_facility.sub_county_id', $selected_subcounties);
-            $client_nonconsented_to_twentyfive_above = $client_nonconsented_to_twentyfive_above->where('tbl_partner_facility.sub_county_id', $selected_subcounties);
-            $client_nonconsented_uknown_age = $client_nonconsented_uknown_age->where('tbl_partner_facility.sub_county_id', $selected_subcounties);
+            $client = $client->where('sub_county_id', $selected_subcounties);
+            $client_consented = $client_consented->where('sub_county_id', $selected_subcounties);
+            $client_nonconsented = $client_nonconsented->where('sub_county_id', $selected_subcounties);
+            $client_consented_male = $client_consented_male->where('sub_county_id', $selected_subcounties);
+            $client_consented_female = $client_consented_female->where('sub_county_id', $selected_subcounties);
+            $client_consented_uknown_gender = $client_consented_uknown_gender->where('sub_county_id', $selected_subcounties);
+            $client_nonconsented_male = $client_nonconsented_male->where('sub_county_id', $selected_subcounties);
+            $client_nonconsented_female = $client_nonconsented_female->where('sub_county_id', $selected_subcounties);
+            $client_nonconsented_uknown_gender = $client_nonconsented_uknown_gender->where('sub_county_id', $selected_subcounties);
+            $client_consented_to_nine = $client_consented_to_nine->where('sub_county_id', $selected_subcounties);
+            $client_consented_to_fourteen = $client_consented_to_fourteen->where('sub_county_id', $selected_subcounties);
+            $client_consented_to_nineteen = $client_consented_to_nineteen->where('sub_county_id', $selected_subcounties);
+            $client_consented_to_twentyfour = $client_consented_to_twentyfour->where('sub_county_id', $selected_subcounties);
+            $client_consented_to_twentyfive_above = $client_consented_to_twentyfive_above->where('sub_county_id', $selected_subcounties);
+            $client_consented_uknown_age = $client_consented_uknown_age->where('sub_county_id', $selected_subcounties);
+            $client_nonconsented_to_nine = $client_nonconsented_to_nine->where('sub_county_id', $selected_subcounties);
+            $client_nonconsented_to_fourteen = $client_nonconsented_to_fourteen->where('sub_county_id', $selected_subcounties);
+            $client_nonconsented_to_nineteen = $client_nonconsented_to_nineteen->where('sub_county_id', $selected_subcounties);
+            $client_nonconsented_to_twentyfour = $client_nonconsented_to_twentyfour->where('sub_county_id', $selected_subcounties);
+            $client_nonconsented_to_twentyfive_above = $client_nonconsented_to_twentyfive_above->where('sub_county_id', $selected_subcounties);
+            $client_nonconsented_uknown_age = $client_nonconsented_uknown_age->where('sub_county_id', $selected_subcounties);
         }
         if (!empty($selected_facilites)) {
-            $client = $client->where('tbl_partner_facility.mfl_code', $selected_facilites);
-            $client_consented = $client_consented->where('tbl_partner_facility.mfl_code', $selected_facilites);
-            $client_nonconsented = $client_nonconsented->where('tbl_partner_facility.mfl_code', $selected_facilites);
-            $client_consented_male = $client_consented_male->where('tbl_partner_facility.mfl_code', $selected_facilites);
-            $client_consented_female = $client_consented_female->where('tbl_partner_facility.mfl_code', $selected_facilites);
-            $client_consented_uknown_gender = $client_consented_uknown_gender->where('tbl_partner_facility.mfl_code', $selected_facilites);
-            $client_nonconsented_male = $client_nonconsented_male->where('tbl_partner_facility.mfl_code', $selected_facilites);
-            $client_nonconsented_female = $client_nonconsented_female->where('tbl_partner_facility.mfl_code', $selected_facilites);
-            $client_nonconsented_uknown_gender = $client_nonconsented_uknown_gender->where('tbl_partner_facility.mfl_code', $selected_facilites);
-            $client_consented_to_nine = $client_consented_to_nine->where('tbl_partner_facility.mfl_code', $selected_facilites);
-            $client_consented_to_fourteen = $client_consented_to_fourteen->where('tbl_partner_facility.mfl_code', $selected_facilites);
-            $client_consented_to_nineteen = $client_consented_to_nineteen->where('tbl_partner_facility.mfl_code', $selected_facilites);
-            $client_consented_to_twentyfour = $client_consented_to_twentyfour->where('tbl_partner_facility.mfl_code', $selected_facilites);
-            $client_consented_to_twentyfive_above = $client_consented_to_twentyfive_above->where('tbl_partner_facility.mfl_code', $selected_facilites);
-            $client_consented_uknown_age = $client_consented_uknown_age->where('tbl_partner_facility.mfl_code', $selected_facilites);
-            $client_nonconsented_to_nine = $client_nonconsented_to_nine->where('tbl_partner_facility.mfl_code', $selected_facilites);
-            $client_nonconsented_to_fourteen = $client_nonconsented_to_fourteen->where('tbl_partner_facility.mfl_code', $selected_facilites);
-            $client_nonconsented_to_nineteen = $client_nonconsented_to_nineteen->where('tbl_partner_facility.mfl_code', $selected_facilites);
-            $client_nonconsented_to_twentyfour = $client_nonconsented_to_twentyfour->where('tbl_partner_facility.mfl_code', $selected_facilites);
-            $client_nonconsented_to_twentyfive_above = $client_nonconsented_to_twentyfive_above->where('tbl_partner_facility.mfl_code', $selected_facilites);
-            $client_nonconsented_uknown_age = $client_nonconsented_uknown_age->where('tbl_partner_facility.mfl_code', $selected_facilites);
+            $client = $client->where('mfl_code', $selected_facilites);
+            $client_consented = $client_consented->where('mfl_code', $selected_facilites);
+            $client_nonconsented = $client_nonconsented->where('mfl_code', $selected_facilites);
+            $client_consented_male = $client_consented_male->where('mfl_code', $selected_facilites);
+            $client_consented_female = $client_consented_female->where('mfl_code', $selected_facilites);
+            $client_consented_uknown_gender = $client_consented_uknown_gender->where('mfl_code', $selected_facilites);
+            $client_nonconsented_male = $client_nonconsented_male->where('mfl_code', $selected_facilites);
+            $client_nonconsented_female = $client_nonconsented_female->where('mfl_code', $selected_facilites);
+            $client_nonconsented_uknown_gender = $client_nonconsented_uknown_gender->where('mfl_code', $selected_facilites);
+            $client_consented_to_nine = $client_consented_to_nine->where('mfl_code', $selected_facilites);
+            $client_consented_to_fourteen = $client_consented_to_fourteen->where('mfl_code', $selected_facilites);
+            $client_consented_to_nineteen = $client_consented_to_nineteen->where('mfl_code', $selected_facilites);
+            $client_consented_to_twentyfour = $client_consented_to_twentyfour->where('mfl_code', $selected_facilites);
+            $client_consented_to_twentyfive_above = $client_consented_to_twentyfive_above->where('mfl_code', $selected_facilites);
+            $client_consented_uknown_age = $client_consented_uknown_age->where('mfl_code', $selected_facilites);
+            $client_nonconsented_to_nine = $client_nonconsented_to_nine->where('mfl_code', $selected_facilites);
+            $client_nonconsented_to_fourteen = $client_nonconsented_to_fourteen->where('mfl_code', $selected_facilites);
+            $client_nonconsented_to_nineteen = $client_nonconsented_to_nineteen->where('mfl_code', $selected_facilites);
+            $client_nonconsented_to_twentyfour = $client_nonconsented_to_twentyfour->where('mfl_code', $selected_facilites);
+            $client_nonconsented_to_twentyfive_above = $client_nonconsented_to_twentyfive_above->where('mfl_code', $selected_facilites);
+            $client_nonconsented_uknown_age = $client_nonconsented_uknown_age->where('mfl_code', $selected_facilites);
         }
         if (!empty($selected_from || $selected_to)) {
-            $client = $client->where('tbl_client.created_at', '>=', date($selected_from))->where('tbl_client.created_at', '<=', date($selected_to));
-            $client_consented = $client_consented->where('tbl_client.created_at', '>=', date($request->from))->where('tbl_client.created_at', '<=', date($request->to));
-            $client_nonconsented = $client_nonconsented->where('tbl_client.created_at', '>=', date($request->from))->where('tbl_client.created_at', '<=', date($request->to));
-            $client_consented_male = $client_consented_male->where('tbl_client.created_at', '>=', date($request->from))->where('tbl_client.created_at', '<=', date($request->to));
-            $client_consented_female = $client_consented_female->where('tbl_client.created_at', '>=', date($request->from))->where('tbl_client.created_at', '<=', date($request->to));
-            $client_consented_uknown_gender = $client_consented_uknown_gender->where('tbl_client.created_at', '>=', date($request->from))->where('tbl_client.created_at', '<=', date($request->to));
-            $client_nonconsented_male = $client_nonconsented_male->where('tbl_client.created_at', '>=', date($request->from))->where('tbl_client.created_at', '<=', date($request->to));
-            $client_nonconsented_female = $client_nonconsented_female->where('tbl_client.created_at', '>=', date($request->from))->where('tbl_client.created_at', '<=', date($request->to));
-            $client_nonconsented_uknown_gender = $client_nonconsented_uknown_gender->where('tbl_client.created_at', '>=', date($request->from))->where('tbl_client.created_at', '<=', date($request->to));
-            $client_consented_to_nine = $client_consented_to_nine->where('tbl_client.created_at', '>=', date($request->from))->where('tbl_client.created_at', '<=', date($request->to));
-            $client_consented_to_fourteen = $client_consented_to_fourteen->where('tbl_client.created_at', '>=', date($request->from))->where('tbl_client.created_at', '<=', date($request->to));
-            $client_consented_to_nineteen = $client_consented_to_nineteen->where('tbl_client.created_at', '>=', date($request->from))->where('tbl_client.created_at', '<=', date($request->to));
-            $client_consented_to_twentyfour = $client_consented_to_twentyfour->where('tbl_client.created_at', '>=', date($request->from))->where('tbl_client.created_at', '<=', date($request->to));
-            $client_consented_to_twentyfive_above = $client_consented_to_twentyfive_above->where('tbl_client.created_at', '>=', date($request->from))->where('tbl_client.created_at', '<=', date($request->to));
-            $client_consented_uknown_age = $client_consented_uknown_age->where('tbl_client.created_at', '>=', date($request->from))->where('tbl_client.created_at', '<=', date($request->to));
-            $client_nonconsented_to_nine = $client_nonconsented_to_nine->where('tbl_client.created_at', '>=', date($request->from))->where('tbl_client.created_at', '<=', date($request->to));
-            $client_nonconsented_to_fourteen = $client_nonconsented_to_fourteen->where('tbl_client.created_at', '>=', date($request->from))->where('tbl_client.created_at', '<=', date($request->to));
-            $client_nonconsented_to_nineteen = $client_nonconsented_to_nineteen->where('tbl_client.created_at', '>=', date($request->from))->where('tbl_client.created_at', '<=', date($request->to));
-            $client_nonconsented_to_twentyfour = $client_nonconsented_to_twentyfour->where('tbl_client.created_at', '>=', date($request->from))->where('tbl_client.created_at', '<=', date($request->to));
-            $client_nonconsented_to_twentyfive_above = $client_nonconsented_to_twentyfive_above->where('tbl_client.created_at', '>=', date($request->from))->where('tbl_client.created_at', '<=', date($request->to));
-            $client_nonconsented_uknown_age = $client_nonconsented_uknown_age->where('tbl_client.created_at', '>=', date($request->from))->where('tbl_client.created_at', '<=', date($request->to));
+            $client = $client->where('consent_date', '>=', date($selected_from))->where('consent_date', '<=', date($selected_to));
+            $client_consented = $client_consented->where('consent_date', '>=', date($request->from))->where('consent_date', '<=', date($request->to));
+            $client_nonconsented = $client_nonconsented->where('consent_date', '>=', date($request->from))->where('consent_date', '<=', date($request->to));
+            $client_consented_male = $client_consented_male->where('consent_date', '>=', date($request->from))->where('consent_date', '<=', date($request->to));
+            $client_consented_female = $client_consented_female->where('consent_date', '>=', date($request->from))->where('consent_date', '<=', date($request->to));
+            $client_consented_uknown_gender = $client_consented_uknown_gender->where('consent_date', '>=', date($request->from))->where('consent_date', '<=', date($request->to));
+            $client_nonconsented_male = $client_nonconsented_male->where('consent_date', '>=', date($request->from))->where('consent_date', '<=', date($request->to));
+            $client_nonconsented_female = $client_nonconsented_female->where('consent_date', '>=', date($request->from))->where('consent_date', '<=', date($request->to));
+            $client_nonconsented_uknown_gender = $client_nonconsented_uknown_gender->where('consent_date', '>=', date($request->from))->where('consent_date', '<=', date($request->to));
+            $client_consented_to_nine = $client_consented_to_nine->where('consent_date', '>=', date($request->from))->where('consent_date', '<=', date($request->to));
+            $client_consented_to_fourteen = $client_consented_to_fourteen->where('consent_date', '>=', date($request->from))->where('consent_date', '<=', date($request->to));
+            $client_consented_to_nineteen = $client_consented_to_nineteen->where('consent_date', '>=', date($request->from))->where('consent_date', '<=', date($request->to));
+            $client_consented_to_twentyfour = $client_consented_to_twentyfour->where('consent_date', '>=', date($request->from))->where('consent_date', '<=', date($request->to));
+            $client_consented_to_twentyfive_above = $client_consented_to_twentyfive_above->where('consent_date', '>=', date($request->from))->where('consent_date', '<=', date($request->to));
+            $client_consented_uknown_age = $client_consented_uknown_age->where('consent_date', '>=', date($request->from))->where('consent_date', '<=', date($request->to));
+            $client_nonconsented_to_nine = $client_nonconsented_to_nine->where('consent_date', '>=', date($request->from))->where('consent_date', '<=', date($request->to));
+            $client_nonconsented_to_fourteen = $client_nonconsented_to_fourteen->where('consent_date', '>=', date($request->from))->where('consent_date', '<=', date($request->to));
+            $client_nonconsented_to_nineteen = $client_nonconsented_to_nineteen->where('consent_date', '>=', date($request->from))->where('consent_date', '<=', date($request->to));
+            $client_nonconsented_to_twentyfour = $client_nonconsented_to_twentyfour->where('consent_date', '>=', date($request->from))->where('consent_date', '<=', date($request->to));
+            $client_nonconsented_to_twentyfive_above = $client_nonconsented_to_twentyfive_above->where('consent_date', '>=', date($request->from))->where('consent_date', '<=', date($request->to));
+            $client_nonconsented_uknown_age = $client_nonconsented_uknown_age->where('consent_date', '>=', date($request->from))->where('consent_date', '<=', date($request->to));
         }
         if (!empty($selected_module == 'DSD')) {
-            $client = $client->join('tbl_dfc_module', 'tbl_client.id', '=', 'tbl_dfc_module.client_id');
-            $client_consented = $client_consented->join('tbl_dfc_module', 'tbl_client.id', '=', 'tbl_dfc_module.client_id');
-            $client_nonconsented = $client_nonconsented->join('tbl_dfc_module', 'tbl_client.id', '=', 'tbl_dfc_module.client_id');
-            $client_consented_male = $client_consented_male->join('tbl_dfc_module', 'tbl_client.id', '=', 'tbl_dfc_module.client_id');
-            $client_consented_female = $client_consented_female->join('tbl_dfc_module', 'tbl_client.id', '=', 'tbl_dfc_module.client_id');
-            $client_consented_uknown_gender = $client_consented_uknown_gender->join('tbl_dfc_module', 'tbl_client.id', '=', 'tbl_dfc_module.client_id');
-            $client_nonconsented_male = $client_nonconsented_male->join('tbl_dfc_module', 'tbl_client.id', '=', 'tbl_dfc_module.client_id');
-            $client_nonconsented_female = $client_nonconsented_female->join('tbl_dfc_module', 'tbl_client.id', '=', 'tbl_dfc_module.client_id');
-            $client_nonconsented_uknown_gender = $client_nonconsented_uknown_gender->join('tbl_dfc_module', 'tbl_client.id', '=', 'tbl_dfc_module.client_id');
-            $client_consented_to_nine = $client_consented_to_nine->join('tbl_dfc_module', 'tbl_client.id', '=', 'tbl_dfc_module.client_id');
-            $client_consented_to_fourteen = $client_consented_to_fourteen->join('tbl_dfc_module', 'tbl_client.id', '=', 'tbl_dfc_module.client_id');
-            $client_consented_to_nineteen = $client_consented_to_nineteen->join('tbl_dfc_module', 'tbl_client.id', '=', 'tbl_dfc_module.client_id');
-            $client_consented_to_twentyfour = $client_consented_to_twentyfour->join('tbl_dfc_module', 'tbl_client.id', '=', 'tbl_dfc_module.client_id');
-            $client_consented_to_twentyfive_above = $client_consented_to_twentyfive_above->join('tbl_dfc_module', 'tbl_client.id', '=', 'tbl_dfc_module.client_id');
-            $client_consented_uknown_age = $client_consented_uknown_age->join('tbl_dfc_module', 'tbl_client.id', '=', 'tbl_dfc_module.client_id');
-            $client_nonconsented_to_nine = $client_nonconsented_to_nine->join('tbl_dfc_module', 'tbl_client.id', '=', 'tbl_dfc_module.client_id');
-            $client_nonconsented_to_fourteen = $client_nonconsented_to_fourteen->join('tbl_dfc_module', 'tbl_client.id', '=', 'tbl_dfc_module.client_id');
-            $client_nonconsented_to_nineteen = $client_nonconsented_to_nineteen->join('tbl_dfc_module', 'tbl_client.id', '=', 'tbl_dfc_module.client_id');
-            $client_nonconsented_to_twentyfour = $client_nonconsented_to_twentyfour->join('tbl_dfc_module', 'tbl_client.id', '=', 'tbl_dfc_module.client_id');
-            $client_nonconsented_to_twentyfive_above = $client_nonconsented_to_twentyfive_above->join('tbl_dfc_module', 'tbl_client.id', '=', 'tbl_dfc_module.client_id');
-            $client_nonconsented_uknown_age = $client_nonconsented_uknown_age->join('tbl_dfc_module', 'tbl_client.id', '=', 'tbl_dfc_module.client_id');
+            $client = $client;
+            $client_consented = $client_consented;
+            $client_nonconsented = $client_nonconsented;
+            $client_consented_male = $client_consented_male;
+            $client_consented_female = $client_consented_female;
+            $client_consented_uknown_gender = $client_consented_uknown_gender;
+            $client_nonconsented_male = $client_nonconsented_male;
+            $client_nonconsented_female = $client_nonconsented_female;
+            $client_nonconsented_uknown_gender = $client_nonconsented_uknown_gender;
+            $client_consented_to_nine = $client_consented_to_nine;
+            $client_consented_to_fourteen = $client_consented_to_fourteen;
+            $client_consented_to_nineteen = $client_consented_to_nineteen;
+            $client_consented_to_twentyfour = $client_consented_to_twentyfour;
+            $client_consented_to_twentyfive_above = $client_consented_to_twentyfive_above;
+            $client_consented_uknown_age = $client_consented_uknown_age;
+            $client_nonconsented_to_nine = $client_nonconsented_to_nine;
+            $client_nonconsented_to_fourteen = $client_nonconsented_to_fourteen;
+            $client_nonconsented_to_nineteen = $client_nonconsented_to_nineteen;
+            $client_nonconsented_to_twentyfour = $client_nonconsented_to_twentyfour;
+            $client_nonconsented_to_twentyfive_above = $client_nonconsented_to_twentyfive_above;
+            $client_nonconsented_uknown_age = $client_nonconsented_uknown_age;
         }
         if (!empty($selected_module == 'PMTCT')) {
-            $client = $client->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id');
-            $client_consented = $client_consented->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id');
-            $client_nonconsented = $client_nonconsented->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id');
-            $client_consented_male = $client_consented_male->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id');
-            $client_consented_female = $client_consented_female->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id');
-            $client_consented_uknown_gender = $client_consented_uknown_gender->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id');
-            $client_nonconsented_male = $client_nonconsented_male->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id');
-            $client_nonconsented_female = $client_nonconsented_female->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id');
-            $client_nonconsented_uknown_gender = $client_nonconsented_uknown_gender->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id');
-            $client_consented_to_nine = $client_consented_to_nine->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id');
-            $client_consented_to_fourteen = $client_consented_to_fourteen->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id');
-            $client_consented_to_nineteen = $client_consented_to_nineteen->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id');
-            $client_consented_to_twentyfour = $client_consented_to_twentyfour->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id');
-            $client_consented_to_twentyfive_above = $client_consented_to_twentyfive_above->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id');
-            $client_consented_uknown_age = $client_consented_uknown_age->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id');
-            $client_nonconsented_to_nine = $client_nonconsented_to_nine->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id');
-            $client_nonconsented_to_fourteen = $client_nonconsented_to_fourteen->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id');
-            $client_nonconsented_to_nineteen = $client_nonconsented_to_nineteen->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id');
-            $client_nonconsented_to_twentyfour = $client_nonconsented_to_twentyfour->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id');
-            $client_nonconsented_to_twentyfive_above = $client_nonconsented_to_twentyfive_above->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id');
-            $client_nonconsented_uknown_age = $client_nonconsented_uknown_age->join('tbl_pmtct', 'tbl_client.id', '=', 'tbl_pmtct.client_id');
+            $client = $client;
+            $client_consented = $client_consented;
+            $client_nonconsented = $client_nonconsented;
+            $client_consented_male = $client_consented_male;
+            $client_consented_female = $client_consented_female;
+            $client_consented_uknown_gender = $client_consented_uknown_gender;
+            $client_nonconsented_male = $client_nonconsented_male;
+            $client_nonconsented_female = $client_nonconsented_female;
+            $client_nonconsented_uknown_gender = $client_nonconsented_uknown_gender;
+            $client_consented_to_nine = $client_consented_to_nine;
+            $client_consented_to_fourteen = $client_consented_to_fourteen;
+            $client_consented_to_nineteen = $client_consented_to_nineteen;
+            $client_consented_to_twentyfour = $client_consented_to_twentyfour;
+            $client_consented_to_twentyfive_above = $client_consented_to_twentyfive_above;
+            $client_consented_uknown_age = $client_consented_uknown_age;
+            $client_nonconsented_to_nine = $client_nonconsented_to_nine;
+            $client_nonconsented_to_fourteen = $client_nonconsented_to_fourteen;
+            $client_nonconsented_to_nineteen = $client_nonconsented_to_nineteen;
+            $client_nonconsented_to_twentyfour = $client_nonconsented_to_twentyfour;
+            $client_nonconsented_to_twentyfive_above = $client_nonconsented_to_twentyfive_above;
+            $client_nonconsented_uknown_age = $client_nonconsented_uknown_age;
         }
 
 
-        $data["client"]        = $client->count();
-        $data["client_consented"]        = $client_consented->count();
-        $data["client_nonconsented"]        = $client_nonconsented->count();
-        $data["client_consented_male"]        = $client_consented_male->count();
-        $data["client_consented_female"]        = $client_consented_female->count();
-        $data["client_consented_uknown_gender"]        = $client_consented_uknown_gender->count();
-        $data["client_nonconsented_male"]        = $client_nonconsented_male->count();
-        $data["client_nonconsented_female"]        = $client_nonconsented_female->count();
-        $data["client_nonconsented_uknown_gender"]        = $client_nonconsented_uknown_gender->count();
-        $data["client_consented_to_nine"]        = $client_consented_to_nine->pluck('count');
-        $data["client_consented_to_fourteen"]        = $client_consented_to_fourteen->pluck('count');
-        $data["client_consented_to_nineteen"]        = $client_consented_to_nineteen->pluck('count');
-        $data["client_consented_to_twentyfour"]        = $client_consented_to_twentyfour->pluck('count');
-        $data["client_consented_to_twentyfive_above"]        = $client_consented_to_twentyfive_above->pluck('count');
-        $data["client_consented_uknown_age"]        = $client_consented_uknown_age->count();
-        $data["client_nonconsented_to_nine"]        = $client_nonconsented_to_nine->pluck('count');
-        $data["client_nonconsented_to_fourteen"]        = $client_nonconsented_to_fourteen->pluck('count');
-        $data["client_nonconsented_to_nineteen"]        = $client_nonconsented_to_nineteen->pluck('count');
-        $data["client_nonconsented_to_twentyfour"]        = $client_nonconsented_to_twentyfour->pluck('count');
-        $data["client_nonconsented_to_twentyfive_above"]        = $client_nonconsented_to_twentyfive_above->pluck('count');
-        $data["client_nonconsented_uknown_age"]        = $client_nonconsented_uknown_age->count();
+        $data["client"]        = $client->first()->total_sum;
+        $data["client_consented"]        = $client_consented->sum('client_consented');
+        $data["client_nonconsented"]        = $client_nonconsented->sum('non_consented');
+        $data["client_consented_male"]        = $client_consented_male->sum('client_consented');
+        $data["client_consented_female"]        = $client_consented_female->sum('client_consented');
+        $data["client_consented_uknown_gender"]        = $client_consented_uknown_gender->sum('client_consented');
+        $data["client_nonconsented_male"]        = $client_nonconsented_male->sum('non_consented');
+        $data["client_nonconsented_female"]        = $client_nonconsented_female->sum('non_consented');
+        $data["client_nonconsented_uknown_gender"]        = $client_nonconsented_uknown_gender->sum('non_consented');
+        $data["client_consented_to_nine"]        = $client_consented_to_nine->sum('client_consented');
+        $data["client_consented_to_fourteen"]        = $client_consented_to_fourteen->sum('client_consented');
+        $data["client_consented_to_nineteen"]        = $client_consented_to_nineteen->sum('client_consented');
+        $data["client_consented_to_twentyfour"]        = $client_consented_to_twentyfour->sum('client_consented');
+        $data["client_consented_to_twentyfive_above"]        = $client_consented_to_twentyfive_above->sum('client_consented');
+        $data["client_consented_uknown_age"]        = $client_consented_uknown_age->sum('client_consented');
+        $data["client_nonconsented_to_nine"]        = $client_nonconsented_to_nine->sum('non_consented');
+        $data["client_nonconsented_to_fourteen"]        = $client_nonconsented_to_fourteen->sum('non_consented');
+        $data["client_nonconsented_to_nineteen"]        = $client_nonconsented_to_nineteen->sum('non_consented');
+        $data["client_nonconsented_to_twentyfour"]        = $client_nonconsented_to_twentyfour->sum('non_consented');
+        $data["client_nonconsented_to_twentyfive_above"]        = $client_nonconsented_to_twentyfive_above->sum('non_consented');
+        $data["client_nonconsented_uknown_age"]        = $client_nonconsented_uknown_age->sum('non_consented');
 
         return $data;
     }

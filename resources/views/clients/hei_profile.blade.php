@@ -99,7 +99,11 @@
                                                                     <th>HEI No</th>
                                                                     <th>Gender</th>
                                                                     <th>DOB</th>
+                                                                    @if (env('INSTANCE') === 'UshauriDOD')
+                                                                    <th>Mother KDOD No</th>
+                                                                    @else
                                                                     <th>Mother CCC No</th>
+                                                                    @endif
                                                                     <th>Care Giver Name</th>
                                                                 </tr>
                                                             </thead>

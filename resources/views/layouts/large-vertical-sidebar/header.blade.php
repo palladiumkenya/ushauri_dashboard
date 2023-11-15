@@ -33,7 +33,7 @@
     </div>
 
     <div style="margin: auto">
-<!--
+        <!--
         @if (Auth::user()->access_level == 'Sub County')
         <h6 id="user"></h6>
         <h6 style="text-align:right;float:right; padding-left: 5px;">Sub County</h6>
@@ -54,7 +54,7 @@
     <div class="header-part-right">
 
 
-
+        @if (env('INSTANCE') === 'UshauriPublic')
         @if (Auth::user()->access_level == 'Facility')
         <!-- Full screen toggle -->
         <div class="reschedule-nishauri" style="position: relative;">
@@ -63,9 +63,15 @@
         </div>
 
         @endif
+        @endif
 
         <div>
+            @if (env('INSTANCE') === 'UshauriPublic')
             <img class=" pl-3" src="{{ asset('assets/images/NASCOP_Logo.png') }}" alt="ushauri">
+            @endif
+            @if (env('INSTANCE') === 'UshauriDOD')
+            <img class=" pl-3" src="{{ asset('assets/images/DOD_Logo.png') }}" alt="ushauri" height="50">
+            @endif
 
         </div>
 

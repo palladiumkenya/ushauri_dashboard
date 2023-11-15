@@ -46,7 +46,15 @@
                                 <option value="">Please select </option>
                                 @if (count($access_level) > 0)
                                 @foreach($access_level as $level)
+                                @if (env('INSTANCE') === 'UshauriDOD' && $level->name === 'Donor' || $level->name === 'County' || $level->name === 'Sub County')
+                                {{-- Omit Donor option --}}
+                                @else
+                                @if (env('INSTANCE') === 'UshauriDOD' && $level->name === 'Partner')
+                                <option value="{{$level->name }}">Service</option>
+                                @else
                                 <option value="{{$level->name }}">{{ ucwords($level->name) }}</option>
+                                @endif
+                                @endif
                                 @endforeach
                                 @endif
                             </select>
@@ -94,7 +102,11 @@
                         </div>
 
                         <div class="col-md-3 form-group mb-3" id="add_partner_div">
+                            @if (env('INSTANCE') === 'UshauriDOD')
+                            <label for="lastName1">Service</label>
+                            @else
                             <label for="lastName1">Partner</label>
+                            @endif
                             <select class="form-control" data-width="100%" id="partner" name="partner">
                                 <option value="">Please select </option>
                                 @if (count($partners) > 0)

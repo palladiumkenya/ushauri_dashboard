@@ -80,7 +80,11 @@
                     <thead>
                         <tr>
                             <th>No.</th>
+                            @if (env('INSTANCE') === 'UshauriDOD')
+                            <th>KDOD Number</th>
+                            @else
                             <th>CCC Number</th>
+                            @endif
                             <th>Client Name</th>
                             <th>Gender</th>
                             <th>Language</th>
@@ -96,8 +100,10 @@
                             <th>Facility Name</th>
                             <th>MFL Code</th>
                             <th>Partner Name</th>
+                            @if (env('INSTANCE') === 'UshauriPublic')
                             <th>Sub County</th>
                             <th>County</th>
+                            @endif
 
                         </tr>
                     </thead>
@@ -122,8 +128,10 @@
                             <td> {{$client->facility}}</td>
                             <td> {{$client->code}}</td>
                             <td> {{$client->partner}}</td>
+                            @if (env('INSTANCE') === 'UshauriPublic')
                             <td> {{$client->subcounty}}</td>
                             <td> {{$client->county}}</td>
+                            @endif
 
                         </tr>
                         @endforeach
