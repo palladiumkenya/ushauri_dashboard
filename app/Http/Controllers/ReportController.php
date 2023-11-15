@@ -147,22 +147,28 @@ class ReportController extends Controller
         }
 
         if (Auth::user()->access_level == 'Facility') {
-            $consented_clients = Client::join('tbl_groups', 'tbl_groups.id', 'tbl_client.group_id')
-                ->select('tbl_client.clinic_number', 'tbl_client.file_no', 'tbl_client.f_name', 'tbl_client.m_name', 'tbl_client.l_name', 'tbl_client.phone_no', 'tbl_client.dob', 'tbl_client.client_status', 'tbl_groups.name', 'tbl_client.created_at', 'tbl_client.smsenable', 'tbl_client.enrollment_date', 'tbl_client.art_date', 'tbl_client.updated_at', 'tbl_client.status', 'tbl_client.consent_date')
-                ->where('tbl_client.smsenable', '=', 'Yes')
-                ->where('tbl_client.status', '=', 'Active')
+            $consented_clients = Client::leftJoin('tbl_groups', 'tbl_groups.id', 'tbl_client.group_id')
+                ->leftJoin(DB::raw('(SELECT client_id, DATE(created_at) AS created_at
+                   FROM tbl_appointment a1
+                   WHERE a1.id = (SELECT MAX(a2.id) FROM tbl_appointment a2 WHERE a2.client_id = a1.client_id)
+                     AND a1.consented = "YES") a'), 'tbl_client.id', '=', 'a.client_id')
+                ->select('tbl_client.clinic_number', 'tbl_client.file_no', 'tbl_client.f_name', 'tbl_client.m_name', 'tbl_client.l_name', 'tbl_client.phone_no', 'tbl_client.dob', 'tbl_client.client_status', 'tbl_groups.name', 'tbl_client.created_at', DB::raw('CASE WHEN tbl_client.smsenable="Yes" THEN "Yes" WHEN a.client_id IS NOT NULL THEN
+                "Yes" ELSE "No" END as smsenable'), 'tbl_client.enrollment_date', 'tbl_client.art_date', 'tbl_client.updated_at', 'tbl_client.status', 'tbl_client.consent_date')
                 ->whereNull('tbl_client.hei_no')
                 ->where('tbl_client.mfl_code', Auth::user()->facility_id)
-                ->paginate(1000);
+                ->paginate(15000);
         }
 
         if (Auth::user()->access_level == 'Partner') {
             $all_partners = Partner::where('status', '=', 'Active')
                 ->pluck('name', 'id');
-            $consented_clients = Client::join('tbl_groups', 'tbl_groups.id', 'tbl_client.group_id')
-                ->select('tbl_client.clinic_number', 'tbl_client.file_no', 'tbl_client.f_name', 'tbl_client.m_name', 'tbl_client.l_name', 'tbl_client.phone_no', 'tbl_client.dob', 'tbl_client.client_status', 'tbl_groups.name', 'tbl_client.created_at', 'tbl_client.smsenable', 'tbl_client.enrollment_date', 'tbl_client.art_date', 'tbl_client.updated_at', 'tbl_client.status', 'tbl_client.consent_date')
-                ->where('tbl_client.smsenable', '=', 'Yes')
-                ->where('tbl_client.status', '=', 'Active')
+            $consented_clients = Client::leftJoin('tbl_groups', 'tbl_groups.id', 'tbl_client.group_id')
+                ->leftJoin(DB::raw('(SELECT client_id, DATE(created_at) AS created_at
+               FROM tbl_appointment a1
+               WHERE a1.id = (SELECT MAX(a2.id) FROM tbl_appointment a2 WHERE a2.client_id = a1.client_id)
+                 AND a1.consented = "YES") a'), 'tbl_client.id', '=', 'a.client_id')
+                ->select('tbl_client.clinic_number', 'tbl_client.file_no', 'tbl_client.f_name', 'tbl_client.m_name', 'tbl_client.l_name', 'tbl_client.phone_no', 'tbl_client.dob', 'tbl_client.client_status', 'tbl_groups.name', 'tbl_client.created_at', DB::raw('CASE WHEN tbl_client.smsenable="Yes" THEN "Yes" WHEN a.client_id IS NOT NULL THEN
+            "Yes" ELSE "No" END as smsenable'), 'tbl_client.enrollment_date', 'tbl_client.art_date', 'tbl_client.updated_at', 'tbl_client.status', 'tbl_client.consent_date')
                 ->whereNull('tbl_client.hei_no')
                 ->where('tbl_client.partner_id', Auth::user()->partner_id)
                 ->paginate(1000);

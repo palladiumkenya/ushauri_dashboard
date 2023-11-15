@@ -217,6 +217,10 @@ class NewReportController extends Controller
                     ->leftJoin('tbl_condition', 'tbl_client.client_status', '=', 'tbl_condition.name')
                     ->leftJoin('tbl_marital_status', 'tbl_client.marital', '=', 'tbl_marital_status.id')
                     ->join('tbl_county', 'tbl_partner_facility.county_id', '=', 'tbl_county.id')
+                    ->leftJoin(DB::raw('(SELECT client_id, DATE(created_at) AS created_at
+                   FROM tbl_appointment a1
+                   WHERE a1.id = (SELECT MAX(a2.id) FROM tbl_appointment a2 WHERE a2.client_id = a1.client_id)
+                     AND a1.consented = "YES") a'), 'tbl_client.id', '=', 'a.client_id')
                     ->select(
                         'tbl_client.id',
                         'tbl_client.clinic_number',
@@ -225,7 +229,8 @@ class NewReportController extends Controller
                         'tbl_client.l_name',
                         'tbl_client.dob',
                         'tbl_client.created_at',
-                        'tbl_client.smsenable',
+                        DB::raw('CASE WHEN tbl_client.smsenable="Yes" THEN "Yes" WHEN a.client_id IS NOT NULL THEN
+                        "Yes" ELSE "No" END as smsenable'),
                         DB::raw('DATE(tbl_client.enrollment_date) AS enrollment_date'),
                         DB::raw('DATE(tbl_client.art_date) AS art_date'),
                         'tbl_client.motivational_enable',
@@ -251,7 +256,6 @@ class NewReportController extends Controller
                         'tbl_client.locator_location',
                         'tbl_client.upi_no'
                     )
-                    ->where('tbl_client.status', '=', 'Active')
                     ->whereNull('tbl_client.hei_no')
                     ->where('tbl_client.mfl_code', Auth::user()->facility_id)
                     ->paginate(20000);
@@ -275,6 +279,10 @@ class NewReportController extends Controller
                     ->join('tbl_condition', 'tbl_client.client_status', '=', 'tbl_condition.name')
                     ->join('tbl_marital_status', 'tbl_client.marital', '=', 'tbl_marital_status.id')
                     ->join('tbl_county', 'tbl_partner_facility.county_id', '=', 'tbl_county.id')
+                    ->leftJoin(DB::raw('(SELECT client_id, DATE(created_at) AS created_at
+                   FROM tbl_appointment a1
+                   WHERE a1.id = (SELECT MAX(a2.id) FROM tbl_appointment a2 WHERE a2.client_id = a1.client_id)
+                     AND a1.consented = "YES") a'), 'tbl_client.id', '=', 'a.client_id')
                     ->select(
                         'tbl_client.id',
                         'tbl_client.clinic_number',
@@ -283,7 +291,8 @@ class NewReportController extends Controller
                         'tbl_client.l_name',
                         'tbl_client.dob',
                         'tbl_client.created_at',
-                        'tbl_client.smsenable',
+                        DB::raw('CASE WHEN tbl_client.smsenable="Yes" THEN "Yes" WHEN a.client_id IS NOT NULL THEN
+                        "Yes" ELSE "No" END as smsenable'),
                         DB::raw('DATE(tbl_client.enrollment_date) AS enrollment_date'),
                         DB::raw('DATE(tbl_client.art_date) AS art_date'),
                         'tbl_client.motivational_enable',
