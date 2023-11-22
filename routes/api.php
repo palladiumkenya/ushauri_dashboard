@@ -17,5 +17,9 @@ use Illuminate\Support\Facades\Route;
 
 
 Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
+  return $request->user();
 });
+
+
+Route::post('/sms/receiver', 'App\Http\Controllers\ReceiverController@index');
+Route::post('/sms/callback/ushauri', 'App\Http\Controllers\ReceiverController@ushauri_callback');
