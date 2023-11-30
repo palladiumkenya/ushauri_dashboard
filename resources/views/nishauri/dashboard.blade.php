@@ -155,7 +155,7 @@
                 <div class="form-group">
 
                     <select class="form-control select2" id="partners" name="partner">
-                    <option value="">Partner</option>
+                        <option value="">Partner</option>
                         @if (count($partners) > 0)
                         @foreach($partners as $partner)
                         <option value="{{$partner->id }}">{{ ucwords($partner->name) }}</option>
@@ -970,9 +970,13 @@
                         notenrolledCount += allEnrollments[i].no_of_clients;
                     }
                 }
+                var enrolledPercentage = 0;
+                var notEnrolledPercentage = 0;
                 var totalCount = enrolledCount + notenrolledCount;
-                var enrolledPercentage = (enrolledCount / totalCount) * 100;
-                var notEnrolledPercentage = (notenrolledCount / totalCount) * 100;
+                if (totalCount !== 0) {
+                    enrolledPercentage = (enrolledCount / totalCount) * 100;
+                    notEnrolledPercentage = (notenrolledCount / totalCount) * 100;
+                }
 
 
             } else {
@@ -1080,9 +1084,13 @@
                     }
                 }
 
+                var enrolledPercentage = 0;
+                var notEnrolledPercentage = 0;
                 var totalCount = enrolledCount + notenrolledCount;
-                var enrolledPercentage = (enrolledCount / totalCount) * 100;
-                var notEnrolledPercentage = (notenrolledCount / totalCount) * 100;
+                if (totalCount !== 0) {
+                    enrolledPercentage = (enrolledCount / totalCount) * 100;
+                    notEnrolledPercentage = (notenrolledCount / totalCount) * 100;
+                }
             }
 
             // gender
@@ -1256,30 +1264,275 @@
                 var enrolledCount = 0;
                 var notenrolledCount = 0;
 
+                if (authenticating == 'Admin' || authenticating == 'Donor' || authenticating == 'Partner' || authenticating == 'County' || authenticating == 'Sub County') {
+                    function getCountsByGender(allEnrollments) {
+                        const counts = {
+                            Male: {
+                                enrolled: 0,
+                                not_enrolled: 0
+                            },
+                            Female: {
+                                enrolled: 0,
+                                not_enrolled: 0
+                            },
+                            Unknown: {
+                                enrolled: 0,
+                                not_enrolled: 0
+                            }
+                        };
+
+                        data.all_enrollment.forEach(entry => {
+                            const {
+                                gender,
+                                no_of_clients,
+                                enrollment
+                            } = entry;
+                            if (enrollment === 'Enrolled') {
+                                counts[gender].enrolled += no_of_clients;
+                            } else if (enrollment === 'Not Enrolled') {
+                                counts[gender].not_enrolled += no_of_clients;
+                            }
+                        });
+
+                        return counts;
+                    }
+
+                    function getCountsByAge(data) {
+                        const counts = {};
+                        data.forEach(entry => {
+                            const age = entry.age_range;
+                            if (!counts[age]) {
+                                counts[age] = {
+                                    age_enrolled: 0,
+                                    age_not_enrolled: 0
+                                };
+                            }
+                            if (entry.enrollment === 'Enrolled') {
+                                counts[age].age_enrolled += entry.no_of_clients;
+                            } else if (entry.enrollment === 'Not Enrolled') {
+                                counts[age].age_not_enrolled += entry.no_of_clients;
+                            }
+                        });
+                        return counts;
+                    }
+
+                    function getCountsByMonthly(data) {
+                        const counts = {};
+                        data.forEach(entry => {
+                            const monthly = entry.enrolled_month;
+                            if (monthly !== null) {
+                                if (!counts[monthly]) {
+                                    counts[monthly] = {
+                                        monthly_enrolled: 0,
+                                        monthly_not_enrolled: 0
+                                    };
+                                }
+                                if (entry.enrollment === 'Enrolled') {
+                                    counts[monthly].monthly_enrolled += entry.no_of_clients;
+                                } else if (entry.enrollment === 'Not Enrolled') {
+                                    counts[monthly].monthly_not_enrolled += entry.no_of_clients;
+                                }
+                            }
+                        });
+                        return counts;
+                    }
+                    if (authenticating == 'Admin' || authenticating == 'Donor') {
+                        function getCountsByPartner(data) {
+                            const counts = {};
+                            data.forEach(entry => {
+                                const partner = entry.partner;
+                                if (!counts[partner]) {
+                                    counts[partner] = {
+                                        enrolled: 0,
+                                        not_enrolled: 0
+                                    };
+                                }
+                                if (entry.enrollment === 'Enrolled') {
+                                    counts[partner].enrolled += entry.no_of_clients;
+                                } else if (entry.enrollment === 'Not Enrolled') {
+                                    counts[partner].not_enrolled += entry.no_of_clients;
+                                }
+                            });
+                            return counts;
+                        }
+                    } else {
+                        function getCountsByFacility(data) {
+                            const counts = {};
+                            data.forEach(entry => {
+                                const facility = entry.facility;
+                                if (!counts[facility]) {
+                                    counts[facility] = {
+                                        enrolled: 0,
+                                        not_enrolled: 0
+                                    };
+                                }
+                                if (entry.enrollment === 'Enrolled') {
+                                    counts[facility].enrolled += entry.no_of_clients;
+                                } else if (entry.enrollment === 'Not Enrolled') {
+                                    counts[facility].not_enrolled += entry.no_of_clients;
+                                }
+                            });
+                            return counts;
+                        }
+                    }
+
+                    for (let i = 0; i < allEnrollments.length; i++) {
+                        if (allEnrollments[i].enrollment === "Enrolled") {
+                            enrolledCount += allEnrollments[i].no_of_clients;
+                        } else {
+                            notenrolledCount += allEnrollments[i].no_of_clients;
+                        }
+                    }
+                    var enrolledPercentage = 0;
+                    var notEnrolledPercentage = 0;
+                    var totalCount = enrolledCount + notenrolledCount;
+                    if (totalCount !== 0) {
+                        enrolledPercentage = (enrolledCount / totalCount) * 100;
+                        notEnrolledPercentage = (notenrolledCount / totalCount) * 100;
+                    }
+
+
+                } else {
+
+                    function getCountsByGender(data) {
+                        const counts = {};
+                        data.forEach(entry => {
+                            const gender = entry.gender;
+                            if (!counts[gender]) {
+                                counts[gender] = {
+                                    enrolled: 0,
+                                    not_enrolled: 0
+                                };
+                            }
+                            if (entry.enrollment === 'Enrolled') {
+                                counts[gender].enrolled++;
+                            } else if (entry.enrollment === 'Not Enrolled') {
+                                counts[gender].not_enrolled++;
+                            }
+                        });
+                        return counts;
+                    }
+
+                    function getCountsByAge(data) {
+                        const counts = {};
+                        data.forEach(entry => {
+                            const age = entry.age_range;
+                            if (!counts[age]) {
+                                counts[age] = {
+                                    age_enrolled: 0,
+                                    age_not_enrolled: 0
+                                };
+                            }
+                            if (entry.enrollment === 'Enrolled') {
+                                counts[age].age_enrolled++;
+                            } else if (entry.enrollment === 'Not Enrolled') {
+                                counts[age].age_not_enrolled++;
+                            }
+                        });
+                        return counts;
+                    }
+
+                    function getCountsByMonthly(data) {
+                        const counts = {};
+                        data.forEach(entry => {
+                            const monthly = entry.enrolled_month;
+                            if (monthly !== null) {
+                                if (!counts[monthly]) {
+                                    counts[monthly] = {
+                                        monthly_enrolled: 0,
+                                    };
+                                }
+                                if (entry.enrollment === 'Enrolled') {
+                                    counts[monthly].monthly_enrolled++;
+                                }
+                            }
+                        });
+                        return counts;
+                    }
+
+                    function getCountsByFacility(data) {
+                        const counts = {};
+                        data.forEach(entry => {
+                            const facility = entry.facility;
+                            if (!counts[facility]) {
+                                counts[facility] = {
+                                    enrolled: 0,
+                                    not_enrolled: 0
+                                };
+                            }
+                            if (entry.enrollment === 'Enrolled') {
+                                counts[facility].enrolled++;
+                            } else if (entry.enrollment === 'Not Enrolled') {
+                                counts[facility].not_enrolled++;
+                            }
+                        });
+                        return counts;
+                    }
+
+
+                    // function getCountsByPartner(data) {
+                    //     const counts = {};
+                    //     data.forEach(entry => {
+                    //         const partner = entry.partner;
+                    //         if (!counts[partner]) {
+                    //             counts[partner] = {
+                    //                 enrolled: 0,
+                    //                 not_enrolled: 0
+                    //             };
+                    //         }
+                    //         if (entry.enrollment === 'Enrolled') {
+                    //             counts[partner].enrolled++;
+                    //         } else if (entry.enrollment === 'Not Enrolled') {
+                    //             counts[partner].not_enrolled++;
+                    //         }
+                    //     });
+                    //     return counts;
+                    // }
+
+                    for (var i = 0; i < allEnrollments.length; i++) {
+                        if (allEnrollments[i].enrollment === "Enrolled") {
+                            enrolledCount++;
+                        } else {
+                            notenrolledCount++;
+                        }
+                    }
+
+                    var enrolledPercentage = 0;
+                    var notEnrolledPercentage = 0;
+                    var totalCount = enrolledCount + notenrolledCount;
+                    if (totalCount !== 0) {
+                        enrolledPercentage = (enrolledCount / totalCount) * 100;
+                        notEnrolledPercentage = (notenrolledCount / totalCount) * 100;
+                    }
+
+                }
+
                 // gender
-                const counts = getCountsByGender(data.all_enrollment);
+                const counts = getCountsByGender(allEnrollments);
                 const gender = Object.keys(counts);
-                const enrolled = gender.map(gf => counts[gf].enrolled);
-                const not_enrolled = gender.map(gf => counts[gf].not_enrolled);
+                const enrolled = gender.map(g => counts[g].enrolled);
+                const not_enrolled = gender.map(g => counts[g].not_enrolled);
                 enrollmentGender(gender, enrolled, not_enrolled);
                 // age
-                const agecounts = getCountsByAge(data.all_enrollment);
+                const agecounts = getCountsByAge(allEnrollments);
                 const age = Object.keys(agecounts);
                 const age_enrolled = age.map(a => agecounts[a].age_enrolled);
                 const age_not_enrolled = age.map(a => agecounts[a].age_not_enrolled);
                 enrollmentAge(age, age_enrolled, age_not_enrolled);
 
                 // monthly enrollment
-                const monthlycounts = getCountsByMonthly(data.all_enrollment);
+                const monthlycounts = getCountsByMonthly(allEnrollments);
                 const monthly = Object.keys(monthlycounts);
                 monthly.sort((a, b) => new Date(a) - new Date(b));
                 const monthly_enrolled = monthly.map(a => monthlycounts[a].monthly_enrolled);
                 enrollmentMonthly(monthly, monthly_enrolled);
 
+                // laoding sequentially
+
                 if (authenticating == 'Partner' || authenticating == 'County' || authenticating == 'Sub County') {
 
                     // facilities enrollment
-                    const facilitycounts = getCountsByFacility(data.all_enrollment);
+                    const facilitycounts = getCountsByFacility(allEnrollments);
                     const facility = Object.keys(facilitycounts);
                     const facility_enrolled = facility.map(f => facilitycounts[f].enrolled);
                     const facility_not_enrolled = facility.map(f => facilitycounts[f].not_enrolled);
@@ -1288,7 +1541,7 @@
 
                 if (authenticating == 'Admin' || authenticating == 'Donor') {
                     // partner enrollment
-                    const partnercounts = getCountsByPartner(data.all_enrollment);
+                    const partnercounts = getCountsByPartner(allEnrollments);
                     const partner = Object.keys(partnercounts);
                     const partner_enrolled = partner.map(p => partnercounts[p].enrolled);
                     const partner_not_enrolled = partner.map(p => partnercounts[p].not_enrolled);
@@ -1324,7 +1577,7 @@
                     []
                 ];
                 // Loop through the all_enrollment data to count login days
-                data.all_enrollment.forEach(function(entry) {
+                allEnrollments.forEach(function(entry) {
                     var loginDate = entry.last_login; // Assuming last_login is the date of login
 
                     if (loginDate) {
@@ -1341,114 +1594,6 @@
                 // Initialize and render Highcharts column chart
 
 
-
-                function getCountsByGender(data) {
-                    const counts = {};
-                    data.forEach(entry => {
-                        const gender = entry.gender;
-                        if (!counts[gender]) {
-                            counts[gender] = {
-                                enrolled: 0,
-                                not_enrolled: 0
-                            };
-                        }
-                        if (entry.enrollment === 'Enrolled') {
-                            counts[gender].enrolled++;
-                        } else if (entry.enrollment === 'Not Enrolled') {
-                            counts[gender].not_enrolled++;
-                        }
-                    });
-                    return counts;
-                }
-
-                function getCountsByAge(data) {
-                    const counts = {};
-                    data.forEach(entry => {
-                        const age = entry.age_range;
-                        if (!counts[age]) {
-                            counts[age] = {
-                                age_enrolled: 0,
-                                age_not_enrolled: 0
-                            };
-                        }
-                        if (entry.enrollment === 'Enrolled') {
-                            counts[age].age_enrolled++;
-                        } else if (entry.enrollment === 'Not Enrolled') {
-                            counts[age].age_not_enrolled++;
-                        }
-                    });
-                    return counts;
-                }
-
-                function getCountsByMonthly(data) {
-                    const counts = {};
-                    data.forEach(entry => {
-                        const monthly = entry.enrolled_month;
-                        if (monthly !== null) {
-                            if (!counts[monthly]) {
-                                counts[monthly] = {
-                                    monthly_enrolled: 0,
-                                };
-                            }
-                            if (entry.enrollment === 'Enrolled') {
-                                counts[monthly].monthly_enrolled++;
-                            }
-                        }
-                    });
-                    return counts;
-                }
-
-                function getCountsByFacility(data) {
-                    const counts = {};
-                    data.forEach(entry => {
-                        const facility = entry.facility;
-                        if (!counts[facility]) {
-                            counts[facility] = {
-                                enrolled: 0,
-                                not_enrolled: 0
-                            };
-                        }
-                        if (entry.enrollment === 'Enrolled') {
-                            counts[facility].enrolled++;
-                        } else if (entry.enrollment === 'Not Enrolled') {
-                            counts[facility].not_enrolled++;
-                        }
-                    });
-                    return counts;
-                }
-
-
-                function getCountsByPartner(data) {
-                    const counts = {};
-                    data.forEach(entry => {
-                        const partner = entry.partner;
-                        if (!counts[partner]) {
-                            counts[partner] = {
-                                enrolled: 0,
-                                not_enrolled: 0
-                            };
-                        }
-                        if (entry.enrollment === 'Enrolled') {
-                            counts[partner].enrolled++;
-                        } else if (entry.enrollment === 'Not Enrolled') {
-                            counts[partner].not_enrolled++;
-                        }
-                    });
-                    return counts;
-                }
-
-                for (var i = 0; i < allEnrollments.length; i++) {
-                    if (allEnrollments[i].enrollment === "Enrolled") {
-                        enrolledCount++;
-                    } else {
-                        notenrolledCount++;
-                    }
-                }
-
-                var totalCount = enrolledCount + notenrolledCount;
-                var enrolledPercentage = (enrolledCount / totalCount) * 100;
-                var notEnrolledPercentage = (notenrolledCount / totalCount) * 100;
-
                 $("#client_enrolled").html(enrolledCount.toLocaleString());
                 $("#client_profile").html(notenrolledCount.toLocaleString());
                 $("#client").html(data.txcurr.toLocaleString());
@@ -1459,17 +1604,14 @@
                 $("#enrolledPercentage").text(enrolledPercentage.toFixed(1) + "%");
                 $("#notEnrolledPercentage").text(notEnrolledPercentage.toFixed(1) + "%")
 
-                var radial = document.querySelector(".radial-01");
-                radial.style.setProperty("--progress", notEnrolledPercentage + "%");
-
                 if (authenticating == 'Facility') {
+                    var list_client = allEnrollments;
                     var table = $j('#table_client').DataTable();
 
                     // Destroy the DataTable instance
                     table.destroy();
 
                     $('#table_client tbody').empty();
-                    var list_client = data.all_enrollment;
                     $.each(list_client, function(index, item) {
                         $('#table_client tbody').append('<tr><td>' + item.upi_no + '</td><td>' + item.clinic_number + '</td><td>' + item.client_name + '</td><td>' + item.dob + '</td><td>' + item.phone_no + '</td><td>' + item.gender + '</td><td>' + item.enrollment + '</td><td>' + item.last_login + '</td></tr>');
                     });
@@ -1498,7 +1640,6 @@
                         ]
                     });
                 }
-
                 Swal.close();
 
 

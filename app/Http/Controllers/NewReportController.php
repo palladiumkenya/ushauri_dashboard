@@ -17,6 +17,7 @@ use App\Models\Time;
 use App\Models\Language;
 use App\Models\Condition;
 use App\Models\Marital;
+use App\Models\UshauriProgram;
 use DB;
 use Auth;
 use Carbon\Carbon;
@@ -754,5 +755,35 @@ class NewReportController extends Controller
 
 
         return view('new_reports.client_messages', compact('client_messages', 'selected_from', 'selected_to'));
+    }
+    public function program_index()
+    {
+        return view('dashboard.program');
+    }
+
+    public function program()
+    {
+        $data = [];
+
+        $program = UshauriProgram::select('*')->orderBy('MonthYear', 'ASC');
+        $months = UshauriProgram::select('MonthYear')->orderBy('MonthYear', 'ASC')->groupBy('MonthYear');
+
+        $data["program"] = $program->get();
+        $data["months"] = $months->get();
+
+        return $data;
+    }
+    public function program_filter(Request $request)
+    {
+        $data = [];
+        $selected_month = $request->month;
+
+        $program = UshauriProgram::select('*')->orderBy('MonthYear', 'ASC');
+
+        if (!empty($selected_month)) {
+            $program = $program->where('MonthYear', $selected_month);
+        }
+        $data["program"] = $program->get();
+        return $data;
     }
 }
