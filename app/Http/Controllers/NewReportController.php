@@ -765,8 +765,8 @@ class NewReportController extends Controller
     {
         $data = [];
 
-        $program = UshauriProgram::select('*')->orderBy('MonthYear', 'ASC');
-        $months = UshauriProgram::select('MonthYear')->orderBy('MonthYear', 'ASC')->groupBy('MonthYear');
+        $program = UshauriProgram::select('*')->orderBy('Months', 'ASC');
+        $months = UshauriProgram::select('MonthYear')->orderBy('Months', 'ASC')->groupBy('MonthYear');
 
         $data["program"] = $program->get();
         $data["months"] = $months->get();
@@ -778,7 +778,7 @@ class NewReportController extends Controller
         $data = [];
         $selected_month = $request->month;
 
-        $program = UshauriProgram::select('*')->orderBy('MonthYear', 'ASC');
+        $program = UshauriProgram::select('*')->orderBy('Months', 'ASC');
 
         if (!empty($selected_month)) {
             $program = $program->where('MonthYear', $selected_month);
