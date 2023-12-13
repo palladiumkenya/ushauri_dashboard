@@ -18,6 +18,7 @@ use App\Models\Language;
 use App\Models\Condition;
 use App\Models\Marital;
 use App\Models\UshauriProgram;
+use App\Models\UshauriProgramActive;
 use DB;
 use Auth;
 use Carbon\Carbon;
@@ -765,25 +766,84 @@ class NewReportController extends Controller
     {
         $data = [];
 
-        $program = UshauriProgram::select('*')->orderBy('Months', 'ASC');
-        $months = UshauriProgram::select('MonthYear')->orderBy('Months', 'ASC')->groupBy('MonthYear');
+        $latestMonthYear = UshauriProgram::max('LastDateUsed');
+        $latestMonthYear = UshauriProgramActive::max('LastDateUsed');
+
+        $sixMonthsBefore = Carbon::parse($latestMonthYear)->subMonths(5);
+        $program = UshauriProgram::whereDate('LastDateUsed', '>=', $sixMonthsBefore)->orderBy('Months', 'ASC');
+        $active_site = UshauriProgramActive::whereDate('LastDateUsed', '>=', $sixMonthsBefore)->orderBy('Months', 'ASC');
+
 
         $data["program"] = $program->get();
-        $data["months"] = $months->get();
+        $data["active_site"] = $active_site->get();
 
         return $data;
     }
     public function program_filter(Request $request)
     {
         $data = [];
-        $selected_month = $request->month;
+        $selected_month = $request->months;
+        $selected_year = $request->year;
 
-        $program = UshauriProgram::select('*')->orderBy('Months', 'ASC');
+
+
 
         if (!empty($selected_month)) {
-            $program = $program->where('MonthYear', $selected_month);
+            $program = UshauriProgram::select('*')->orderBy('Months', 'ASC');
+            $program = $program->where('MonthYear', 'LIKE', "%$selected_month%");
+
+            $active_site = UshauriProgramActive::select('*')->orderBy('Months', 'ASC');
+            $active_site = $active_site->where('MonthYear', 'LIKE', "%$selected_month%");
+        }
+        if (!empty($selected_year)) {
+            $program = UshauriProgram::select('*')->orderBy('Months', 'ASC');
+            $program = $program->where('MonthYear', 'LIKE', "%$selected_year%");
+
+            $active_site = UshauriProgramActive::select('*')->orderBy('Months', 'ASC');
+            $active_site = $active_site->where('MonthYear', 'LIKE', "%$selected_year%");
+        }
+        if (!empty($selected_year) && !empty($selected_month)) {
+            // $program = UshauriProgram::where('MonthYear', 'LIKE', "$selected_month-$selected_year");
+            $selected_month_number = date('n', strtotime("$selected_month 1"));
+
+            $program = UshauriProgram::where(function ($query) use ($selected_month, $selected_year, $selected_month_number) {
+                $query->where('MonthYear', 'LIKE', "$selected_month-$selected_year")->orderBy('Months', 'ASC');
+
+                for ($i = 1; $i <= 5; $i++) {
+                    $previous_month_number = $selected_month_number - $i;
+                    $previous_month_name = date('F', mktime(0, 0, 0, $previous_month_number, 1));
+
+                    if ($previous_month_number <= 0) {
+                        $previous_month_number += 12;
+                        $previous_year = $selected_year - 1;
+                    } else {
+                        $previous_year = $selected_year;
+                    }
+
+                    $query->orWhere('MonthYear', 'LIKE', "$previous_month_name-$previous_year");
+                }
+            });
+
+            $active_site = UshauriProgramActive::where(function ($query) use ($selected_month, $selected_year, $selected_month_number) {
+                $query->where('MonthYear', 'LIKE', "$selected_month-$selected_year")->orderBy('Months', 'ASC');
+
+                for ($i = 1; $i <= 5; $i++) {
+                    $previous_month_number = $selected_month_number - $i;
+                    $previous_month_name = date('F', mktime(0, 0, 0, $previous_month_number, 1));
+
+                    if ($previous_month_number <= 0) {
+                        $previous_month_number += 12;
+                        $previous_year = $selected_year - 1;
+                    } else {
+                        $previous_year = $selected_year;
+                    }
+
+                    $query->orWhere('MonthYear', 'LIKE', "$previous_month_name-$previous_year");
+                }
+            });
         }
         $data["program"] = $program->get();
+        $data["active_site"] = $active_site->get();
         return $data;
     }
 }

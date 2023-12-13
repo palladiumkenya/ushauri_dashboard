@@ -36,9 +36,32 @@
                 <div class="form-group">
                     <span class="filter_facility_wait" style="display: none;"></span>
 
-                    <select class="form-control filter_facility input-rounded input-sm select2" id="month" name="month">
+                    <!-- <select class="form-control filter_facility input-rounded input-sm select2" id="month" name="month">
+                        <option value="">Month:</option>
+                    </select> -->
+                    <select class="form-control filter_facility input-rounded input-sm select2" id="months" name="months">
                         <option value="">Month:</option>
                     </select>
+
+
+                </div>
+            </div>
+            <div class="col-lg-3">
+                <div class="form-group">
+                    <span class="filter_facility_wait" style="display: none;"></span>
+                    <select class="form-control filter_facility input-rounded input-sm select2" id="year" name="year">
+                        <option value="">Year:</option>
+                        @php
+                        $currentYear = date('Y');
+                        $startYear = 2019;
+                        @endphp
+
+                        @for ($year = $currentYear; $year >= $startYear; $year--)
+                        <option value="{{ $year }}">{{ $year }}</option>
+                        @endfor
+                    </select>
+
+
                 </div>
             </div>
             <div class="col-lg-3">
@@ -134,6 +157,25 @@
 
 
 <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Get a reference to the select element
+        var monthsSelect = document.getElementById("months");
+
+        // Create an array of month names
+        var monthNames = [
+            "January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"
+        ];
+
+        // Iterate through the month names and add options to the select element
+        for (var i = 0; i < monthNames.length; i++) {
+            var option = document.createElement("option");
+            option.value = monthNames[i];
+            option.text = monthNames[i];
+            monthsSelect.add(option);
+        }
+    });
+
     $.ajaxSetup({
         headers: {
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -151,7 +193,15 @@
                 createChart(data);
                 createChart2(data)
 
-                var list = data.program;
+                var listdata = data.program;
+                var maxMonths = listdata.reduce(function(max, site) {
+                    return site.Months > max ? site.Months : max;
+                }, '');
+                var list = listdata.filter(function(site) {
+                    return site.Months === maxMonths;
+                });
+
+
                 $.each(list, function(index, item) {
                     $('#table_client tbody').append('<tr><td>' + item.PartnerName + '</td><td>' + item.SiteName + '</td><td>' + item.SiteCode + '</td><td>' + item.County_Name + '</td><td>' + item.SiteStatus + '</td><td>' + item.MonthYear + '</td><td>' + item.num_clients + '</td><td>' + item.LastDateUsed + '</td></tr>');
                 });
@@ -182,25 +232,25 @@
                         'pdfHtml5'
                     ]
                 });
-                if (data.months && data.months.length > 0) {
-                    // Clear existing options
-                    $('#module').empty();
+                // if (data.months && data.months.length > 0) {
+                //     // Clear existing options
+                //     $('#module').empty();
 
-                    // Add a default option
-                    $('#module').append('<option value="">Month : </option>');
+                //     // Add a default option
+                //     $('#module').append('<option value="">Month : </option>');
 
-                    // Add each month as an option
-                    $.each(data.months, function(index, monthObj) {
-                        if (monthObj.MonthYear) {
-                            var parts = monthObj.MonthYear.split('-');
-                            var month = parts[0];
-                            var year = parts[1];
-                            $('#month').append('<option value="' + monthObj.MonthYear + '">' + month + '-' + year + '</option>');
-                        }
-                    });
-                } else {
-                    console.error('No months data available');
-                }
+                //     // Add each month as an option
+                //     $.each(data.months, function(index, monthObj) {
+                //         if (monthObj.MonthYear) {
+                //             var parts = monthObj.MonthYear.split('-');
+                //             var month = parts[0];
+                //             var year = parts[1];
+                //             $('#month').append('<option value="' + monthObj.MonthYear + '">' + month + '-' + year + '</option>');
+                //         }
+                //     });
+                // } else {
+                //     console.error('No months data available');
+                // }
             },
             error: function(xhr, status, error) {
                 console.error('Error fetching data:', status, error);
@@ -211,7 +261,8 @@
     function fetchData2() {
         $('#dataFilter').on('submit', function(e) {
             e.preventDefault();
-            let month = $('#month').val();
+            let months = $('#months').val();
+            let year = $('#year').val();
 
             Swal.fire({
                 title: "Please wait, Loading Charts!",
@@ -227,13 +278,21 @@
             $.ajax({
                 type: 'GET',
                 data: {
-                    "month": month
+                    "months": months,
+                    "year":year
                 },
                 url: "{{ route('program_filter') }}",
                 success: function(data) {
                     createChart(data);
                     createChart2(data);
-                    var list = data.program;
+                    var listdata = data.program;
+                    var maxMonths = listdata.reduce(function(max, site) {
+                        return site.Months > max ? site.Months : max;
+                    }, '');
+                    var list = listdata.filter(function(site) {
+                        return site.Months === maxMonths;
+                    });
+                    console.log(list);
                     var table = $j('#table_client').DataTable();
 
                     // Destroy the DataTable instance
@@ -331,47 +390,47 @@
     }
 
     function createChart2(jsonData) {
-        const monthYearCount = jsonData.program.reduce((accumulator, item) => {
-            if (item.MonthYear) {
-                accumulator[item.MonthYear] = (accumulator[item.MonthYear] || 0) + 1;
+    const monthYearSum = jsonData.active_site.reduce((accumulator, item) => {
+        if (item.MonthYear) {
+            accumulator[item.MonthYear] = (accumulator[item.MonthYear] || 0) + item.num_sites;
+        }
+        return accumulator;
+    }, {});
+
+    const seriesData = Object.keys(monthYearSum).map(monthYear => ({
+        name: monthYear,
+        y: monthYearSum[monthYear]
+    }));
+
+    Highcharts.chart('site-chart', {
+        chart: {
+            type: 'column'
+        },
+        title: {
+            text: 'Active Sites the last 6 Months',
+            style: {
+                fontFamily: 'Inter',
+                fontSize: '14px'
             }
-            return accumulator;
-        }, {});
-
-        const seriesData = Object.keys(monthYearCount).map(monthYear => ({
-            name: monthYear,
-            y: monthYearCount[monthYear]
-        }));
-
-        Highcharts.chart('site-chart', {
-            chart: {
-                type: 'column'
-            },
+        },
+        xAxis: {
+            categories: Object.keys(monthYearSum),
             title: {
-                text: 'Active Sites the last 6 Months',
-                style: {
-                    fontFamily: 'Inter',
-                    fontSize: '14px'
-                }
-            },
-            xAxis: {
-                categories: Object.keys(monthYearCount),
-                title: {
-                    text: 'MonthYear'
-                }
-            },
-            yAxis: {
-                title: {
-                    text: 'No of Sites'
-                }
-            },
-            series: [{
-                name: 'No of Sites',
-                color: '#01058A',
-                data: seriesData
-            }]
-        });
-    }
+                text: 'MonthYear'
+            }
+        },
+        yAxis: {
+            title: {
+                text: 'No of Sites'
+            }
+        },
+        series: [{
+            name: 'No of Sites',
+            color: '#01058A',
+            data: seriesData
+        }]
+    });
+}
 
     // Fetch data when the page loads
     fetchData();

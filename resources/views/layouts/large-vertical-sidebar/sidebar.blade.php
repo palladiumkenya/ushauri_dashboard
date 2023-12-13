@@ -167,6 +167,11 @@
                     <span class=" text-muted">SMS Analytics</span>
                 </a>
             </li>
+            <li class="nav-item">
+                <a class="{{ Route::currentRouteName()=='program' ? 'open' : '' }}" href="{{route('program')}}">
+                    <span class=" text-muted">Program Dashboard</span>
+                </a>
+            </li>
             @endif
             @endif
         </ul>
