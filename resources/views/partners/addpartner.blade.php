@@ -29,7 +29,7 @@
                         </div>
                         <div class="col-md-6 form-group mb-3">
                             <label for="add_partner_type">Partner Type</label>
-                            <select class="form-control dynamic" data-dependant="rolename" data-width="100%" id="partner_type" name="add_partner_type">
+                            <select class="form-control dynamic" data-dependant="rolename" data-width="100%" id="partner_type" name="partner_type">
                                 <option value="">Please select </option>
                                 @if (count($partner_type) > 0)
                                 @foreach($partner_type as $type)
