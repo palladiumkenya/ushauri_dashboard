@@ -279,20 +279,36 @@
                 type: 'GET',
                 data: {
                     "months": months,
-                    "year":year
+                    "year": year
                 },
                 url: "{{ route('program_filter') }}",
                 success: function(data) {
                     createChart(data);
                     createChart2(data);
                     var listdata = data.program;
-                    var maxMonths = listdata.reduce(function(max, site) {
-                        return site.Months > max ? site.Months : max;
-                    }, '');
+
+                    // finding the filtered maximum Months value
+                    function parseMonthYear(dateString) {
+                        var parts = dateString.split('-');
+                        if (parts.length === 2) {
+                            var month = parseInt(parts[0], 10);
+                            var year = parseInt(parts[1], 10);
+                            if (!isNaN(month) && !isNaN(year)) {
+                                return new Date(year, month - 1);
+                            }
+                        }
+                        return null;
+                    }
+                    var maxDate = listdata.reduce(function(max, site) {
+                        var currentDate = parseMonthYear(site.Months);
+                        return currentDate > max ? currentDate : max;
+                    }, new Date(0));
+
                     var list = listdata.filter(function(site) {
-                        return site.Months === maxMonths;
+                        var currentDate = parseMonthYear(site.Months);
+                        return currentDate && currentDate.getTime() === maxDate.getTime();
                     });
-                    console.log(list);
+
                     var table = $j('#table_client').DataTable();
 
                     // Destroy the DataTable instance
@@ -338,7 +354,13 @@
     }
 
     function createChart(jsonData) {
-        const processedData = jsonData.program.reduce((accumulator, item) => {
+        const sortedProgramData = jsonData.program.sort((a, b) => {
+            const dateA = new Date(a.LastDateUsed);
+            const dateB = new Date(b.LastDateUsed);
+            return dateA - dateB;
+        });
+
+        const processedData = sortedProgramData.reduce((accumulator, item) => {
             if (item.MonthYear && item.num_clients) {
                 const monthYear = item.MonthYear;
                 accumulator[monthYear] = (accumulator[monthYear] || 0) + item.num_clients;
@@ -350,6 +372,7 @@
             name: monthYear,
             y: processedData[monthYear]
         }));
+
 
         Highcharts.chart('client_chart', {
             chart: {
@@ -390,47 +413,47 @@
     }
 
     function createChart2(jsonData) {
-    const monthYearSum = jsonData.active_site.reduce((accumulator, item) => {
-        if (item.MonthYear) {
-            accumulator[item.MonthYear] = (accumulator[item.MonthYear] || 0) + item.num_sites;
-        }
-        return accumulator;
-    }, {});
+        const monthYearSum = jsonData.active_site.reduce((accumulator, item) => {
+            if (item.MonthYear) {
+                accumulator[item.MonthYear] = (accumulator[item.MonthYear] || 0) + item.num_sites;
+            }
+            return accumulator;
+        }, {});
 
-    const seriesData = Object.keys(monthYearSum).map(monthYear => ({
-        name: monthYear,
-        y: monthYearSum[monthYear]
-    }));
+        const seriesData = Object.keys(monthYearSum).map(monthYear => ({
+            name: monthYear,
+            y: monthYearSum[monthYear]
+        }));
 
-    Highcharts.chart('site-chart', {
-        chart: {
-            type: 'column'
-        },
-        title: {
-            text: 'Active Sites the last 6 Months',
-            style: {
-                fontFamily: 'Inter',
-                fontSize: '14px'
-            }
-        },
-        xAxis: {
-            categories: Object.keys(monthYearSum),
+        Highcharts.chart('site-chart', {
+            chart: {
+                type: 'column'
+            },
             title: {
-                text: 'MonthYear'
-            }
-        },
-        yAxis: {
-            title: {
-                text: 'No of Sites'
-            }
-        },
-        series: [{
-            name: 'No of Sites',
-            color: '#01058A',
-            data: seriesData
-        }]
-    });
-}
+                text: 'Active Sites the last 6 Months',
+                style: {
+                    fontFamily: 'Inter',
+                    fontSize: '14px'
+                }
+            },
+            xAxis: {
+                categories: Object.keys(monthYearSum),
+                title: {
+                    text: 'MonthYear'
+                }
+            },
+            yAxis: {
+                title: {
+                    text: 'No of Sites'
+                }
+            },
+            series: [{
+                name: 'No of Sites',
+                color: '#01058A',
+                data: seriesData
+            }]
+        });
+    }
 
     // Fetch data when the page loads
     fetchData();
