@@ -63,7 +63,28 @@ class NewDashboardController extends Controller
                 ->whereNull('tbl_client.hei_no')
                 ->groupBy('tbl_tx_cur.mfl_code')
                 ->remember($this->remember_period)
-                ->selectRaw('COUNT(tbl_client.clinic_number) as client_ever_enrolled, tbl_county.name as county, tbl_partner.name as partner, tbl_master_facility.name as facility, tbl_master_facility.code as mfl_code, (SELECT COUNT(*) FROM tbl_client WHERE tbl_client.mfl_code = tbl_partner_facility.mfl_code AND tbl_client.hei_no IS NULL AND tbl_client.smsenable = "Yes" AND tbl_partner_facility.partner_id = ' . Auth::user()->partner_id . ') as client_consented');
+                ->selectRaw('COUNT(tbl_client.clinic_number) as client_ever_enrolled, tbl_county.name as county, tbl_partner.name as partner, tbl_master_facility.name as facility, tbl_master_facility.code as mfl_code,
+    (SELECT
+    COUNT(CASE
+        WHEN c.smsenable = "Yes" THEN 1
+        WHEN a.client_id IS NOT NULL THEN
+					1
+    END) AS client_consented
+    FROM
+        tbl_client c
+        LEFT JOIN (
+        SELECT
+            client_id,
+            DATE( created_at ) AS created_at
+        FROM
+            tbl_appointment a1
+        WHERE
+            a1.id = ( SELECT MAX( a2.id ) FROM tbl_appointment a2 WHERE a2.client_id = a1.client_id )
+        AND a1.consented = "YES"
+    ) a ON c.id = a.client_id
+    WHERE c.mfl_code = tbl_partner_facility.mfl_code AND c.hei_no IS NULL AND tbl_partner_facility.partner_id = ' . Auth::user()->partner_id . ') as client_consented');
+
+            // ->selectRaw('COUNT(tbl_client.clinic_number) as client_ever_enrolled, tbl_county.name as county, tbl_partner.name as partner, tbl_master_facility.name as facility, tbl_master_facility.code as mfl_code, (SELECT COUNT(*) FROM tbl_client WHERE tbl_client.mfl_code = tbl_partner_facility.mfl_code AND tbl_client.hei_no IS NULL AND tbl_client.smsenable = "Yes" AND tbl_partner_facility.partner_id = ' . Auth::user()->partner_id . ') as client_consented');
         }
 
 
