@@ -26,8 +26,14 @@ use App\Http\Controllers\ScheduleSMSController;
 |
 */
 
-Route::get('/', function () {
+Route::get('/login', function () {
   return view('auth/login');
+});
+Route::get('/', function () {
+  return view('landing/page');
+});
+Route::get('/directory', function () {
+  return view('directory/search');
 });
 
 

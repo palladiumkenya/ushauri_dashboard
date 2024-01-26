@@ -40,7 +40,7 @@ use AuthenticatesUsers;
         Session::flash('statuscode', 'success');
         return '/admin/dashboard';
     }else {
-        return '/';
+        return '/login';
     }
 }
 /**
