@@ -26,8 +26,14 @@ use App\Http\Controllers\ScheduleSMSController;
 |
 */
 
-Route::get('/', function () {
+Route::get('/login', function () {
   return view('auth/login');
+});
+Route::get('/', function () {
+  return view('landing/page');
+});
+Route::get('/directory', function () {
+  return view('directory/search');
 });
 
 
@@ -301,4 +307,10 @@ Route::group(['middleware' => 'auth'], function () {
 
   Route::get('/tracing/attempts', ['uses' => 'App\Http\Controllers\ReportController@tracing_attempts', 'as' => 'tracing_attempts']);
   Route::get('/report/tracing/attempts', ['uses' => 'App\Http\Controllers\ReportController@tracing_attempts_form', 'as' => 'tracing_attempts_form']);
+
+  //program reports
+  Route::get('/reports/program', ['uses' => 'App\Http\Controllers\NewReportController@program_index', 'as' => 'program']);
+  Route::get('/program/data', ['uses' => 'App\Http\Controllers\NewReportController@program', 'as' => 'program_data']);
+  Route::get('/program_filter', ['uses' => 'App\Http\Controllers\NewReportController@program_filter', 'as' => 'program_filter']);
+
 });

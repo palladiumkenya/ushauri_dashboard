@@ -11,6 +11,9 @@ use App\Models\Facility;
 use App\Models\Partner;
 use App\Models\County;
 use App\Models\SubCounty;
+use App\Models\NishauriUptake;
+use App\Models\NishauriAccess;
+use App\Models\NishauriFacility;
 use RealRashid\SweetAlert\Facades\Alert;
 use Illuminate\Support\Facades\Auth;
 use DB;
@@ -140,14 +143,12 @@ class NishauriController extends Controller
                 ->get();
 
             $counties = County::where("status", "=", "Active")
-                ->remember($this->remember_period)
                 ->get(['id', 'name']);
 
             $sub_counties = SubCounty::select('tbl_sub_county.id', 'tbl_sub_county.name')
                 ->join('tbl_partner_facility', 'tbl_sub_county.id', '=', 'tbl_partner_facility.sub_county_id')
                 ->where('tbl_partner_facility.county_id', Auth::user()->county_id)
                 ->groupBy('tbl_sub_county.name')
-                ->remember($this->remember_period)
                 ->get();
 
 
@@ -207,12 +208,15 @@ class NishauriController extends Controller
                 ->groupBy('tbl_tx_cur.mfl_code')
                 ->get();
             $txcurr = $txcurr->sum('tx_cur');
-            $all_enrollment  = DB::select("CALL sp_nishauri_national_uptake(?,?,?,?,?,?,?,?)", ["%", "%", "%", "%", "1900-01-01", $currentDate, "1900-01-01", $currentDate]);
-            $all_module = DB::select("CALL sp_nishauri_access_uptake(?,?,?,?,?,?)", ["%", "%", "%", "%", "1900-01-01", $currentDate]);
+            $all_enrollment  = NishauriUptake::select('*');
+            $all_module = NishauriAccess::select('*');
 
             $data['txcurr'] =  $txcurr;
-            $data['all_enrollment'] =  $all_enrollment;
-            $data['all_module'] =  $all_module;
+            $data['all_enrollment'] = $all_enrollment->get()->map(function ($item) {
+                $item['no_of_clients'] = (int)$item['no_of_clients'];
+                return $item;
+            });
+            $data['all_module'] =  $all_module->get();
         }
         if (Auth::user()->access_level == 'Facility') {
             $facility = Auth::user()->facility_id;
@@ -229,12 +233,12 @@ class NishauriController extends Controller
                 ->groupBy('tbl_tx_cur.mfl_code')
                 ->get();
             $txcurr = $txcurr->sum('tx_cur');
-            $all_enrollment  = DB::select("CALL sp_nishauri_uptake(?,?,?,?,?,?,?,?)", ["%", "%", "%", $facility, "1900-01-01", $currentDate, "1900-01-01", $currentDate]);
-            $all_module = DB::select("CALL sp_nishauri_access_uptake(?,?,?,?,?,?)", ["%", "%", "%", $facility, "1900-01-01", $currentDate]);
+            $all_enrollment  = NishauriFacility::select('*')->where('mfl_code', Auth::user()->facility_id);
+            $all_module = NishauriAccess::select('*')->where('mfl_code', Auth::user()->facility_id);
 
             $data['txcurr'] =  $txcurr;
-            $data['all_enrollment'] =  $all_enrollment;
-            $data['all_module'] =  $all_module;
+            $data['all_enrollment'] =  $all_enrollment->get();
+            $data['all_module'] =  $all_module->get();
         }
         if (Auth::user()->access_level == 'Partner') {
             $partner = Auth::user()->partner_id;
@@ -251,12 +255,15 @@ class NishauriController extends Controller
                 ->groupBy('tbl_tx_cur.mfl_code')
                 ->get();
             $txcurr = $txcurr->sum('tx_cur');
-            $all_enrollment  = DB::select("CALL sp_nishauri_national_uptake(?,?,?,?,?,?,?,?)", [$partner, "%", "%", "%", "1900-01-01", $currentDate, "1900-01-01", $currentDate]);
-            $all_module = DB::select("CALL sp_nishauri_access_uptake(?,?,?,?,?,?)", [$partner, "%", "%", "%", "1900-01-01", $currentDate]);
+            $all_enrollment  = NishauriUptake::select('*')->where('partner_id', Auth::user()->partner_id);
+            $all_module = NishauriAccess::select('*')->where('partner_id', Auth::user()->partner_id);
 
             $data['txcurr'] =  $txcurr;
-            $data['all_enrollment'] =  $all_enrollment;
-            $data['all_module'] =  $all_module;
+            $data['all_enrollment'] = $all_enrollment->get()->map(function ($item) {
+                $item['no_of_clients'] = (int)$item['no_of_clients'];
+                return $item;
+            });
+            $data['all_module'] =  $all_module->get();
         }
         if (Auth::user()->access_level == 'County') {
             $county = Auth::user()->county_id;
@@ -273,12 +280,15 @@ class NishauriController extends Controller
                 ->groupBy('tbl_tx_cur.mfl_code')
                 ->get();
             $txcurr = $txcurr->sum('tx_cur');
-            $all_enrollment  = DB::select("CALL sp_nishauri_national_uptake(?,?,?,?,?,?,?,?)", ["%", $county, "%", "%", "1900-01-01", $currentDate, "1900-01-01", $currentDate]);
-            $all_module = DB::select("CALL sp_nishauri_access_uptake(?,?,?,?,?,?)", ["%", $county, "%", "%", "1900-01-01", $currentDate]);
+            $all_enrollment  = NishauriUptake::select('*')->where('county_id', Auth::user()->county_id);
+            $all_module = NishauriAccess::select('*')->where('county_id', Auth::user()->county_id);
 
             $data['txcurr'] =  $txcurr;
-            $data['all_enrollment'] =  $all_enrollment;
-            $data['all_module'] =  $all_module;
+            $data['all_enrollment'] = $all_enrollment->get()->map(function ($item) {
+                $item['no_of_clients'] = (int)$item['no_of_clients'];
+                return $item;
+            });
+            $data['all_module'] =  $all_module->get();
         }
         if (Auth::user()->access_level == 'Sub County') {
             $subcounty = Auth::user()->sub_county_id;
@@ -294,12 +304,16 @@ class NishauriController extends Controller
                 ->groupBy('tbl_tx_cur.mfl_code')
                 ->get();
             $txcurr = $txcurr->sum('tx_cur');
-            $all_enrollment  = DB::select("CALL sp_nishauri_national_uptake(?,?,?,?,?,?,?,?)", ["%", "%", $subcounty, "%", "1900-01-01", $currentDate, "1900-01-01", $currentDate]);
-            $all_module = DB::select("CALL sp_nishauri_access_uptake(?,?,?,?,?,?)", ["%", "%", $subcounty, "%", "1900-01-01", $currentDate]);
+            $all_enrollment  = NishauriUptake::select('*')->where('sub_county_id', Auth::user()->subcounty_id);
+            $all_module = NishauriAccess::select('*')->where('sub_county_id', Auth::user()->subcounty_id);
+
 
             $data['txcurr'] =  $txcurr;
-            $data['all_enrollment'] =  $all_enrollment;
-            $data['all_module'] =  $all_module;
+            $data['all_enrollment'] = $all_enrollment->get()->map(function ($item) {
+                $item['no_of_clients'] = (int)$item['no_of_clients'];
+                return $item;
+            });
+            $data['all_module'] =  $all_module->get();
         }
 
         return $data;
@@ -333,8 +347,8 @@ class NishauriController extends Controller
                 $txcurr = $query->selectRaw('SUM(tbl_tx_cur.tx_cur) as tx_cur')
                     ->get()
                     ->sum('tx_cur');
-                $all_enrollment  = DB::select("CALL sp_nishauri_uptake(?,?,?,?,?,?,?,?)", [$selected_partners, "%", "%", "%", "1900-01-01", $currentDate, "1900-01-01", $currentDate]);
-                $all_module = DB::select("CALL sp_nishauri_access_uptake(?,?,?,?,?,?)", [$selected_partners, "%", "%", "%", "1900-01-01", $currentDate]);
+                $all_enrollment  = NishauriUptake::select('*')->where('partner_id', $selected_partners);
+                $all_module = NishauriAccess::select('*')->where('partner_id', $selected_partners);
             }
             if (!empty($selected_counties)) {
                 $query->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
@@ -347,8 +361,8 @@ class NishauriController extends Controller
                 $txcurr = $query->selectRaw('SUM(tbl_tx_cur.tx_cur) as tx_cur')
                     ->get()
                     ->sum('tx_cur');
-                $all_enrollment  = DB::select("CALL sp_nishauri_uptake(?,?,?,?,?,?,?,?)", [$partner, $selected_counties, "%", "%", "1900-01-01", $currentDate, "1900-01-01", $currentDate]);
-                $all_module = DB::select("CALL sp_nishauri_access_uptake(?,?,?,?,?,?)", [$partner, $selected_counties, "%", "%", "1900-01-01", $currentDate]);
+                $all_enrollment  = NishauriUptake::select('*')->where('partner_id', Auth::user()->partner_id)->where('county_id', $selected_counties);
+                $all_module = NishauriAccess::select('*')->where('partner_id', Auth::user()->partner_id)->where('county_id', $selected_counties);
             }
             if (!empty($selected_subcounties)) {
                 $query->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
@@ -362,8 +376,8 @@ class NishauriController extends Controller
                 $txcurr = $query->selectRaw('SUM(tbl_tx_cur.tx_cur) as tx_cur')
                     ->get()
                     ->sum('tx_cur');
-                $all_enrollment  = DB::select("CALL sp_nishauri_uptake(?,?,?,?,?,?,?,?)", [$partner, "%", $selected_subcounties, "%", "1900-01-01", $currentDate, "1900-01-01", $currentDate]);
-                $all_module = DB::select("CALL sp_nishauri_access_uptake(?,?,?,?,?,?)", [$partner, "%", $selected_subcounties, "%", "1900-01-01", $currentDate]);
+                $all_enrollment  = NishauriUptake::select('*')->where('partner_id', Auth::user()->partner_id)->where('sub_county_id', $selected_subcounties);
+                $all_module = NishauriAccess::select('*')->where('partner_id', Auth::user()->partner_id)->where('sub_county_id', $selected_subcounties);
             }
             if (!empty($selected_facilites)) {
                 $query->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
@@ -377,8 +391,8 @@ class NishauriController extends Controller
                 $txcurr = $query->selectRaw('SUM(tbl_tx_cur.tx_cur) as tx_cur')
                     ->get()
                     ->sum('tx_cur');
-                $all_enrollment  = DB::select("CALL sp_nishauri_uptake(?,?,?,?,?,?,?,?)", [$partner, "%", "%", $selected_facilites, "1900-01-01", $currentDate, "1900-01-01", $currentDate]);
-                $all_module = DB::select("CALL sp_nishauri_access_uptake(?,?,?,?,?,?)", [$partner, "%", "%", $selected_facilites, "1900-01-01", $currentDate]);
+                $all_enrollment  = NishauriUptake::select('*')->where('partner_id', Auth::user()->partner_id)->where('mfl_code', $selected_facilites);
+                $all_module = NishauriAccess::select('*')->where('partner_id', Auth::user()->partner_id)->where('mfl_code', $selected_facilites);
             }
             if (!empty($selected_from || $selected_to)) {
 
@@ -398,14 +412,17 @@ class NishauriController extends Controller
                 $txcurr = $query->selectRaw('SUM(tbl_tx_cur.tx_cur) as tx_cur')
                     ->get()
                     ->sum('tx_cur');
-                $all_enrollment  = DB::select("CALL sp_nishauri_uptake(?,?,?,?,?,?,?,?)", [$partner, "%", "%", "%", date($request->from), date($request->to), date($request->from), date($request->to)]);
-                $all_module = DB::select("CALL sp_nishauri_access_uptake(?,?,?,?,?,?)", [$partner, "%", "%", "%", date($request->from), date($request->to)]);
+                $all_enrollment  = NishauriUptake::select('*')->where('partner_id', Auth::user()->partner_id)->where('enrolled_date', '>=', date($request->from))->where('enrolled_date', '<=', date($request->to));
+                $all_module = NishauriAccess::select('*')->where('partner_id', Auth::user()->partner_id)->where('date', '>=', date($request->from))->where('date', '<=', date($request->to));
             }
 
 
             $data['txcurr'] =  $txcurr;
-            $data['all_enrollment'] =  $all_enrollment;
-            $data['all_module'] =  $all_module;
+            $data['all_enrollment'] = $all_enrollment->get()->map(function ($item) {
+                $item['no_of_clients'] = (int)$item['no_of_clients'];
+                return $item;
+            });
+            $data['all_module'] =  $all_module->get();
 
             return $data;
         }
@@ -435,8 +452,8 @@ class NishauriController extends Controller
                 $txcurr = $query->selectRaw('SUM(tbl_tx_cur.tx_cur) as tx_cur')
                     ->get()
                     ->sum('tx_cur');
-                $all_enrollment  = DB::select("CALL sp_nishauri_uptake(?,?,?,?,?,?,?,?)", [$selected_partners, $county, "%", "%", "1900-01-01", $currentDate, "1900-01-01", $currentDate]);
-                $all_module = DB::select("CALL sp_nishauri_access_uptake(?,?,?,?,?,?)", [$selected_partners, $county, "%", "%", "1900-01-01", $currentDate]);
+                $all_enrollment  = NishauriUptake::select('*')->where('county_id', Auth::user()->county_id)->where('partner_id', $selected_partners);
+                $all_module = NishauriAccess::select('*')->where('county_id', Auth::user()->county_id)->where('partner_id', $selected_partners);
             }
             if (!empty($selected_counties)) {
                 $query->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
@@ -449,8 +466,8 @@ class NishauriController extends Controller
                 $txcurr = $query->selectRaw('SUM(tbl_tx_cur.tx_cur) as tx_cur')
                     ->get()
                     ->sum('tx_cur');
-                $all_enrollment  = DB::select("CALL sp_nishauri_uptake(?,?,?,?,?,?,?,?)", ["%", $selected_counties, "%", "%", "1900-01-01", $currentDate, "1900-01-01", $currentDate]);
-                $all_module = DB::select("CALL sp_nishauri_access_uptake(?,?,?,?,?,?)", ["%", $selected_counties, "%", "%", "1900-01-01", $currentDate]);
+                $all_enrollment  = NishauriUptake::select('*')->where('county_id', Auth::user()->county_id)->where('county_id', $selected_counties);
+                $all_module = NishauriAccess::select('*')->where('county_id', Auth::user()->county_id)->where('county_id', $selected_counties);
             }
             if (!empty($selected_subcounties)) {
                 $query->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
@@ -464,8 +481,8 @@ class NishauriController extends Controller
                 $txcurr = $query->selectRaw('SUM(tbl_tx_cur.tx_cur) as tx_cur')
                     ->get()
                     ->sum('tx_cur');
-                $all_enrollment  = DB::select("CALL sp_nishauri_uptake(?,?,?,?,?,?,?,?)", ["%", $county, $selected_subcounties, "%", "1900-01-01", $currentDate, "1900-01-01", $currentDate]);
-                $all_module = DB::select("CALL sp_nishauri_access_uptake(?,?,?,?,?,?)", ["%", $county, $selected_subcounties, "%", "1900-01-01", $currentDate]);
+                $all_enrollment  = NishauriUptake::select('*')->where('county_id', Auth::user()->county_id)->where('sub_county_id', $selected_subcounties);
+                $all_module = NishauriAccess::select('*')->where('county_id', Auth::user()->county_id)->where('sub_county_id', $selected_subcounties);
             }
             if (!empty($selected_facilites)) {
                 $query->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
@@ -479,8 +496,8 @@ class NishauriController extends Controller
                 $txcurr = $query->selectRaw('SUM(tbl_tx_cur.tx_cur) as tx_cur')
                     ->get()
                     ->sum('tx_cur');
-                $all_enrollment  = DB::select("CALL sp_nishauri_uptake(?,?,?,?,?,?,?,?)", ["%", $county, "%", $selected_facilites, "1900-01-01", $currentDate, "1900-01-01", $currentDate]);
-                $all_module = DB::select("CALL sp_nishauri_access_uptake(?,?,?,?,?,?)", ["%", $county, "%", $selected_facilites, "1900-01-01", $currentDate]);
+                $all_enrollment  = NishauriUptake::select('*')->where('mfl_code', $selected_facilites);
+                $all_module = NishauriAccess::select('*')->where('mfl_code', $selected_facilites);
             }
             if (!empty($selected_from || $selected_to)) {
 
@@ -500,14 +517,17 @@ class NishauriController extends Controller
                 $txcurr = $query->selectRaw('SUM(tbl_tx_cur.tx_cur) as tx_cur')
                     ->get()
                     ->sum('tx_cur');
-                $all_enrollment  = DB::select("CALL sp_nishauri_uptake(?,?,?,?,?,?,?,?)", ["%", $county, "%", "%", date($request->from), date($request->to), date($request->from), date($request->to)]);
-                $all_module = DB::select("CALL sp_nishauri_access_uptake(?,?,?,?,?,?)", ["%", $county, "%", "%", date($request->from), date($request->to)]);
+                $all_enrollment  = NishauriUptake::select('*')->where('county_id', Auth::user()->county_id)->where('enrolled_date', '>=', date($request->from))->where('enrolled_date', '<=', date($request->to));
+                $all_module = NishauriAccess::select('*')->where('county_id', Auth::user()->county_id)->where('date', '>=', date($request->from))->where('date', '<=', date($request->to));
             }
 
 
             $data['txcurr'] =  $txcurr;
-            $data['all_enrollment'] =  $all_enrollment;
-            $data['all_module'] =  $all_module;
+            $data['all_enrollment'] = $all_enrollment->get()->map(function ($item) {
+                $item['no_of_clients'] = (int)$item['no_of_clients'];
+                return $item;
+            });
+            $data['all_module'] =  $all_module->get();
 
             return $data;
         }
@@ -537,8 +557,8 @@ class NishauriController extends Controller
                 $txcurr = $query->selectRaw('SUM(tbl_tx_cur.tx_cur) as tx_cur')
                     ->get()
                     ->sum('tx_cur');
-                $all_enrollment  = DB::select("CALL sp_nishauri_uptake(?,?,?,?,?,?,?,?)", [$selected_partners, "%", $subcounty, "%", "1900-01-01", $currentDate, "1900-01-01", $currentDate]);
-                $all_module = DB::select("CALL sp_nishauri_access_uptake(?,?,?,?,?,?)", [$selected_partners, "%", $subcounty, "%", "1900-01-01", $currentDate]);
+                $all_enrollment  = NishauriUptake::select('*')->where('partner_id', $selected_partners);
+                $all_module = NishauriAccess::select('*')->where('partner_id', $selected_partners);
             }
             if (!empty($selected_counties)) {
                 $query->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
@@ -551,8 +571,8 @@ class NishauriController extends Controller
                 $txcurr = $query->selectRaw('SUM(tbl_tx_cur.tx_cur) as tx_cur')
                     ->get()
                     ->sum('tx_cur');
-                $all_enrollment  = DB::select("CALL sp_nishauri_uptake(?,?,?,?,?,?,?,?)", ["%", $selected_counties, $subcounty, "%", "1900-01-01", $currentDate, "1900-01-01", $currentDate]);
-                $all_module = DB::select("CALL sp_nishauri_access_uptake(?,?,?,?,?,?)", ["%", $selected_counties, $subcounty, "%", "1900-01-01", $currentDate]);
+                $all_enrollment  = NishauriUptake::select('*')->where('county_id', $selected_counties);
+                $all_module = NishauriAccess::select('*')->where('county_id', $selected_counties);
             }
             if (!empty($selected_subcounties)) {
                 $query->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
@@ -566,8 +586,8 @@ class NishauriController extends Controller
                 $txcurr = $query->selectRaw('SUM(tbl_tx_cur.tx_cur) as tx_cur')
                     ->get()
                     ->sum('tx_cur');
-                $all_enrollment  = DB::select("CALL sp_nishauri_uptake(?,?,?,?,?,?,?,?)", ["%", "%", $selected_subcounties, "%", "1900-01-01", $currentDate, "1900-01-01", $currentDate]);
-                $all_module = DB::select("CALL sp_nishauri_access_uptake(?,?,?,?,?,?)", ["%", "%", $selected_subcounties, "%", "1900-01-01", $currentDate]);
+                $all_enrollment  = NishauriUptake::select('*')->where('sub_county_id', $selected_subcounties);
+                $all_module = NishauriAccess::select('*')->where('sub_county_id', $selected_subcounties);
             }
             if (!empty($selected_facilites)) {
                 $query->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
@@ -581,8 +601,8 @@ class NishauriController extends Controller
                 $txcurr = $query->selectRaw('SUM(tbl_tx_cur.tx_cur) as tx_cur')
                     ->get()
                     ->sum('tx_cur');
-                $all_enrollment  = DB::select("CALL sp_nishauri_uptake(?,?,?,?,?,?,?,?)", ["%", "%", $subcounty, $selected_facilites, "1900-01-01", $currentDate, "1900-01-01", $currentDate]);
-                $all_module = DB::select("CALL sp_nishauri_access_uptake(?,?,?,?,?,?)", ["%", "%", $subcounty, $selected_facilites, "1900-01-01", $currentDate]);
+                $all_enrollment  = NishauriUptake::select('*')->where('mfl_code', $selected_facilites);
+                $all_module = NishauriAccess::select('*')->where('mfl_code', $selected_facilites);
             }
             if (!empty($selected_from || $selected_to)) {
 
@@ -602,13 +622,16 @@ class NishauriController extends Controller
                 $txcurr = $query->selectRaw('SUM(tbl_tx_cur.tx_cur) as tx_cur')
                     ->get()
                     ->sum('tx_cur');
-                $all_enrollment  = DB::select("CALL sp_nishauri_uptake(?,?,?,?,?,?,?,?)", ["%", "%", $subcounty, "%", date($request->from), date($request->to), date($request->from), date($request->to)]);
-                $all_module = DB::select("CALL sp_nishauri_access_uptake(?,?,?,?,?,?)", ["%", "%", $subcounty, "%", date($request->from), date($request->to)]);
+                $all_enrollment  = NishauriUptake::select('*')->where('sub_county_id', Auth::user()->subcounty_id)->where('enrolled_date', '>=', date($request->from))->where('enrolled_date', '<=', date($request->to));
+                $all_module = NishauriAccess::select('*')->where('sub_county_id', Auth::user()->subcounty_id)->where('date', '>=', date($request->from))->where('date', '<=', date($request->to));
             }
 
 
             $data['txcurr'] =  $txcurr;
-            $data['all_enrollment'] =  $all_enrollment;
+            $data['all_enrollment'] = $all_enrollment->get()->map(function ($item) {
+                $item['no_of_clients'] = (int)$item['no_of_clients'];
+                return $item;
+            });
             $data['all_module'] =  $all_module;
 
             return $data;
@@ -626,7 +649,7 @@ class NishauriController extends Controller
             $currentDate = Carbon::now();
 
             $query = Txcurr::query()->join('tbl_partner_facility', 'tbl_tx_cur.mfl_code', '=', 'tbl_partner_facility.mfl_code')
-                ->where('tbl_partner_facility.county_id', Auth::user()->county_id);
+                ->where('tbl_partner_facility.mfl_code', Auth::user()->facility_id);
 
             if (!empty($selected_partners)) {
                 $query->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
@@ -639,13 +662,13 @@ class NishauriController extends Controller
                 $txcurr = $query->selectRaw('SUM(tbl_tx_cur.tx_cur) as tx_cur')
                     ->get()
                     ->sum('tx_cur');
-                $all_enrollment  = DB::select("CALL sp_nishauri_uptake(?,?,?,?,?,?,?,?)", [$selected_partners, "%", "%", $facility, "1900-01-01", $currentDate, "1900-01-01", $currentDate]);
-                $all_module = DB::select("CALL sp_nishauri_access_uptake(?,?,?,?,?,?)", [$selected_partners, "%", "%", $facility, "1900-01-01", $currentDate]);
+                $all_enrollment  = NishauriFacility::select('*')->where('partner_id', $selected_partners);
+                $all_module = NishauriAccess::select('*')->where('partner_id', $selected_partners);
             }
             if (!empty($selected_counties)) {
                 $query->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
-                FROM tbl_tx_cur t1
-                GROUP BY t1.mfl_code) latest_con'), function ($join) {
+                  FROM tbl_tx_cur t1
+                  GROUP BY t1.mfl_code) latest_con'), function ($join) {
                     $join->on('tbl_tx_cur.mfl_code', '=', 'latest_con.mfl_code')
                         ->on('tbl_tx_cur.period', '=', 'latest_con.max_period');
                 })->where('tbl_partner_facility.county_id', $selected_counties)
@@ -653,13 +676,13 @@ class NishauriController extends Controller
                 $txcurr = $query->selectRaw('SUM(tbl_tx_cur.tx_cur) as tx_cur')
                     ->get()
                     ->sum('tx_cur');
-                $all_enrollment  = DB::select("CALL sp_nishauri_uptake(?,?,?,?,?,?,?,?)", ["%", $selected_counties, "%", $facility, "1900-01-01", $currentDate, "1900-01-01", $currentDate]);
-                $all_module = DB::select("CALL sp_nishauri_access_uptake(?,?,?,?,?,?)", ["%", $selected_counties, "%", $facility, "1900-01-01", $currentDate]);
+                $all_enrollment  = NishauriFacility::select('*')->where('county_id', $selected_counties);
+                $all_module = NishauriAccess::select('*')->where('county_id', $selected_counties);
             }
             if (!empty($selected_subcounties)) {
                 $query->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
-                FROM tbl_tx_cur t1
-                GROUP BY t1.mfl_code) latest_sub'), function ($join) {
+                    FROM tbl_tx_cur t1
+                    GROUP BY t1.mfl_code) latest_sub'), function ($join) {
                     $join->on('tbl_tx_cur.mfl_code', '=', 'latest_sub.mfl_code')
                         ->on('tbl_tx_cur.period', '=', 'latest_sub.max_period');
                 })
@@ -668,13 +691,13 @@ class NishauriController extends Controller
                 $txcurr = $query->selectRaw('SUM(tbl_tx_cur.tx_cur) as tx_cur')
                     ->get()
                     ->sum('tx_cur');
-                $all_enrollment  = DB::select("CALL sp_nishauri_uptake(?,?,?,?,?,?,?,?)", ["%", "%", $selected_subcounties, $facility, "1900-01-01", $currentDate, "1900-01-01", $currentDate]);
-                $all_module = DB::select("CALL sp_nishauri_access_uptake(?,?,?,?,?,?)", ["%", "%", $selected_subcounties, $facility, "1900-01-01", $currentDate]);
+                $all_enrollment  = NishauriFacility::select('*')->where('sub_county_id', $selected_subcounties);
+                $all_module = NishauriAccess::select('*')->where('sub_county_id', $selected_subcounties);
             }
             if (!empty($selected_facilites)) {
                 $query->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
-                FROM tbl_tx_cur t1
-                GROUP BY t1.mfl_code) latest_fac'), function ($join) {
+                    FROM tbl_tx_cur t1
+                    GROUP BY t1.mfl_code) latest_fac'), function ($join) {
                     $join->on('tbl_tx_cur.mfl_code', '=', 'latest_fac.mfl_code')
                         ->on('tbl_tx_cur.period', '=', 'latest_fac.max_period');
                 })
@@ -683,16 +706,16 @@ class NishauriController extends Controller
                 $txcurr = $query->selectRaw('SUM(tbl_tx_cur.tx_cur) as tx_cur')
                     ->get()
                     ->sum('tx_cur');
-                $all_enrollment  = DB::select("CALL sp_nishauri_uptake(?,?,?,?,?,?,?,?)", ["%", "%", "%", $selected_facilites, "1900-01-01", $currentDate, "1900-01-01", $currentDate]);
-                $all_module = DB::select("CALL sp_nishauri_access_uptake(?,?,?,?,?,?)", ["%", "%", "%", $selected_facilites, "1900-01-01", $currentDate]);
+                $all_enrollment  = NishauriFacility::select('*')->where('mfl_code', $selected_facilites);
+                $all_module = NishauriAccess::select('*')->where('mfl_code', $selected_facilites);
             }
             if (!empty($selected_from || $selected_to)) {
 
                 $selectedFrom = date('Ym', strtotime($request->from));
                 $selectedTo = date('Ym', strtotime($request->to));
                 $query->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
-                FROM tbl_tx_cur t1
-                GROUP BY t1.mfl_code) latest_date'), function ($join) {
+                    FROM tbl_tx_cur t1
+                    GROUP BY t1.mfl_code) latest_date'), function ($join) {
                     $join->on('tbl_tx_cur.mfl_code', '=', 'latest_date.mfl_code')
                         ->on('tbl_tx_cur.period', '=', 'latest_date.max_period');
                 })
@@ -704,14 +727,14 @@ class NishauriController extends Controller
                 $txcurr = $query->selectRaw('SUM(tbl_tx_cur.tx_cur) as tx_cur')
                     ->get()
                     ->sum('tx_cur');
-                $all_enrollment  = DB::select("CALL sp_nishauri_uptake(?,?,?,?,?,?,?,?)", ["%", "%", "%", $facility, date($request->from), date($request->to), date($request->from), date($request->to)]);
-                $all_module = DB::select("CALL sp_nishauri_access_uptake(?,?,?,?,?,?)", ["%", "%", "%", $facility, date($request->from), date($request->to)]);
+                $all_enrollment  = NishauriFacility::select('*')->where('mfl_code', Auth::user()->facility_id)->where('enrolled_date', '>=', date($request->from))->where('enrolled_date', '<=', date($request->to));
+                $all_module = NishauriAccess::select('*')->where('mfl_code', Auth::user()->facility_id)->where('date', '>=', date($request->from))->where('date', '<=', date($request->to));
             }
 
 
             $data['txcurr'] =  $txcurr;
-            $data['all_enrollment'] =  $all_enrollment;
-            $data['all_module'] =  $all_module;
+            $data['all_enrollment'] =  $all_enrollment->get();
+            $data['all_module'] =  $all_module->get();
 
             return $data;
         }
@@ -730,8 +753,8 @@ class NishauriController extends Controller
 
             if (!empty($selected_partners)) {
                 $query->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
-                FROM tbl_tx_cur t1
-                GROUP BY t1.mfl_code) latest'), function ($join) {
+                   FROM tbl_tx_cur t1
+                   GROUP BY t1.mfl_code) latest'), function ($join) {
                     $join->on('tbl_tx_cur.mfl_code', '=', 'latest.mfl_code')
                         ->on('tbl_tx_cur.period', '=', 'latest.max_period');
                 })->where('tbl_partner_facility.partner_id', $selected_partners)
@@ -739,13 +762,13 @@ class NishauriController extends Controller
                 $txcurr = $query->selectRaw('SUM(tbl_tx_cur.tx_cur) as tx_cur')
                     ->get()
                     ->sum('tx_cur');
-                $all_enrollment  = DB::select("CALL sp_nishauri_uptake(?,?,?,?,?,?,?,?)", [$selected_partners, "%", "%", "%", "1900-01-01", $currentDate, "1900-01-01", $currentDate]);
-                $all_module = DB::select("CALL sp_nishauri_access_uptake(?,?,?,?,?,?)", [$selected_partners, "%", "%", "%", "1900-01-01", $currentDate]);
+                $all_enrollment  = NishauriUptake::select('*')->where('partner_id', $selected_partners);
+                $all_module = NishauriAccess::select('*')->where('partner_id', $selected_partners);
             }
             if (!empty($selected_counties)) {
                 $query->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
-                FROM tbl_tx_cur t1
-                GROUP BY t1.mfl_code) latest_con'), function ($join) {
+                    FROM tbl_tx_cur t1
+                    GROUP BY t1.mfl_code) latest_con'), function ($join) {
                     $join->on('tbl_tx_cur.mfl_code', '=', 'latest_con.mfl_code')
                         ->on('tbl_tx_cur.period', '=', 'latest_con.max_period');
                 })->where('tbl_partner_facility.county_id', $selected_counties)
@@ -753,13 +776,13 @@ class NishauriController extends Controller
                 $txcurr = $query->selectRaw('SUM(tbl_tx_cur.tx_cur) as tx_cur')
                     ->get()
                     ->sum('tx_cur');
-                $all_enrollment  = DB::select("CALL sp_nishauri_uptake(?,?,?,?,?,?,?,?)", ["%", $selected_counties, "%", "%", "1900-01-01", $currentDate, "1900-01-01", $currentDate]);
-                $all_module = DB::select("CALL sp_nishauri_access_uptake(?,?,?,?,?,?)", ["%", $selected_counties, "%", "%", "1900-01-01", $currentDate]);
+                $all_enrollment  = NishauriUptake::select('*')->where('county_id', $selected_counties);
+                $all_module = NishauriAccess::select('*')->where('county_id', $selected_counties);
             }
             if (!empty($selected_subcounties)) {
                 $query->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
-                FROM tbl_tx_cur t1
-                GROUP BY t1.mfl_code) latest_sub'), function ($join) {
+                    FROM tbl_tx_cur t1
+                    GROUP BY t1.mfl_code) latest_sub'), function ($join) {
                     $join->on('tbl_tx_cur.mfl_code', '=', 'latest_sub.mfl_code')
                         ->on('tbl_tx_cur.period', '=', 'latest_sub.max_period');
                 })
@@ -768,13 +791,13 @@ class NishauriController extends Controller
                 $txcurr = $query->selectRaw('SUM(tbl_tx_cur.tx_cur) as tx_cur')
                     ->get()
                     ->sum('tx_cur');
-                $all_enrollment  = DB::select("CALL sp_nishauri_uptake(?,?,?,?,?,?,?,?)", ["%", "%", $selected_subcounties, "%", "1900-01-01", $currentDate, "1900-01-01", $currentDate]);
-                $all_module = DB::select("CALL sp_nishauri_access_uptake(?,?,?,?,?,?)", ["%", "%", $selected_subcounties, "%", "1900-01-01", $currentDate]);
+                $all_enrollment  = NishauriUptake::select('*')->where('sub_county_id', $selected_subcounties);
+                $all_module = NishauriAccess::select('*')->where('sub_county_id', $selected_subcounties);
             }
             if (!empty($selected_facilites)) {
                 $query->join(DB::raw('(SELECT t1.mfl_code, MAX(t1.period) AS max_period
-                FROM tbl_tx_cur t1
-                GROUP BY t1.mfl_code) latest_fac'), function ($join) {
+                    FROM tbl_tx_cur t1
+                    GROUP BY t1.mfl_code) latest_fac'), function ($join) {
                     $join->on('tbl_tx_cur.mfl_code', '=', 'latest_fac.mfl_code')
                         ->on('tbl_tx_cur.period', '=', 'latest_fac.max_period');
                 })
@@ -783,9 +806,10 @@ class NishauriController extends Controller
                 $txcurr = $query->selectRaw('SUM(tbl_tx_cur.tx_cur) as tx_cur')
                     ->get()
                     ->sum('tx_cur');
-                $all_enrollment  = DB::select("CALL sp_nishauri_uptake(?,?,?,?,?,?,?,?)", ["%", "%", "%", $selected_facilites, "1900-01-01", $currentDate, "1900-01-01", $currentDate]);
-                $all_module = DB::select("CALL sp_nishauri_access_uptake(?,?,?,?,?,?)", ["%", "%", "%", $selected_facilites, "1900-01-01", $currentDate]);
+                $all_enrollment  = NishauriUptake::select('*')->where('mfl_code', $selected_facilites);
+                $all_module = NishauriAccess::select('*')->where('mfl_code', $selected_facilites);
             }
+
             if (!empty($selected_from || $selected_to)) {
 
                 $selectedFrom = date('Ym', strtotime($request->from));
@@ -804,14 +828,17 @@ class NishauriController extends Controller
                 $txcurr = $query->selectRaw('SUM(tbl_tx_cur.tx_cur) as tx_cur')
                     ->get()
                     ->sum('tx_cur');
-                $all_enrollment  = DB::select("CALL sp_nishauri_uptake(?,?,?,?,?,?,?,?)", ["%", "%", "%", "%", date($request->from), date($request->to), date($request->from), date($request->to)]);
-                $all_module = DB::select("CALL sp_nishauri_access_uptake(?,?,?,?,?,?)", ["%", "%", "%", "%", date($request->from), date($request->to)]);
+                $all_enrollment  = NishauriUptake::select('*')->where('enrolled_date', '>=', date($request->from))->where('enrolled_date', '<=', date($request->to));
+                $all_module = NishauriAccess::select('*')->where('date', '>=', date($request->from))->where('date', '<=', date($request->to));
             }
 
 
             $data['txcurr'] =  $txcurr;
-            $data['all_enrollment'] =  $all_enrollment;
-            $data['all_module'] =  $all_module;
+            $data['all_enrollment'] = $all_enrollment->get()->map(function ($item) {
+                $item['no_of_clients'] = (int)$item['no_of_clients'];
+                return $item;
+            });
+            $data['all_module'] =  $all_module->get();
 
             return $data;
         }

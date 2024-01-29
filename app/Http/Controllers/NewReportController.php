@@ -17,6 +17,8 @@ use App\Models\Time;
 use App\Models\Language;
 use App\Models\Condition;
 use App\Models\Marital;
+use App\Models\UshauriProgram;
+use App\Models\UshauriProgramActive;
 use DB;
 use Auth;
 use Carbon\Carbon;
@@ -658,7 +660,7 @@ class NewReportController extends Controller
                     'tbl_client.phone_no',
                     'tbl_clnt_outgoing.msg',
                     DB::raw('CASE WHEN tbl_clnt_outgoing.message_id IS NULL OR tbl_clnt_outgoing.message_id = "None" OR tbl_clnt_outgoing.callback_status = "Failed" OR tbl_clnt_outgoing.callback_status = "Expired" THEN "Failed" ELSE "Success" END AS callback_status'),
-                    DB::raw('CASE WHEN tbl_clnt_outgoing.message_id IS NULL OR tbl_clnt_outgoing.message_id = "None" OR tbl_clnt_outgoing.callback_status = "Expired" THEN "DeliveryFailure" ELSE tbl_clnt_outgoing.failure_reason END AS failure_reason'),
+                    DB::raw('CASE WHEN tbl_clnt_outgoing.message_id IS NULL OR tbl_clnt_outgoing.message_id = "None" OR tbl_clnt_outgoing.callback_status = "Expired" THEN "Phone No. Inactive" WHEN tbl_clnt_outgoing.failure_reason = "UserInBlackList" THEN "Service Blacklisted" WHEN tbl_clnt_outgoing.failure_reason = "AbsentSubscriber" THEN "Phone off >48 Hours" WHEN tbl_clnt_outgoing.failure_reason = "UserInactive" THEN "Failure at Telco" WHEN tbl_clnt_outgoing.failure_reason = "DeliveryFailure" THEN "Phone No. Inactive" END AS failure_reason'),
                     'tbl_clnt_outgoing.updated_at',
                     'tbl_appointment.appntmnt_date as appointment_date',
                     'tbl_appointment_types.name as app_type',
@@ -695,7 +697,7 @@ class NewReportController extends Controller
                     'tbl_client.phone_no',
                     'tbl_clnt_outgoing.msg',
                     DB::raw('CASE WHEN tbl_clnt_outgoing.message_id IS NULL OR tbl_clnt_outgoing.message_id = "None" OR tbl_clnt_outgoing.callback_status = "Failed" OR tbl_clnt_outgoing.callback_status = "Expired" THEN "Failed" ELSE "Success" END AS callback_status'),
-                    DB::raw('CASE WHEN tbl_clnt_outgoing.message_id IS NULL OR tbl_clnt_outgoing.message_id = "None" OR tbl_clnt_outgoing.callback_status = "Expired" THEN "DeliveryFailure" ELSE tbl_clnt_outgoing.failure_reason END AS failure_reason'),
+                    DB::raw('CASE WHEN tbl_clnt_outgoing.message_id IS NULL OR tbl_clnt_outgoing.message_id = "None" OR tbl_clnt_outgoing.callback_status = "Expired" THEN "Phone No. Inactive" WHEN tbl_clnt_outgoing.failure_reason = "UserInBlackList" THEN "Service Blacklisted" WHEN tbl_clnt_outgoing.failure_reason = "AbsentSubscriber" THEN "Phone off >48 Hours" WHEN tbl_clnt_outgoing.failure_reason = "UserInactive" THEN "Failure at Telco" WHEN tbl_clnt_outgoing.failure_reason = "DeliveryFailure" THEN "Phone No. Inactive" END AS failure_reason'),
                     'tbl_clnt_outgoing.updated_at',
                     'tbl_appointment.appntmnt_date as appointment_date',
                     'tbl_appointment_types.name as app_type',
@@ -733,7 +735,7 @@ class NewReportController extends Controller
                     'tbl_client.phone_no',
                     'tbl_clnt_outgoing.msg',
                     DB::raw('CASE WHEN tbl_clnt_outgoing.message_id IS NULL OR tbl_clnt_outgoing.message_id = "None" OR tbl_clnt_outgoing.callback_status = "Failed" OR tbl_clnt_outgoing.callback_status = "Expired" THEN "Failed" ELSE "Success" END AS callback_status'),
-                    DB::raw('CASE WHEN tbl_clnt_outgoing.message_id IS NULL OR tbl_clnt_outgoing.message_id = "None" OR tbl_clnt_outgoing.callback_status = "Expired" THEN "DeliveryFailure" ELSE tbl_clnt_outgoing.failure_reason END AS failure_reason'),
+                    DB::raw('CASE WHEN tbl_clnt_outgoing.message_id IS NULL OR tbl_clnt_outgoing.message_id = "None" OR tbl_clnt_outgoing.callback_status = "Expired" THEN "Phone No. Inactive" WHEN tbl_clnt_outgoing.failure_reason = "UserInBlackList" THEN "Service Blacklisted" WHEN tbl_clnt_outgoing.failure_reason = "AbsentSubscriber" THEN "Phone off >48 Hours" WHEN tbl_clnt_outgoing.failure_reason = "UserInactive" THEN "Failure at Telco" WHEN tbl_clnt_outgoing.failure_reason = "DeliveryFailure" THEN "Phone No. Inactive" END AS failure_reason'),
                     'tbl_clnt_outgoing.no_of_days',
                     'tbl_clnt_outgoing.updated_at',
                     'tbl_appointment.appntmnt_date as appointment_date',
@@ -754,5 +756,94 @@ class NewReportController extends Controller
 
 
         return view('new_reports.client_messages', compact('client_messages', 'selected_from', 'selected_to'));
+    }
+    public function program_index()
+    {
+        return view('dashboard.program');
+    }
+
+    public function program()
+    {
+        $data = [];
+
+        $latestMonthYear = UshauriProgram::max('LastDateUsed');
+        $latestMonthYear = UshauriProgramActive::max('LastDateUsed');
+
+        $sixMonthsBefore = Carbon::parse($latestMonthYear)->subMonths(5);
+        $program = UshauriProgram::whereDate('LastDateUsed', '>=', $sixMonthsBefore)->orderBy('Months', 'ASC');
+        $active_site = UshauriProgramActive::whereDate('LastDateUsed', '>=', $sixMonthsBefore)->orderBy('Months', 'ASC');
+
+
+        $data["program"] = $program->get();
+        $data["active_site"] = $active_site->get();
+
+        return $data;
+    }
+    public function program_filter(Request $request)
+    {
+        $data = [];
+        $selected_month = $request->months;
+        $selected_year = $request->year;
+
+
+
+
+        if (!empty($selected_month)) {
+            $program = UshauriProgram::select('*')->orderBy('Months', 'ASC');
+            $program = $program->where('MonthYear', 'LIKE', "%$selected_month%");
+
+            $active_site = UshauriProgramActive::select('*')->orderBy('Months', 'ASC');
+            $active_site = $active_site->where('MonthYear', 'LIKE', "%$selected_month%");
+        }
+        if (!empty($selected_year)) {
+            $program = UshauriProgram::select('*')->orderBy('Months', 'ASC');
+            $program = $program->where('MonthYear', 'LIKE', "%$selected_year%");
+
+            $active_site = UshauriProgramActive::select('*')->orderBy('Months', 'ASC');
+            $active_site = $active_site->where('MonthYear', 'LIKE', "%$selected_year%");
+        }
+        if (!empty($selected_year) && !empty($selected_month)) {
+            // $program = UshauriProgram::where('MonthYear', 'LIKE', "$selected_month-$selected_year");
+            $selected_month_number = date('n', strtotime("$selected_month 1"));
+
+            $program = UshauriProgram::where(function ($query) use ($selected_month, $selected_year, $selected_month_number) {
+                $query->where('MonthYear', 'LIKE', "$selected_month-$selected_year")->orderBy('Months', 'ASC');
+
+                for ($i = 1; $i <= 5; $i++) {
+                    $previous_month_number = $selected_month_number - $i;
+                    $previous_month_name = date('F', mktime(0, 0, 0, $previous_month_number, 1));
+
+                    if ($previous_month_number <= 0) {
+                        $previous_month_number += 12;
+                        $previous_year = $selected_year - 1;
+                    } else {
+                        $previous_year = $selected_year;
+                    }
+
+                    $query->orWhere('MonthYear', 'LIKE', "$previous_month_name-$previous_year");
+                }
+            });
+
+            $active_site = UshauriProgramActive::where(function ($query) use ($selected_month, $selected_year, $selected_month_number) {
+                $query->where('MonthYear', 'LIKE', "$selected_month-$selected_year")->orderBy('Months', 'ASC');
+
+                for ($i = 1; $i <= 5; $i++) {
+                    $previous_month_number = $selected_month_number - $i;
+                    $previous_month_name = date('F', mktime(0, 0, 0, $previous_month_number, 1));
+
+                    if ($previous_month_number <= 0) {
+                        $previous_month_number += 12;
+                        $previous_year = $selected_year - 1;
+                    } else {
+                        $previous_year = $selected_year;
+                    }
+
+                    $query->orWhere('MonthYear', 'LIKE', "$previous_month_name-$previous_year");
+                }
+            });
+        }
+        $data["program"] = $program->get();
+        $data["active_site"] = $active_site->get();
+        return $data;
     }
 }

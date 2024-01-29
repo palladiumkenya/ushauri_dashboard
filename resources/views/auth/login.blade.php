@@ -12,6 +12,12 @@
 </head>
 
 <body>
+    <div class="left-end" style="margin-top: 20px; margin-left: 20px;">
+        <a href="{{ url('/') }}" style="text-decoration: none; color: #333; display: flex; align-items: center;">
+            <i class="fas fa-chevron-left" style="margin-right: 5px;"></i> Go back
+        </a>
+    </div>
+
     <div class="auth-layout-wrap">
         <div class="auth-content">
             <div class="card o-hidden">
@@ -22,7 +28,9 @@
                                 <img src="{{ asset('/assets/images/Ushauri_big.png') }}" style="margin-left: 230px;" height="40">
 
                             </div>
-                            <div class="text-center">  <h4>Login</h4> </div>
+                            <div class="text-center">
+                                <h4>Login</h4>
+                            </div>
 
                             <form method="POST" id="login_form" action="{{ route('login') }}">
                                 @csrf
