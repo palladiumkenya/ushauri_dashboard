@@ -38,7 +38,7 @@
             </div>
             <div class="col-md-4 mb-4">
                 <a href="{{ url('directory') }}" class="card" style="align-items:center">
-                    <img src="{{ asset('assets/images/login/moh.png') }}" class="pl-3" alt="ART Directory Logo" height="90" width="100">
+                    <img src="{{ asset('assets/images/login/moh.png') }}" class="pl-3" alt="ART Directory Logo" height="90" width="200">
                     <div class="card-body text-center">
                         <h5 class="card-title">Facility Directory</h5>
                     </div>
