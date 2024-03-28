@@ -316,5 +316,9 @@ Route::group(['middleware' => 'auth'], function () {
   Route::get('/program/data', ['uses' => 'App\Http\Controllers\NewReportController@program', 'as' => 'program_data']);
   Route::get('/program_filter', ['uses' => 'App\Http\Controllers\NewReportController@program_filter', 'as' => 'program_filter']);
 
+  Route::get('/delivery/list', ['uses' => 'App\Http\Controllers\NishauriController@drug_delivery_list', 'as' => 'drug_delivery_list']);
+  Route::post('/approve/delivery', ['uses' => 'App\Http\Controllers\NishauriController@delivery_approval', 'as' => 'approve-delivery']);
+  Route::post('/approve/dispatch', ['uses' => 'App\Http\Controllers\NishauriController@delivery_dispatch', 'as' => 'approve-dispatch']);
+
 
 });

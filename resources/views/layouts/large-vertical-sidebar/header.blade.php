@@ -57,9 +57,14 @@
         @if (env('INSTANCE') === 'UshauriPublic')
         @if (Auth::user()->access_level == 'Facility')
         <!-- Full screen toggle -->
-        <div class="reschedule-nishauri" style="position: relative;">
+        <div class="reschedule-nishauri" style="position: relative; margin-right: 15px;">
             <span id="reschedule" class="badge rounded-pill badge-notification bg-danger" style="position: absolute; top: -10px; right: -10px; color: white;" title="Appointment Reschedule Requests"></span>
             <a href="{{route('reschedule_list')}}"><i class="fas fa-envelope fa-2x"></i></a>
+        </div>
+
+        <div class="reschedule-nishauri" style="position: relative;">
+            <span id="reschedule" class="badge rounded-pill badge-notification bg-danger" style="position: absolute; top: -10px; right: -10px; color: white;" title="Drug Delivery Requests"></span>
+            <a href="{{route('drug_delivery_list')}}"><i class="fas fa-prescription-bottle-alt fa-2x"></i></a>
         </div>
 
         @endif
