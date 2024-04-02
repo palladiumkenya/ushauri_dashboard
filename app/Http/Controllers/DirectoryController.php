@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use App\Models\DirectoryLog;
 
 class DirectoryController extends Controller
 {
@@ -24,5 +25,18 @@ class DirectoryController extends Controller
             $errorData = $response->json();
             return response()->json(['error' => 'API request failed'], $response->status());
         }
+    }
+    public function directoryLog(Request $request)
+    {
+        $searchTerm = $request->input('search_term');
+        $resultCount = $request->input('result_count');
+
+        // Save the log
+        DirectoryLog::create([
+            'search_term' => $searchTerm,
+            'result_count' => $resultCount,
+        ]);
+
+        return response()->json(['status' => 'success']);
     }
 }

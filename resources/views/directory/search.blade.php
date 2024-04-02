@@ -3,6 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="icon" type="image/jpeg" sizes="16x16" href="{{ asset('assets/images/ushauri.jpeg') }}">
@@ -30,9 +31,14 @@
 
         .logo {
             max-height: 50px;
-            /* Set the max height of your logo */
         }
     </style>
+    <script type="text/javascript">
+        function setMaxLength(input) {
+            var isDigit = /^\d+$/.test(input.value);
+            input.maxLength = isDigit ? 5 : 1000;
+        }
+    </script>
 </head>
 
 <body>
@@ -57,8 +63,9 @@
         <div class="row justify-content-center">
             <div class="col-md-6 mb-3">
                 <label for="searchInput" class="form-label">Search Facility:</label>
-                <input type="text" class="form-control" id="searchInput" placeholder="Enter Facility Name">
+                <input type="text" class="form-control" id="searchInput" placeholder="Enter Facility Name or MFL Code" oninput="setMaxLength(this)">
                 <button class="btn btn-primary mt-2" id="searchButton">Search</button>
+                <div id="error-message" class="text-danger mt-2" style="display: none;">Invalid MFL Code.</div>
             </div>
         </div>
 
@@ -70,6 +77,7 @@
                         <th scope="col">Facility Name</th>
                         <th scope="col">MFL Code</th>
                         <th scope="col">Contact</th>
+                        <th scope="col">County</th>
                         <th scope="col">Facility Type</th>
                         <th scope="col">More</th>
                     </tr>
@@ -140,6 +148,9 @@
                         data: 'Contact'
                     },
                     {
+                        data: 'County'
+                    },
+                    {
                         data: 'Facility Type'
                     },
                     {
@@ -153,13 +164,33 @@
             $('#searchButton').on('click', function() {
                 var facility = $('#searchInput').val();
 
+                if (!facility.trim()) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Empty Search',
+                        text: 'Please Enter Facility Name or MFL Code.',
+                    });
+                    return;
+                }
+
                 Swal.fire({
                     title: "loading results......",
                     showConfirmButton: false,
                     allowOutsideClick: false
                 });
 
-                var apiUrl = "{{ env('ART_URL') }}directory/" + mfl + '/' + facility;
+                // var apiUrl = "{{ env('ART_URL') }}directory/" + mfl + '/' + facility;
+                var isCode = /^\d{5}$/.test(facility);
+
+                var apiUrl;
+                if (isCode) {
+                    apiUrl = "{{ env('ART_URL') }}facility/directory?code=" + facility;
+                } else {
+                    apiUrl = "{{ env('ART_URL') }}facility/directory?name=" + facility;
+                }
+
+                // Hide error message
+                $('#error-message').hide();
                 $.ajax({
                     url: apiUrl,
                     method: 'GET',
@@ -180,6 +211,7 @@
                                 'Facility Name': facility.name,
                                 'MFL Code': facility.code,
                                 'Contact': facility.telephone,
+                                'County': facility.county,
                                 'Facility Type': facility.facility_type,
                                 'More': moreLink
                             });
@@ -193,6 +225,7 @@
 
                         // Show the result table section
                         $('#resultTableSection').show();
+                        saveSearchLog(facility, facilities.length);
                     },
                     error: function(error) {
                         console.log(error);
@@ -204,6 +237,29 @@
                     }
                 });
             });
+
+            function saveSearchLog(searchTerm, resultCount) {
+                //  search log
+                $.ajax({
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    url: "{{ route('directory_log') }}",
+                    method: 'POST',
+                    data: {
+                        search_term: searchTerm,
+                        result_count: resultCount
+                    },
+                    success: function(response) {
+                        // console.log(response);
+
+                    },
+                    error: function(error) {
+                        console.log(error);
+
+                    }
+                });
+            }
         });
     </script>
 </body>

@@ -69,6 +69,9 @@ Route::get('/high_risk_clients', ['uses' => 'App\Http\Controllers\HighRiskContro
 Route::get('/high/risk/task', ['uses' => 'App\Http\Controllers\HighRiskController@task', 'as' => 'task']);
 //Route::get('/high/risk/sender', ['uses' => 'App\Http\Controllers\HighRiskController@sender', 'as' => 'sender']);
 
+ // facility directory
+ Route::post('/directory_log', ['uses' => 'App\Http\Controllers\DirectoryController@directoryLog', 'as' => 'directory_log']);
+
 Route::post('/tet', ['uses' => 'App\Http\Controllers\NishauriController@tet', 'as' => 'tet']);
 Auth::routes();
 
@@ -312,5 +315,10 @@ Route::group(['middleware' => 'auth'], function () {
   Route::get('/reports/program', ['uses' => 'App\Http\Controllers\NewReportController@program_index', 'as' => 'program']);
   Route::get('/program/data', ['uses' => 'App\Http\Controllers\NewReportController@program', 'as' => 'program_data']);
   Route::get('/program_filter', ['uses' => 'App\Http\Controllers\NewReportController@program_filter', 'as' => 'program_filter']);
+
+  Route::get('/delivery/list', ['uses' => 'App\Http\Controllers\NishauriController@drug_delivery_list', 'as' => 'drug_delivery_list']);
+  Route::post('/approve/delivery', ['uses' => 'App\Http\Controllers\NishauriController@delivery_approval', 'as' => 'approve-delivery']);
+  Route::post('/approve/dispatch', ['uses' => 'App\Http\Controllers\NishauriController@delivery_dispatch', 'as' => 'approve-dispatch']);
+
 
 });
