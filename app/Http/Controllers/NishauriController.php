@@ -20,10 +20,28 @@ use DB;
 use Carbon\Carbon;
 use App\Models\NishauriDrugDelivery;
 use App\Models\NishauriDrugOrder;
+use Illuminate\Support\Facades\Http;
 
 
 class NishauriController extends Controller
 {
+    private function send_message($source, $destination, $msg)
+    {
+        $key = env('SMS_SERVICE_KEY', '');
+        $host = env('SMS_SERVICE_HOST', '');
+
+        $this->httpresponse = Http::
+                                withoutVerifying()
+                                ->withHeaders(['api-token'=> "$key"])
+                                ->post("$host", [
+                                        'destination' => $destination,
+                                        'msg' => $msg,
+                                        'sender_id' => $destination,
+                                        'gateway' => $source,
+                                    ]);
+
+       return json_decode( $this->httpresponse->getBody(), true);
+    }
     public function reschedule()
     {
         $data = [];
@@ -850,25 +868,25 @@ class NishauriController extends Controller
     {
         if (Auth::user()->access_level == 'Facility') {
 
-            $drug_delivery = NishauriDrugDelivery::select('tbl_nishauri_drug_order.id as order_id', 'tbl_appointment.appntmnt_date', 'tbl_client.clinic_number', 'tbl_nishauri_drug_order.mode', 'tbl_nishauri_drug_order.delivery_method', 'tbl_nishauri_drug_order.delivery_person', 'tbl_nishauri_drug_order.delivery_person_contact', 'tbl_nishauri_drug_order.delivery_pickup_time', 'tbl_nishauri_drug_order.status', 'tbl_nishauri_drug_order.appointment_id')
-            ->leftJoin('tbl_appointment', 'tbl_appointment.id', '=', 'tbl_nishauri_drug_order.appointment_id')
-            ->leftJoin('tbl_client', 'tbl_client.id', '=', 'tbl_nishauri_drug_order.program_identifier')
-            ->where('tbl_client.mfl_code', Auth::user()->facility_id)
-            ->where('tbl_nishauri_drug_order.status', '=', 'Pending')
-            ->get();
-            $drug_dispatch = NishauriDrugDelivery::select('tbl_nishauri_drug_order.id as order_id', 'tbl_appointment.appntmnt_date', 'tbl_client.clinic_number', 'tbl_nishauri_drug_order.mode', 'tbl_nishauri_drug_order.delivery_method', 'tbl_nishauri_drug_order.delivery_person', 'tbl_nishauri_drug_order.delivery_person_contact', 'tbl_nishauri_drug_order.delivery_pickup_time', 'tbl_nishauri_drug_order.status', 'tbl_nishauri_drug_order.appointment_id')
-            ->leftJoin('tbl_appointment', 'tbl_appointment.id', '=', 'tbl_nishauri_drug_order.appointment_id')
-            ->leftJoin('tbl_client', 'tbl_client.id', '=', 'tbl_nishauri_drug_order.program_identifier')
-            ->where('tbl_client.mfl_code', Auth::user()->facility_id)
-            ->where('tbl_nishauri_drug_order.status', '=', 'Approved')
-            ->get();
+            $drug_delivery = NishauriDrugDelivery::select('tbl_nishauri_drug_order.id as order_id', 'tbl_appointment.appntmnt_date', 'tbl_client.clinic_number', 'tbl_nishauri_drug_order.mode', 'tbl_nishauri_drug_order.delivery_method', 'tbl_nishauri_drug_order.delivery_person', 'tbl_nishauri_drug_order.delivery_person_contact', 'tbl_nishauri_drug_order.delivery_pickup_time', 'tbl_nishauri_drug_order.status', 'tbl_nishauri_drug_order.appointment_id', 'tbl_nishauri_drug_order.client_phone_no')
+                ->leftJoin('tbl_appointment', 'tbl_appointment.id', '=', 'tbl_nishauri_drug_order.appointment_id')
+                ->leftJoin('tbl_client', 'tbl_client.id', '=', 'tbl_nishauri_drug_order.program_identifier')
+                ->where('tbl_client.mfl_code', Auth::user()->facility_id)
+                ->where('tbl_nishauri_drug_order.status', '=', 'Pending')
+                ->get();
+            $drug_dispatch = NishauriDrugDelivery::select('tbl_nishauri_drug_order.id as order_id', 'tbl_appointment.appntmnt_date', 'tbl_client.clinic_number', 'tbl_nishauri_drug_order.mode', 'tbl_nishauri_drug_order.delivery_method', 'tbl_nishauri_drug_order.delivery_person', 'tbl_nishauri_drug_order.delivery_person_contact', 'tbl_nishauri_drug_order.delivery_pickup_time', 'tbl_nishauri_drug_order.status', 'tbl_nishauri_drug_order.appointment_id', 'tbl_nishauri_drug_order.client_phone_no')
+                ->leftJoin('tbl_appointment', 'tbl_appointment.id', '=', 'tbl_nishauri_drug_order.appointment_id')
+                ->leftJoin('tbl_client', 'tbl_client.id', '=', 'tbl_nishauri_drug_order.program_identifier')
+                ->where('tbl_client.mfl_code', Auth::user()->facility_id)
+                ->where('tbl_nishauri_drug_order.status', '=', 'Approved')
+                ->get();
 
-            $drug_fullfilled = NishauriDrugDelivery::select('tbl_nishauri_drug_order.id as order_id', 'tbl_appointment.appntmnt_date', 'tbl_client.clinic_number', 'tbl_nishauri_drug_order.mode', 'tbl_nishauri_drug_order.delivery_method', 'tbl_nishauri_drug_order.delivery_person', 'tbl_nishauri_drug_order.delivery_person_contact', 'tbl_nishauri_drug_order.delivery_pickup_time', 'tbl_nishauri_drug_order.status', 'tbl_nishauri_drug_order.appointment_id')
-            ->leftJoin('tbl_appointment', 'tbl_appointment.id', '=', 'tbl_nishauri_drug_order.appointment_id')
-            ->leftJoin('tbl_client', 'tbl_client.id', '=', 'tbl_nishauri_drug_order.program_identifier')
-            ->where('tbl_client.mfl_code', Auth::user()->facility_id)
-            ->where('tbl_nishauri_drug_order.status', '=', 'Fullfilled')
-            ->get();
+            $drug_fullfilled = NishauriDrugDelivery::select('tbl_nishauri_drug_order.id as order_id', 'tbl_appointment.appntmnt_date', 'tbl_client.clinic_number', 'tbl_nishauri_drug_order.mode', 'tbl_nishauri_drug_order.delivery_method', 'tbl_nishauri_drug_order.delivery_person', 'tbl_nishauri_drug_order.delivery_person_contact', 'tbl_nishauri_drug_order.delivery_pickup_time', 'tbl_nishauri_drug_order.status', 'tbl_nishauri_drug_order.appointment_id', 'tbl_nishauri_drug_order.comment')
+                ->leftJoin('tbl_appointment', 'tbl_appointment.id', '=', 'tbl_nishauri_drug_order.appointment_id')
+                ->leftJoin('tbl_client', 'tbl_client.id', '=', 'tbl_nishauri_drug_order.program_identifier')
+                ->where('tbl_client.mfl_code', Auth::user()->facility_id)
+                ->where('tbl_nishauri_drug_order.status', '=', 'Fullfilled')
+                ->get();
 
             return view('nishauri.drug_delivery', compact('drug_delivery', 'drug_dispatch', 'drug_fullfilled'));
         }
@@ -880,10 +898,11 @@ class NishauriController extends Controller
             $client = NishauriDrugDelivery::where('appointment_id', $request->appointment_id)
                 ->update([
                     'status' => 'Approved',
-                    'updated_at' => date('Y-m-d H:i:s')
+                    'updated_at' => now(),
+                    'approved_date' => now()
                 ]);
 
-                // dd( $client);
+            // dd( $client);
             if ($client) {
                 NishauriDrugOrder::create([
                     'order_id' => $request->order_id,
@@ -902,20 +921,31 @@ class NishauriController extends Controller
     public function delivery_dispatch(Request $request)
     {
         try {
+            $order = $request->order_id;
+            $order_no = 'ORN' . sprintf('%03d', $order);
+
             $client = NishauriDrugDelivery::where('appointment_id', $request->appointment_id)
                 ->update([
                     'status' => 'Dispatched',
-                    'updated_at' => date('Y-m-d H:i:s')
+                    'updated_at' => date('Y-m-d H:i:s'),
+                    'dispatched_date' => date('Y-m-d H:i:s'),
+                    'confirmation_code' => $order_no
                 ]);
 
-                // dd( $client);
+            // dd( $client);
             if ($client) {
                 NishauriDrugOrder::where('order_id', $request->order_id)
-                ->update([
-                    'initiated_by' => Auth::user()->id,
-                    'dispatch_notes' => $request->dispatch_notes,
-                    'updated_at' => date('Y-m-d H:i:s')
-                ]);
+                    ->update([
+                        'initiated_by' => Auth::user()->id,
+                        'dispatch_notes' => $request->dispatch_notes,
+                        'updated_at' => date('Y-m-d H:i:s')
+                    ]);
+
+                    // Send SMS notification
+            $destination = $request->client_phone_no;
+            $msg = "Your drugs for order No $order_no has been dispatched. Kindly use your order number provided for confirmation once you received the drugs";
+            $source = '40149';
+            $this->send_message($source, $destination, $msg);
                 Alert::success('Success', 'Delivery Successfully Dispatched');
                 return redirect('delivery/list');
             } else {
