@@ -944,7 +944,7 @@ class NishauriController extends Controller
                     // Send SMS notification
             $destination = $request->client_phone_no;
             $msg = "Your drugs for order No $order_no has been dispatched. Kindly use your order number provided for confirmation once you received the drugs";
-            $source = '40149';
+            $source = 40149;
             $this->send_message($source, $destination, $msg);
                 Alert::success('Success', 'Delivery Successfully Dispatched');
                 return redirect('delivery/list');
