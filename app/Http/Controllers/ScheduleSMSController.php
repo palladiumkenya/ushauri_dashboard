@@ -10,6 +10,7 @@ use App\Models\Appointments;
 use App\Models\ClientOutgoing;
 use App\Models\OutgoingSms;
 use App\Models\Wellness;
+use App\Models\UnsentSMS;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
@@ -502,6 +503,48 @@ class ScheduleSMSController extends Controller
 
     }
 
+    public function resend()  //resend all outgoing sms that were not sent during normal scheduling
+    {
+        $messages = UnsentSMS::all();
+        foreach($messages as $message)
+        {
+            $clnt_outgoing_id = $message->id;
+            $destination = $message->destination;
+            $msg = $message->msg;
+            $source = $message->source;
+
+            //call sms service
+            $result = $this->send_message($source,$destination,$clnt_outgoing_id,$msg);
+
+            $status = $result['status'];
+            $messageid = '';
+            $cost = 0;
+
+            foreach($result as $row)
+            {
+                if($status == 'success')
+                {
+                    foreach($result['data'] as $data)
+                    {
+                        foreach($data['Recipients'] as $Recipient)
+                        {
+                            $messageid = $Recipient['messageId'];
+                            $cost = $Recipient['cost'];
+                        }
+                    }
+                }
+
+                //update the sent message with the sms cost and send status
+                $sms = ClientOutgoing::find($clnt_outgoing_id);
+                $sms->status = $status;
+                $sms->cost = $cost;
+                $sms->message_id = $messageid;
+                $sms->save();
+
+            }
+        }
+    }
+
     public function sender()
     {
         try{
@@ -530,7 +573,7 @@ class ScheduleSMSController extends Controller
                     ->where('msg','like', '%'.$msg.'%')
                     ->where('destination', $destination)
                     ->where('status', 'Sent')
-                    ->whereRaw('created_at between (CURDATE() - INTERVAL 1 DAY) AND (CURDATE() + INTERVAL 1 DAY) ')
+                    ->whereRaw('DATE(created_at) between (CURDATE() - INTERVAL 1 DAY) AND (CURDATE() + INTERVAL 1 DAY) ')
                     ->doesntExist()) //Message has not been sent, send the  current message
                     {
                        // $queries = DB::getQueryLog();
@@ -544,7 +587,7 @@ class ScheduleSMSController extends Controller
                         }
 
                         //call sms service
-                        $result = $this->send_message($source,$destination , $msg);
+                        $result = $this->send_message($source,$destination,$clnt_outgoing_id,$msg);
 
                         $status = $result['status'];
                         $messageid = '';
@@ -585,7 +628,7 @@ class ScheduleSMSController extends Controller
         }
     }
 
-    private function send_message($source, $destination, $msg)
+    private function send_message($source, $destination,$sender_id, $msg)
     {
         $key = env('SMS_SERVICE_KEY', '');
         $host = env('SMS_SERVICE_HOST', '');
@@ -596,7 +639,7 @@ class ScheduleSMSController extends Controller
                                 ->post("$host", [
                                         'destination' => $destination,
                                         'msg' => $msg,
-                                        'sender_id' => $destination,
+                                        'sender_id' => $sender_id,
                                         'gateway' => $source,
                                     ]);
 
