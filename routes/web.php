@@ -53,6 +53,9 @@ Route::get('/schedule/ltfu', ['uses' => 'App\Http\Controllers\ScheduleSMSControl
 //send sms notifications
 Route::get('/sms/sender', ['uses' => 'App\Http\Controllers\ScheduleSMSController@sender', 'as' => 'sms-sender']);
 
+//resend sms notifications
+Route::get('/sms/resend', ['uses' => 'App\Http\Controllers\ScheduleSMSController@resend', 'as' => 'sms-resend']);
+
 //get KHIS TxCurr
 Route::get('/txcurr', ['uses' => 'App\Http\Controllers\TxCurrController@txcurr', 'as' => 'txcurr']);
 

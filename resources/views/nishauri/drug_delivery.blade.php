@@ -172,8 +172,8 @@
                                     <th>Delivery Method</th>
                                     <th>Delivery Person</th>
                                     <th>Delivery Person Contact</th>
-                                    <th>Pick Up Time</th>
                                     <th>Status</th>
+                                    <th>Comment</th>
 
                                 </tr>
                             </thead>
@@ -188,8 +188,8 @@
                                     <td> {{$result->delivery_method}}</td>
                                     <td> {{$result->delivery_person}}</td>
                                     <td> {{$result->delivery_person_contact}}</td>
-                                    <td> {{$result->delivery_pickup_time}}</td>
                                     <td> {{$result->status}}</td>
+                                    <td> {{$result->comment}}</td>
 
 
                                 </tr>
@@ -272,6 +272,8 @@
                                 <div class="row">
                                     <input type="hidden" name="appointment_id" id="dispatch_appointment_id">
                                     <input type="hidden" name="order_id" id="dispatch_order_id">
+                                    <input type="hidden" name="client_phone_no" id="dispatch_client_phone_no">
+
                                     <div class="col-md-6 form-group mb-3">
                                         <label for="firstName1">CCC Number</label>
                                         <input type="text" class="form-control" id="dispatch_clinic_number" name="clinic_number" placeholder="CCC Number" readonly />
@@ -379,6 +381,7 @@
         $('#dispatch_delivery_pickup_time').val(result.delivery_pickup_time);
         $('#dispatch_appointment_id').val(result.appointment_id);
         $('#dispatch_order_id').val(result.order_id);
+        $('#dispatch_client_phone_no').val(result.client_phone_no);
     }
 
 
