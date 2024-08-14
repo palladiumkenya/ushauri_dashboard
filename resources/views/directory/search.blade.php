@@ -33,6 +33,97 @@
             max-height: 50px;
         }
     </style>
+    <style>
+     .rate {
+         float: left;
+         height: 20px;
+         padding: 0 10px;
+         }
+         .rate:not(:checked) > input {
+         position:absolute;
+         display: none;
+         }
+         .rate:not(:checked) > label {
+         float:right;
+         width:1em;
+         overflow:hidden;
+         white-space:nowrap;
+         cursor:pointer;
+         font-size:20px;
+         color:#ccc;
+         }
+         .rated:not(:checked) > label {
+         float:right;
+         width:1em;
+         overflow:hidden;
+         white-space:nowrap;
+         cursor:pointer;
+         font-size:20px;
+         color:#ccc;
+         }
+         .rate:not(:checked) > label:before {
+         content: '★ ';
+         }
+         .rate > input:checked ~ label {
+         color: #ffc700;
+         }
+         .rate:not(:checked) > label:hover,
+         .rate:not(:checked) > label:hover ~ label {
+         color: #deb217;
+         }
+         .rate > input:checked + label:hover,
+         .rate > input:checked + label:hover ~ label,
+         .rate > input:checked ~ label:hover,
+         .rate > input:checked ~ label:hover ~ label,
+         .rate > label:hover ~ input:checked ~ label {
+         color: #c59b08;
+         }
+         .star-rating-complete{
+            color: #c59b08;
+         }
+         .rating-container .form-control:hover, .rating-container .form-control:focus{
+         background: #fff;
+         border: 1px solid #ced4da;
+         }
+         .rating-container textarea:focus, .rating-container input:focus {
+         color: #000;
+         }
+         .rated {
+         float: left;
+         height: 20px;
+         padding: 0 10px;
+         }
+         .rated:not(:checked) > input {
+         position:absolute;
+         display: none;
+         }
+         .rated:not(:checked) > label {
+         float:right;
+         width:1em;
+         overflow:hidden;
+         white-space:nowrap;
+         cursor:pointer;
+         font-size:20px;
+         color:#ffc700;
+         }
+         .rated:not(:checked) > label:before {
+         content: '★ ';
+         }
+         .rated > input:checked ~ label {
+         color: #ffc700;
+         }
+         .rated:not(:checked) > label:hover,
+         .rated:not(:checked) > label:hover ~ label {
+         color: #deb217;
+         }
+         .rated > input:checked + label:hover,
+         .rated > input:checked + label:hover ~ label,
+         .rated > input:checked ~ label:hover,
+         .rated > input:checked ~ label:hover ~ label,
+         .rated > label:hover ~ input:checked ~ label {
+         color: #c59b08;
+         }
+</style>
     <script type="text/javascript">
         function setMaxLength(input) {
             var isDigit = /^\d+$/.test(input.value);
@@ -77,9 +168,9 @@
                         <th scope="col">Facility Name</th>
                         <th scope="col">MFL Code</th>
                         <th scope="col">Contact</th>
-                        <th scope="col">County</th>
                         <th scope="col">Facility Type</th>
                         <th scope="col">More</th>
+                        <th scope="col">Click on the stars to rate this search</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -87,6 +178,56 @@
                 </tbody>
             </table>
         </div>
+
+
+        <div class="modal fade"  id="modal_rating" tabIndex="-1" aria-labelledby="RatingModalLabel" aria-hidden="true">
+            <div class="modal-dialog" >
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="RatingModalLabel">Rate this search</h5>
+                        <button type="button" class="close" data-dismiss="modal">
+                            x
+                        </button>
+                    </div>
+                    <div class="modal-body" style="padding-top:0px;">
+                    <form class="py-2 px-4" action="#"  method="POST" autocomplete="off">
+                            @csrf
+                            <div class="form-group row">
+                            <input type="hidden" name="facility_code" id="facility_code" value="">
+                            <input type="hidden" name="facility_rating" id="facility_rating" value="">
+                            <div class="col">
+                                <div id="radioDiv" class="rate" >
+                                    <input type="radio" id="star1" name="rating" value="5"/>
+                                    <label for="star1" title="text" class="facility-rating" style="font-size:40px;">5 stars</label>
+                                    <input type="radio" id="star2" class="rate" name="rating" value="4"/>
+                                    <label for="star2" title="text" class="facility-rating" style="font-size:40px;">4 stars</label>
+                                    <input type="radio" id="star3" class="rate" name="rating" value="3"/>
+                                    <label for="star3" title="text" class="facility-rating" style="font-size:40px;">3 stars</label>
+                                    <input type="radio" id="star4" class="rate" name="rating" value="2">
+                                    <label for="star4" title="text" class="facility-rating" style="font-size:40px;">2 stars</label>
+                                    <input type="radio" id="star5" class="rate" name="rating" value="1"/>
+                                    <label for="star5" title="text" class="facility-rating" style="font-size:40px;">1 star</label>
+                                </div>
+                            </div>
+                            </div>
+                            <div class="form-group row mt-4">
+                            <div class="col" style="margin-top:20px;">
+                                <textarea class="form-control" name="comment" id="comment" rows="5" placeholder="Comment" maxlength="200"></textarea>
+                            </div>
+                            </div>
+
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <div class="mt-3 text-right">
+                            <button id="ratingButton" class="btn btn-sm py-2 px-3 btn-info">Submit
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
 
         <hr class="mt-4">
 
@@ -102,6 +243,7 @@
     <script src="{{asset('assets/js/script.js')}}"></script>
     <script src="{{asset('assets/js/vendor/datatables.min.js')}}"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 
     <script type="text/javascript">
         $(document).ready(function() {
@@ -148,17 +290,47 @@
                         data: 'Contact'
                     },
                     {
-                        data: 'County'
-                    },
-                    {
                         data: 'Facility Type'
                     },
                     {
                         data: 'More',
                         orderable: false,
                         searchable: false
+                    },
+                    {
+                        data: 'Rate'
                     }
                 ],
+            });
+
+            $('#ratingButton').on('click', function(event) {
+                event.preventDefault();
+
+                //get the rating information
+                var vFacilityCode = $('#facility_code').val();
+                var vRating = $("#radioDiv input[type='radio']:checked").val();
+                var vComment = $("#comment").val();
+
+                //post the rating information
+                $.ajax({
+                    type: "POST",
+                    url: '/directory/rating',
+                    data: {
+                        "FacilityCode": vFacilityCode,
+                        "Rating": vRating,
+                        "Comment": vComment,
+                        "_token": "{{ csrf_token()}}"
+                    },
+                    dataType: "json",
+                    success: function(data) {
+                        console.log(data);
+                        $('#modal_rating').modal('hide');
+                    },
+                    error: function(xhr, textStatus, errorThrown){
+                        console.log(xhr.responseText);
+                    },
+                });
+
             });
 
             $('#searchButton').on('click', function() {
@@ -202,8 +374,13 @@
                         dataTable.clear();
 
                         facilities.forEach(function(facility, index) {
+
                             // Add a clickable link for "More" column
                             var moreLink = '<a href="https://kmhfl.health.go.ke/#/facility_filter/results?code=' + facility.code + '" target="_blank">More</a>';
+
+                            var rateLink = getRating(facility.code.trim(),facility.search_rating.trim());
+
+                            // console.log(rateLink);
 
                             // Add the row to the DataTable
                             dataTable.row.add({
@@ -213,7 +390,8 @@
                                 'Contact': facility.telephone,
                                 'County': facility.county,
                                 'Facility Type': facility.facility_type,
-                                'More': moreLink
+                                'More': moreLink,
+                                'Rate': rateLink,
                             });
                         });
 
@@ -237,6 +415,32 @@
                     }
                 });
             });
+
+            function getRating(facilityCode,searchRating) {
+                var rateLink;
+
+                switch(searchRating) {
+                    case '1':
+                        rateLink = `<x-rating mflCode=${facilityCode} searchRating=1></x-rating>`;
+                    break;
+                    case '2':
+                        rateLink = `<x-rating mflCode=${facilityCode} searchRating=2></x-rating>`;
+                    break;
+                    case '3':
+                        rateLink = `<x-rating mflCode=${facilityCode} searchRating=3></x-rating>`;
+                    break;
+                    case '4':
+                        rateLink = `<x-rating mflCode=${facilityCode} searchRating=4></x-rating>`;
+                    break;
+                    case '5':
+                        rateLink = `<x-rating mflCode=${facilityCode} searchRating=5></x-rating>`;
+                    break;
+                    default:
+                        rateLink = `<x-rating mflCode=${facilityCode} searchRating=0></x-rating>`;
+                }
+
+                return rateLink;
+            }
 
             function saveSearchLog(searchTerm, resultCount) {
                 //  search log

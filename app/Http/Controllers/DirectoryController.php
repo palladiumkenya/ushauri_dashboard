@@ -39,4 +39,31 @@ class DirectoryController extends Controller
 
         return response()->json(['status' => 'success']);
     }
+
+    public function directoryRating(Request $request)
+    {
+        $mflcode = $request['FacilityCode'];
+        $rating = $request['Rating'];
+        $comment = $request['Comment'];
+
+        //send this rating value to the facility directory
+        try {
+                $apiUrl = env('ART_URL')."facility/directory/rating";
+
+                $httpresponse = Http::
+                                    withoutVerifying()
+                                    ->post("$apiUrl", [
+                                            'mflcode' => $mflcode,
+                                            'rating' => $rating,
+                                            'comment' => $comment,
+                                        ]);
+
+                $body = json_decode($httpresponse->getBody(), true);
+                // return response()->json(['body'=>$body]);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'fail','error'=>$e]);
+        }
+
+        return response()->json(['status' => 'success','mfl_code'=>$mflcode,'rating'=>$rating,'comment'=>$comment]);
+    }
 }
