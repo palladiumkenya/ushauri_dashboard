@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 use App\Models\Facility;
 use App\Models\County;
 use App\Models\Partner;
@@ -367,5 +368,46 @@ class FacilityController extends Controller
         } catch (Exception $e) {
             return back();
         }
+    }
+
+    public function update_contact(Request $request)
+    {
+        $validated = $request->validate([
+            'ccc_phone' => ['required', "regex:/^[0-9][0-9]{9,14}$/", 'max:12'],
+            'pmtct_phone' => ['required', "regex:/^[0-9][0-9]{9,14}$/", 'max:12'],
+        ]);
+
+        //get the facility details
+        $mflcode = $request->mflcode;
+        // $partner_name = $request->partner_name;
+        $ccc_phone = $request->ccc_phone;
+        $pmtct_phone = $request->pmtct_phone;
+
+        //update the facility contact on ART directory
+        $apiUrl = env('ART_URL')."facility/directory/edit";
+        $httpresponse = Http::
+                            withoutVerifying()
+                            ->post("$apiUrl", [
+                                'mflcode' => $mflcode,
+                                'ccc_phone' => $ccc_phone,
+                                'pmtct_phone' => $pmtct_phone,
+                            ]);
+
+        $body = json_decode( $httpresponse->getBody(), true);
+
+        if (is_array($body) && array_key_exists('status', $body)) {
+            if ($body['status']) {
+                Alert::success('Success', 'Facility updated successfully!');
+                return redirect('/admin/dashboard');
+            } else {
+                Alert::error('Failed', 'An error has occurred please try again later.');
+                return back();
+            }
+        }else{
+            Alert::error('Failed', 'An error has occurred please try again later.');
+                return back();
+        }
+
+
     }
 }
