@@ -48,7 +48,7 @@ class DirectoryController extends Controller
 
         //send this rating value to the facility directory
         try {
-                $apiUrl = "https://art.kenyahmis.org/api/facility/directory/rating";
+                $apiUrl = "https://artrefferal.kenyahmis.org/api/facility/directory/rating";
 
                 $httpresponse = Http::
                                     withoutVerifying()
