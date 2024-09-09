@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\Http;
 
 use App\Models\Client;
 use App\Models\Appointments;
@@ -98,6 +98,29 @@ class NewDashboardController extends Controller
 
         // showing all the active clients, all appointments, missed appointments
         if (Auth::user()->access_level == 'Facility') {
+
+            try {
+                    //check if the facility has maintained a contact in the facility directory
+                    $apiUrl = env('ART_URL')."facility/directory";
+
+                    $httpresponse = Http::
+                                        withoutVerifying()
+                                        ->get("$apiUrl", [
+                                                'code' => Auth::user()->facility_id,
+                                            ]);
+
+                    $body = json_decode($httpresponse->getBody(), true);
+
+                    if($body['message'] !== [])
+                    {
+                        $mflcode = Auth::user()->facility_id;
+                        return view('facilities.facility_contact')->with('mflcode',$mflcode);
+                    }
+            } catch (\Exception $e) {
+                // dd($e);
+            }
+
+
             $all_partners = Partner::where('status', '=', 'Active')
                 ->remember($this->remember_period)
                 ->pluck('name', 'id');

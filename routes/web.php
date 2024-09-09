@@ -75,6 +75,9 @@ Route::get('/high/risk/task', ['uses' => 'App\Http\Controllers\HighRiskControlle
  // facility directory
  Route::post('/directory_log', ['uses' => 'App\Http\Controllers\DirectoryController@directoryLog', 'as' => 'directory_log']);
 
+  // facility directory rating
+ Route::post('/directory/rating', ['uses' => 'App\Http\Controllers\DirectoryController@directoryRating', 'as' => 'directory.rating']);
+
 Route::post('/tet', ['uses' => 'App\Http\Controllers\NishauriController@tet', 'as' => 'tet']);
 Auth::routes();
 
@@ -145,6 +148,7 @@ Route::group(['middleware' => 'auth'], function () {
   Route::post('/approve_facility', ['uses' => 'App\Http\Controllers\FacilityController@approve_facility', 'as' => 'approve-facility']);
   Route::post('/add_facility', ['uses' => 'App\Http\Controllers\FacilityController@add_facility', 'as' => 'add_facility']);
   Route::post('/edit_facility', ['uses' => 'App\Http\Controllers\FacilityController@edit_facility', 'as' => 'edit_facility']);
+  Route::post('/facility/contact', ['uses' => 'App\Http\Controllers\FacilityController@update_contact', 'as' => 'facility-contact']);
 
   // Partner routes
   Route::get('/Reports/il/partners', ['uses' => 'App\Http\Controllers\ILUushauriController@partners_il', 'as' => 'Reports-il-partners']);
