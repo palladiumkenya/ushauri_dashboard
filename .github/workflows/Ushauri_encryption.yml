@@ -24,19 +24,19 @@ jobs:
           cd ushauri_dashboard
           git clone -b main https://github.com/palladiumkenya/ushauri_dashboard.git .
           git status
-          cp /apps/configs/ushauri-dashboard/.env /apps/github-workflows/mhealth-apps/encryption/ushauri_dashboard/
-          cp /apps/configs/ushauri-dashboard/docker-compose.yml /apps/github-workflows/mhealth-apps/encryption/ushauri_dashboard/
-          cp /apps/configs/ushauri-dashboard/nginx.dockerfile /apps/github-workflows/mhealth-apps/encryption/ushauri_dashboard/
-          cp /apps/configs/ushauri-dashboard/php.dockerfile /apps/github-workflows/mhealth-apps/encryption/ushauri_dashboard/
-          cp -r /apps/configs/ushauri-dashboard/nginx /apps/github-workflows/mhealth-apps/encryption/ushauri_dashboard/
+          cp /apps/configs/ushauri-dashboard-encryption/.env /apps/github-workflows/mhealth-apps/encryption/ushauri_dashboard/
+          cp /apps/configs/ushauri-dashboard-encryption/docker-compose.yml /apps/github-workflows/mhealth-apps/encryption/ushauri_dashboard/
+          cp /apps/configs/ushauri-dashboard-encryption/nginx.dockerfile /apps/github-workflows/mhealth-apps/encryption/ushauri_dashboard/
+          cp /apps/configs/ushauri-dashboard-encryption/php.dockerfile /apps/github-workflows/mhealth-apps/encryption/ushauri_dashboard/
+          cp -r /apps/configs/ushauri-dashboard-encryption/nginx /apps/github-workflows/mhealth-apps/encryption/ushauri_dashboard/
           docker-compose down
           docker-compose rm -fv
           docker-compose --env-file .env up -d --build
           # execute normal laravel commands
-          docker-compose exec -T php composer install --ignore-platform-reqs --no-dev
-          docker-compose exec -T php php artisan config:cache
-          docker-compose exec -T php php artisan view:cache
-          docker-compose exec -T php chmod -R 777 storage/
-          docker-compose exec -T php php artisan config:cache
-          docker-compose exec -T php php artisan config:clear
+          docker-compose exec -T php_encryption composer install --ignore-platform-reqs --no-dev
+          docker-compose exec -T php_encryption php artisan config:cache
+          docker-compose exec -T php_encryption php artisan view:cache
+          docker-compose exec -T php_encryption chmod -R 777 storage/
+          docker-compose exec -T php_encryption php artisan config:cache
+          docker-compose exec -T php_encryption php artisan config:clear
           echo "done!"
