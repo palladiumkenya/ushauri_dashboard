@@ -1,4 +1,4 @@
-name: deploy to test instance
+name: deploy to ushauri _ test instance
 on:
   push:
     branches: [ main ]
